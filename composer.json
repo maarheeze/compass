@@ -1,0 +1,39 @@
+{
+    "name": "maarheeze/compass",
+    "description": "Repository and deployment status dashboard for GitHub and Laravel Forge",
+    "keywords": ["laravel", "github", "forge", "dashboard"],
+    "license": "MIT",
+    "type": "library",
+    "require": {
+        "php": "^8.5",
+        "illuminate/support": "^13.17",
+        "laravel/socialite": "^5.31",
+        "livewire/livewire": "^4.4"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Maarheeze\\Compass\\": "src/",
+            "Maarheeze\\Compass\\Database\\Factories\\": "database/factories/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Maarheeze\\Compass\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Maarheeze\\Compass\\CompassServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

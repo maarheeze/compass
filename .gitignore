@@ -1,0 +1,8 @@
+/.claude
+/.idea
+/vendor
+.DS_Store
+.phpunit.cache
+.phpunit.result.cache
+composer.lock
+TODO.md

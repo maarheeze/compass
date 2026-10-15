@@ -1,0 +1,42 @@
+<?php
+
+namespace Maarheeze\Compass;
+
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\ServiceProvider;
+use Maarheeze\Compass\Models\User;
+
+class CompassServiceProvider extends ServiceProvider
+{
+    public function register(): void
+    {
+        $this->mergeConfigFrom(__DIR__.'/../config/compass.php', 'compass');
+
+        $config = $this->app['config'];
+
+        $config->set('auth.guards.compass', [
+            'driver' => 'session',
+            'provider' => 'compass_users',
+        ]);
+
+        $config->set('auth.providers.compass_users', [
+            'driver' => 'eloquent',
+            'model' => User::class,
+        ]);
+    }
+
+    public function boot(): void
+    {
+        $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'compass');
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+
+        Blade::anonymousComponentPath(__DIR__.'/../resources/views/components', 'compass');
+
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__.'/../config/compass.php' => config_path('compass.php'),
+            ], 'compass-config');
+        }
+    }
+}
