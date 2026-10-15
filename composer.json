@@ -1,7 +1,12 @@
 {
     "name": "maarheeze/compass",
     "description": "Repository and deployment status dashboard for GitHub and Laravel Forge",
-    "keywords": ["laravel", "github", "forge", "dashboard"],
+    "keywords": [
+        "laravel",
+        "github",
+        "forge",
+        "dashboard"
+    ],
     "license": "MIT",
     "type": "library",
     "require": {
@@ -12,8 +17,11 @@
     },
     "require-dev": {
         "larastan/larastan": "^3.13",
+        "maarheeze/guidelines": "^1.8",
         "maarheeze/phpcs": "^4.0",
-        "orchestra/testbench": "^11.0"
+        "orchestra/testbench": "^11.3",
+        "pestphp/pest": "^5.3",
+        "pestphp/pest-plugin-laravel": "^5.0"
     },
     "autoload": {
         "psr-4": {
@@ -29,8 +37,15 @@
     "scripts": {
         "phpcbf": "vendor/bin/phpcbf -n",
         "phpcs": "vendor/bin/phpcs -n",
+        "pest": "vendor/bin/pest --compact",
+        "pest-coverage": "vendor/bin/pest --compact --coverage --min=100",
         "phpstan": "php vendor/bin/phpstan --memory-limit=-1",
-        "phpstan-baseline": "php vendor/bin/phpstan --memory-limit=-1 --generate-baseline"
+        "phpstan-baseline": "php vendor/bin/phpstan --memory-limit=-1 --generate-baseline",
+        "qa": [
+            "@phpcs",
+            "@phpstan",
+            "@pest-coverage"
+        ]
     },
     "extra": {
         "laravel": {
@@ -42,7 +57,8 @@
     "config": {
         "sort-packages": true,
         "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "pestphp/pest-plugin": true
         }
     },
     "minimum-stability": "stable",
