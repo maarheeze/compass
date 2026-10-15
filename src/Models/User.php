@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maarheeze\Compass\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -25,7 +27,8 @@ use Maarheeze\Compass\Database\Factories\UserFactory;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory;
+    use Notifiable;
 
     /**
      * Get the attributes that should be cast.

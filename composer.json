@@ -11,6 +11,7 @@
         "livewire/livewire": "^4.4"
     },
     "require-dev": {
+        "maarheeze/phpcs": "^4.0",
         "orchestra/testbench": "^11.0"
     },
     "autoload": {
@@ -24,6 +25,10 @@
             "Maarheeze\\Compass\\Tests\\": "tests/"
         }
     },
+    "scripts": {
+        "phpcbf": "vendor/bin/phpcbf -n",
+        "phpcs": "vendor/bin/phpcs -n"
+    },
     "extra": {
         "laravel": {
             "providers": [
@@ -32,7 +37,10 @@
         }
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     },
     "minimum-stability": "stable",
     "prefer-stable": true

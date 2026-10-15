@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maarheeze\Compass\Http\Controllers;
 
 use Illuminate\Http\RedirectResponse;
@@ -9,17 +11,23 @@ use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\GithubProvider;
 use Maarheeze\Compass\Models\User;
 
+use function config;
+use function redirect;
+use function route;
+
 class GitHubController
 {
     /**
      * Scopes needed to check organisation membership, including private
      * memberships, and to read the user's email address.
      */
-    private const SCOPES = ['read:org', 'user:email'];
+    private const array SCOPES = ['read:org', 'user:email'];
 
     public function redirect(): RedirectResponse
     {
-        return $this->github()->scopes(self::SCOPES)->redirect();
+        return $this->github()
+            ->scopes(self::SCOPES)
+            ->redirect();
     }
 
     public function callback(): RedirectResponse
