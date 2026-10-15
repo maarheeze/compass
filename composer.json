@@ -11,6 +11,7 @@
         "livewire/livewire": "^4.4"
     },
     "require-dev": {
+        "larastan/larastan": "^3.13",
         "maarheeze/phpcs": "^4.0",
         "orchestra/testbench": "^11.0"
     },
@@ -27,7 +28,9 @@
     },
     "scripts": {
         "phpcbf": "vendor/bin/phpcbf -n",
-        "phpcs": "vendor/bin/phpcs -n"
+        "phpcs": "vendor/bin/phpcs -n",
+        "phpstan": "php vendor/bin/phpstan --memory-limit=-1",
+        "phpstan-baseline": "php vendor/bin/phpstan --memory-limit=-1 --generate-baseline"
     },
     "extra": {
         "laravel": {

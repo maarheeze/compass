@@ -1,0 +1,16 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - config/
+        - database/
+        - resources/views/
+        - src/
+    level: max
+    tmpDir: .phpstan.cache
+    editorUrl: 'phpstorm://open?file=%%file%%&line=%%line%%'
+    ignoreErrors:
+        -
+            identifier: larastan.noEnvCallsOutsideOfConfig
+            path: config/*.php

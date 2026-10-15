@@ -13,6 +13,9 @@ use function redirect;
 
 class RedirectIfAuthenticated
 {
+    /**
+     * @param Closure(Request): Response $next
+     */
     public function handle(Request $request, Closure $next): Response
     {
         Auth::shouldUse('compass');

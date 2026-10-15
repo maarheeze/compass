@@ -1,5 +1,6 @@
 /.claude
 /.phpcs.cache
+/.phpstan.cache
 /.idea
 /vendor
 .DS_Store
@@ -7,4 +8,5 @@
 .phpunit.result.cache
 composer.lock
 phpcs.xml
+phpstan.neon
 TODO.md

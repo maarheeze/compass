@@ -14,6 +14,9 @@ use function route;
 
 class Authenticate
 {
+    /**
+     * @param Closure(Request): Response $next
+     */
     public function handle(Request $request, Closure $next): Response
     {
         Auth::shouldUse('compass');

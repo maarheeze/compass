@@ -7,11 +7,13 @@ namespace Maarheeze\Compass\Http\Controllers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Laravel\Socialite\Facades\Socialite;
+use Laravel\Socialite\Two\AbstractProvider;
 use Laravel\Socialite\Two\GithubProvider;
+use Laravel\Socialite\Two\User as SocialiteUser;
 use Maarheeze\Compass\Models\User;
 
-use function config;
 use function redirect;
 use function route;
 
@@ -32,6 +34,7 @@ class GitHubController
 
     public function callback(): RedirectResponse
     {
+        /** @var SocialiteUser $github */
         $github = $this->github()->user();
 
         $user = User::updateOrCreate(
@@ -60,10 +63,10 @@ class GitHubController
         return redirect()->route('compass.login');
     }
 
-    private function github(): GithubProvider
+    private function github(): AbstractProvider
     {
         return Socialite::buildProvider(GithubProvider::class, [
-            ...config('compass.github'),
+            ...Config::array('compass.github'),
             'redirect' => route('compass.auth.github.callback'),
         ]);
     }
