@@ -6,14 +6,18 @@
                 <p class="text-sm text-zinc-500">Repository and deployment status at a glance.</p>
             </div>
 
-            <a href="{{ route('compass.auth.github') }}"
+            @error('github')
+                <p class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{{ $message }}</p>
+            @enderror
+
+            <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_REDIRECT) }}"
                class="flex w-full items-center justify-center gap-2 rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-zinc-700">
                 Continue with GitHub
             </a>
 
             <p class="text-xs text-zinc-500">
                 Compass asks for the <code>read:org</code> and <code>user:email</code> scopes to check that you are a
-                member of an allowed organisation.
+                member of the organisation.
             </p>
         </div>
     </main>

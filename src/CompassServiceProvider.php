@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Maarheeze\Compass;
 
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
-use Maarheeze\Compass\Models\User;
+use Maarheeze\Compass\Providers\AuthenticationProvider;
 
 use function config_path;
 
@@ -17,15 +16,7 @@ class CompassServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/compass.php', 'compass');
 
-        Config::set('auth.guards.compass', [
-            'driver' => 'session',
-            'provider' => 'compass_users',
-        ]);
-
-        Config::set('auth.providers.compass_users', [
-            'driver' => 'eloquent',
-            'model' => User::class,
-        ]);
+        $this->app->register(AuthenticationProvider::class);
     }
 
     public function boot(): void

@@ -63,7 +63,7 @@ Before relying on a package's API, confirm its installed version in `composer.js
 
 ### Model Creation
 
-- When creating new models, create useful factories for them too, linked with `#[UseFactory]` on the model and `#[UseModel]` on the factory.
+- When creating new models, create useful factories for them too, linked with a `newFactory()` method on the model and a `$model` property on the factory. Do not use model or factory attributes (`#[Fillable]`, `#[Hidden]`, `#[Table]`, `#[UseFactory]`, `#[UseModel]`); use the matching properties and methods.
 
 ## URL Generation
 

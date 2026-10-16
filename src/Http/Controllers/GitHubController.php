@@ -4,70 +4,56 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Http\Controllers;
 
+use Illuminate\Contracts\Auth\Factory as AuthenticationFactory;
+use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Config;
-use Laravel\Socialite\Facades\Socialite;
-use Laravel\Socialite\Two\AbstractProvider;
-use Laravel\Socialite\Two\GithubProvider;
-use Laravel\Socialite\Two\User as SocialiteUser;
-use Maarheeze\Compass\Models\User;
+use Illuminate\Routing\Redirector;
+use Maarheeze\Compass\Authentication\AuthenticationExpired;
+use Maarheeze\Compass\Authentication\GitHubAuthentication;
+use Maarheeze\Compass\Authentication\NotAnOrganizationMember;
+use Maarheeze\Compass\Http\RouteName;
+use Maarheeze\Compass\Providers\AuthenticationProvider;
 
-use function redirect;
-use function route;
-
-class GitHubController
+readonly class GitHubController
 {
-    /**
-     * Scopes needed to check organisation membership, including private
-     * memberships, and to read the user's email address.
-     */
-    private const array SCOPES = ['read:org', 'user:email'];
-
-    public function redirect(): RedirectResponse
-    {
-        return $this->github()
-            ->scopes(self::SCOPES)
-            ->redirect();
+    public function __construct(
+        private AuthenticationFactory $authentication,
+        private GitHubAuthentication $githubAuthentication,
+        private Redirector $redirector,
+        private UrlGenerator $url,
+    ) {
     }
 
     public function callback(): RedirectResponse
     {
-        /** @var SocialiteUser $github */
-        $github = $this->github()->user();
+        try {
+            $this->githubAuthentication->callback();
+        } catch (AuthenticationExpired) {
+            return $this->redirector
+                ->route(RouteName::LOGIN)
+                ->withErrors(['github' => 'Sign-in expired. Please try again.']);
+        } catch (NotAnOrganizationMember) {
+            return $this->redirector
+                ->route(RouteName::LOGIN)
+                ->withErrors(['github' => 'You are not a member of the organization.']);
+        }
 
-        $user = User::updateOrCreate(
-            ['github_id' => $github->getId()],
-            [
-                'nickname' => $github->getNickname(),
-                'name' => $github->getName(),
-                'email' => $github->getEmail(),
-                'avatar_url' => $github->getAvatar(),
-                'github_token' => $github->token,
-            ],
-        );
-
-        Auth::guard('compass')->login($user, remember: true);
-
-        return redirect()->intended(route('compass.dashboard'));
+        return $this->redirector->intended($this->url->route(RouteName::DASHBOARD->value));
     }
 
     public function logout(Request $request): RedirectResponse
     {
-        Auth::guard('compass')->logout();
+        $this->authentication->guard(AuthenticationProvider::GUARD)->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('compass.login');
+        return $this->redirector->route(RouteName::LOGIN);
     }
 
-    private function github(): AbstractProvider
+    public function redirect(): RedirectResponse
     {
-        return Socialite::buildProvider(GithubProvider::class, [
-            ...Config::array('compass.github'),
-            'redirect' => route('compass.auth.github.callback'),
-        ]);
+        return $this->redirector->away($this->githubAuthentication->authorizationUrl());
     }
 }

@@ -11,7 +11,7 @@
                 </div>
             </div>
 
-            <form method="POST" action="{{ route('compass.logout') }}">
+            <form method="POST" action="{{ route(\Maarheeze\Compass\Http\RouteName::LOGOUT) }}">
                 @csrf
                 <button type="submit" class="text-sm text-zinc-500 hover:text-zinc-900">Sign out</button>
             </form>

@@ -30,4 +30,17 @@ return [
         'client_secret' => env('GITHUB_CLIENT_SECRET'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Organization
+    |--------------------------------------------------------------------------
+    |
+    | The GitHub organization Compass serves: its active members may sign in,
+    | and the configured repositories are read from it. Membership is checked
+    | at sign-in only.
+    |
+    */
+
+    'organization' => null,
+
 ];
