@@ -7,8 +7,21 @@ namespace Maarheeze\Compass\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Maarheeze\Compass\Database\Factories\UserFactory;
 
+/**
+ * @property ?string $avatar_url
+ * @property Carbon $created_at
+ * @property ?string $email
+ * @property string $github_id
+ * @property string $github_token
+ * @property int $id
+ * @property ?string $name
+ * @property string $nickname
+ * @property ?string $remember_token
+ * @property Carbon $updated_at
+ */
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */

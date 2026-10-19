@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Maarheeze\Compass\Http\Controllers\DashboardController;
 use Maarheeze\Compass\Http\Controllers\GitHubController;
 use Maarheeze\Compass\Http\Middleware\Authenticate;
 use Maarheeze\Compass\Http\Middleware\RedirectIfAuthenticated;
@@ -20,7 +21,7 @@ Route::middleware('web')
         });
 
         Route::middleware(Authenticate::class)->group(static function (): void {
-            Route::view('/', 'compass::dashboard')->name(RouteName::DASHBOARD);
+            Route::get('/', [DashboardController::class, 'show'])->name(RouteName::DASHBOARD);
 
             Route::post('/logout', [GitHubController::class, 'logout'])->name(RouteName::LOGOUT);
         });

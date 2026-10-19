@@ -1,0 +1,2 @@
+providers:
+  - Maarheeze\Compass\CompassServiceProvider

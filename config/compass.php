@@ -36,8 +36,8 @@ return [
     |--------------------------------------------------------------------------
     |
     | The GitHub organization Compass serves: its active members may sign in,
-    | and the configured repositories are read from it. Membership is checked
-    | at sign-in only.
+    | and the repositories of the configured projects are read from it.
+    | Membership is checked at sign-in only.
     |
     */
 

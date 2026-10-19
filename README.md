@@ -69,12 +69,12 @@ the latest commit and `composer.json` from GitHub, and the deployed commit and
 latest deployment status from Forge. It authenticates as a dedicated CI user,
 never as a signed-in person.
 
-List the repositories of the configured organisation, each with the Forge
-server and site it deploys to:
+List the projects: each one a repository of the configured organisation, with
+the Forge server and site it deploys to:
 
 ```php
 // config/compass.php
-'repositories' => [
+'projects' => [
     'website' => [
         'forge' => ['server' => 123456, 'site' => 654321],
     ],
