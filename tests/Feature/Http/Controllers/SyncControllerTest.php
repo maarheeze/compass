@@ -22,6 +22,7 @@ test('github starts a collection of the repositories', function (): void {
 });
 
 test('github sends the user back to the dashboard', function (): void {
+    $this->app->instance(Dispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
     $response = $this->post(route(RouteName::SYNC_GITHUB));

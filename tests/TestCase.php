@@ -7,6 +7,7 @@ namespace Maarheeze\Compass\Tests;
 use Illuminate\Config\Repository;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Http\Client\Factory as HttpFactory;
 use Laravel\Socialite\SocialiteServiceProvider;
 use Maarheeze\Compass\CompassServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
@@ -28,6 +29,7 @@ abstract class TestCase extends Orchestra
         parent::setUp();
 
         $this->withoutVite();
+        $this->app->make(HttpFactory::class)->preventStrayRequests();
     }
 
     /**
