@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Config\Repository;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Http\Request;
@@ -23,7 +22,8 @@ test('authorization url points to github', function (): void {
     $githubAuthentication = $this->app->make(GitHubAuthentication::class);
     $authorizationUrl = $githubAuthentication->authorizationUrl();
 
-    expect($authorizationUrl)->toStartWith('https://github.com/login/oauth/authorize?');
+    expect($authorizationUrl)
+        ->toStartWith('https://github.com/login/oauth/authorize?');
 });
 
 test('authorization url carries the state kept in the session', function (): void {
@@ -35,7 +35,8 @@ test('authorization url carries the state kept in the session', function (): voi
     $authorizationUrl = $githubAuthentication->authorizationUrl();
 
     parse_str((string) parse_url($authorizationUrl, PHP_URL_QUERY), $query);
-    expect($query['state'])->toBe($session->get('state'));
+    expect($query['state'])
+        ->toBe($session->get('state'));
 });
 
 test('callback signs in an active member', function (): void {
@@ -86,7 +87,7 @@ test('callback stores the github user', function (): void {
 
 test('callback checks the membership of the organization with the user token', function (): void {
     $organization = fake()->slug();
-    $this->app->make(Repository::class)->set('compass.organization', $organization);
+    $this->setConfiguration('compass.organization', $organization);
 
     $oauthUser = new OAuthUser()
         ->setToken(fake()->sha1())

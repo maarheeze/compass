@@ -10,13 +10,13 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('compass_projects', static function (Blueprint $table): void {
+        Schema::create('compass_repositories', static function (Blueprint $table): void {
             $table->id();
 
-            $table->string('repository')->unique();
+            $table->string('name')->unique();
             $table->string('default_branch');
-            $table->string('commit_sha');
-            $table->timestamp('committed_at');
+            $table->string('collection_run_id');
+            $table->boolean('is_active');
             $table->timestamp('collected_at');
 
             $table->timestamps();

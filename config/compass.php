@@ -18,16 +18,32 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | GitHub OAuth App
+    | Authentication
     |--------------------------------------------------------------------------
     |
-    | Credentials of the OAuth App people sign in with.
+    | Credentials of the GitHub OAuth App people sign in with.
     |
     */
 
-    'github' => [
-        'client_id' => env('GITHUB_CLIENT_ID'),
-        'client_secret' => env('GITHUB_CLIENT_SECRET'),
+    'authentication' => [
+        'github' => [
+            'client_id' => env('GITHUB_CLIENT_ID'),
+            'client_secret' => env('GITHUB_CLIENT_SECRET'),
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Collector
+    |--------------------------------------------------------------------------
+    |
+    | Token of the CI user the collector reads the organization's repositories
+    | with. It is never a signed-in person's token.
+    |
+    */
+
+    'collector' => [
+        'github_token' => env('COMPASS_GITHUB_TOKEN'),
     ],
 
     /*

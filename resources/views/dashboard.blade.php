@@ -29,25 +29,19 @@
                     <tr>
                         <th class="px-4 py-2 font-medium">Repository</th>
                         <th class="px-4 py-2 font-medium">Branch</th>
-                        <th class="px-4 py-2 font-medium">Commit</th>
-                        <th class="px-4 py-2 font-medium">Committed at</th>
                         <th class="px-4 py-2 font-medium">Collected at</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-zinc-100">
-                    @forelse ($projects as $project)
+                    @forelse ($repositories as $repository)
                         <tr>
-                            <td class="px-4 py-2 font-medium text-zinc-900">{{ $project->repository }}</td>
-                            <td class="px-4 py-2 text-zinc-500">{{ $project->default_branch }}</td>
-                            <td class="max-w-20 truncate px-4 py-2 font-mono text-zinc-500" title="{{ $project->commit_sha }}">
-                                {{ $project->commit_sha }}
-                            </td>
-                            <td class="px-4 py-2 text-zinc-500">{{ $project->committed_at }}</td>
-                            <td class="px-4 py-2 text-zinc-500">{{ $project->collected_at }}</td>
+                            <td class="px-4 py-2 font-medium text-zinc-900">{{ $repository->name }}</td>
+                            <td class="px-4 py-2 text-zinc-500">{{ $repository->default_branch }}</td>
+                            <td class="px-4 py-2 text-zinc-500">{{ $repository->collected_at }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-4 py-6 text-center text-zinc-500">No projects collected yet.</td>
+                            <td colspan="3" class="px-4 py-6 text-center text-zinc-500">No repositories collected yet.</td>
                         </tr>
                     @endforelse
                 </tbody>

@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Config\Repository;
 use Illuminate\Contracts\Auth\Factory as AuthenticationFactory;
 use Illuminate\Http\Request;
 use Illuminate\Session\SessionManager;
@@ -28,12 +27,14 @@ test('github provider sends github back to the callback route', function (): voi
     $authorizationUrl = $github->redirect()->getTargetUrl();
 
     parse_str((string) parse_url($authorizationUrl, PHP_URL_QUERY), $query);
-    expect($query['redirect_uri'])->toBe(route(RouteName::GITHUB_CALLBACK));
+
+    expect($query['redirect_uri'])
+        ->toBe(route(RouteName::GITHUB_CALLBACK));
 });
 
 test('github provider uses the configured client id', function (): void {
     $clientId = fake()->uuid();
-    $this->app->make(Repository::class)->set('compass.github.client_id', $clientId);
+    $this->setConfiguration('compass.authentication.github.client_id', $clientId);
 
     $request = $this->app->make(Request::class);
     $request->setLaravelSession($this->app->make(SessionManager::class)->driver());
@@ -42,5 +43,7 @@ test('github provider uses the configured client id', function (): void {
     $authorizationUrl = $github->redirect()->getTargetUrl();
 
     parse_str((string) parse_url($authorizationUrl, PHP_URL_QUERY), $query);
-    expect($query['client_id'])->toBe($clientId);
+
+    expect($query['client_id'])
+        ->toBe($clientId);
 });

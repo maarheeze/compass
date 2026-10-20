@@ -15,6 +15,14 @@ use function fake;
 
 abstract class TestCase extends Orchestra
 {
+    public function setConfiguration(string $key, mixed $value): void
+    {
+        $configuration = $this->app->make(Repository::class);
+        $this->assertTrue($configuration->has($key));
+
+        $configuration->set($key, $value);
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -29,10 +37,11 @@ abstract class TestCase extends Orchestra
 */
     protected function defineEnvironment($app): void
     {
-        $config = $app->make(Repository::class);
-        $config->set('compass.github.client_id', fake()->uuid());
-        $config->set('compass.github.client_secret', fake()->sha1());
-        $config->set('compass.organization', fake()->slug());
+        $configuration = $app->make(Repository::class);
+        $configuration->set('compass.authentication.github.client_id', fake()->uuid());
+        $configuration->set('compass.authentication.github.client_secret', fake()->sha1());
+        $configuration->set('compass.collector.github_token', fake()->sha1());
+        $configuration->set('compass.organization', fake()->slug());
     }
 
     /**
