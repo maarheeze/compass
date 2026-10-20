@@ -11,4 +11,5 @@ enum RouteName: string
     case GITHUB_REDIRECT = 'compass.auth.github';
     case LOGIN = 'compass.login';
     case LOGOUT = 'compass.logout';
+    case SYNC_GITHUB = 'compass.sync.github';
 }

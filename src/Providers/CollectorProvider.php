@@ -14,10 +14,6 @@ class CollectorProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        if (!$this->app->runningInConsole()) {
-            return;
-        }
-
         $this->commands([SyncGitHubCommand::class]);
 
         $this->callAfterResolving(Schedule::class, static function (Schedule $schedule): void {

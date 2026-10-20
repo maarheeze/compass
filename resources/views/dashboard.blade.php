@@ -17,10 +17,17 @@
                 </div>
             </div>
 
-            <form method="POST" action="{{ route(\Maarheeze\Compass\Http\RouteName::LOGOUT) }}">
-                @csrf
-                <button type="submit" class="text-sm text-zinc-500 hover:text-zinc-900">Sign out</button>
-            </form>
+            <div class="flex items-center gap-2">
+                <form method="POST" action="{{ route(\Maarheeze\Compass\Http\RouteName::SYNC_GITHUB) }}">
+                    @csrf
+                    <x-compass::button>Sync GitHub</x-compass::button>
+                </form>
+
+                <form method="POST" action="{{ route(\Maarheeze\Compass\Http\RouteName::LOGOUT) }}">
+                    @csrf
+                    <x-compass::button>Sign out</x-compass::button>
+                </form>
+            </div>
         </header>
 
         <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-zinc-950/5">
