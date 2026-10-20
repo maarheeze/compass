@@ -28,6 +28,7 @@ class CompassServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
         Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components', 'compass');
+        Blade::componentNamespace('Maarheeze\\Compass\\View\\Components', 'compass');
 
         if (!$this->app->runningInConsole()) {
             return;

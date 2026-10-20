@@ -44,7 +44,9 @@
                         <tr>
                             <td class="px-4 py-2 font-medium text-zinc-900 dark:text-zinc-100">{{ $repository->name }}</td>
                             <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">{{ $repository->default_branch }}</td>
-                            <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">{{ $repository->collected_at }}</td>
+                            <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">
+                                <x-compass::time :time="$repository->collected_at" />
+                            </td>
                         </tr>
                     @empty
                         <tr>
