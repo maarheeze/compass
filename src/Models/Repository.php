@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Maarheeze\Compass\Collections\RepositoryCollection;
 use Maarheeze\Compass\Collector\CollectionRunId;
+use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
 use Maarheeze\Compass\Database\Factories\RepositoryFactory;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 
@@ -21,8 +22,10 @@ use function sprintf;
  * @property string $default_branch
  * @property int $id
  * @property bool $is_active
+ * @property string $last_commit_sha
  * @property string $name
  * @property Carbon $updated_at
+ * @property RepositoryVisibility $visibility
  */
 class Repository extends Model
 {
@@ -41,7 +44,9 @@ class Repository extends Model
             'collection_run_id',
             'default_branch',
             'is_active',
+            'last_commit_sha',
             'name',
+            'visibility',
         ];
     }
 
@@ -59,6 +64,7 @@ class Repository extends Model
             'collected_at' => 'datetime',
             'collection_run_id' => sprintf('%s:%s', UuidCast::class, CollectionRunId::class),
             'is_active' => 'boolean',
+            'visibility' => RepositoryVisibility::class,
         ];
     }
 

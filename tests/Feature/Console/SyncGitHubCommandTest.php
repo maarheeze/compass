@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Support\Testing\Fakes\BusFake;
-use Maarheeze\Compass\Collector\Jobs\CollectRepositories;
+use Maarheeze\Compass\Collector\GitHub\Jobs\CollectRepositories;
 use Maarheeze\Compass\Console\SyncGitHubCommand;
 
 test('handle starts a collection of the repositories', function (): void {

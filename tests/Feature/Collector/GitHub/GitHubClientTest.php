@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
-use Maarheeze\Compass\Collector\GitHubClient;
+use Maarheeze\Compass\Collector\GitHub\GitHubClient;
 
 test('request is sent to the github api', function (): void {
     $path = fake()->slug();

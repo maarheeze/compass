@@ -6,7 +6,7 @@ namespace Maarheeze\Compass\Console;
 
 use Illuminate\Console\Command;
 use Maarheeze\Compass\Collector\CollectionRunId;
-use Maarheeze\Compass\Collector\RepositoryCollector;
+use Maarheeze\Compass\Collector\GitHub\RepositoryCollector;
 
 class SyncGitHubCommand extends Command
 {

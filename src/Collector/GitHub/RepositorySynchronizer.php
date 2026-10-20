@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Maarheeze\Compass\Collector;
+namespace Maarheeze\Compass\Collector\GitHub;
 
 use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\GitHubRepositoryCollection;
+use Maarheeze\Compass\Collector\CollectionRunId;
 use Maarheeze\Compass\Models\Repository;
 
 readonly class RepositorySynchronizer
@@ -27,6 +28,8 @@ readonly class RepositorySynchronizer
             $repositoryValues[] = [
                 'name' => $gitHubRepository->name,
                 'default_branch' => $gitHubRepository->defaultBranch,
+                'last_commit_sha' => $gitHubRepository->lastCommitSha,
+                'visibility' => $gitHubRepository->visibility,
                 'collection_run_id' => $collectionRunId,
                 'is_active' => true,
                 'collected_at' => CarbonImmutable::now(),

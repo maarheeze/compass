@@ -6,8 +6,8 @@ namespace Maarheeze\Compass\Providers;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
-use Maarheeze\Compass\Collector\GitHubClient;
-use Maarheeze\Compass\Collector\RepositoryCollector;
+use Maarheeze\Compass\Collector\GitHub\GitHubClient;
+use Maarheeze\Compass\Collector\GitHub\RepositoriesQuery;
 use Maarheeze\Compass\Console\SyncGitHubCommand;
 
 class CollectorProvider extends ServiceProvider
@@ -29,7 +29,7 @@ class CollectorProvider extends ServiceProvider
             ->giveConfig('compass.collector.github_token');
 
         $this->app
-            ->when(RepositoryCollector::class)
+            ->when(RepositoriesQuery::class)
             ->needs('$organization')
             ->giveConfig('compass.organization');
     }

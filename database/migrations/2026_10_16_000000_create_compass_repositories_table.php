@@ -15,6 +15,8 @@ return new class extends Migration
 
             $table->string('name')->unique();
             $table->string('default_branch');
+            $table->string('last_commit_sha');
+            $table->string('visibility');
             $table->string('collection_run_id');
             $table->boolean('is_active');
             $table->timestamp('collected_at');
