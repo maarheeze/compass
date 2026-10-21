@@ -1,6 +1,6 @@
 <x-compass::layouts.app :title="$repository->name">
     <main class="mx-auto max-w-5xl space-y-6 p-6">
-        <x-compass::navigation :user="$user" />
+        <x-compass::navigation />
 
         <div class="flex items-center gap-3">
             <h1 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{{ $repository->name }}</h1>

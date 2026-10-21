@@ -1,6 +1,6 @@
 <x-compass::layouts.app :title="__('Sites')">
     <main class="mx-auto max-w-5xl space-y-6 p-6">
-        <x-compass::navigation :user="$user" />
+        <x-compass::navigation />
 
         <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-zinc-950/5 dark:bg-zinc-900 dark:ring-white/10">
             <table class="w-full text-left text-sm">

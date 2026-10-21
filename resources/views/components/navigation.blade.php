@@ -1,5 +1,3 @@
-@props(['user'])
-
 <header class="flex items-center justify-between">
     <div class="flex items-center gap-6">
         <div class="flex items-center gap-3">

@@ -25,12 +25,3 @@ test('show contains the alerts', function (): void {
         return $alerts->sitesBehind->sole()->is($site);
     });
 });
-
-test('show contains the signed in user', function (): void {
-    $user = User::factory()->create();
-    $this->actingAs($user, AuthenticationProvider::GUARD);
-
-    $response = $this->get(route(RouteName::DASHBOARD));
-
-    $response->assertViewHas('user', $user);
-});

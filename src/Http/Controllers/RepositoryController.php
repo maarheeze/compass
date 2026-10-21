@@ -9,7 +9,6 @@ use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Maarheeze\Compass\Analyzer\Composer\RepositoryKind;
 use Maarheeze\Compass\Analyzer\Composer\RepositoryKindClassifier;
-use Maarheeze\Compass\Authentication\AuthenticatedUser;
 use Maarheeze\Compass\Collections\RepositoryCollection;
 use Maarheeze\Compass\Models\Repository;
 use Webmozart\Assert\Assert;
@@ -17,7 +16,6 @@ use Webmozart\Assert\Assert;
 readonly class RepositoryController
 {
     public function __construct(
-        private AuthenticatedUser $authenticatedUser,
         private RepositoryKindClassifier $repositoryKindClassifier,
         private ViewFactory $view,
     ) {
@@ -37,7 +35,6 @@ readonly class RepositoryController
             'libraries' => $this->getRepositoriesOfKind($repositories, RepositoryKind::LIBRARY),
             'otherRepositories' => $this->getRepositoriesOfKind($repositories, RepositoryKind::OTHER),
             'projects' => $this->getRepositoriesOfKind($repositories, RepositoryKind::PROJECT),
-            'user' => $this->authenticatedUser->user(),
         ]);
     }
 
@@ -58,7 +55,6 @@ readonly class RepositoryController
         return $this->view->make('compass::repositories.show', [
             'kind' => $this->repositoryKindClassifier->classify($repository),
             'repository' => $repository,
-            'user' => $this->authenticatedUser->user(),
         ]);
     }
 

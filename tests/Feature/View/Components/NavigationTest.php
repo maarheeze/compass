@@ -1,0 +1,17 @@
+<?php
+
+declare(strict_types=1);
+
+use Maarheeze\Compass\Models\User;
+use Maarheeze\Compass\Providers\AuthenticationProvider;
+use Maarheeze\Compass\View\Components\Navigation;
+
+test('user is the signed in user', function (): void {
+    $user = User::factory()->create();
+    $this->actingAs($user, AuthenticationProvider::GUARD);
+
+    $navigation = $this->app->make(Navigation::class);
+
+    expect($navigation->user->is($user))
+        ->toBeTrue();
+});

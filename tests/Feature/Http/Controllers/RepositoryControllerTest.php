@@ -51,15 +51,6 @@ test('index contains the other repositories', function (): void {
     });
 });
 
-test('index contains the signed in user', function (): void {
-    $user = User::factory()->create();
-    $this->actingAs($user, AuthenticationProvider::GUARD);
-
-    $response = $this->get(route(RouteName::GITHUB_REPOSITORIES));
-
-    $response->assertViewHas('user', $user);
-});
-
 test('show contains the repository', function (): void {
     $repository = Repository::factory()->create();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
@@ -82,13 +73,4 @@ test('show contains the kind of the repository', function (): void {
     $response = $this->get(route(RouteName::GITHUB_REPOSITORY, $repository));
 
     $response->assertViewHas('kind', RepositoryKind::LIBRARY);
-});
-
-test('show contains the signed in user', function (): void {
-    $user = User::factory()->create();
-    $this->actingAs($user, AuthenticationProvider::GUARD);
-
-    $response = $this->get(route(RouteName::GITHUB_REPOSITORY, Repository::factory()->create()));
-
-    $response->assertViewHas('user', $user);
 });

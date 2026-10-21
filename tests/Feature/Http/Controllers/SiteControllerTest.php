@@ -19,15 +19,6 @@ test('index contains the sites', function (): void {
     });
 });
 
-test('index contains the signed in user', function (): void {
-    $user = User::factory()->create();
-    $this->actingAs($user, AuthenticationProvider::GUARD);
-
-    $response = $this->get(route(RouteName::FORGE_SITES));
-
-    $response->assertViewHas('user', $user);
-});
-
 test('show contains the site', function (): void {
     $site = Site::factory()->create();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
@@ -37,13 +28,4 @@ test('show contains the site', function (): void {
     $response->assertViewHas('site', static function (Site $viewSite) use ($site): bool {
         return $viewSite->is($site);
     });
-});
-
-test('show contains the signed in user', function (): void {
-    $user = User::factory()->create();
-    $this->actingAs($user, AuthenticationProvider::GUARD);
-
-    $response = $this->get(route(RouteName::FORGE_SITE, Site::factory()->create()));
-
-    $response->assertViewHas('user', $user);
 });
