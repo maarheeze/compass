@@ -48,74 +48,75 @@
             </dl>
         </section>
 
-        <section class="space-y-3">
-            <h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">composer.json</h2>
+        @if ($repository->composerJson)
+            <details class="group rounded-xl bg-white shadow-sm ring-1 ring-zinc-950/5 dark:bg-zinc-900 dark:ring-white/10">
+                <summary class="flex cursor-pointer items-center gap-2 px-4 py-3 text-sm">
+                    <span class="text-zinc-400 transition group-open:rotate-90">&rsaquo;</span>
+                    <span class="font-semibold text-zinc-900 dark:text-zinc-100">composer.json</span>
+                    @if ($repository->composerJson->type)
+                        <span class="text-zinc-500 dark:text-zinc-400">&middot; {{ $repository->composerJson->type }}</span>
+                    @endif
+                    @if ($repository->composerJson->php_constraint)
+                        <span class="text-zinc-500 dark:text-zinc-400">&middot; PHP {{ $repository->composerJson->php_constraint }}</span>
+                    @endif
+                    <span class="text-zinc-500 dark:text-zinc-400">&middot; {{ $repository->composerJson->packages->count() }} packages</span>
+                </summary>
 
-            @if ($repository->composerJson)
-                <dl class="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2 text-sm">
-                    <dt class="text-zinc-500 dark:text-zinc-400">Type</dt>
-                    <dd>{{ $repository->composerJson->type }}</dd>
-                    <dt class="text-zinc-500 dark:text-zinc-400">PHP</dt>
-                    <dd>{{ $repository->composerJson->php_constraint }}</dd>
-                </dl>
-
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-zinc-950/5 dark:bg-zinc-900 dark:ring-white/10">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-zinc-50 text-xs text-zinc-500 dark:bg-zinc-800/50 dark:text-zinc-400">
+                <table class="w-full table-fixed border-t border-zinc-100 text-left text-sm dark:border-white/5">
+                    <thead class="bg-zinc-50 text-xs text-zinc-500 dark:bg-zinc-800/50 dark:text-zinc-400">
+                        <tr>
+                            <th class="px-4 py-2 font-medium">Package</th>
+                            <th class="w-40 px-4 py-2 font-medium">Constraint</th>
+                            <th class="w-32 px-4 py-2 font-medium">Section</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-zinc-100 dark:divide-white/5">
+                        @foreach ($repository->composerJson->packages as $package)
                             <tr>
-                                <th class="px-4 py-2 font-medium">Package</th>
-                                <th class="px-4 py-2 font-medium">Constraint</th>
-                                <th class="px-4 py-2 font-medium">Section</th>
+                                <td class="truncate px-4 py-2 text-zinc-900 dark:text-zinc-100">{{ $package->name }}</td>
+                                <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">{{ $package->constraint }}</td>
+                                <td class="px-4 py-2 text-zinc-500 lowercase dark:text-zinc-400">{{ $package->section->value }}</td>
                             </tr>
-                        </thead>
-                        <tbody class="divide-y divide-zinc-100 dark:divide-white/5">
-                            @foreach ($repository->composerJson->packages as $package)
-                                <tr>
-                                    <td class="px-4 py-2 text-zinc-900 dark:text-zinc-100">{{ $package->name }}</td>
-                                    <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">{{ $package->constraint }}</td>
-                                    <td class="px-4 py-2 text-zinc-500 lowercase dark:text-zinc-400">{{ $package->section->value }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @else
-                <p class="text-sm text-zinc-500 dark:text-zinc-400">No composer.json collected.</p>
-            @endif
-        </section>
+                        @endforeach
+                    </tbody>
+                </table>
+            </details>
+        @else
+            <p class="text-sm text-zinc-500 dark:text-zinc-400">No composer.json collected.</p>
+        @endif
 
-        <section class="space-y-3">
-            <h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">composer.lock</h2>
+        @if ($repository->composerLock)
+            <details class="group rounded-xl bg-white shadow-sm ring-1 ring-zinc-950/5 dark:bg-zinc-900 dark:ring-white/10">
+                <summary class="flex cursor-pointer items-center gap-2 px-4 py-3 text-sm">
+                    <span class="text-zinc-400 transition group-open:rotate-90">&rsaquo;</span>
+                    <span class="font-semibold text-zinc-900 dark:text-zinc-100">composer.lock</span>
+                    @if ($repository->composerLock->php_constraint)
+                        <span class="text-zinc-500 dark:text-zinc-400">&middot; PHP {{ $repository->composerLock->php_constraint }}</span>
+                    @endif
+                    <span class="text-zinc-500 dark:text-zinc-400">&middot; {{ $repository->composerLock->packages->count() }} packages</span>
+                </summary>
 
-            @if ($repository->composerLock)
-                <dl class="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2 text-sm">
-                    <dt class="text-zinc-500 dark:text-zinc-400">PHP</dt>
-                    <dd>{{ $repository->composerLock->php_constraint }}</dd>
-                </dl>
-
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-zinc-950/5 dark:bg-zinc-900 dark:ring-white/10">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-zinc-50 text-xs text-zinc-500 dark:bg-zinc-800/50 dark:text-zinc-400">
+                <table class="w-full table-fixed border-t border-zinc-100 text-left text-sm dark:border-white/5">
+                    <thead class="bg-zinc-50 text-xs text-zinc-500 dark:bg-zinc-800/50 dark:text-zinc-400">
+                        <tr>
+                            <th class="px-4 py-2 font-medium">Package</th>
+                            <th class="w-40 px-4 py-2 font-medium">Version</th>
+                            <th class="w-32 px-4 py-2 font-medium">Section</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-zinc-100 dark:divide-white/5">
+                        @foreach ($repository->composerLock->packages as $package)
                             <tr>
-                                <th class="px-4 py-2 font-medium">Package</th>
-                                <th class="px-4 py-2 font-medium">Version</th>
-                                <th class="px-4 py-2 font-medium">Section</th>
+                                <td class="truncate px-4 py-2 text-zinc-900 dark:text-zinc-100">{{ $package->name }}</td>
+                                <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">{{ $package->version }}</td>
+                                <td class="px-4 py-2 text-zinc-500 lowercase dark:text-zinc-400">{{ $package->section->value }}</td>
                             </tr>
-                        </thead>
-                        <tbody class="divide-y divide-zinc-100 dark:divide-white/5">
-                            @foreach ($repository->composerLock->packages as $package)
-                                <tr>
-                                    <td class="px-4 py-2 text-zinc-900 dark:text-zinc-100">{{ $package->name }}</td>
-                                    <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">{{ $package->version }}</td>
-                                    <td class="px-4 py-2 text-zinc-500 lowercase dark:text-zinc-400">{{ $package->section->value }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @else
-                <p class="text-sm text-zinc-500 dark:text-zinc-400">No composer.lock collected.</p>
-            @endif
-        </section>
+                        @endforeach
+                    </tbody>
+                </table>
+            </details>
+        @else
+            <p class="text-sm text-zinc-500 dark:text-zinc-400">No composer.lock collected.</p>
+        @endif
     </main>
 </x-compass::layouts.app>
