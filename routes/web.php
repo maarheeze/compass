@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Maarheeze\Compass\Http\Controllers\DashboardController;
 use Maarheeze\Compass\Http\Controllers\GitHubController;
+use Maarheeze\Compass\Http\Controllers\RepositoryController;
 use Maarheeze\Compass\Http\Controllers\SyncController;
 use Maarheeze\Compass\Http\Middleware\Authenticate;
 use Maarheeze\Compass\Http\Middleware\RedirectIfAuthenticated;
@@ -23,8 +24,11 @@ Route::middleware('web')
 
         Route::middleware(Authenticate::class)->group(static function (): void {
             Route::get('/', [DashboardController::class, 'show'])->name(RouteName::DASHBOARD);
+            Route::get('/github/repositories', [RepositoryController::class, 'index'])->name(RouteName::GITHUB_REPOSITORIES);
+            Route::get('/github/repositories/{repository}', [RepositoryController::class, 'show'])
+                ->name(RouteName::GITHUB_REPOSITORY);
 
             Route::post('/logout', [GitHubController::class, 'logout'])->name(RouteName::LOGOUT);
-            Route::post('/sync/github', [SyncController::class, 'github'])->name(RouteName::SYNC_GITHUB);
+            Route::post('/sync/github', [SyncController::class, 'github'])->name(RouteName::GITHUB_SYNC);
         });
     });

@@ -30,7 +30,9 @@ test('handle dispatches collect composer json when its oid differs from the coll
 
     $busFake->assertDispatched(
         CollectComposerJson::class,
-        static fn (CollectComposerJson $collectComposerJson): bool => $collectComposerJson->repository->is($repository),
+        static function (CollectComposerJson $collectComposerJson) use ($repository): bool {
+            return $collectComposerJson->repository->is($repository);
+        },
     );
 });
 
@@ -50,7 +52,9 @@ test('handle dispatches collect composer json when the composer json is gone', f
 
     $busFake->assertDispatched(
         CollectComposerJson::class,
-        static fn (CollectComposerJson $collectComposerJson): bool => $collectComposerJson->repository->is($repository),
+        static function (CollectComposerJson $collectComposerJson) use ($repository): bool {
+            return $collectComposerJson->repository->is($repository);
+        },
     );
 });
 

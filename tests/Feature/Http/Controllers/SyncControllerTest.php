@@ -15,7 +15,7 @@ test('github starts a collection of the repositories', function (): void {
     $this->app->instance(Dispatcher::class, $busFake);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $this->post(route(RouteName::SYNC_GITHUB));
+    $this->post(route(RouteName::GITHUB_SYNC));
 
     expect($busFake->dispatched(CollectRepositories::class))
         ->toHaveCount(1);
@@ -25,7 +25,7 @@ test('github sends the user back to the dashboard', function (): void {
     $this->app->instance(Dispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->post(route(RouteName::SYNC_GITHUB));
+    $response = $this->post(route(RouteName::GITHUB_SYNC));
 
     $response->assertRedirect(route(RouteName::DASHBOARD));
 });

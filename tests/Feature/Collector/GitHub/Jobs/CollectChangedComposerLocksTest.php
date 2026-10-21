@@ -30,7 +30,9 @@ test('handle dispatches collect composer lock when its oid differs from the coll
 
     $busFake->assertDispatched(
         CollectComposerLock::class,
-        static fn (CollectComposerLock $collectComposerLock): bool => $collectComposerLock->repository->is($repository),
+        static function (CollectComposerLock $collectComposerLock) use ($repository): bool {
+            return $collectComposerLock->repository->is($repository);
+        },
     );
 });
 
@@ -50,7 +52,9 @@ test('handle dispatches collect composer lock when the composer lock is gone', f
 
     $busFake->assertDispatched(
         CollectComposerLock::class,
-        static fn (CollectComposerLock $collectComposerLock): bool => $collectComposerLock->repository->is($repository),
+        static function (CollectComposerLock $collectComposerLock) use ($repository): bool {
+            return $collectComposerLock->repository->is($repository);
+        },
     );
 });
 
