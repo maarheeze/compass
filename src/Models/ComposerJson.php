@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Maarheeze\Compass\Collections\ComposerJsonCollection;
 use Maarheeze\Compass\Collections\ComposerJsonPackageCollection;
+use Maarheeze\Compass\Collector\Composer\PackageSection;
 use Maarheeze\Compass\Database\Factories\ComposerJsonFactory;
 
 /**
@@ -22,7 +23,9 @@ use Maarheeze\Compass\Database\Factories\ComposerJsonFactory;
  * @property ?string $type
  * @property Carbon $updated_at
  *
+ * @property-read ComposerJsonPackageCollection $developmentPackages
  * @property-read ComposerJsonPackageCollection $packages
+ * @property-read ComposerJsonPackageCollection $productionPackages
  * @property-read Repository $repository
  */
 class ComposerJson extends Model
@@ -53,9 +56,25 @@ class ComposerJson extends Model
     /**
      * @return HasMany<ComposerJsonPackage, $this>
      */
+    public function developmentPackages(): HasMany
+    {
+        return $this->hasMany(ComposerJsonPackage::class)->where('section', PackageSection::DEVELOPMENT);
+    }
+
+    /**
+     * @return HasMany<ComposerJsonPackage, $this>
+     */
     public function packages(): HasMany
     {
         return $this->hasMany(ComposerJsonPackage::class);
+    }
+
+    /**
+     * @return HasMany<ComposerJsonPackage, $this>
+     */
+    public function productionPackages(): HasMany
+    {
+        return $this->hasMany(ComposerJsonPackage::class)->where('section', PackageSection::PRODUCTION);
     }
 
     /**

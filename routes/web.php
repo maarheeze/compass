@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Maarheeze\Compass\Http\Controllers\DashboardController;
 use Maarheeze\Compass\Http\Controllers\GitHubController;
+use Maarheeze\Compass\Http\Controllers\PackageController;
 use Maarheeze\Compass\Http\Controllers\RepositoryController;
 use Maarheeze\Compass\Http\Controllers\SiteController;
 use Maarheeze\Compass\Http\Controllers\SyncController;
@@ -28,6 +29,9 @@ Route::middleware('web')
             Route::get('/github/repositories', [RepositoryController::class, 'index'])->name(RouteName::GITHUB_REPOSITORIES);
             Route::get('/github/repositories/{repository}', [RepositoryController::class, 'show'])
                 ->name(RouteName::GITHUB_REPOSITORY);
+            Route::get('/github/packages/{packageName}', [PackageController::class, 'show'])
+                ->where('packageName', '.+')
+                ->name(RouteName::GITHUB_PACKAGE);
             Route::get('/forge/sites', [SiteController::class, 'index'])->name(RouteName::FORGE_SITES);
             Route::get('/forge/sites/{site}', [SiteController::class, 'show'])->name(RouteName::FORGE_SITE);
 

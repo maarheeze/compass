@@ -93,7 +93,8 @@
                     @if ($repository->composerJson->php_constraint)
                         <span class="text-zinc-500 dark:text-zinc-400">&middot; PHP {{ $repository->composerJson->php_constraint }}</span>
                     @endif
-                    <span class="text-zinc-500 dark:text-zinc-400">&middot; {{ $repository->composerJson->packages->count() }} packages</span>
+                    <span class="text-zinc-500 dark:text-zinc-400">&middot; {{ $repository->composerJson->productionPackages->count() }} production</span>
+                    <span class="text-zinc-500 dark:text-zinc-400">&middot; {{ $repository->composerJson->developmentPackages->count() }} development</span>
                 </summary>
 
                 <table class="w-full table-fixed border-t border-zinc-100 text-left text-sm dark:border-white/5">
@@ -101,18 +102,38 @@
                         <tr>
                             <th class="px-4 py-2 font-medium">Package</th>
                             <th class="w-40 px-4 py-2 font-medium">Constraint</th>
-                            <th class="w-32 px-4 py-2 font-medium">Section</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-zinc-100 dark:divide-white/5">
-                        @foreach ($repository->composerJson->packages as $package)
+                    @if ($repository->composerJson->productionPackages->isNotEmpty())
+                        <tbody class="divide-y divide-zinc-100 dark:divide-white/5">
                             <tr>
-                                <td class="truncate px-4 py-2 text-zinc-900 dark:text-zinc-100">{{ $package->name }}</td>
-                                <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">{{ $package->constraint }}</td>
-                                <td class="px-4 py-2 text-zinc-500 lowercase dark:text-zinc-400">{{ $package->section->value }}</td>
+                                <th colspan="2" class="bg-zinc-50/50 px-4 py-2 text-xs font-medium text-zinc-500 dark:bg-zinc-800/30 dark:text-zinc-400">Production</th>
                             </tr>
-                        @endforeach
-                    </tbody>
+                            @foreach ($repository->composerJson->productionPackages as $package)
+                                <tr>
+                                    <td class="truncate px-4 py-2 text-zinc-900 dark:text-zinc-100">
+                                        <x-compass::composer.package-link :package-name="$package->name" />
+                                    </td>
+                                    <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">{{ $package->constraint }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    @endif
+                    @if ($repository->composerJson->developmentPackages->isNotEmpty())
+                        <tbody class="divide-y divide-zinc-100 border-t border-zinc-100 dark:divide-white/5 dark:border-white/5">
+                            <tr>
+                                <th colspan="2" class="bg-zinc-50/50 px-4 py-2 text-xs font-medium text-zinc-500 dark:bg-zinc-800/30 dark:text-zinc-400">Development</th>
+                            </tr>
+                            @foreach ($repository->composerJson->developmentPackages as $package)
+                                <tr>
+                                    <td class="truncate px-4 py-2 text-zinc-900 dark:text-zinc-100">
+                                        <x-compass::composer.package-link :package-name="$package->name" />
+                                    </td>
+                                    <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">{{ $package->constraint }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    @endif
                 </table>
             </details>
         @else
@@ -141,7 +162,9 @@
                     <tbody class="divide-y divide-zinc-100 dark:divide-white/5">
                         @foreach ($repository->composerLock->packages as $package)
                             <tr>
-                                <td class="truncate px-4 py-2 text-zinc-900 dark:text-zinc-100">{{ $package->name }}</td>
+                                <td class="truncate px-4 py-2 text-zinc-900 dark:text-zinc-100">
+                                    <x-compass::composer.package-link :package-name="$package->name" />
+                                </td>
                                 <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">{{ $package->version }}</td>
                                 <td class="px-4 py-2 text-zinc-500 lowercase dark:text-zinc-400">{{ $package->section->value }}</td>
                             </tr>

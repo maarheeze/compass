@@ -11,6 +11,7 @@ enum RouteName: string
     case FORGE_SITES = 'compass.forge.sites';
     case FORGE_SYNC = 'compass.forge.sync';
     case GITHUB_CALLBACK = 'compass.auth.github.callback';
+    case GITHUB_PACKAGE = 'compass.github.package';
     case GITHUB_REDIRECT = 'compass.auth.github';
     case GITHUB_REPOSITORIES = 'compass.github.repositories';
     case GITHUB_REPOSITORY = 'compass.github.repository';

@@ -44,7 +44,8 @@ readonly class RepositoryController
             $packageQuery->orderBy('name');
         };
         $repository->load([
-            'composerJson.packages' => $orderPackagesByName,
+            'composerJson.developmentPackages' => $orderPackagesByName,
+            'composerJson.productionPackages' => $orderPackagesByName,
             'composerLock.packages' => $orderPackagesByName,
             'sites' => static function (Builder $siteQuery): void {
                 $siteQuery->orderBy('name');
