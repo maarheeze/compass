@@ -11,11 +11,11 @@ use Maarheeze\Compass\Models\Repository;
 
 readonly class RepositorySynchronizer
 {
-    public function updateInactive(CollectionRunId $collectionRunId): void
+    public function deleteUncollected(CollectionRunId $collectionRunId): void
     {
         Repository::query()
             ->whereNot('collection_run_id', $collectionRunId)
-            ->update(['is_active' => false]);
+            ->delete();
     }
 
     public function storeRepositories(
@@ -35,7 +35,6 @@ readonly class RepositorySynchronizer
                 'composer_json_oid' => $gitHubRepository->composerJsonOid,
                 'composer_lock_oid' => $gitHubRepository->composerLockOid,
                 'collection_run_id' => $collectionRunId,
-                'is_active' => true,
                 'collected_at' => CarbonImmutable::now(),
             ];
         }

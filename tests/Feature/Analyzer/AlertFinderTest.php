@@ -8,10 +8,7 @@ use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
 
 test('find holds the repositories with a composer warning', function (): void {
-    $repository = Repository::factory()->create([
-        'composer_json_oid' => fake()->sha1(),
-        'is_active' => true,
-    ]);
+    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
         'type' => null,
@@ -30,7 +27,6 @@ test('find holds the sites behind', function (): void {
         'repository_url' => $repository->url,
         'repository_branch' => $repository->default_branch,
         'deployed_commit_hash' => fake()->unique()->sha1(),
-        'is_active' => true,
     ]);
 
     $alertFinder = $this->app->make(AlertFinder::class);

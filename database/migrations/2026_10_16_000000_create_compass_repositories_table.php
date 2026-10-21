@@ -22,7 +22,6 @@ return new class extends Migration
             $table->string('composer_json_oid')->nullable();
             $table->string('composer_lock_oid')->nullable();
             $table->string('collection_run_id');
-            $table->boolean('is_active');
             $table->timestamp('collected_at');
 
             $table->timestamps();

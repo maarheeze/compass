@@ -27,7 +27,6 @@ use function sprintf;
  * @property string $default_branch
  * @property string $github_id
  * @property int $id
- * @property bool $is_active
  * @property string $last_commit_sha
  * @property string $name
  * @property Carbon $updated_at
@@ -57,7 +56,6 @@ class Repository extends Model
             'composer_lock_oid',
             'default_branch',
             'github_id',
-            'is_active',
             'last_commit_sha',
             'name',
             'url',
@@ -102,7 +100,6 @@ class Repository extends Model
         return [
             'collected_at' => 'datetime',
             'collection_run_id' => sprintf('%s:%s', UuidCast::class, CollectionRunId::class),
-            'is_active' => 'boolean',
             'visibility' => RepositoryVisibility::class,
         ];
     }

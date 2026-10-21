@@ -34,14 +34,6 @@
                 <dd><code>{{ $repository->composer_json_oid }}</code></dd>
                 <dt class="text-zinc-500 dark:text-zinc-400">composer.lock</dt>
                 <dd><code>{{ $repository->composer_lock_oid }}</code></dd>
-                <dt class="text-zinc-500 dark:text-zinc-400">Active</dt>
-                <dd>
-                    @if ($repository->is_active)
-                        Yes
-                    @else
-                        No
-                    @endif
-                </dd>
                 <dt class="text-zinc-500 dark:text-zinc-400">Collected at</dt>
                 <dd>
                     <x-compass::time :time="$repository->collected_at" />

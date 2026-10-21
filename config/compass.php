@@ -61,6 +61,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Forge server pattern
+    |--------------------------------------------------------------------------
+    |
+    | A regular expression on the server name: only the sites of matching
+    | servers are collected. The default matches every server.
+    |
+    */
+
+    'forge_server_pattern' => env('COMPASS_FORGE_SERVER_PATTERN', '/.*/'),
+
+    /*
+    |--------------------------------------------------------------------------
     | GitHub organization
     |--------------------------------------------------------------------------
     |

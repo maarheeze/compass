@@ -29,7 +29,6 @@ test('store sites creates a site for a new forge site', function (): void {
         'server_slug' => $forgeSite->serverSlug,
         'server_ip_address' => $forgeSite->serverIpAddress,
         'collection_run_id' => $collectionRunId,
-        'is_active' => true,
     ]);
 });
 
@@ -87,43 +86,21 @@ test('store sites updates the name of a known site', function (): void {
     ]);
 });
 
-test('store sites reactivates an inactive site', function (): void {
-    $site = Site::factory()->create(['is_active' => false]);
-    $forgeSite = ForgeSiteFactory::forSite($site);
+test('delete uncollected deletes a site of another run', function (): void {
+    $site = Site::factory()->create();
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->storeSites(new ForgeSiteCollection([$forgeSite]), CollectionRunId::generate());
+    $siteSynchronizer->deleteUncollected(CollectionRunId::generate());
 
-    $this->assertDatabaseHas(Site::class, [
-        'id' => $site->id,
-        'is_active' => true,
-    ]);
+    $this->assertModelMissing($site);
 });
 
-test('update inactive marks a site of another run inactive', function (): void {
-    $site = Site::factory()->create(['is_active' => true]);
-
-    $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->updateInactive(CollectionRunId::generate());
-
-    $this->assertDatabaseHas(Site::class, [
-        'id' => $site->id,
-        'is_active' => false,
-    ]);
-});
-
-test('update inactive keeps a site of the run active', function (): void {
+test('delete uncollected keeps a site of the run', function (): void {
     $collectionRunId = CollectionRunId::generate();
-    $site = Site::factory()->create([
-        'collection_run_id' => $collectionRunId,
-        'is_active' => true,
-    ]);
+    $site = Site::factory()->create(['collection_run_id' => $collectionRunId]);
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->updateInactive($collectionRunId);
+    $siteSynchronizer->deleteUncollected($collectionRunId);
 
-    $this->assertDatabaseHas(Site::class, [
-        'id' => $site->id,
-        'is_active' => true,
-    ]);
+    $this->assertModelExists($site);
 });

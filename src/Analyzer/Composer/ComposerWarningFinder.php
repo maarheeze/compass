@@ -17,16 +17,15 @@ readonly class ComposerWarningFinder
 
     public function findRepositories(): RepositoryCollection
     {
-        $activeRepositories = Assert::isInstanceOf(
+        $repositories = Assert::isInstanceOf(
             Repository::query()
                 ->with('composerJson')
-                ->where('is_active', true)
                 ->orderBy('name')
                 ->get(),
             RepositoryCollection::class,
         );
 
-        return $activeRepositories->filter(function (Repository $repository): bool {
+        return $repositories->filter(function (Repository $repository): bool {
             return $this->composerWarningDetector->detect($repository) !== null;
         });
     }

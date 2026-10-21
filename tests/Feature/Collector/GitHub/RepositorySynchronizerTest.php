@@ -27,7 +27,6 @@ test('store repositories creates a repository for a new github repository', func
         'composer_json_oid' => $gitHubRepository->composerJsonOid,
         'composer_lock_oid' => $gitHubRepository->composerLockOid,
         'collection_run_id' => $collectionRunId,
-        'is_active' => true,
     ]);
 });
 
@@ -79,43 +78,21 @@ test('store repositories updates the name of a known repository', function (): v
     ]);
 });
 
-test('store repositories reactivates an inactive repository', function (): void {
-    $repository = Repository::factory()->create(['is_active' => false]);
-    $gitHubRepository = GitHubRepositoryFactory::forRepository($repository);
+test('delete uncollected deletes a repository of another run', function (): void {
+    $repository = Repository::factory()->create();
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositorySynchronizer->storeRepositories(new GitHubRepositoryCollection([$gitHubRepository]), CollectionRunId::generate());
+    $repositorySynchronizer->deleteUncollected(CollectionRunId::generate());
 
-    $this->assertDatabaseHas(Repository::class, [
-        'id' => $repository->id,
-        'is_active' => true,
-    ]);
+    $this->assertModelMissing($repository);
 });
 
-test('mark repositories not in collection run inactive marks a repository of another run inactive', function (): void {
-    $repository = Repository::factory()->create(['is_active' => true]);
-
-    $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositorySynchronizer->updateInactive(CollectionRunId::generate());
-
-    $this->assertDatabaseHas(Repository::class, [
-        'id' => $repository->id,
-        'is_active' => false,
-    ]);
-});
-
-test('mark repositories not in collection run inactive keeps a repository of the run active', function (): void {
+test('delete uncollected keeps a repository of the run', function (): void {
     $collectionRunId = CollectionRunId::generate();
-    $repository = Repository::factory()->create([
-        'collection_run_id' => $collectionRunId,
-        'is_active' => true,
-    ]);
+    $repository = Repository::factory()->create(['collection_run_id' => $collectionRunId]);
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositorySynchronizer->updateInactive($collectionRunId);
+    $repositorySynchronizer->deleteUncollected($collectionRunId);
 
-    $this->assertDatabaseHas(Repository::class, [
-        'id' => $repository->id,
-        'is_active' => true,
-    ]);
+    $this->assertModelExists($repository);
 });

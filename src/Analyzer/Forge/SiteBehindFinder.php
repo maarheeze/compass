@@ -17,16 +17,15 @@ readonly class SiteBehindFinder
 
     public function findSites(): SiteCollection
     {
-        $activeSites = Assert::isInstanceOf(
+        $sites = Assert::isInstanceOf(
             Site::query()
                 ->with('repository')
-                ->where('is_active', true)
                 ->orderBy('name')
                 ->get(),
             SiteCollection::class,
         );
 
-        return $activeSites->filter(function (Site $site): bool {
+        return $sites->filter(function (Site $site): bool {
             return $this->deploymentStateClassifier->classify($site) === DeploymentState::BEHIND;
         });
     }

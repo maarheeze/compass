@@ -42,7 +42,6 @@ class SiteFactory extends Factory
             'deployment_started_at' => fake()->optional()->dateTimeBetween('-2 months', '-1 month'),
             'deployment_ended_at' => fake()->optional()->dateTimeBetween('-1 month'),
             'collection_run_id' => CollectionRunId::generate(),
-            'is_active' => fake()->boolean(),
             'collected_at' => fake()->dateTime(),
         ];
     }

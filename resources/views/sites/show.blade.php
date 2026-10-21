@@ -30,14 +30,6 @@
                 <dd>{{ $site->server_name }}</dd>
                 <dt class="text-zinc-500 dark:text-zinc-400">Server IP address</dt>
                 <dd>{{ $site->server_ip_address }}</dd>
-                <dt class="text-zinc-500 dark:text-zinc-400">Active</dt>
-                <dd>
-                    @if ($site->is_active)
-                        Yes
-                    @else
-                        No
-                    @endif
-                </dd>
                 <dt class="text-zinc-500 dark:text-zinc-400">Collected at</dt>
                 <dd>
                     <x-compass::time :time="$site->collected_at" />

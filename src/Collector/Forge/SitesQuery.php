@@ -16,6 +16,7 @@ readonly class SitesQuery
     public function __construct(
         private ForgeClient $forgeClient,
         private string $organization,
+        private ServerNameFilter $serverNameFilter,
     ) {
     }
 
@@ -33,7 +34,7 @@ readonly class SitesQuery
         $includedResources = $this->getIncludedResources($sitesResponse);
 
         return new SitesQueryResult(
-            $this->getForgeSites(Assert::isList($sitesResponse['data']), $includedResources),
+            $this->getMatchingForgeSites(Assert::isList($sitesResponse['data']), $includedResources),
             $this->getNextCursor(Assert::isArray($sitesResponse['meta'])),
         );
     }
@@ -98,21 +99,6 @@ readonly class SitesQuery
     }
 
     /**
-     * @param list<mixed> $siteResources
-     * @param array<string, array<mixed>> $includedResources
-     */
-    private function getForgeSites(array $siteResources, array $includedResources): ForgeSiteCollection
-    {
-        $forgeSites = new ForgeSiteCollection();
-
-        foreach ($siteResources as $siteResource) {
-            $forgeSites->push($this->getForgeSite(Assert::isArray($siteResource), $includedResources));
-        }
-
-        return $forgeSites;
-    }
-
-    /**
      * @param array<string, array<mixed>> $includedResources
      *
      * @return array<mixed>
@@ -144,6 +130,25 @@ readonly class SitesQuery
         }
 
         return $includedResources;
+    }
+
+    /**
+     * @param list<mixed> $siteResources
+     * @param array<string, array<mixed>> $includedResources
+     */
+    private function getMatchingForgeSites(array $siteResources, array $includedResources): ForgeSiteCollection
+    {
+        $matchingForgeSites = new ForgeSiteCollection();
+
+        foreach ($siteResources as $siteResource) {
+            $forgeSite = $this->getForgeSite(Assert::isArray($siteResource), $includedResources);
+
+            if ($this->serverNameFilter->matches($forgeSite)) {
+                $matchingForgeSites->push($forgeSite);
+            }
+        }
+
+        return $matchingForgeSites;
     }
 
     /**

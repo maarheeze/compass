@@ -11,6 +11,13 @@ use Maarheeze\Compass\Models\Site;
 
 readonly class SiteSynchronizer
 {
+    public function deleteUncollected(CollectionRunId $collectionRunId): void
+    {
+        Site::query()
+            ->whereNot('collection_run_id', $collectionRunId)
+            ->delete();
+    }
+
     public function storeSites(ForgeSiteCollection $forgeSites, CollectionRunId $collectionRunId): void
     {
         $siteValues = [];
@@ -33,18 +40,10 @@ readonly class SiteSynchronizer
                 'deployment_started_at' => $forgeSite->latestDeployment?->startedAt,
                 'deployment_ended_at' => $forgeSite->latestDeployment?->endedAt,
                 'collection_run_id' => $collectionRunId,
-                'is_active' => true,
                 'collected_at' => CarbonImmutable::now(),
             ];
         }
 
         Site::query()->upsert($siteValues, ['forge_id']);
-    }
-
-    public function updateInactive(CollectionRunId $collectionRunId): void
-    {
-        Site::query()
-            ->whereNot('collection_run_id', $collectionRunId)
-            ->update(['is_active' => false]);
     }
 }

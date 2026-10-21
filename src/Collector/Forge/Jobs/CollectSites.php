@@ -41,6 +41,6 @@ class CollectSites implements ShouldQueue
             return;
         }
 
-        $siteSynchronizer->updateInactive($this->collectionRunId);
+        $siteSynchronizer->deleteUncollected($this->collectionRunId);
     }
 }

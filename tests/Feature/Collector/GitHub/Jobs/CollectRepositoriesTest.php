@@ -103,8 +103,8 @@ test('handle chains the next page when there is one', function (): void {
     $collectRepositories->assertHasChain([new CollectRepositories($collectionRunId, $endCursor)]);
 });
 
-test('handle marks repositories of another run inactive on the last page', function (): void {
-    $repository = Repository::factory()->create(['is_active' => true]);
+test('handle deletes the repositories of another run on the last page', function (): void {
+    $repository = Repository::factory()->create();
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             'data' => [
@@ -124,8 +124,5 @@ test('handle marks repositories of another run inactive on the last page', funct
     $collectRepositories = new CollectRepositories(CollectionRunId::generate(), null);
     $this->app->call([$collectRepositories, 'handle']);
 
-    $this->assertDatabaseHas(Repository::class, [
-        'id' => $repository->id,
-        'is_active' => false,
-    ]);
+    $this->assertModelMissing($repository);
 });

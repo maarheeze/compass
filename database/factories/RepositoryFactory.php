@@ -34,7 +34,6 @@ class RepositoryFactory extends Factory
             'composer_json_oid' => fake()->optional()->sha1(),
             'composer_lock_oid' => fake()->optional()->sha1(),
             'collection_run_id' => CollectionRunId::generate(),
-            'is_active' => fake()->boolean(),
             'collected_at' => fake()->dateTime(),
         ];
     }

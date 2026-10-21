@@ -183,6 +183,62 @@ test('page holds no latest deployment for a site that was never deployed', funct
         ->toBeNull();
 });
 
+test('page leaves out the sites of servers that do not match the server pattern', function (): void {
+    $this->setConfiguration('compass.forge_server_pattern', sprintf('/^%s$/', fake()->unique()->sha1()));
+    $serverId = fake()->numerify('####');
+    $this->app->make(HttpFactory::class)->fake([
+        '*' => HttpFactory::response([
+            'data' => [
+                [
+                    'id' => fake()->numerify('#######'),
+                    'type' => 'sites',
+                    'attributes' => [
+                        'name' => fake()->domainName(),
+                        'url' => fake()->url(),
+                        'status' => 'never-deployed',
+                        'php_version' => null,
+                        'repository' => [
+                            'url' => null,
+                            'branch' => null,
+                        ],
+                    ],
+                    'relationships' => [
+                        'server' => [
+                            'data' => [
+                                'type' => 'servers',
+                                'id' => $serverId,
+                            ],
+                        ],
+                        'latestDeployment' => [
+                            'data' => null,
+                        ],
+                    ],
+                ],
+            ],
+            'included' => [
+                [
+                    'id' => $serverId,
+                    'type' => 'servers',
+                    'attributes' => [
+                        'slug' => fake()->slug(),
+                        'name' => fake()->slug(),
+                        'ip_address' => fake()->ipv4(),
+                    ],
+                ],
+            ],
+            'meta' => [
+                'next_cursor' => null,
+            ],
+        ]),
+    ]);
+
+    $sitesQuery = $this->app->make(SitesQuery::class);
+    $sitesQueryResult = $sitesQuery->page(null);
+
+    expect($sitesQueryResult->forgeSites)
+        ->toBeEmpty();
+});
+
 test('page holds the next cursor of the response', function (): void {
     $nextCursor = fake()->sha1();
     $this->app->make(HttpFactory::class)->fake([

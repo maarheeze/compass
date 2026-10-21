@@ -106,8 +106,8 @@ test('handle chains the next page when there is one', function (): void {
     $collectSites->assertHasChain([new CollectSites($collectionRunId, $nextCursor)]);
 });
 
-test('handle marks sites of another run inactive on the last page', function (): void {
-    $site = Site::factory()->create(['is_active' => true]);
+test('handle deletes the sites of another run on the last page', function (): void {
+    $site = Site::factory()->create();
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             'data' => [],
@@ -120,8 +120,5 @@ test('handle marks sites of another run inactive on the last page', function ():
     $collectSites = new CollectSites(CollectionRunId::generate(), null);
     $this->app->call([$collectSites, 'handle']);
 
-    $this->assertDatabaseHas(Site::class, [
-        'id' => $site->id,
-        'is_active' => false,
-    ]);
+    $this->assertModelMissing($site);
 });

@@ -28,7 +28,6 @@ use function sprintf;
  * @property ?DeploymentStatus $deployment_status
  * @property string $forge_id
  * @property int $id
- * @property bool $is_active
  * @property string $name
  * @property ?string $php_version
  * @property ?string $repository_branch
@@ -63,7 +62,6 @@ class Site extends Model
             'deployment_started_at',
             'deployment_status',
             'forge_id',
-            'is_active',
             'name',
             'php_version',
             'repository_branch',
@@ -100,7 +98,6 @@ class Site extends Model
             'deployment_ended_at' => 'datetime',
             'deployment_started_at' => 'datetime',
             'deployment_status' => DeploymentStatus::class,
-            'is_active' => 'boolean',
             'status' => SiteStatus::class,
         ];
     }

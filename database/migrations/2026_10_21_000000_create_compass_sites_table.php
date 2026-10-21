@@ -29,7 +29,6 @@ return new class extends Migration
             $table->timestamp('deployment_started_at')->nullable();
             $table->timestamp('deployment_ended_at')->nullable();
             $table->string('collection_run_id');
-            $table->boolean('is_active');
             $table->timestamp('collected_at');
 
             $table->timestamps();

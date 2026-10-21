@@ -7,6 +7,7 @@ namespace Maarheeze\Compass\Providers;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
 use Maarheeze\Compass\Collector\Forge\ForgeClient;
+use Maarheeze\Compass\Collector\Forge\ServerNameFilter;
 use Maarheeze\Compass\Collector\Forge\SitesQuery;
 use Maarheeze\Compass\Console\SyncForgeCommand;
 use Maarheeze\Compass\Http\ForgeSiteUrlFactory;
@@ -34,5 +35,10 @@ class ForgeProvider extends ServiceProvider
             ->when([ForgeSiteUrlFactory::class, SitesQuery::class])
             ->needs('$organization')
             ->giveConfig('compass.forge_organization');
+
+        $this->app
+            ->when(ServerNameFilter::class)
+            ->needs('$pattern')
+            ->giveConfig('compass.forge_server_pattern');
     }
 }

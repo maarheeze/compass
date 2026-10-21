@@ -41,6 +41,6 @@ class CollectRepositories implements ShouldQueue
             return;
         }
 
-        $repositorySynchronizer->updateInactive($this->collectionRunId);
+        $repositorySynchronizer->deleteUncollected($this->collectionRunId);
     }
 }
