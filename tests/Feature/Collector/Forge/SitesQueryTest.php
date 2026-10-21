@@ -10,7 +10,7 @@ use Maarheeze\Compass\Tests\Fixtures\ForgeSiteFactory;
 
 test('page requests the sites of the forge organization', function (): void {
     $organization = fake()->slug();
-    $this->setConfiguration('compass.forge_organization', $organization);
+    $this->setConfiguration('compass.forge.organization', $organization);
 
     $http = $this->app->make(HttpFactory::class);
     $http->fake([
@@ -184,7 +184,7 @@ test('page holds no latest deployment for a site that was never deployed', funct
 });
 
 test('page leaves out the sites of servers that do not match the server pattern', function (): void {
-    $this->setConfiguration('compass.forge_server_pattern', sprintf('/^%s$/', fake()->unique()->sha1()));
+    $this->setConfiguration('compass.forge.server_pattern', sprintf('/^%s$/', fake()->unique()->sha1()));
     $serverId = fake()->numerify('####');
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([

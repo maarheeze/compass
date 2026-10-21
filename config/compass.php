@@ -18,70 +18,40 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Authentication
+    | Forge
     |--------------------------------------------------------------------------
     |
-    | Credentials of the GitHub OAuth App people sign in with.
+    | The slug of the Forge organization whose sites are collected, a regular
+    | expression on the server name (only the sites of matching servers are
+    | collected; the default matches every server), and the Forge API token
+    | the sites are read with.
     |
     */
 
-    'authentication' => [
-        'github' => [
-            'client_id' => env('GITHUB_CLIENT_ID'),
-            'client_secret' => env('GITHUB_CLIENT_SECRET'),
-        ],
+    'forge' => [
+        'organization' => env('COMPASS_FORGE_ORGANIZATION'),
+        'server_pattern' => env('COMPASS_FORGE_SERVER_PATTERN', '/.*/'),
+        'token' => env('COMPASS_FORGE_TOKEN'),
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Collector
+    | GitHub
     |--------------------------------------------------------------------------
     |
-    | Token of the CI user the collector reads the organization's repositories
-    | with, and the Forge API token the sites are read with. Neither is ever a
-    | signed-in person's token.
+    | Credentials of the GitHub OAuth App people sign in with, the
+    | organization Compass serves (its active members may sign in, checked at
+    | sign-in only, and all its non-archived repositories are collected), and
+    | the token of the CI user the repositories are read with. That token is
+    | never a signed-in person's token.
     |
     */
 
-    'collector' => [
-        'forge_token' => env('COMPASS_FORGE_TOKEN'),
-        'github_token' => env('COMPASS_GITHUB_TOKEN'),
+    'github' => [
+        'client_id' => env('GITHUB_CLIENT_ID'),
+        'client_secret' => env('GITHUB_CLIENT_SECRET'),
+        'organization' => env('COMPASS_GITHUB_ORGANIZATION'),
+        'token' => env('COMPASS_GITHUB_TOKEN'),
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Forge organization
-    |--------------------------------------------------------------------------
-    |
-    | The slug of the Forge organization whose sites are collected.
-    |
-    */
-
-    'forge_organization' => env('COMPASS_FORGE_ORGANIZATION'),
-
-    /*
-    |--------------------------------------------------------------------------
-    | Forge server pattern
-    |--------------------------------------------------------------------------
-    |
-    | A regular expression on the server name: only the sites of matching
-    | servers are collected. The default matches every server.
-    |
-    */
-
-    'forge_server_pattern' => env('COMPASS_FORGE_SERVER_PATTERN', '/.*/'),
-
-    /*
-    |--------------------------------------------------------------------------
-    | GitHub organization
-    |--------------------------------------------------------------------------
-    |
-    | The GitHub organization Compass serves: its active members may sign in,
-    | and all its non-archived repositories are collected.
-    | Membership is checked at sign-in only.
-    |
-    */
-
-    'github_organization' => env('COMPASS_GITHUB_ORGANIZATION'),
 
 ];

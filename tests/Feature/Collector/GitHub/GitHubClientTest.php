@@ -25,7 +25,7 @@ test('query is posted to the github graphql api', function (): void {
 
 test('query is sent with the ci user token', function (): void {
     $token = fake()->sha1();
-    $this->setConfiguration('compass.collector.github_token', $token);
+    $this->setConfiguration('compass.github.token', $token);
 
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response([])]);

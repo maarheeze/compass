@@ -28,11 +28,11 @@ class GitHubProvider extends ServiceProvider
         $this->app
             ->when(GitHubClient::class)
             ->needs('$token')
-            ->giveConfig('compass.collector.github_token');
+            ->giveConfig('compass.github.token');
 
         $this->app
             ->when([BlobQuery::class, RepositoriesQuery::class])
             ->needs('$organization')
-            ->giveConfig('compass.github_organization');
+            ->giveConfig('compass.github.organization');
     }
 }

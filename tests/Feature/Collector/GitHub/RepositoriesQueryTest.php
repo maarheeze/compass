@@ -42,7 +42,7 @@ test('page is queried at the github graphql api', function (): void {
 
 test('page is queried for the organization from the cursor', function (): void {
     $organization = fake()->slug();
-    $this->setConfiguration('compass.github_organization', $organization);
+    $this->setConfiguration('compass.github.organization', $organization);
     $cursor = fake()->sha1();
 
     $http = $this->app->make(HttpFactory::class);

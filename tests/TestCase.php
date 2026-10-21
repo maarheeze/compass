@@ -40,12 +40,12 @@ abstract class TestCase extends Orchestra
     protected function defineEnvironment($app): void
     {
         $configuration = $app->make(Repository::class);
-        $configuration->set('compass.authentication.github.client_id', fake()->uuid());
-        $configuration->set('compass.authentication.github.client_secret', fake()->sha1());
-        $configuration->set('compass.collector.forge_token', fake()->sha1());
-        $configuration->set('compass.collector.github_token', fake()->sha1());
-        $configuration->set('compass.forge_organization', fake()->slug());
-        $configuration->set('compass.github_organization', fake()->slug());
+        $configuration->set('compass.forge.organization', fake()->slug());
+        $configuration->set('compass.forge.token', fake()->sha1());
+        $configuration->set('compass.github.client_id', fake()->uuid());
+        $configuration->set('compass.github.client_secret', fake()->sha1());
+        $configuration->set('compass.github.organization', fake()->slug());
+        $configuration->set('compass.github.token', fake()->sha1());
     }
 
     /**

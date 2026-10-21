@@ -8,7 +8,7 @@ use Maarheeze\Compass\Collector\GitHub\BlobQuery;
 
 test('text is queried for the blob of the repository in the organization', function (): void {
     $organization = fake()->slug();
-    $this->setConfiguration('compass.github_organization', $organization);
+    $this->setConfiguration('compass.github.organization', $organization);
     $repositoryName = fake()->slug();
     $oid = fake()->sha1();
 

@@ -34,7 +34,7 @@ test('github provider sends github back to the callback route', function (): voi
 
 test('github provider uses the configured client id', function (): void {
     $clientId = fake()->uuid();
-    $this->setConfiguration('compass.authentication.github.client_id', $clientId);
+    $this->setConfiguration('compass.github.client_id', $clientId);
 
     $request = $this->app->make(Request::class);
     $request->setLaravelSession($this->app->make(SessionManager::class)->driver());

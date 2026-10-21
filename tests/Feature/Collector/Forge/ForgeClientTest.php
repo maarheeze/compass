@@ -27,7 +27,7 @@ test('get is sent to the forge api at its path', function (): void {
 
 test('get is sent with the forge token', function (): void {
     $token = fake()->sha1();
-    $this->setConfiguration('compass.collector.forge_token', $token);
+    $this->setConfiguration('compass.forge.token', $token);
 
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response([])]);

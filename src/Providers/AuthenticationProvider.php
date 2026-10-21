@@ -45,8 +45,8 @@ class AuthenticationProvider extends ServiceProvider
 
             $github = new GithubProvider(
                 $app->make(Request::class),
-                $config->string('compass.authentication.github.client_id'),
-                $config->string('compass.authentication.github.client_secret'),
+                $config->string('compass.github.client_id'),
+                $config->string('compass.github.client_secret'),
                 $url->route(RouteName::GITHUB_CALLBACK),
             );
 
@@ -59,6 +59,6 @@ class AuthenticationProvider extends ServiceProvider
         $this->app
             ->when(GitHubAuthentication::class)
             ->needs('$organization')
-            ->giveConfig('compass.github_organization');
+            ->giveConfig('compass.github.organization');
     }
 }

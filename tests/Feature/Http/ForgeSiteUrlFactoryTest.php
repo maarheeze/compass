@@ -7,7 +7,7 @@ use Maarheeze\Compass\Models\Site;
 
 test('create builds the forge page of the site from the organization, server slug and forge id', function (): void {
     $organization = fake()->slug();
-    $this->setConfiguration('compass.forge_organization', $organization);
+    $this->setConfiguration('compass.forge.organization', $organization);
 
     $site = Site::factory()->create();
 

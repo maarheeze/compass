@@ -29,16 +29,16 @@ class ForgeProvider extends ServiceProvider
         $this->app
             ->when(ForgeClient::class)
             ->needs('$token')
-            ->giveConfig('compass.collector.forge_token');
+            ->giveConfig('compass.forge.token');
 
         $this->app
             ->when([ForgeSiteUrlFactory::class, SitesQuery::class])
             ->needs('$organization')
-            ->giveConfig('compass.forge_organization');
+            ->giveConfig('compass.forge.organization');
 
         $this->app
             ->when(ServerNameFilter::class)
             ->needs('$pattern')
-            ->giveConfig('compass.forge_server_pattern');
+            ->giveConfig('compass.forge.server_pattern');
     }
 }
