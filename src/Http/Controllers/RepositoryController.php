@@ -7,21 +7,32 @@ namespace Maarheeze\Compass\Http\Controllers;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
+use Maarheeze\Compass\Analyzer\Composer\RepositoryKind;
+use Maarheeze\Compass\Analyzer\Composer\RepositoryKindClassifier;
 use Maarheeze\Compass\Authentication\AuthenticatedUser;
+use Maarheeze\Compass\Collections\RepositoryCollection;
 use Maarheeze\Compass\Models\Repository;
 
 readonly class RepositoryController
 {
     public function __construct(
         private AuthenticatedUser $authenticatedUser,
+        private RepositoryKindClassifier $repositoryKindClassifier,
         private ViewFactory $view,
     ) {
     }
 
     public function index(): View
     {
+        $repositories = Repository::query()
+            ->with('composerJson')
+            ->orderBy('name')
+            ->get();
+
         return $this->view->make('compass::repositories.index', [
-            'repositories' => Repository::query()->orderBy('name')->get(),
+            'libraries' => $this->getRepositoriesOfKind($repositories, RepositoryKind::LIBRARY),
+            'otherRepositories' => $this->getRepositoriesOfKind($repositories, RepositoryKind::OTHER),
+            'projects' => $this->getRepositoriesOfKind($repositories, RepositoryKind::PROJECT),
             'user' => $this->authenticatedUser->user(),
         ]);
     }
@@ -37,8 +48,18 @@ readonly class RepositoryController
         ]);
 
         return $this->view->make('compass::repositories.show', [
+            'kind' => $this->repositoryKindClassifier->classify($repository),
             'repository' => $repository,
             'user' => $this->authenticatedUser->user(),
         ]);
+    }
+
+    private function getRepositoriesOfKind(RepositoryCollection $repositories, RepositoryKind $kind): RepositoryCollection
+    {
+        return $repositories
+            ->filter(function (Repository $repository) use ($kind): bool {
+                return $this->repositoryKindClassifier->classify($repository) === $kind;
+            })
+            ->values();
     }
 }

@@ -2,10 +2,27 @@
     <main class="mx-auto max-w-5xl space-y-6 p-6">
         <x-compass::navigation :user="$user" />
 
-        <h1 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{{ $repository->name }}</h1>
+        <div class="flex items-center gap-3">
+            <h1 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{{ $repository->name }}</h1>
+            <x-compass::composer-warning-badge :repository="$repository" />
+        </div>
 
         <section class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-zinc-950/5 dark:bg-zinc-900 dark:ring-white/10">
             <dl class="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2 text-sm">
+                <dt class="text-zinc-500 dark:text-zinc-400">Kind</dt>
+                <dd>
+                    @switch ($kind)
+                        @case (\Maarheeze\Compass\Analyzer\Composer\RepositoryKind::LIBRARY)
+                            Library
+                            @break
+                        @case (\Maarheeze\Compass\Analyzer\Composer\RepositoryKind::OTHER)
+                            Other
+                            @break
+                        @case (\Maarheeze\Compass\Analyzer\Composer\RepositoryKind::PROJECT)
+                            Project
+                            @break
+                    @endswitch
+                </dd>
                 <dt class="text-zinc-500 dark:text-zinc-400">Visibility</dt>
                 <dd class="lowercase">{{ $repository->visibility->value }}</dd>
                 <dt class="text-zinc-500 dark:text-zinc-400">Branch</dt>
