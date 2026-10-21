@@ -35,7 +35,7 @@ configured organisation are let in; membership is checked at sign-in.
 
 ```php
 // config/compass.php
-'organization' => 'your-org',
+'github_organization' => 'your-org',
 ```
 
 Register a GitHub OAuth App (not a GitHub App) under your organisation at

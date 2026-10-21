@@ -61,15 +61,15 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Organization
+    | GitHub organization
     |--------------------------------------------------------------------------
     |
     | The GitHub organization Compass serves: its active members may sign in,
-    | and the repositories of the configured projects are read from it.
+    | and all its non-archived repositories are collected.
     | Membership is checked at sign-in only.
     |
     */
 
-    'organization' => env('COMPASS_ORGANISATION'),
+    'github_organization' => env('COMPASS_GITHUB_ORGANIZATION'),
 
 ];

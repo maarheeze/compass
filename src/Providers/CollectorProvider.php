@@ -48,6 +48,6 @@ class CollectorProvider extends ServiceProvider
         $this->app
             ->when([BlobQuery::class, RepositoriesQuery::class])
             ->needs('$organization')
-            ->giveConfig('compass.organization');
+            ->giveConfig('compass.github_organization');
     }
 }

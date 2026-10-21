@@ -45,7 +45,7 @@ abstract class TestCase extends Orchestra
         $configuration->set('compass.collector.forge_token', fake()->sha1());
         $configuration->set('compass.collector.github_token', fake()->sha1());
         $configuration->set('compass.forge_organization', fake()->slug());
-        $configuration->set('compass.organization', fake()->slug());
+        $configuration->set('compass.github_organization', fake()->slug());
     }
 
     /**
