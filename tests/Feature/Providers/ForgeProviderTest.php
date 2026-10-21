@@ -10,7 +10,7 @@ use Maarheeze\Compass\Console\SyncForgeCommand;
 test('sync forge is scheduled every hour', function (): void {
     $schedule = $this->app->make(Schedule::class);
 
-    $scheduledEvent = (new Collection($schedule->events()))->sole(static function (Event $event): bool {
+    $scheduledEvent = new Collection($schedule->events())->sole(static function (Event $event): bool {
         return str_contains($event->command, SyncForgeCommand::SIGNATURE);
     });
 

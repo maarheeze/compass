@@ -143,9 +143,11 @@ readonly class SitesQuery
         foreach ($siteResources as $siteResource) {
             $forgeSite = $this->getForgeSite(Assert::isArray($siteResource), $includedResources);
 
-            if ($this->serverNameFilter->matches($forgeSite)) {
-                $matchingForgeSites->push($forgeSite);
+            if (!$this->serverNameFilter->matches($forgeSite)) {
+                continue;
             }
+
+            $matchingForgeSites->push($forgeSite);
         }
 
         return $matchingForgeSites;
