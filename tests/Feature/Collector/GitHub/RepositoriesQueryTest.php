@@ -88,6 +88,7 @@ test('page holds the github repositories in the response', function (): void {
                             [
                                 'id' => $gitHubRepository->gitHubId,
                                 'name' => $gitHubRepository->name,
+                                'url' => $gitHubRepository->url,
                                 'visibility' => $gitHubRepository->visibility->value,
                                 'defaultBranchRef' => [
                                     'name' => $gitHubRepository->defaultBranch,

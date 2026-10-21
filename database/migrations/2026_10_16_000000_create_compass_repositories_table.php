@@ -15,6 +15,7 @@ return new class extends Migration
 
             $table->string('github_id')->unique();
             $table->string('name');
+            $table->string('url');
             $table->string('default_branch');
             $table->string('last_commit_sha');
             $table->string('visibility');

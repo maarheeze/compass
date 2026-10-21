@@ -29,6 +29,7 @@ use function sprintf;
  * @property string $last_commit_sha
  * @property string $name
  * @property Carbon $updated_at
+ * @property string $url
  * @property RepositoryVisibility $visibility
  *
  * @property-read ?ComposerJson $composerJson
@@ -56,6 +57,7 @@ class Repository extends Model
             'is_active',
             'last_commit_sha',
             'name',
+            'url',
             'visibility',
         ];
     }

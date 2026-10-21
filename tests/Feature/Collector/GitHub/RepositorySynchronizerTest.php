@@ -20,6 +20,7 @@ test('store repositories creates a repository for a new github repository', func
     $this->assertDatabaseHas(Repository::class, [
         'github_id' => $gitHubRepository->gitHubId,
         'name' => $gitHubRepository->name,
+        'url' => $gitHubRepository->url,
         'default_branch' => $gitHubRepository->defaultBranch,
         'last_commit_sha' => $gitHubRepository->lastCommitSha,
         'visibility' => $gitHubRepository->visibility,
@@ -61,6 +62,7 @@ test('store repositories updates the name of a known repository', function (): v
     $gitHubRepository = new GitHubRepository(
         $repository->github_id,
         fake()->unique()->slug(),
+        fake()->url(),
         fake()->word(),
         fake()->sha1(),
         fake()->randomElement(RepositoryVisibility::cases()),

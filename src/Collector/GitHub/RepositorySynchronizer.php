@@ -28,6 +28,7 @@ readonly class RepositorySynchronizer
             $repositoryValues[] = [
                 'github_id' => $gitHubRepository->gitHubId,
                 'name' => $gitHubRepository->name,
+                'url' => $gitHubRepository->url,
                 'default_branch' => $gitHubRepository->defaultBranch,
                 'last_commit_sha' => $gitHubRepository->lastCommitSha,
                 'visibility' => $gitHubRepository->visibility,

@@ -27,6 +27,7 @@ class RepositoryFactory extends Factory
         return [
             'github_id' => fake()->unique()->sha1(),
             'name' => fake()->unique()->slug(),
+            'url' => fake()->url(),
             'default_branch' => fake()->word(),
             'last_commit_sha' => fake()->sha1(),
             'visibility' => fake()->randomElement(RepositoryVisibility::cases()),

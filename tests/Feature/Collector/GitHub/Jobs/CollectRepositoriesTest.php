@@ -41,6 +41,7 @@ test('handle stores the repositories of the page', function (): void {
     $repositoryResponse = [
         'id' => fake()->sha1(),
         'name' => fake()->slug(),
+        'url' => fake()->url(),
         'visibility' => fake()->randomElement(RepositoryVisibility::cases())->value,
         'defaultBranchRef' => [
             'name' => fake()->word(),

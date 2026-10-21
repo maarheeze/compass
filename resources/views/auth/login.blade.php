@@ -17,7 +17,7 @@
 
             <p class="text-xs text-zinc-500 dark:text-zinc-400">
                 Compass asks for the <code>read:org</code> and <code>user:email</code> scopes to check that you are a
-                member of the organisation.
+                member of the organization.
             </p>
         </div>
     </main>

@@ -17,6 +17,7 @@ class GitHubRepositoryFactory
         return new GitHubRepository(
             $repository->github_id,
             $repository->name,
+            $repository->url,
             fake()->unique()->word(),
             fake()->sha1(),
             fake()->randomElement(RepositoryVisibility::cases()),
@@ -30,6 +31,7 @@ class GitHubRepositoryFactory
         return new GitHubRepository(
             fake()->sha1(),
             fake()->slug(),
+            fake()->url(),
             fake()->word(),
             fake()->sha1(),
             fake()->randomElement(RepositoryVisibility::cases()),

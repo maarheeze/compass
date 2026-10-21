@@ -52,6 +52,7 @@ readonly class RepositoriesQuery
             $gitHubRepository = new GitHubRepository(
                 Assert::string($repositoryResponse['id']),
                 Assert::string($repositoryResponse['name']),
+                Assert::string($repositoryResponse['url']),
                 Assert::string($defaultBranchResponse['name']),
                 Assert::string($lastCommitResponse['oid']),
                 RepositoryVisibility::from(Assert::string($repositoryResponse['visibility'])),
@@ -96,6 +97,7 @@ readonly class RepositoriesQuery
                   nodes {
                     id
                     name
+                    url
                     visibility
                     defaultBranchRef { name target { oid } }
                     composerJson: object(expression: "HEAD:composer.json") { oid }

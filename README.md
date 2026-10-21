@@ -3,10 +3,10 @@
 A self-hosted status dashboard for GitHub repositories and the Laravel Forge
 sites they deploy to. A scheduled collector gathers each repository's latest
 commit, `composer.json` and Forge deployment state; members of the configured
-GitHub organisation sign in with GitHub to view it.
+GitHub organization sign in with GitHub to view it.
 
-Compass is a Laravel package: each organisation installs it in its own Laravel
-application, configured with its own organisation and repositories.
+Compass is a Laravel package: each organization installs it in its own Laravel
+application, configured with its own organization and repositories.
 
 ## Installation
 
@@ -31,14 +31,14 @@ the package views as a source in `resources/css/app.css`:
 ## Sign-in
 
 People sign in with their GitHub account. Only active members of the
-configured organisation are let in; membership is checked at sign-in.
+configured organization are let in; membership is checked at sign-in.
 
 ```php
 // config/compass.php
 'github_organization' => 'your-org',
 ```
 
-Register a GitHub OAuth App (not a GitHub App) under your organisation at
+Register a GitHub OAuth App (not a GitHub App) under your organization at
 **Organization → Settings → Developer settings → OAuth Apps → New OAuth App**:
 
 - **Homepage URL** — any URL, for example your application's repository; it
@@ -69,7 +69,7 @@ the latest commit and `composer.json` from GitHub, and the deployed commit and
 latest deployment status from Forge. It authenticates as a dedicated CI user,
 never as a signed-in person.
 
-List the projects: each one a repository of the configured organisation, with
+List the projects: each one a repository of the configured organization, with
 the Forge server and site it deploys to:
 
 ```php
@@ -109,7 +109,7 @@ Sign-in requests two scopes:
 
 | Scope | Why |
 | --- | --- |
-| `read:org` | Check that you are a member of the organisation, including a private membership |
+| `read:org` | Check that you are a member of the organization, including a private membership |
 | `user:email` | Read your account email address |
 
 ## Development
