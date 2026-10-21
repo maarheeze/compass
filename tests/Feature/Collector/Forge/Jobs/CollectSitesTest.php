@@ -25,7 +25,7 @@ test('handle queries the page of its cursor', function (): void {
     $this->app->call([$collectSites, 'handle']);
 
     $http->assertSent(static function (HttpRequest $request) use ($cursor): bool {
-        return $request['page']['cursor'] === $cursor;
+        return $request['page[cursor]'] === $cursor;
     });
 });
 

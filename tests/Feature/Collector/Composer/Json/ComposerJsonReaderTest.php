@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Maarheeze\Compass\Collections\RequiredPackageCollection;
 use Maarheeze\Compass\Collector\Composer\Json\ComposerJsonReader;
-use Maarheeze\Compass\Collector\Composer\PackageSection;
 use Maarheeze\Compass\Collector\Composer\Json\RequiredPackage;
+use Maarheeze\Compass\Collector\Composer\PackageSection;
 
 test('type is the type in the composer json', function (): void {
     $type = fake()->word();

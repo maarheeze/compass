@@ -34,7 +34,7 @@ readonly class GitHubClient
                     'variables' => $variables,
                 ]);
             $response->throw();
-        } catch (ConnectionException|RequestException $exception) {
+        } catch (ConnectionException | RequestException $exception) {
             throw new GitHubQueryFailed(previous: $exception);
         }
 

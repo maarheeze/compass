@@ -49,10 +49,8 @@ test('page requests the sites with their server and latest deployment from the c
     $http->assertSent(static function (HttpRequest $request) use ($cursor): bool {
         return $request->data() === [
             'include' => 'server,latestDeployment',
-            'page' => [
-                'size' => '100',
-                'cursor' => $cursor,
-            ],
+            'page[size]' => 100,
+            'page[cursor]' => $cursor,
         ];
     });
 });

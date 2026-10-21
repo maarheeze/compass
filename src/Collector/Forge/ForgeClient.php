@@ -31,7 +31,7 @@ readonly class ForgeClient
                 ->acceptJson()
                 ->get($path, $query);
             $response->throw();
-        } catch (ConnectionException|RequestException $exception) {
+        } catch (ConnectionException | RequestException $exception) {
             throw new ForgeRequestFailed(previous: $exception);
         }
 

@@ -12,6 +12,7 @@ use Maarheeze\Compass\Analyzer\Composer\RepositoryKindClassifier;
 use Maarheeze\Compass\Authentication\AuthenticatedUser;
 use Maarheeze\Compass\Collections\RepositoryCollection;
 use Maarheeze\Compass\Models\Repository;
+use Webmozart\Assert\Assert;
 
 readonly class RepositoryController
 {
@@ -24,10 +25,13 @@ readonly class RepositoryController
 
     public function index(): View
     {
-        $repositories = Repository::query()
-            ->with('composerJson')
-            ->orderBy('name')
-            ->get();
+        $repositories = Assert::isInstanceOf(
+            Repository::query()
+                ->with('composerJson')
+                ->orderBy('name')
+                ->get(),
+            RepositoryCollection::class,
+        );
 
         return $this->view->make('compass::repositories.index', [
             'libraries' => $this->getRepositoriesOfKind($repositories, RepositoryKind::LIBRARY),
@@ -56,10 +60,8 @@ readonly class RepositoryController
 
     private function getRepositoriesOfKind(RepositoryCollection $repositories, RepositoryKind $kind): RepositoryCollection
     {
-        return $repositories
-            ->filter(function (Repository $repository) use ($kind): bool {
-                return $this->repositoryKindClassifier->classify($repository) === $kind;
-            })
-            ->values();
+        return $repositories->filter(function (Repository $repository) use ($kind): bool {
+            return $this->repositoryKindClassifier->classify($repository) === $kind;
+        });
     }
 }

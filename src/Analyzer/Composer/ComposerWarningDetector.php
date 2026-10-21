@@ -21,6 +21,7 @@ readonly class ComposerWarningDetector
         }
 
         $composerJson = $repository->composerJson;
+
         if ($composerJson === null) {
             return null;
         }
