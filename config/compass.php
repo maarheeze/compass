@@ -38,13 +38,26 @@ return [
     |--------------------------------------------------------------------------
     |
     | Token of the CI user the collector reads the organization's repositories
-    | with. It is never a signed-in person's token.
+    | with, and the Forge API token the sites are read with. Neither is ever a
+    | signed-in person's token.
     |
     */
 
     'collector' => [
+        'forge_token' => env('COMPASS_FORGE_TOKEN'),
         'github_token' => env('COMPASS_GITHUB_TOKEN'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Forge organization
+    |--------------------------------------------------------------------------
+    |
+    | The slug of the Forge organization whose sites are collected.
+    |
+    */
+
+    'forge_organization' => env('COMPASS_FORGE_ORGANIZATION'),
 
     /*
     |--------------------------------------------------------------------------

@@ -7,6 +7,9 @@ namespace Maarheeze\Compass\Http;
 enum RouteName: string
 {
     case DASHBOARD = 'compass.dashboard';
+    case FORGE_SITE = 'compass.forge.site';
+    case FORGE_SITES = 'compass.forge.sites';
+    case FORGE_SYNC = 'compass.forge.sync';
     case GITHUB_CALLBACK = 'compass.auth.github.callback';
     case GITHUB_REDIRECT = 'compass.auth.github';
     case GITHUB_REPOSITORIES = 'compass.github.repositories';

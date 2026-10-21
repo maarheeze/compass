@@ -99,8 +99,7 @@ test('handle chains the next page when there is one', function (): void {
     $collectRepositories = new CollectRepositories($collectionRunId, null);
     $this->app->call([$collectRepositories, 'handle']);
 
-    expect($collectRepositories->chained)
-        ->toEqual([serialize(new CollectRepositories($collectionRunId, $endCursor))]);
+    $collectRepositories->assertHasChain([new CollectRepositories($collectionRunId, $endCursor)]);
 });
 
 test('handle marks repositories of another run inactive on the last page', function (): void {

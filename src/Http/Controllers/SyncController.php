@@ -7,6 +7,7 @@ namespace Maarheeze\Compass\Http\Controllers;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
+use Maarheeze\Compass\Console\SyncForgeCommand;
 use Maarheeze\Compass\Console\SyncGitHubCommand;
 use Maarheeze\Compass\Http\RouteName;
 
@@ -16,6 +17,13 @@ readonly class SyncController
         private Kernel $kernel,
         private Redirector $redirector,
     ) {
+    }
+
+    public function forge(): RedirectResponse
+    {
+        $this->kernel->call(SyncForgeCommand::SIGNATURE);
+
+        return $this->redirector->route(RouteName::DASHBOARD);
     }
 
     public function github(): RedirectResponse

@@ -42,7 +42,9 @@ abstract class TestCase extends Orchestra
         $configuration = $app->make(Repository::class);
         $configuration->set('compass.authentication.github.client_id', fake()->uuid());
         $configuration->set('compass.authentication.github.client_secret', fake()->sha1());
+        $configuration->set('compass.collector.forge_token', fake()->sha1());
         $configuration->set('compass.collector.github_token', fake()->sha1());
+        $configuration->set('compass.forge_organization', fake()->slug());
         $configuration->set('compass.organization', fake()->slug());
     }
 
@@ -53,6 +55,9 @@ abstract class TestCase extends Orchestra
      */
     protected function getPackageProviders($app): array
     {
-        return [SocialiteServiceProvider::class, CompassServiceProvider::class];
+        return [
+            CompassServiceProvider::class,
+            SocialiteServiceProvider::class,
+        ];
     }
 }

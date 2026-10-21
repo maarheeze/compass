@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Maarheeze\Compass\Http\Controllers\DashboardController;
 use Maarheeze\Compass\Http\Controllers\GitHubController;
 use Maarheeze\Compass\Http\Controllers\RepositoryController;
+use Maarheeze\Compass\Http\Controllers\SiteController;
 use Maarheeze\Compass\Http\Controllers\SyncController;
 use Maarheeze\Compass\Http\Middleware\Authenticate;
 use Maarheeze\Compass\Http\Middleware\RedirectIfAuthenticated;
@@ -27,8 +28,11 @@ Route::middleware('web')
             Route::get('/github/repositories', [RepositoryController::class, 'index'])->name(RouteName::GITHUB_REPOSITORIES);
             Route::get('/github/repositories/{repository}', [RepositoryController::class, 'show'])
                 ->name(RouteName::GITHUB_REPOSITORY);
+            Route::get('/forge/sites', [SiteController::class, 'index'])->name(RouteName::FORGE_SITES);
+            Route::get('/forge/sites/{site}', [SiteController::class, 'show'])->name(RouteName::FORGE_SITE);
 
             Route::post('/logout', [GitHubController::class, 'logout'])->name(RouteName::LOGOUT);
             Route::post('/sync/github', [SyncController::class, 'github'])->name(RouteName::GITHUB_SYNC);
+            Route::post('/sync/forge', [SyncController::class, 'forge'])->name(RouteName::FORGE_SYNC);
         });
     });
