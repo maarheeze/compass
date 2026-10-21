@@ -34,6 +34,7 @@ class SiteFactory extends Factory
             'repository_url' => fake()->optional()->url(),
             'repository_branch' => fake()->optional()->word(),
             'server_name' => fake()->slug(),
+            'server_slug' => fake()->slug(),
             'server_ip_address' => fake()->optional()->ipv4(),
             'deployment_status' => fake()->optional()->randomElement(DeploymentStatus::cases()),
             'deployed_commit_hash' => fake()->optional()->sha1(),

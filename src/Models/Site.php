@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collector\CollectionRunId;
@@ -34,9 +35,12 @@ use function sprintf;
  * @property ?string $repository_url
  * @property ?string $server_ip_address
  * @property string $server_name
+ * @property string $server_slug
  * @property SiteStatus $status
  * @property Carbon $updated_at
  * @property string $url
+ *
+ * @property-read ?Repository $repository
  */
 class Site extends Model
 {
@@ -66,6 +70,7 @@ class Site extends Model
             'repository_url',
             'server_ip_address',
             'server_name',
+            'server_slug',
             'status',
             'url',
         ];
@@ -74,6 +79,14 @@ class Site extends Model
     public function getTable(): string
     {
         return 'compass_sites';
+    }
+
+    /**
+     * @return BelongsTo<Repository, $this>
+     */
+    public function repository(): BelongsTo
+    {
+        return $this->belongsTo(Repository::class, 'repository_url', 'url');
     }
 
     /**

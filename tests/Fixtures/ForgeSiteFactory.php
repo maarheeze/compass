@@ -26,6 +26,7 @@ class ForgeSiteFactory
             fake()->url(),
             fake()->word(),
             fake()->slug(),
+            fake()->slug(),
             fake()->ipv4(),
             null,
         );
@@ -41,6 +42,7 @@ class ForgeSiteFactory
             fake()->numerify('php8#'),
             fake()->url(),
             fake()->word(),
+            fake()->slug(),
             fake()->slug(),
             fake()->ipv4(),
             new ForgeDeployment(
@@ -63,6 +65,7 @@ class ForgeSiteFactory
             fake()->numerify('php8#'),
             fake()->url(),
             fake()->word(),
+            fake()->slug(),
             fake()->slug(),
             fake()->ipv4(),
             null,

@@ -20,13 +20,18 @@ readonly class SiteController
     public function index(): View
     {
         return $this->view->make('compass::sites.index', [
-            'sites' => Site::query()->orderBy('name')->get(),
+            'sites' => Site::query()
+                ->with('repository')
+                ->orderBy('name')
+                ->get(),
             'user' => $this->authenticatedUser->user(),
         ]);
     }
 
     public function show(Site $site): View
     {
+        $site->load('repository');
+
         return $this->view->make('compass::sites.show', [
             'site' => $site,
             'user' => $this->authenticatedUser->user(),

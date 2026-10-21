@@ -9,7 +9,6 @@
                         <th class="px-4 py-2 font-medium">Site</th>
                         <th class="px-4 py-2 font-medium">Server</th>
                         <th class="px-4 py-2 font-medium">Status</th>
-                        <th class="px-4 py-2 font-medium">Deployment</th>
                         <th class="px-4 py-2 font-medium">Deployed commit</th>
                         <th class="px-4 py-2 font-medium">Collected at</th>
                     </tr>
@@ -21,8 +20,9 @@
                                 <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE, $site) }}" class="hover:underline">{{ $site->name }}</a>
                             </td>
                             <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">{{ $site->server_name }}</td>
-                            <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">{{ $site->status->value }}</td>
-                            <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">{{ $site->deployment_status?->value }}</td>
+                            <td class="px-4 py-2">
+                                <x-compass::forge.deployment-state-label :site="$site" />
+                            </td>
                             <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">
                                 <code class="block w-[7ch] overflow-hidden" title="{{ $site->deployed_commit_hash }}">{{ $site->deployed_commit_hash }}</code>
                             </td>
@@ -32,7 +32,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-4 py-6 text-center text-zinc-500 dark:text-zinc-400">No sites collected yet.</td>
+                            <td colspan="5" class="px-4 py-6 text-center text-zinc-500 dark:text-zinc-400">No sites collected yet.</td>
                         </tr>
                     @endforelse
                 </tbody>

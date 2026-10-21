@@ -26,7 +26,7 @@
                     </td>
                     <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">{{ $repository->composerJson?->php_constraint }}</td>
                     <td class="px-4 py-2">
-                        <x-compass::composer-warning-badge :repository="$repository" />
+                        <x-compass::composer.warning-badge :repository="$repository" />
                     </td>
                     <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">
                         <x-compass::time :time="$repository->collected_at" />

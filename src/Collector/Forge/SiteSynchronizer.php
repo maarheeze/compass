@@ -25,6 +25,7 @@ readonly class SiteSynchronizer
                 'repository_url' => $forgeSite->repositoryUrl,
                 'repository_branch' => $forgeSite->repositoryBranch,
                 'server_name' => $forgeSite->serverName,
+                'server_slug' => $forgeSite->serverSlug,
                 'server_ip_address' => $forgeSite->serverIpAddress,
                 'deployment_status' => $forgeSite->latestDeployment?->status,
                 'deployed_commit_hash' => $forgeSite->latestDeployment?->commitHash,

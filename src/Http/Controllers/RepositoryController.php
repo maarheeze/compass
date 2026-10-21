@@ -49,6 +49,10 @@ readonly class RepositoryController
         $repository->load([
             'composerJson.packages' => $orderPackagesByName,
             'composerLock.packages' => $orderPackagesByName,
+            'sites' => static function (Builder $siteQuery): void {
+                $siteQuery->orderBy('name');
+            },
+            'sites.repository',
         ]);
 
         return $this->view->make('compass::repositories.show', [

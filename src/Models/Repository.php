@@ -6,9 +6,11 @@ namespace Maarheeze\Compass\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 use Maarheeze\Compass\Collections\RepositoryCollection;
+use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collector\CollectionRunId;
 use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
 use Maarheeze\Compass\Database\Factories\RepositoryFactory;
@@ -34,6 +36,7 @@ use function sprintf;
  *
  * @property-read ?ComposerJson $composerJson
  * @property-read ?ComposerLock $composerLock
+ * @property-read SiteCollection $sites
  */
 class Repository extends Model
 {
@@ -76,6 +79,14 @@ class Repository extends Model
     public function composerLock(): HasOne
     {
         return $this->hasOne(ComposerLock::class);
+    }
+
+    /**
+     * @return HasMany<Site, $this>
+     */
+    public function sites(): HasMany
+    {
+        return $this->hasMany(Site::class, 'repository_url', 'url');
     }
 
     public function getTable(): string

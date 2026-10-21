@@ -96,6 +96,7 @@ test('page holds the forge sites in the response', function (): void {
                     'id' => $serverId,
                     'type' => 'servers',
                     'attributes' => [
+                        'slug' => $forgeSite->serverSlug,
                         'name' => $forgeSite->serverName,
                         'ip_address' => $forgeSite->serverIpAddress,
                     ],
@@ -163,6 +164,7 @@ test('page holds no latest deployment for a site that was never deployed', funct
                     'id' => $serverId,
                     'type' => 'servers',
                     'attributes' => [
+                        'slug' => fake()->slug(),
                         'name' => fake()->slug(),
                         'ip_address' => fake()->ipv4(),
                     ],

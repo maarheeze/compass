@@ -4,7 +4,8 @@
 
         <div class="flex items-center gap-3">
             <h1 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{{ $repository->name }}</h1>
-            <x-compass::composer-warning-badge :repository="$repository" />
+            <x-compass::composer.warning-badge :repository="$repository" />
+            <a href="{{ $repository->url }}" target="_blank" rel="noopener" class="ml-auto text-sm text-zinc-500 hover:underline dark:text-zinc-400">GitHub &nearr;</a>
         </div>
 
         <section class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-zinc-950/5 dark:bg-zinc-900 dark:ring-white/10">
@@ -47,6 +48,47 @@
                 </dd>
             </dl>
         </section>
+
+        @if ($repository->sites->isEmpty())
+            <p class="text-sm text-zinc-500 dark:text-zinc-400">No Forge sites deploy this repository.</p>
+        @else
+            <details class="group rounded-xl bg-white shadow-sm ring-1 ring-zinc-950/5 dark:bg-zinc-900 dark:ring-white/10">
+                <summary class="flex cursor-pointer items-center gap-2 px-4 py-3 text-sm">
+                    <span class="text-zinc-400 transition group-open:rotate-90">&rsaquo;</span>
+                    <span class="font-semibold text-zinc-900 dark:text-zinc-100">Forge sites</span>
+                    <span class="text-zinc-500 dark:text-zinc-400">&middot; {{ $repository->sites->count() }} sites</span>
+                </summary>
+
+                <table class="w-full table-fixed border-t border-zinc-100 text-left text-sm dark:border-white/5">
+                    <thead class="bg-zinc-50 text-xs text-zinc-500 dark:bg-zinc-800/50 dark:text-zinc-400">
+                        <tr>
+                            <th class="px-4 py-2 font-medium">Site</th>
+                            <th class="w-28 px-4 py-2 font-medium">Branch</th>
+                            <th class="w-28 px-4 py-2 font-medium">Deployment</th>
+                            <th class="w-28 px-4 py-2 font-medium">Deployed commit</th>
+                            <th class="w-28 px-4 py-2 font-medium">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-zinc-100 dark:divide-white/5">
+                        @foreach ($repository->sites as $site)
+                            <tr>
+                                <td class="truncate px-4 py-2 text-zinc-900 dark:text-zinc-100">
+                                    <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE, $site) }}" class="hover:underline">{{ $site->name }}</a>
+                                </td>
+                                <td class="truncate px-4 py-2 text-zinc-500 dark:text-zinc-400">{{ $site->repository_branch }}</td>
+                                <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">{{ $site->deployment_status?->value }}</td>
+                                <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">
+                                    <code class="block w-[7ch] overflow-hidden" title="{{ $site->deployed_commit_hash }}">{{ $site->deployed_commit_hash }}</code>
+                                </td>
+                                <td class="px-4 py-2">
+                                    <x-compass::forge.deployment-state-label :site="$site" />
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </details>
+        @endif
 
         @if ($repository->composerJson)
             <details class="group rounded-xl bg-white shadow-sm ring-1 ring-zinc-950/5 dark:bg-zinc-900 dark:ring-white/10">

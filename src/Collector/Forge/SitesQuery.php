@@ -91,6 +91,7 @@ readonly class SitesQuery
             Assert::nullOrString($repositoryAttributes['url']),
             Assert::nullOrString($repositoryAttributes['branch']),
             Assert::string($serverAttributes['name']),
+            Assert::string($serverAttributes['slug']),
             Assert::nullOrString($serverAttributes['ip_address']),
             $this->getForgeDeployment(Assert::isArray($relationships['latestDeployment'])['data'], $includedResources),
         );

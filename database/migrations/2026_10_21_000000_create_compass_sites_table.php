@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('repository_url')->nullable();
             $table->string('repository_branch')->nullable();
             $table->string('server_name');
+            $table->string('server_slug');
             $table->string('server_ip_address')->nullable();
             $table->string('deployment_status')->nullable();
             $table->string('deployed_commit_hash')->nullable();

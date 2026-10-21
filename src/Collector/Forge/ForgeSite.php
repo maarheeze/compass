@@ -15,6 +15,7 @@ readonly class ForgeSite
         public ?string $repositoryUrl,
         public ?string $repositoryBranch,
         public string $serverName,
+        public string $serverSlug,
         public ?string $serverIpAddress,
         public ?ForgeDeployment $latestDeployment,
     ) {

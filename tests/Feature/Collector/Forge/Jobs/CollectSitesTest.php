@@ -67,6 +67,7 @@ test('handle stores the sites of the page', function (): void {
                     'id' => $serverId,
                     'type' => 'servers',
                     'attributes' => [
+                        'slug' => fake()->slug(),
                         'name' => fake()->slug(),
                         'ip_address' => null,
                     ],
