@@ -25,10 +25,13 @@ class RepositoryFactory extends Factory
     public function definition(): array
     {
         return [
+            'github_id' => fake()->unique()->sha1(),
             'name' => fake()->unique()->slug(),
             'default_branch' => fake()->word(),
             'last_commit_sha' => fake()->sha1(),
             'visibility' => fake()->randomElement(RepositoryVisibility::cases()),
+            'composer_json_oid' => fake()->optional()->sha1(),
+            'composer_lock_oid' => fake()->optional()->sha1(),
             'collection_run_id' => CollectionRunId::generate(),
             'is_active' => fake()->boolean(),
             'collected_at' => fake()->dateTime(),

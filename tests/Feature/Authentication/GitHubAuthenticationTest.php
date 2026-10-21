@@ -107,8 +107,11 @@ test('callback checks the membership of the organization with the user token', f
     $githubAuthentication->callback();
 
     $http->assertSent(static function (HttpRequest $request) use ($oauthUser, $organization): bool {
-        return $request->url() === sprintf('https://api.github.com/user/memberships/orgs/%s', $organization)
-            && $request->hasHeader('Authorization', sprintf('Bearer %s', $oauthUser->token));
+        if ($request->url() !== sprintf('https://api.github.com/user/memberships/orgs/%s', $organization)) {
+            return false;
+        }
+
+        return $request->hasHeader('Authorization', sprintf('Bearer %s', $oauthUser->token));
     });
 });
 

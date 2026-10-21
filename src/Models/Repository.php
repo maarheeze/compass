@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 use Maarheeze\Compass\Collections\RepositoryCollection;
 use Maarheeze\Compass\Collector\CollectionRunId;
@@ -18,14 +19,20 @@ use function sprintf;
 /**
  * @property Carbon $collected_at
  * @property CollectionRunId $collection_run_id
+ * @property ?string $composer_json_oid
+ * @property ?string $composer_lock_oid
  * @property Carbon $created_at
  * @property string $default_branch
+ * @property string $github_id
  * @property int $id
  * @property bool $is_active
  * @property string $last_commit_sha
  * @property string $name
  * @property Carbon $updated_at
  * @property RepositoryVisibility $visibility
+ *
+ * @property-read ?ComposerJson $composerJson
+ * @property-read ?ComposerLock $composerLock
  */
 class Repository extends Model
 {
@@ -42,12 +49,31 @@ class Repository extends Model
         return [
             'collected_at',
             'collection_run_id',
+            'composer_json_oid',
+            'composer_lock_oid',
             'default_branch',
+            'github_id',
             'is_active',
             'last_commit_sha',
             'name',
             'visibility',
         ];
+    }
+
+    /**
+     * @return HasOne<ComposerJson, $this>
+     */
+    public function composerJson(): HasOne
+    {
+        return $this->hasOne(ComposerJson::class);
+    }
+
+    /**
+     * @return HasOne<ComposerLock, $this>
+     */
+    public function composerLock(): HasOne
+    {
+        return $this->hasOne(ComposerLock::class);
     }
 
     public function getTable(): string

@@ -4,28 +4,11 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Collector\GitHub;
 
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\RequestException;
 use Maarheeze\Compass\Collections\GitHubRepositoryCollection;
 use Webmozart\Assert\Assert;
 
 readonly class RepositoriesQuery
 {
-    private const string QUERY = <<<'GRAPHQL'
-        query ($organization: String!, $cursor: String) {
-          organization(login: $organization) {
-            repositories(first: 100, after: $cursor, isArchived: false) {
-              pageInfo { hasNextPage endCursor }
-              nodes {
-                name
-                visibility
-                defaultBranchRef { name target { oid } }
-              }
-            }
-          }
-        }
-        GRAPHQL;
-
     public function __construct(
         private GitHubClient $gitHubClient,
         private string $organization,
@@ -33,31 +16,18 @@ readonly class RepositoriesQuery
     }
 
     /**
-     * @throws ConnectionException
      * @throws GitHubQueryFailed
-     * @throws RequestException
      */
     public function page(?string $cursor): RepositoriesQueryResult
     {
-        $response = $this->gitHubClient
-            ->request()
-            ->post('graphql', [
-                'query' => self::QUERY,
-                'variables' => [
-                    'organization' => $this->organization,
-                    'cursor' => $cursor,
-                ],
-            ]);
-        $response->throw();
-
-        if ($response->json('errors') !== null) {
-            throw new GitHubQueryFailed();
-        }
-
+        $response = $this->gitHubClient->query($this->getQuery(), [
+            'organization' => $this->organization,
+            'cursor' => $cursor,
+        ]);
         $repositoriesResponse = Assert::isArray($response->json('data.organization.repositories'));
 
         return new RepositoriesQueryResult(
-            $this->getGitHubRepositories(Assert::isList($repositoriesResponse['nodes'])),
+            $this->buildGitHubRepositoriesCollection(Assert::isList($repositoriesResponse['nodes'])),
             $this->getNextCursor(Assert::isArray($repositoriesResponse['pageInfo'])),
         );
     }
@@ -65,7 +35,7 @@ readonly class RepositoriesQuery
     /**
      * @param list<mixed> $repositoryResponses
      */
-    private function getGitHubRepositories(array $repositoryResponses): GitHubRepositoryCollection
+    private function buildGitHubRepositoriesCollection(array $repositoryResponses): GitHubRepositoryCollection
     {
         $gitHubRepositories = new GitHubRepositoryCollection();
 
@@ -80,10 +50,13 @@ readonly class RepositoriesQuery
             $lastCommitResponse = Assert::isArray($defaultBranchResponse['target']);
 
             $gitHubRepository = new GitHubRepository(
+                Assert::string($repositoryResponse['id']),
                 Assert::string($repositoryResponse['name']),
                 Assert::string($defaultBranchResponse['name']),
                 Assert::string($lastCommitResponse['oid']),
                 RepositoryVisibility::from(Assert::string($repositoryResponse['visibility'])),
+                $this->getOid($repositoryResponse['composerJson']),
+                $this->getOid($repositoryResponse['composerLock']),
             );
 
             $gitHubRepositories->push($gitHubRepository);
@@ -102,5 +75,35 @@ readonly class RepositoriesQuery
         }
 
         return Assert::string($pageInfoResponse['endCursor']);
+    }
+
+    private function getOid(mixed $objectResponse): ?string
+    {
+        if ($objectResponse === null) {
+            return null;
+        }
+
+        return Assert::string(Assert::isArray($objectResponse)['oid']);
+    }
+
+    private function getQuery(): string
+    {
+        return <<<'GRAPHQL'
+            query ($organization: String!, $cursor: String) {
+              organization(login: $organization) {
+                repositories(first: 100, after: $cursor, isArchived: false) {
+                  pageInfo { hasNextPage endCursor }
+                  nodes {
+                    id
+                    name
+                    visibility
+                    defaultBranchRef { name target { oid } }
+                    composerJson: object(expression: "HEAD:composer.json") { oid }
+                    composerLock: object(expression: "HEAD:composer.lock") { oid }
+                  }
+                }
+              }
+            }
+            GRAPHQL;
     }
 }

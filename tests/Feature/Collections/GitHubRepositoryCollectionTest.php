@@ -3,16 +3,10 @@
 declare(strict_types=1);
 
 use Maarheeze\Compass\Collections\GitHubRepositoryCollection;
-use Maarheeze\Compass\Collector\GitHub\GitHubRepository;
-use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
+use Maarheeze\Compass\Tests\Fixtures\GitHubRepositoryFactory;
 
 test('github repository collection holds the github repositories it is given', function (): void {
-    $gitHubRepository = new GitHubRepository(
-        fake()->slug(),
-        fake()->word(),
-        fake()->sha1(),
-        fake()->randomElement(RepositoryVisibility::cases()),
-    );
+    $gitHubRepository = GitHubRepositoryFactory::make();
 
     $gitHubRepositoryCollection = new GitHubRepositoryCollection([$gitHubRepository]);
 

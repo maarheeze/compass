@@ -13,10 +13,13 @@ return new class extends Migration
         Schema::create('compass_repositories', static function (Blueprint $table): void {
             $table->id();
 
-            $table->string('name')->unique();
+            $table->string('github_id')->unique();
+            $table->string('name');
             $table->string('default_branch');
             $table->string('last_commit_sha');
             $table->string('visibility');
+            $table->string('composer_json_oid')->nullable();
+            $table->string('composer_lock_oid')->nullable();
             $table->string('collection_run_id');
             $table->boolean('is_active');
             $table->timestamp('collected_at');

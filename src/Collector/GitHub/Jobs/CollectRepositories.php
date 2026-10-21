@@ -5,10 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Collector\GitHub\Jobs;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\RequestException;
 use Maarheeze\Compass\Collector\CollectionRunId;
 use Maarheeze\Compass\Collector\GitHub\GitHubQueryFailed;
 use Maarheeze\Compass\Collector\GitHub\RepositoriesQuery;
@@ -25,14 +22,11 @@ class CollectRepositories implements ShouldQueue
     }
 
     /**
-     * @throws ConnectionException
      * @throws GitHubQueryFailed
-     * @throws RequestException
      */
     public function handle(
         RepositoriesQuery $repositoriesQuery,
         RepositorySynchronizer $repositorySynchronizer,
-        Dispatcher $dispatcher,
     ): void {
         $repositoriesQueryResult = $repositoriesQuery->page($this->cursor);
 
@@ -42,7 +36,7 @@ class CollectRepositories implements ShouldQueue
         );
 
         if ($repositoriesQueryResult->nextCursor !== null) {
-            $dispatcher->dispatch(new self($this->collectionRunId, $repositoriesQueryResult->nextCursor));
+            $this->prependToChain(new self($this->collectionRunId, $repositoriesQueryResult->nextCursor));
 
             return;
         }

@@ -71,6 +71,10 @@ readonly class GitHubAuthentication
             ->acceptJson()
             ->get(sprintf('https://api.github.com/user/memberships/orgs/%s', $this->organization));
 
-        return $membership->successful() && $membership->json('state') === 'active';
+        if (!$membership->successful()) {
+            return false;
+        }
+
+        return $membership->json('state') === 'active';
     }
 }

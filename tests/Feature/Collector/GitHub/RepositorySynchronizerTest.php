@@ -8,24 +8,23 @@ use Maarheeze\Compass\Collector\GitHub\GitHubRepository;
 use Maarheeze\Compass\Collector\GitHub\RepositorySynchronizer;
 use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
 use Maarheeze\Compass\Models\Repository;
+use Maarheeze\Compass\Tests\Fixtures\GitHubRepositoryFactory;
 
 test('store repositories creates a repository for a new github repository', function (): void {
-    $gitHubRepository = new GitHubRepository(
-        fake()->slug(),
-        fake()->word(),
-        fake()->sha1(),
-        fake()->randomElement(RepositoryVisibility::cases()),
-    );
+    $gitHubRepository = GitHubRepositoryFactory::make();
     $collectionRunId = CollectionRunId::generate();
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
     $repositorySynchronizer->storeRepositories(new GitHubRepositoryCollection([$gitHubRepository]), $collectionRunId);
 
     $this->assertDatabaseHas(Repository::class, [
+        'github_id' => $gitHubRepository->gitHubId,
         'name' => $gitHubRepository->name,
         'default_branch' => $gitHubRepository->defaultBranch,
         'last_commit_sha' => $gitHubRepository->lastCommitSha,
         'visibility' => $gitHubRepository->visibility,
+        'composer_json_oid' => $gitHubRepository->composerJsonOid,
+        'composer_lock_oid' => $gitHubRepository->composerLockOid,
         'collection_run_id' => $collectionRunId,
         'is_active' => true,
     ]);
@@ -33,12 +32,7 @@ test('store repositories creates a repository for a new github repository', func
 
 test('store repositories updates the default branch of a known repository', function (): void {
     $repository = Repository::factory()->create(['default_branch' => fake()->unique()->word()]);
-    $gitHubRepository = new GitHubRepository(
-        $repository->name,
-        fake()->unique()->word(),
-        fake()->sha1(),
-        fake()->randomElement(RepositoryVisibility::cases()),
-    );
+    $gitHubRepository = GitHubRepositoryFactory::forRepository($repository);
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
     $repositorySynchronizer->storeRepositories(new GitHubRepositoryCollection([$gitHubRepository]), CollectionRunId::generate());
@@ -51,12 +45,7 @@ test('store repositories updates the default branch of a known repository', func
 
 test('store repositories updates the last commit sha of a known repository', function (): void {
     $repository = Repository::factory()->create();
-    $gitHubRepository = new GitHubRepository(
-        $repository->name,
-        fake()->word(),
-        fake()->sha1(),
-        fake()->randomElement(RepositoryVisibility::cases()),
-    );
+    $gitHubRepository = GitHubRepositoryFactory::forRepository($repository);
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
     $repositorySynchronizer->storeRepositories(new GitHubRepositoryCollection([$gitHubRepository]), CollectionRunId::generate());
@@ -67,14 +56,30 @@ test('store repositories updates the last commit sha of a known repository', fun
     ]);
 });
 
-test('store repositories reactivates an inactive repository', function (): void {
-    $repository = Repository::factory()->create(['is_active' => false]);
+test('store repositories updates the name of a known repository', function (): void {
+    $repository = Repository::factory()->create(['name' => fake()->unique()->slug()]);
     $gitHubRepository = new GitHubRepository(
-        $repository->name,
+        $repository->github_id,
+        fake()->unique()->slug(),
         fake()->word(),
         fake()->sha1(),
         fake()->randomElement(RepositoryVisibility::cases()),
+        fake()->sha1(),
+        fake()->sha1(),
     );
+
+    $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
+    $repositorySynchronizer->storeRepositories(new GitHubRepositoryCollection([$gitHubRepository]), CollectionRunId::generate());
+
+    $this->assertDatabaseHas(Repository::class, [
+        'id' => $repository->id,
+        'name' => $gitHubRepository->name,
+    ]);
+});
+
+test('store repositories reactivates an inactive repository', function (): void {
+    $repository = Repository::factory()->create(['is_active' => false]);
+    $gitHubRepository = GitHubRepositoryFactory::forRepository($repository);
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
     $repositorySynchronizer->storeRepositories(new GitHubRepositoryCollection([$gitHubRepository]), CollectionRunId::generate());

@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'path' => '/',
+    'path' => env('COMPASS_PATH', '/'),
 
     /*
     |--------------------------------------------------------------------------
@@ -57,6 +57,6 @@ return [
     |
     */
 
-    'organization' => null,
+    'organization' => env('COMPASS_ORGANISATION'),
 
 ];

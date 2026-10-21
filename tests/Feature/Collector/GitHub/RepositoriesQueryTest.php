@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
-use Illuminate\Http\Client\RequestException;
 use Maarheeze\Compass\Collections\GitHubRepositoryCollection;
 use Maarheeze\Compass\Collector\GitHub\GitHubQueryFailed;
-use Maarheeze\Compass\Collector\GitHub\GitHubRepository;
 use Maarheeze\Compass\Collector\GitHub\RepositoriesQuery;
 use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
+use Maarheeze\Compass\Tests\Fixtures\GitHubRepositoryFactory;
 
 test('page is queried at the github graphql api', function (): void {
     $http = $this->app->make(HttpFactory::class);
@@ -33,8 +32,11 @@ test('page is queried at the github graphql api', function (): void {
     $repositoriesQuery->page(fake()->sha1());
 
     $http->assertSent(static function (HttpRequest $request): bool {
-        return $request->method() === 'POST'
-            && $request->url() === 'https://api.github.com/graphql';
+        if ($request->method() !== 'POST') {
+            return false;
+        }
+
+        return $request->url() === 'https://api.github.com/graphql';
     });
 });
 
@@ -72,12 +74,7 @@ test('page is queried for the organization from the cursor', function (): void {
 });
 
 test('page holds the github repositories in the response', function (): void {
-    $gitHubRepository = new GitHubRepository(
-        fake()->slug(),
-        fake()->word(),
-        fake()->sha1(),
-        fake()->randomElement(RepositoryVisibility::cases()),
-    );
+    $gitHubRepository = GitHubRepositoryFactory::make();
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             'data' => [
@@ -89,6 +86,7 @@ test('page holds the github repositories in the response', function (): void {
                         ],
                         'nodes' => [
                             [
+                                'id' => $gitHubRepository->gitHubId,
                                 'name' => $gitHubRepository->name,
                                 'visibility' => $gitHubRepository->visibility->value,
                                 'defaultBranchRef' => [
@@ -96,6 +94,12 @@ test('page holds the github repositories in the response', function (): void {
                                     'target' => [
                                         'oid' => $gitHubRepository->lastCommitSha,
                                     ],
+                                ],
+                                'composerJson' => [
+                                    'oid' => $gitHubRepository->composerJsonOid,
+                                ],
+                                'composerLock' => [
+                                    'oid' => $gitHubRepository->composerLockOid,
                                 ],
                             ],
                         ],
@@ -124,9 +128,12 @@ test('page skips repositories without a default branch', function (): void {
                         ],
                         'nodes' => [
                             [
+                                'id' => fake()->sha1(),
                                 'name' => fake()->slug(),
                                 'visibility' => fake()->randomElement(RepositoryVisibility::cases())->value,
                                 'defaultBranchRef' => null,
+                                'composerJson' => null,
+                                'composerLock' => null,
                             ],
                         ],
                     ],
@@ -214,4 +221,4 @@ test('page throws when github refuses the request', function (): void {
 
     $repositoriesQuery = $this->app->make(RepositoriesQuery::class);
     $repositoriesQuery->page(null);
-})->throws(RequestException::class);
+})->throws(GitHubQueryFailed::class);

@@ -2,11 +2,8 @@
 
 declare(strict_types=1);
 
-use Illuminate\Contracts\Bus\Dispatcher;
-use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
-use Illuminate\Support\Testing\Fakes\BusFake;
 use Maarheeze\Compass\Collector\CollectionRunId;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectRepositories;
 use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
@@ -42,6 +39,7 @@ test('handle queries the page of its cursor', function (): void {
 
 test('handle stores the repositories of the page', function (): void {
     $repositoryResponse = [
+        'id' => fake()->sha1(),
         'name' => fake()->slug(),
         'visibility' => fake()->randomElement(RepositoryVisibility::cases())->value,
         'defaultBranchRef' => [
@@ -50,6 +48,8 @@ test('handle stores the repositories of the page', function (): void {
                 'oid' => fake()->sha1(),
             ],
         ],
+        'composerJson' => null,
+        'composerLock' => null,
     ];
     $collectionRunId = CollectionRunId::generate();
     $this->app->make(HttpFactory::class)->fake([
@@ -77,7 +77,7 @@ test('handle stores the repositories of the page', function (): void {
     ]);
 });
 
-test('handle dispatches the next page when there is one', function (): void {
+test('handle chains the next page when there is one', function (): void {
     $endCursor = fake()->sha1();
     $collectionRunId = CollectionRunId::generate();
     $this->app->make(HttpFactory::class)->fake([
@@ -96,15 +96,11 @@ test('handle dispatches the next page when there is one', function (): void {
         ]),
     ]);
 
-    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
-    $this->app->instance(Dispatcher::class, $busFake);
-
     $collectRepositories = new CollectRepositories($collectionRunId, null);
     $this->app->call([$collectRepositories, 'handle']);
 
-    $expectedCollectRepositories = new CollectRepositories($collectionRunId, $endCursor);
-    expect($busFake->dispatched(CollectRepositories::class)->all())
-        ->toEqual([$expectedCollectRepositories]);
+    expect($collectRepositories->chained)
+        ->toEqual([serialize(new CollectRepositories($collectionRunId, $endCursor))]);
 });
 
 test('handle marks repositories of another run inactive on the last page', function (): void {

@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Providers;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
+use Maarheeze\Compass\Collector\GitHub\BlobQuery;
 use Maarheeze\Compass\Collector\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\GitHub\RepositoriesQuery;
 use Maarheeze\Compass\Console\SyncGitHubCommand;
@@ -17,7 +18,8 @@ class CollectorProvider extends ServiceProvider
         $this->commands([SyncGitHubCommand::class]);
 
         $this->callAfterResolving(Schedule::class, static function (Schedule $schedule): void {
-            $schedule->command(SyncGitHubCommand::class)->hourly();
+            $schedule->command(SyncGitHubCommand::class)
+                ->hourly();
         });
     }
 
@@ -29,7 +31,7 @@ class CollectorProvider extends ServiceProvider
             ->giveConfig('compass.collector.github_token');
 
         $this->app
-            ->when(RepositoriesQuery::class)
+            ->when([BlobQuery::class, RepositoriesQuery::class])
             ->needs('$organization')
             ->giveConfig('compass.organization');
     }

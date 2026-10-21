@@ -26,16 +26,19 @@ readonly class RepositorySynchronizer
 
         foreach ($gitHubRepositories as $gitHubRepository) {
             $repositoryValues[] = [
+                'github_id' => $gitHubRepository->gitHubId,
                 'name' => $gitHubRepository->name,
                 'default_branch' => $gitHubRepository->defaultBranch,
                 'last_commit_sha' => $gitHubRepository->lastCommitSha,
                 'visibility' => $gitHubRepository->visibility,
+                'composer_json_oid' => $gitHubRepository->composerJsonOid,
+                'composer_lock_oid' => $gitHubRepository->composerLockOid,
                 'collection_run_id' => $collectionRunId,
                 'is_active' => true,
                 'collected_at' => CarbonImmutable::now(),
             ];
         }
 
-        Repository::query()->upsert($repositoryValues, ['name']);
+        Repository::query()->upsert($repositoryValues, ['github_id']);
     }
 }
