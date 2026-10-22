@@ -1,0 +1,24 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Maarheeze\Compass\Collector\GitHub;
+
+use Carbon\CarbonImmutable;
+
+readonly class GitHubIssue
+{
+    /**
+     * @param list<string> $assigneeLogins
+     */
+    public function __construct(
+        public string $gitHubId,
+        public int $number,
+        public string $title,
+        public string $url,
+        public ?string $authorLogin,
+        public CarbonImmutable $openedAt,
+        public array $assigneeLogins,
+    ) {
+    }
+}

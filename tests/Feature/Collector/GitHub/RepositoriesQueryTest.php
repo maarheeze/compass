@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
+use Maarheeze\Compass\Collections\GitHubIssueCollection;
 use Maarheeze\Compass\Collections\GitHubRepositoryCollection;
 use Maarheeze\Compass\Collector\GitHub\GitHubQueryFailed;
 use Maarheeze\Compass\Collector\GitHub\RepositoriesQuery;
 use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
+use Maarheeze\Compass\Tests\Fixtures\GitHubIssueFactory;
 use Maarheeze\Compass\Tests\Fixtures\GitHubRepositoryFactory;
 
 test('page is queried at the github graphql api', function (): void {
@@ -102,6 +104,9 @@ test('page holds the github repositories in the response', function (): void {
                                 'composerLock' => [
                                     'oid' => $gitHubRepository->composerLockOid,
                                 ],
+                                'issues' => [
+                                    'nodes' => [],
+                                ],
                             ],
                         ],
                     ],
@@ -115,6 +120,121 @@ test('page holds the github repositories in the response', function (): void {
 
     expect($repositoriesQueryResult->gitHubRepositories)
         ->toEqual(new GitHubRepositoryCollection([$gitHubRepository]));
+});
+
+test('page holds the open issues of the repositories', function (): void {
+    $gitHubIssue = GitHubIssueFactory::make();
+    $this->app->make(HttpFactory::class)->fake([
+        '*' => HttpFactory::response([
+            'data' => [
+                'organization' => [
+                    'repositories' => [
+                        'pageInfo' => [
+                            'hasNextPage' => false,
+                            'endCursor' => null,
+                        ],
+                        'nodes' => [
+                            [
+                                'id' => fake()->sha1(),
+                                'name' => fake()->slug(),
+                                'url' => fake()->url(),
+                                'visibility' => fake()->randomElement(RepositoryVisibility::cases())->value,
+                                'defaultBranchRef' => [
+                                    'name' => fake()->word(),
+                                    'target' => [
+                                        'oid' => fake()->sha1(),
+                                    ],
+                                ],
+                                'composerJson' => null,
+                                'composerLock' => null,
+                                'issues' => [
+                                    'nodes' => [
+                                        [
+                                            'id' => $gitHubIssue->gitHubId,
+                                            'number' => $gitHubIssue->number,
+                                            'title' => $gitHubIssue->title,
+                                            'url' => $gitHubIssue->url,
+                                            'author' => [
+                                                'login' => $gitHubIssue->authorLogin,
+                                            ],
+                                            'createdAt' => $gitHubIssue->openedAt->toIso8601String(),
+                                            'assignees' => [
+                                                'nodes' => [
+                                                    [
+                                                        'login' => $gitHubIssue->assigneeLogins[0],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]),
+    ]);
+
+    $repositoriesQuery = $this->app->make(RepositoriesQuery::class);
+    $repositoriesQueryResult = $repositoriesQuery->page(null);
+
+    expect($repositoriesQueryResult->gitHubRepositories->sole()->issues)
+        ->toEqual(new GitHubIssueCollection([$gitHubIssue]));
+});
+
+test('page holds no author login for an issue of a deleted user', function (): void {
+    $this->app->make(HttpFactory::class)->fake([
+        '*' => HttpFactory::response([
+            'data' => [
+                'organization' => [
+                    'repositories' => [
+                        'pageInfo' => [
+                            'hasNextPage' => false,
+                            'endCursor' => null,
+                        ],
+                        'nodes' => [
+                            [
+                                'id' => fake()->sha1(),
+                                'name' => fake()->slug(),
+                                'url' => fake()->url(),
+                                'visibility' => fake()->randomElement(RepositoryVisibility::cases())->value,
+                                'defaultBranchRef' => [
+                                    'name' => fake()->word(),
+                                    'target' => [
+                                        'oid' => fake()->sha1(),
+                                    ],
+                                ],
+                                'composerJson' => null,
+                                'composerLock' => null,
+                                'issues' => [
+                                    'nodes' => [
+                                        [
+                                            'id' => fake()->sha1(),
+                                            'number' => fake()->numberBetween(1, 9999),
+                                            'title' => fake()->sentence(),
+                                            'url' => fake()->url(),
+                                            'author' => null,
+                                            'createdAt' => fake()->iso8601(),
+                                            'assignees' => [
+                                                'nodes' => [],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]),
+    ]);
+
+    $repositoriesQuery = $this->app->make(RepositoriesQuery::class);
+    $repositoriesQueryResult = $repositoriesQuery->page(null);
+
+    expect($repositoriesQueryResult->gitHubRepositories->sole()->issues->sole()->authorLogin)
+        ->toBeNull();
 });
 
 test('page skips repositories without a default branch', function (): void {

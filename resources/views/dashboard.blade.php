@@ -2,6 +2,23 @@
     <main class="mx-auto max-w-5xl space-y-6 p-6">
         <x-compass::navigation />
 
+        <div class="grid gap-4 sm:grid-cols-2">
+            <section class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-zinc-950/5 dark:bg-zinc-900 dark:ring-white/10">
+                <h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Issues</h2>
+
+                <div class="mt-3 grid grid-cols-2 gap-4">
+                    <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES_ASSIGNED) }}" class="group">
+                        <p class="text-2xl font-semibold text-zinc-900 group-hover:underline dark:text-zinc-100">{{ $issueCounts->assignedIssueCount }}</p>
+                        <p class="text-xs text-zinc-500 dark:text-zinc-400">Assigned to me</p>
+                    </a>
+                    <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES) }}" class="group">
+                        <p class="text-2xl font-semibold text-zinc-900 group-hover:underline dark:text-zinc-100">{{ $issueCounts->openIssueCount }}</p>
+                        <p class="text-xs text-zinc-500 dark:text-zinc-400">Open</p>
+                    </a>
+                </div>
+            </section>
+        </div>
+
         @if ($alerts->isEmpty())
             <p class="text-sm text-zinc-500 dark:text-zinc-400">No alerts.</p>
         @else

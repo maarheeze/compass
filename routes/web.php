@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Maarheeze\Compass\Http\Controllers\DashboardController;
 use Maarheeze\Compass\Http\Controllers\GitHubController;
+use Maarheeze\Compass\Http\Controllers\IssueController;
 use Maarheeze\Compass\Http\Controllers\PackageController;
 use Maarheeze\Compass\Http\Controllers\RepositoryController;
 use Maarheeze\Compass\Http\Controllers\SiteController;
@@ -29,6 +30,9 @@ Route::middleware('web')
             Route::get('/github/repositories', [RepositoryController::class, 'index'])->name(RouteName::GITHUB_REPOSITORIES);
             Route::get('/github/repositories/{repository}', [RepositoryController::class, 'show'])
                 ->name(RouteName::GITHUB_REPOSITORY);
+            Route::get('/github/issues', [IssueController::class, 'index'])->name(RouteName::GITHUB_ISSUES);
+            Route::get('/github/issues/assigned', [IssueController::class, 'assigned'])
+                ->name(RouteName::GITHUB_ISSUES_ASSIGNED);
             Route::get('/github/packages/{packageName}', [PackageController::class, 'show'])
                 ->where('packageName', '.+')
                 ->name(RouteName::GITHUB_PACKAGE);

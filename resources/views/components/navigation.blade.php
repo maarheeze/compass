@@ -18,8 +18,9 @@
 
         <nav class="flex items-center gap-4 text-sm font-medium text-zinc-600 dark:text-zinc-300">
             <a href="{{ route(\Maarheeze\Compass\Http\RouteName::DASHBOARD) }}" class="hover:text-zinc-900 dark:hover:text-white">Dashboard</a>
-            <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORIES) }}" class="hover:text-zinc-900 dark:hover:text-white">GitHub</a>
-            <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITES) }}" class="hover:text-zinc-900 dark:hover:text-white">Forge</a>
+            <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORIES) }}" class="hover:text-zinc-900 dark:hover:text-white">Repositories</a>
+            <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES) }}" class="hover:text-zinc-900 dark:hover:text-white">Issues</a>
+            <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITES) }}" class="hover:text-zinc-900 dark:hover:text-white">Sites</a>
         </nav>
     </div>
 

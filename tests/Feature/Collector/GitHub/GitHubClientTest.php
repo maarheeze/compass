@@ -75,6 +75,28 @@ test('query throws when github answers with errors', function (): void {
     $gitHubClient->query(fake()->sentence(), []);
 })->throws(GitHubQueryFailed::class);
 
+test('query throws with the error messages github answered with', function (): void {
+    $errorMessage = fake()->sentence();
+    $this->app->make(HttpFactory::class)->fake([
+        '*' => HttpFactory::response([
+            'errors' => [
+                [
+                    'message' => $errorMessage,
+                ],
+            ],
+        ]),
+    ]);
+
+    $gitHubClient = $this->app->make(GitHubClient::class);
+
+    expect(static function () use ($gitHubClient): void {
+        $gitHubClient->query(fake()->sentence(), []);
+    })->toThrow(static function (GitHubQueryFailed $gitHubQueryFailed) use ($errorMessage): void {
+        expect($gitHubQueryFailed->errorMessages)
+            ->toBe([$errorMessage]);
+    });
+});
+
 test('query throws when github refuses the request', function (): void {
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, 401)]);
 

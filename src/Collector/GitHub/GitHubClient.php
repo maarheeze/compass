@@ -8,6 +8,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
+use Webmozart\Assert\Assert;
 
 readonly class GitHubClient
 {
@@ -35,13 +36,27 @@ readonly class GitHubClient
                 ]);
             $response->throw();
         } catch (ConnectionException | RequestException $exception) {
-            throw new GitHubQueryFailed(previous: $exception);
+            throw new GitHubQueryFailed([], $exception);
         }
 
         if ($response->json('errors') !== null) {
-            throw new GitHubQueryFailed();
+            throw new GitHubQueryFailed($this->getErrorMessages($response), null);
         }
 
         return $response;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getErrorMessages(Response $response): array
+    {
+        $errorMessages = [];
+
+        foreach (Assert::isList($response->json('errors')) as $errorResponse) {
+            $errorMessages[] = Assert::string(Assert::isArray($errorResponse)['message']);
+        }
+
+        return $errorMessages;
     }
 }
