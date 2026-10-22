@@ -1,20 +1,23 @@
 <header class="border-b border-border bg-canvas-inset">
     <div class="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
         <div class="flex items-center justify-between py-4">
-            <a href="{{ route(\Maarheeze\Compass\Http\RouteName::DASHBOARD) }}" class="text-base font-semibold text-foreground">Compass</a>
+            <a href="{{ route(\Maarheeze\Compass\Http\RouteName::DASHBOARD) }}" class="text-base font-semibold text-foreground">{{ $applicationName }}</a>
 
             <div class="flex items-center gap-2">
-                <form method="POST" action="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_SYNC) }}">
+                @if ($lastCollectedAt !== null)
+                    <span class="text-xs text-foreground-muted">
+                        <x-compass::time :time="$lastCollectedAt" />
+                    </span>
+                @endif
+
+                <form method="POST" action="{{ route(\Maarheeze\Compass\Http\RouteName::SYNC) }}">
                     @csrf
-                    <x-compass::button>Sync GitHub</x-compass::button>
+                    <x-compass::button title="Sync" aria-label="Sync">
+                        <x-compass::icons.sync class="text-foreground-muted" />
+                    </x-compass::button>
                 </form>
 
-                <form method="POST" action="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SYNC) }}">
-                    @csrf
-                    <x-compass::button>Sync Forge</x-compass::button>
-                </form>
-
-                <details class="relative ml-2">
+                <details x-data class="relative ml-2" @click.outside="$el.removeAttribute('open')">
                     <summary class="flex cursor-pointer list-none items-center">
                         @if ($user->avatar_url)
                             <img src="{{ $user->avatar_url }}" alt="{{ $user->nickname }}" class="size-8 rounded-full border border-border">
@@ -37,7 +40,7 @@
 
                         <form method="POST" action="{{ route(\Maarheeze\Compass\Http\RouteName::LOGOUT) }}">
                             @csrf
-                            <button type="submit" class="w-full px-4 py-2 text-left text-sm text-foreground hover:bg-canvas-subtle">Sign out</button>
+                            <button type="submit" class="w-full cursor-pointer px-4 py-2 text-left text-sm text-foreground hover:bg-canvas-subtle">Sign out</button>
                         </form>
                     </div>
                 </details>

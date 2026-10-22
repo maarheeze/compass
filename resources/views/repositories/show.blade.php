@@ -47,7 +47,12 @@
             <details class="group rounded-md border border-border bg-canvas">
                 <summary class="flex cursor-pointer items-center gap-2 px-4 py-3 text-sm">
                     <span class="text-foreground-muted transition group-open:rotate-90">&rsaquo;</span>
-                    <span class="font-semibold text-foreground">Forge sites</span>
+                    <x-compass::section-heading>
+                        <x-slot:icon>
+                            <x-compass::icons.server />
+                        </x-slot:icon>
+                        Forge sites
+                    </x-compass::section-heading>
                     <span class="text-foreground-muted">&middot; {{ $repository->sites->count() }} sites</span>
                 </summary>
 
@@ -86,7 +91,12 @@
             <details class="group rounded-md border border-border bg-canvas">
                 <summary class="flex cursor-pointer items-center gap-2 px-4 py-3 text-sm">
                     <span class="text-foreground-muted transition group-open:rotate-90">&rsaquo;</span>
-                    <span class="font-semibold text-foreground">composer.json</span>
+                    <x-compass::section-heading>
+                        <x-slot:icon>
+                            <x-compass::icons.file-code />
+                        </x-slot:icon>
+                        composer.json
+                    </x-compass::section-heading>
                     @if ($repository->composerJson->type)
                         <span class="text-foreground-muted">&middot; {{ $repository->composerJson->type }}</span>
                     @endif
@@ -144,7 +154,12 @@
             <details class="group rounded-md border border-border bg-canvas">
                 <summary class="flex cursor-pointer items-center gap-2 px-4 py-3 text-sm">
                     <span class="text-foreground-muted transition group-open:rotate-90">&rsaquo;</span>
-                    <span class="font-semibold text-foreground">composer.lock</span>
+                    <x-compass::section-heading>
+                        <x-slot:icon>
+                            <x-compass::icons.file-code />
+                        </x-slot:icon>
+                        composer.lock
+                    </x-compass::section-heading>
                     @if ($repository->composerLock->php_constraint)
                         <span class="text-foreground-muted">&middot; PHP {{ $repository->composerLock->php_constraint }}</span>
                     @endif

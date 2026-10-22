@@ -5,7 +5,12 @@
         <h1 class="text-lg font-semibold text-foreground">{{ $packageName }}</h1>
 
         <section class="space-y-3">
-            <h2 class="text-sm font-semibold text-foreground">Projects</h2>
+            <x-compass::section-heading>
+                <x-slot:icon>
+                    <x-compass::icons.repo />
+                </x-slot:icon>
+                Projects
+            </x-compass::section-heading>
 
             @if ($packageUsages->lockedPackages->isEmpty())
                 <p class="text-sm text-foreground-muted">No project has this package locked.</p>
@@ -36,7 +41,12 @@
         </section>
 
         <section class="space-y-3">
-            <h2 class="text-sm font-semibold text-foreground">Libraries</h2>
+            <x-compass::section-heading>
+                <x-slot:icon>
+                    <x-compass::icons.package />
+                </x-slot:icon>
+                Libraries
+            </x-compass::section-heading>
 
             @if ($packageUsages->requiredPackages->isEmpty())
                 <p class="text-sm text-foreground-muted">No library requires this package.</p>

@@ -48,7 +48,6 @@ Route::middleware('web')
 
             Route::post('/logout', [GitHubController::class, 'logout'])->name(RouteName::LOGOUT);
 
-            Route::post('/sync/github', [SyncController::class, 'github'])->name(RouteName::GITHUB_SYNC);
-            Route::post('/sync/forge', [SyncController::class, 'forge'])->name(RouteName::FORGE_SYNC);
+            Route::post('/sync', SyncController::class)->name(RouteName::SYNC);
         });
     });

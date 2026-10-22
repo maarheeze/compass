@@ -1,7 +1,12 @@
-@props(['title', 'assignedRouteName', 'assignedCount', 'openRouteName', 'openCount'])
+@props(['icon', 'title', 'assignedRouteName', 'assignedCount', 'openRouteName', 'openCount'])
 
 <section class="rounded-md border border-border bg-canvas p-4">
-    <h2 class="text-sm font-semibold text-foreground">{{ $title }}</h2>
+    <x-compass::section-heading>
+        <x-slot:icon>
+            {{ $icon }}
+        </x-slot:icon>
+        {{ $title }}
+    </x-compass::section-heading>
 
     <div class="mt-3 grid grid-cols-2 gap-4">
         <a href="{{ route($assignedRouteName) }}" class="group">

@@ -3,8 +3,14 @@
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
         <nav class="flex items-center gap-6 border-b border-border text-sm font-medium">
-            <x-compass::tab :route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_PULL_REQUESTS_ASSIGNED" :is-active="$activeRouteName === \Maarheeze\Compass\Http\RouteName::GITHUB_PULL_REQUESTS_ASSIGNED">Assigned to me</x-compass::tab>
-            <x-compass::tab :route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_PULL_REQUESTS" :is-active="$activeRouteName === \Maarheeze\Compass\Http\RouteName::GITHUB_PULL_REQUESTS">All open</x-compass::tab>
+            <x-compass::tab :route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_PULL_REQUESTS" :is-active="$activeRouteName === \Maarheeze\Compass\Http\RouteName::GITHUB_PULL_REQUESTS">
+                <x-compass::icons.git-pull-request class="text-foreground-muted" />
+                All open
+            </x-compass::tab>
+            <x-compass::tab :route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_PULL_REQUESTS_ASSIGNED" :is-active="$activeRouteName === \Maarheeze\Compass\Http\RouteName::GITHUB_PULL_REQUESTS_ASSIGNED">
+                <x-compass::icons.person class="text-foreground-muted" />
+                Assigned to me
+            </x-compass::tab>
         </nav>
 
         <div class="overflow-hidden rounded-md border border-border bg-canvas">

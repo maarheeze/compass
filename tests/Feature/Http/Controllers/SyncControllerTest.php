@@ -11,42 +11,33 @@ use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 
-test('forge starts a collection of the sites', function (): void {
+test('sync starts a collection of the repositories', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(Dispatcher::class, $busFake);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $this->post(route(RouteName::FORGE_SYNC));
-
-    expect($busFake->dispatched(CollectSites::class))
-        ->toHaveCount(1);
-});
-
-test('forge sends the user back to the dashboard', function (): void {
-    $this->app->instance(Dispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
-    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
-
-    $response = $this->post(route(RouteName::FORGE_SYNC));
-
-    $response->assertRedirect(route(RouteName::DASHBOARD));
-});
-
-test('github starts a collection of the repositories', function (): void {
-    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
-    $this->app->instance(Dispatcher::class, $busFake);
-    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
-
-    $this->post(route(RouteName::GITHUB_SYNC));
+    $this->post(route(RouteName::SYNC));
 
     expect($busFake->dispatched(CollectRepositories::class))
         ->toHaveCount(1);
 });
 
-test('github sends the user back to the dashboard', function (): void {
+test('sync starts a collection of the sites', function (): void {
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(Dispatcher::class, $busFake);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $this->post(route(RouteName::SYNC));
+
+    expect($busFake->dispatched(CollectSites::class))
+        ->toHaveCount(1);
+});
+
+test('sync sends the user back to the dashboard', function (): void {
     $this->app->instance(Dispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->post(route(RouteName::GITHUB_SYNC));
+    $response = $this->post(route(RouteName::SYNC));
 
     $response->assertRedirect(route(RouteName::DASHBOARD));
 });

@@ -19,16 +19,10 @@ readonly class SyncController
     ) {
     }
 
-    public function forge(): RedirectResponse
-    {
-        $this->kernel->call(SyncForgeCommand::SIGNATURE);
-
-        return $this->redirector->route(RouteName::DASHBOARD);
-    }
-
-    public function github(): RedirectResponse
+    public function __invoke(): RedirectResponse
     {
         $this->kernel->call(SyncGitHubCommand::SIGNATURE);
+        $this->kernel->call(SyncForgeCommand::SIGNATURE);
 
         return $this->redirector->route(RouteName::DASHBOARD);
     }

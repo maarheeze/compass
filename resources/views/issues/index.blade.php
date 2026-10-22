@@ -3,8 +3,14 @@
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
         <nav class="flex items-center gap-6 border-b border-border text-sm font-medium">
-            <x-compass::tab :route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES_ASSIGNED" :is-active="$activeRouteName === \Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES_ASSIGNED">Assigned to me</x-compass::tab>
-            <x-compass::tab :route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES" :is-active="$activeRouteName === \Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES">All open</x-compass::tab>
+            <x-compass::tab :route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES" :is-active="$activeRouteName === \Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES">
+                <x-compass::icons.issue-opened class="text-foreground-muted" />
+                All open
+            </x-compass::tab>
+            <x-compass::tab :route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES_ASSIGNED" :is-active="$activeRouteName === \Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES_ASSIGNED">
+                <x-compass::icons.person class="text-foreground-muted" />
+                Assigned to me
+            </x-compass::tab>
         </nav>
 
         <div class="overflow-hidden rounded-md border border-border bg-canvas">

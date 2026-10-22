@@ -11,7 +11,9 @@
         <section class="rounded-md border border-border bg-canvas p-4">
             <dl class="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2 text-sm">
                 <dt class="text-foreground-muted">URL</dt>
-                <dd>{{ $site->url }}</dd>
+                <dd>
+                    <a href="{{ $site->url }}" target="_blank" rel="noopener" class="text-accent hover:underline">{{ $site->url }}</a>
+                </dd>
                 <dt class="text-foreground-muted">Status</dt>
                 <dd>{{ $site->status->value }}</dd>
                 <dt class="text-foreground-muted">PHP</dt>
@@ -38,7 +40,12 @@
         </section>
 
         <section class="space-y-3">
-            <h2 class="text-sm font-semibold text-foreground">Latest deployment</h2>
+            <x-compass::section-heading>
+                <x-slot:icon>
+                    <x-compass::icons.rocket />
+                </x-slot:icon>
+                Latest deployment
+            </x-compass::section-heading>
 
             @if ($site->deployment_status)
                 <dl class="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2 text-sm">

@@ -8,13 +8,21 @@
                 :assigned-route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES_ASSIGNED"
                 :assigned-count="$issueCounts->assignedIssueCount"
                 :open-route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES"
-                :open-count="$issueCounts->openIssueCount" />
+                :open-count="$issueCounts->openIssueCount">
+                <x-slot:icon>
+                    <x-compass::icons.issue-opened />
+                </x-slot:icon>
+            </x-compass::assigned-and-open-counts>
             <x-compass::assigned-and-open-counts
                 :title="__('Pull requests')"
                 :assigned-route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_PULL_REQUESTS_ASSIGNED"
                 :assigned-count="$pullRequestCounts->assignedPullRequestCount"
                 :open-route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_PULL_REQUESTS"
-                :open-count="$pullRequestCounts->openPullRequestCount" />
+                :open-count="$pullRequestCounts->openPullRequestCount">
+                <x-slot:icon>
+                    <x-compass::icons.git-pull-request />
+                </x-slot:icon>
+            </x-compass::assigned-and-open-counts>
         </div>
 
         @if ($alerts->isEmpty())
@@ -22,7 +30,12 @@
         @else
             @if ($alerts->repositoriesWithComposerWarning->isNotEmpty())
                 <section class="space-y-3">
-                    <h2 class="text-sm font-semibold text-foreground">Composer warnings</h2>
+                    <x-compass::section-heading>
+                        <x-slot:icon>
+                            <x-compass::icons.alert />
+                        </x-slot:icon>
+                        Composer warnings
+                    </x-compass::section-heading>
 
                     <ul class="divide-y divide-border overflow-hidden rounded-md border border-border bg-canvas">
                         @foreach ($alerts->repositoriesWithComposerWarning as $repository)
@@ -37,7 +50,12 @@
 
             @if ($alerts->sitesBehind->isNotEmpty())
                 <section class="space-y-3">
-                    <h2 class="text-sm font-semibold text-foreground">Sites behind</h2>
+                    <x-compass::section-heading>
+                        <x-slot:icon>
+                            <x-compass::icons.server />
+                        </x-slot:icon>
+                        Sites behind
+                    </x-compass::section-heading>
 
                     <ul class="divide-y divide-border overflow-hidden rounded-md border border-border bg-canvas">
                         @foreach ($alerts->sitesBehind as $site)
