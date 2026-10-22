@@ -12,7 +12,7 @@
 
         @livewireStyles
     </head>
-    <body class="bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+    <body class="bg-canvas text-foreground">
         {{ $slot }}
 
         @livewireScripts

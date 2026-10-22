@@ -1,32 +1,32 @@
 <x-compass::layouts.app :title="$packageName">
-    <main class="mx-auto max-w-5xl space-y-6 p-6">
-        <x-compass::navigation />
+    <x-compass::navigation :section="\Maarheeze\Compass\View\NavigationSection::REPOSITORIES" />
 
-        <h1 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{{ $packageName }}</h1>
+    <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
+        <h1 class="text-lg font-semibold text-foreground">{{ $packageName }}</h1>
 
         <section class="space-y-3">
-            <h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Projects</h2>
+            <h2 class="text-sm font-semibold text-foreground">Projects</h2>
 
             @if ($packageUsages->lockedPackages->isEmpty())
-                <p class="text-sm text-zinc-500 dark:text-zinc-400">No project has this package locked.</p>
+                <p class="text-sm text-foreground-muted">No project has this package locked.</p>
             @else
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-zinc-950/5 dark:bg-zinc-900 dark:ring-white/10">
+                <div class="overflow-hidden rounded-md border border-border bg-canvas">
                     <table class="w-full table-fixed text-left text-sm">
-                        <thead class="bg-zinc-50 text-xs text-zinc-500 dark:bg-zinc-800/50 dark:text-zinc-400">
+                        <thead class="bg-canvas-subtle text-xs text-foreground-muted">
                             <tr>
                                 <th class="px-4 py-2 font-medium">Repository</th>
                                 <th class="w-40 px-4 py-2 font-medium">Version</th>
                                 <th class="w-32 px-4 py-2 font-medium">Section</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-zinc-100 dark:divide-white/5">
+                        <tbody class="divide-y divide-border">
                             @foreach ($packageUsages->lockedPackages as $lockedPackage)
                                 <tr>
-                                    <td class="truncate px-4 py-2 text-zinc-900 dark:text-zinc-100">
-                                        <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORY, $lockedPackage->composerLock->repository) }}" class="hover:underline">{{ $lockedPackage->composerLock->repository->name }}</a>
+                                    <td class="truncate px-4 py-2 text-foreground">
+                                        <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORY, $lockedPackage->composerLock->repository) }}" class="text-accent hover:underline">{{ $lockedPackage->composerLock->repository->name }}</a>
                                     </td>
-                                    <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">{{ $lockedPackage->version }}</td>
-                                    <td class="px-4 py-2 text-zinc-500 lowercase dark:text-zinc-400">{{ $lockedPackage->section->value }}</td>
+                                    <td class="px-4 py-2 text-foreground-muted">{{ $lockedPackage->version }}</td>
+                                    <td class="px-4 py-2 text-foreground-muted lowercase">{{ $lockedPackage->section->value }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -36,28 +36,28 @@
         </section>
 
         <section class="space-y-3">
-            <h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Libraries</h2>
+            <h2 class="text-sm font-semibold text-foreground">Libraries</h2>
 
             @if ($packageUsages->requiredPackages->isEmpty())
-                <p class="text-sm text-zinc-500 dark:text-zinc-400">No library requires this package.</p>
+                <p class="text-sm text-foreground-muted">No library requires this package.</p>
             @else
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-zinc-950/5 dark:bg-zinc-900 dark:ring-white/10">
+                <div class="overflow-hidden rounded-md border border-border bg-canvas">
                     <table class="w-full table-fixed text-left text-sm">
-                        <thead class="bg-zinc-50 text-xs text-zinc-500 dark:bg-zinc-800/50 dark:text-zinc-400">
+                        <thead class="bg-canvas-subtle text-xs text-foreground-muted">
                             <tr>
                                 <th class="px-4 py-2 font-medium">Repository</th>
                                 <th class="w-40 px-4 py-2 font-medium">Constraint</th>
                                 <th class="w-32 px-4 py-2 font-medium">Section</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-zinc-100 dark:divide-white/5">
+                        <tbody class="divide-y divide-border">
                             @foreach ($packageUsages->requiredPackages as $requiredPackage)
                                 <tr>
-                                    <td class="truncate px-4 py-2 text-zinc-900 dark:text-zinc-100">
-                                        <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORY, $requiredPackage->composerJson->repository) }}" class="hover:underline">{{ $requiredPackage->composerJson->repository->name }}</a>
+                                    <td class="truncate px-4 py-2 text-foreground">
+                                        <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORY, $requiredPackage->composerJson->repository) }}" class="text-accent hover:underline">{{ $requiredPackage->composerJson->repository->name }}</a>
                                     </td>
-                                    <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">{{ $requiredPackage->constraint }}</td>
-                                    <td class="px-4 py-2 text-zinc-500 lowercase dark:text-zinc-400">{{ $requiredPackage->section->value }}</td>
+                                    <td class="px-4 py-2 text-foreground-muted">{{ $requiredPackage->constraint }}</td>
+                                    <td class="px-4 py-2 text-foreground-muted lowercase">{{ $requiredPackage->section->value }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

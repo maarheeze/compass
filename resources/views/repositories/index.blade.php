@@ -1,19 +1,19 @@
 <x-compass::layouts.app :title="__('Repositories')">
-    <main class="mx-auto max-w-5xl space-y-6 p-6">
-        <x-compass::navigation />
+    <x-compass::navigation :section="\Maarheeze\Compass\View\NavigationSection::REPOSITORIES" />
 
+    <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
         <section class="space-y-3">
-            <h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Projects</h2>
+            <h2 class="text-sm font-semibold text-foreground">Projects</h2>
             <x-compass::repository-table :repositories="$projects" />
         </section>
 
         <section class="space-y-3">
-            <h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Libraries</h2>
+            <h2 class="text-sm font-semibold text-foreground">Libraries</h2>
             <x-compass::repository-table :repositories="$libraries" />
         </section>
 
         <section class="space-y-3">
-            <h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Other</h2>
+            <h2 class="text-sm font-semibold text-foreground">Other</h2>
             <x-compass::repository-table :repositories="$otherRepositories" />
         </section>
     </main>

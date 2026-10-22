@@ -1,0 +1,31 @@
+@theme inline {
+    --color-accent: var(--compass-accent);
+    --color-border: var(--compass-border);
+    --color-canvas: var(--compass-canvas);
+    --color-canvas-inset: var(--compass-canvas-inset);
+    --color-canvas-subtle: var(--compass-canvas-subtle);
+    --color-foreground: var(--compass-foreground);
+    --color-foreground-muted: var(--compass-foreground-muted);
+}
+
+:root {
+    --compass-accent: #0969da;
+    --compass-border: #d1d9e0;
+    --compass-canvas: #ffffff;
+    --compass-canvas-inset: #f6f8fa;
+    --compass-canvas-subtle: #f6f8fa;
+    --compass-foreground: #1f2328;
+    --compass-foreground-muted: #59636e;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --compass-accent: #4493f8;
+        --compass-border: #3d444d;
+        --compass-canvas: #0d1117;
+        --compass-canvas-inset: #010409;
+        --compass-canvas-subtle: #151b23;
+        --compass-foreground: #f0f6fc;
+        --compass-foreground-muted: #9198a1;
+    }
+}

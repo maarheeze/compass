@@ -9,6 +9,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 use Maarheeze\Compass\Authentication\AuthenticatedUser;
 use Maarheeze\Compass\Models\User;
+use Maarheeze\Compass\View\NavigationSection;
 
 class Navigation extends Component
 {
@@ -16,6 +17,7 @@ class Navigation extends Component
 
     public function __construct(
         AuthenticatedUser $authenticatedUser,
+        public readonly NavigationSection $section,
         private readonly ViewFactory $view,
     ) {
         $this->user = $authenticatedUser->user();

@@ -21,10 +21,12 @@ php artisan migrate
 The dashboard is served from the root of the application. To serve it under a
 prefix instead, set `path` in `config/compass.php`, for example to `/compass`.
 
-The views are styled with Tailwind and use the application's Vite build. Add
-the package views as a source in `resources/css/app.css`:
+The views are styled with Tailwind and use the application's Vite build. Import
+the package's colours and add the package views as a source in
+`resources/css/app.css`:
 
 ```css
+@import '../../vendor/maarheeze/compass/resources/css/compass.css';
 @source '../../vendor/maarheeze/compass/resources/views/**/*.blade.php';
 ```
 

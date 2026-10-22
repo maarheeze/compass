@@ -1,10 +1,10 @@
 <x-compass::layouts.app :title="__('Sites')">
-    <main class="mx-auto max-w-5xl space-y-6 p-6">
-        <x-compass::navigation />
+    <x-compass::navigation :section="\Maarheeze\Compass\View\NavigationSection::SITES" />
 
-        <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-zinc-950/5 dark:bg-zinc-900 dark:ring-white/10">
+    <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
+        <div class="overflow-hidden rounded-md border border-border bg-canvas">
             <table class="w-full text-left text-sm">
-                <thead class="bg-zinc-50 text-xs text-zinc-500 dark:bg-zinc-800/50 dark:text-zinc-400">
+                <thead class="bg-canvas-subtle text-xs text-foreground-muted">
                     <tr>
                         <th class="px-4 py-2 font-medium">Site</th>
                         <th class="px-4 py-2 font-medium">Server</th>
@@ -13,26 +13,26 @@
                         <th class="px-4 py-2 font-medium">Collected at</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-zinc-100 dark:divide-white/5">
+                <tbody class="divide-y divide-border">
                     @forelse ($sites as $site)
                         <tr>
-                            <td class="px-4 py-2 font-medium text-zinc-900 dark:text-zinc-100">
-                                <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE, $site) }}" class="hover:underline">{{ $site->name }}</a>
+                            <td class="px-4 py-2 font-medium text-foreground">
+                                <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE, $site) }}" class="text-accent hover:underline">{{ $site->name }}</a>
                             </td>
-                            <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">{{ $site->server_name }}</td>
+                            <td class="px-4 py-2 text-foreground-muted">{{ $site->server_name }}</td>
                             <td class="px-4 py-2">
                                 <x-compass::forge.deployment-state-label :site="$site" />
                             </td>
-                            <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">
+                            <td class="px-4 py-2 text-foreground-muted">
                                 <code class="block w-[7ch] overflow-hidden" title="{{ $site->deployed_commit_hash }}">{{ $site->deployed_commit_hash }}</code>
                             </td>
-                            <td class="px-4 py-2 text-zinc-500 dark:text-zinc-400">
+                            <td class="px-4 py-2 text-foreground-muted">
                                 <x-compass::time :time="$site->collected_at" />
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-4 py-6 text-center text-zinc-500 dark:text-zinc-400">No sites collected yet.</td>
+                            <td colspan="5" class="px-4 py-6 text-center text-foreground-muted">No sites collected yet.</td>
                         </tr>
                     @endforelse
                 </tbody>
