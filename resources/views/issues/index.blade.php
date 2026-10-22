@@ -18,9 +18,7 @@
                 <thead class="bg-canvas-subtle text-xs text-foreground-muted">
                     <tr>
                         <th class="w-48 px-4 py-2 font-medium">Repository</th>
-                        <th class="px-4 py-2 font-medium">Issue</th>
-                        <th class="w-40 px-4 py-2 font-medium">Assignees</th>
-                        <th class="w-32 px-4 py-2 font-medium">Opened</th>
+                        <x-compass::issue-heading-cells />
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border">
@@ -29,21 +27,7 @@
                             <td class="truncate px-4 py-2 text-foreground-muted">
                                 <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORY, $issue->repository) }}" class="text-accent hover:underline">{{ $issue->repository->name }}</a>
                             </td>
-                            <td class="truncate px-4 py-2 text-foreground">
-                                <a href="{{ $issue->url }}" target="_blank" rel="noopener" class="text-accent hover:underline">
-                                    {{ $issue->title }}
-                                    <span class="text-foreground-muted">#{{ $issue->number }}</span>
-                                    &nearr;
-                                </a>
-                            </td>
-                            <td class="truncate px-4 py-2 text-foreground-muted">
-                                @foreach ($issue->assignees as $assignee)
-                                    <span>{{ $assignee->login }}</span>
-                                @endforeach
-                            </td>
-                            <td class="px-4 py-2 text-foreground-muted">
-                                <x-compass::time :time="$issue->opened_at" />
-                            </td>
+                            <x-compass::issue-cells :issue="$issue" />
                         </tr>
                     @empty
                         <tr>

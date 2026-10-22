@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 use Maarheeze\Compass\Collections\IssueCollection;
+use Maarheeze\Compass\Collections\PullRequestCollection;
 use Maarheeze\Compass\Collections\RepositoryCollection;
 use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collector\CollectionRunId;
@@ -37,6 +38,7 @@ use function sprintf;
  * @property-read ?ComposerJson $composerJson
  * @property-read ?ComposerLock $composerLock
  * @property-read IssueCollection $issues
+ * @property-read PullRequestCollection $pullRequests
  * @property-read SiteCollection $sites
  */
 class Repository extends Model
@@ -87,6 +89,14 @@ class Repository extends Model
     public function issues(): HasMany
     {
         return $this->hasMany(Issue::class);
+    }
+
+    /**
+     * @return HasMany<PullRequest, $this>
+     */
+    public function pullRequests(): HasMany
+    {
+        return $this->hasMany(PullRequest::class);
     }
 
     /**

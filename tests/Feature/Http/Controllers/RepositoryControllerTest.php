@@ -6,6 +6,8 @@ use Maarheeze\Compass\Analyzer\Composer\RepositoryKind;
 use Maarheeze\Compass\Collections\RepositoryCollection;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\ComposerJson;
+use Maarheeze\Compass\Models\Issue;
+use Maarheeze\Compass\Models\PullRequest;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
@@ -73,4 +75,42 @@ test('show contains the kind of the repository', function (): void {
     $response = $this->get(route(RouteName::GITHUB_REPOSITORY, $repository));
 
     $response->assertViewHas('kind', RepositoryKind::LIBRARY);
+});
+
+test('show contains the issues of the repository newest first', function (): void {
+    $repository = Repository::factory()->create();
+    $olderIssue = Issue::factory()->create([
+        'repository_id' => $repository->id,
+        'opened_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
+    ]);
+    $newerIssue = Issue::factory()->create([
+        'repository_id' => $repository->id,
+        'opened_at' => fake()->dateTimeBetween('-1 month'),
+    ]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::GITHUB_REPOSITORY, $repository));
+
+    $response->assertViewHas('repository', static function (Repository $viewRepository) use ($newerIssue, $olderIssue): bool {
+        return $viewRepository->issues->modelKeys() === [$newerIssue->id, $olderIssue->id];
+    });
+});
+
+test('show contains the pull requests of the repository newest first', function (): void {
+    $repository = Repository::factory()->create();
+    $olderPullRequest = PullRequest::factory()->create([
+        'repository_id' => $repository->id,
+        'opened_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
+    ]);
+    $newerPullRequest = PullRequest::factory()->create([
+        'repository_id' => $repository->id,
+        'opened_at' => fake()->dateTimeBetween('-1 month'),
+    ]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::GITHUB_REPOSITORY, $repository));
+
+    $response->assertViewHas('repository', static function (Repository $viewRepository) use ($newerPullRequest, $olderPullRequest): bool {
+        return $viewRepository->pullRequests->modelKeys() === [$newerPullRequest->id, $olderPullRequest->id];
+    });
 });

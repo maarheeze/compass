@@ -87,6 +87,70 @@
             </details>
         @endif
 
+        @if ($repository->issues->isEmpty())
+            <p class="text-sm text-foreground-muted">No open issues.</p>
+        @else
+            <details class="group rounded-md border border-border bg-canvas">
+                <summary class="flex cursor-pointer items-center gap-2 px-4 py-3 text-sm">
+                    <span class="text-foreground-muted transition group-open:rotate-90">&rsaquo;</span>
+                    <x-compass::section-heading>
+                        <x-slot:icon>
+                            <x-compass::icons.issue-opened />
+                        </x-slot:icon>
+                        Issues
+                    </x-compass::section-heading>
+                    <span class="text-foreground-muted">&middot; {{ $repository->issues->count() }} open</span>
+                </summary>
+
+                <table class="w-full table-fixed border-t border-border text-left text-sm">
+                    <thead class="bg-canvas-subtle text-xs text-foreground-muted">
+                        <tr>
+                            <x-compass::issue-heading-cells />
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border">
+                        @foreach ($repository->issues as $issue)
+                            <tr>
+                                <x-compass::issue-cells :issue="$issue" />
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </details>
+        @endif
+
+        @if ($repository->pullRequests->isEmpty())
+            <p class="text-sm text-foreground-muted">No open pull requests.</p>
+        @else
+            <details class="group rounded-md border border-border bg-canvas">
+                <summary class="flex cursor-pointer items-center gap-2 px-4 py-3 text-sm">
+                    <span class="text-foreground-muted transition group-open:rotate-90">&rsaquo;</span>
+                    <x-compass::section-heading>
+                        <x-slot:icon>
+                            <x-compass::icons.git-pull-request />
+                        </x-slot:icon>
+                        Pull requests
+                    </x-compass::section-heading>
+                    <span class="text-foreground-muted">&middot; {{ $repository->pullRequests->count() }} open</span>
+                </summary>
+
+                <table class="w-full table-fixed border-t border-border text-left text-sm">
+                    <thead class="bg-canvas-subtle text-xs text-foreground-muted">
+                        <tr>
+                            <x-compass::pull-request-heading-cells />
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border">
+                        @foreach ($repository->pullRequests as $pullRequest)
+                            <tr>
+                                <x-compass::pull-request-cells :pull-request="$pullRequest" />
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </details>
+        @endif
+
         @if ($repository->composerJson)
             <details class="group rounded-md border border-border bg-canvas">
                 <summary class="flex cursor-pointer items-center gap-2 px-4 py-3 text-sm">

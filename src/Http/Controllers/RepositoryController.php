@@ -47,6 +47,14 @@ readonly class RepositoryController
             'composerJson.developmentPackages' => $orderPackagesByName,
             'composerJson.productionPackages' => $orderPackagesByName,
             'composerLock.packages' => $orderPackagesByName,
+            'issues' => static function (Builder $issueQuery): void {
+                $issueQuery->latest('opened_at');
+            },
+            'issues.assignees',
+            'pullRequests' => static function (Builder $pullRequestQuery): void {
+                $pullRequestQuery->latest('opened_at');
+            },
+            'pullRequests.assignees',
             'sites' => static function (Builder $siteQuery): void {
                 $siteQuery->orderBy('name');
             },
