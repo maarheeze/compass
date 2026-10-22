@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Collector\GitHub;
 
-use Carbon\CarbonImmutable;
-use Maarheeze\Compass\Collections\GitHubIssueCollection;
 use Maarheeze\Compass\Collections\GitHubRepositoryCollection;
 use Webmozart\Assert\Assert;
 
@@ -60,68 +58,12 @@ readonly class RepositoriesQuery
                 RepositoryVisibility::from(Assert::string($repositoryResponse['visibility'])),
                 $this->getOid($repositoryResponse['composerJson']),
                 $this->getOid($repositoryResponse['composerLock']),
-                $this->getGitHubIssues(Assert::isList(Assert::isArray($repositoryResponse['issues'])['nodes'])),
             );
 
             $gitHubRepositories->push($gitHubRepository);
         }
 
         return $gitHubRepositories;
-    }
-
-    /**
-     * @param array<mixed> $issueResponse
-     *
-     * @return list<string>
-     */
-    private function getAssigneeLogins(array $issueResponse): array
-    {
-        $assigneeLogins = [];
-
-        foreach (Assert::isList(Assert::isArray($issueResponse['assignees'])['nodes']) as $assigneeResponse) {
-            $assigneeLogins[] = Assert::string(Assert::isArray($assigneeResponse)['login']);
-        }
-
-        return $assigneeLogins;
-    }
-
-    private function getAuthorLogin(mixed $authorResponse): ?string
-    {
-        if ($authorResponse === null) {
-            return null;
-        }
-
-        return Assert::string(Assert::isArray($authorResponse)['login']);
-    }
-
-    /**
-     * @param array<mixed> $issueResponse
-     */
-    private function getGitHubIssue(array $issueResponse): GitHubIssue
-    {
-        return new GitHubIssue(
-            Assert::string($issueResponse['id']),
-            Assert::integer($issueResponse['number']),
-            Assert::string($issueResponse['title']),
-            Assert::string($issueResponse['url']),
-            $this->getAuthorLogin($issueResponse['author']),
-            CarbonImmutable::parse(Assert::string($issueResponse['createdAt'])),
-            $this->getAssigneeLogins($issueResponse),
-        );
-    }
-
-    /**
-     * @param list<mixed> $issueResponses
-     */
-    private function getGitHubIssues(array $issueResponses): GitHubIssueCollection
-    {
-        $gitHubIssues = new GitHubIssueCollection();
-
-        foreach ($issueResponses as $issueResponse) {
-            $gitHubIssues->push($this->getGitHubIssue(Assert::isArray($issueResponse)));
-        }
-
-        return $gitHubIssues;
     }
 
     /**
@@ -160,17 +102,6 @@ readonly class RepositoriesQuery
                     defaultBranchRef { name target { oid } }
                     composerJson: object(expression: "HEAD:composer.json") { oid }
                     composerLock: object(expression: "HEAD:composer.lock") { oid }
-                    issues(states: OPEN, first: 100) {
-                      nodes {
-                        id
-                        number
-                        title
-                        url
-                        author { login }
-                        createdAt
-                        assignees(first: 10) { nodes { login } }
-                      }
-                    }
                   }
                 }
               }

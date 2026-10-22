@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Collections\GitHubIssueCollection;
 use Maarheeze\Compass\Collections\GitHubRepositoryCollection;
 use Maarheeze\Compass\Collector\CollectionRunId;
 use Maarheeze\Compass\Collector\GitHub\GitHubRepository;
@@ -68,7 +67,6 @@ test('store repositories updates the name of a known repository', function (): v
         fake()->randomElement(RepositoryVisibility::cases()),
         fake()->sha1(),
         fake()->sha1(),
-        new GitHubIssueCollection(),
     );
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);

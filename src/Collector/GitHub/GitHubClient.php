@@ -19,6 +19,25 @@ readonly class GitHubClient
     }
 
     /**
+     * @throws GitHubQueryFailed
+     */
+    public function get(string $url): Response
+    {
+        try {
+            $response = $this->http
+                ->baseUrl('https://api.github.com')
+                ->withToken($this->token)
+                ->acceptJson()
+                ->get($url);
+            $response->throw();
+        } catch (ConnectionException | RequestException $exception) {
+            throw new GitHubQueryFailed([], $exception);
+        }
+
+        return $response;
+    }
+
+    /**
      * @param array<string, string|null> $variables
      *
      * @throws GitHubQueryFailed

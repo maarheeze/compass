@@ -24,7 +24,11 @@
                                 <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORY, $issue->repository) }}" class="hover:underline">{{ $issue->repository->name }}</a>
                             </td>
                             <td class="truncate px-4 py-2 text-zinc-900 dark:text-zinc-100">
-                                <a href="{{ $issue->url }}" target="_blank" rel="noopener" class="hover:underline">#{{ $issue->number }} {{ $issue->title }} &nearr;</a>
+                                <a href="{{ $issue->url }}" target="_blank" rel="noopener" class="hover:underline">
+                                    {{ $issue->title }}
+                                    <span class="text-zinc-400 dark:text-zinc-500">#{{ $issue->number }}</span>
+                                    &nearr;
+                                </a>
                             </td>
                             <td class="truncate px-4 py-2 text-zinc-500 dark:text-zinc-400">
                                 @foreach ($issue->assignees as $assignee)

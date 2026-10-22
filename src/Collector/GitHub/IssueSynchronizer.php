@@ -6,7 +6,6 @@ namespace Maarheeze\Compass\Collector\GitHub;
 
 use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\GitHubIssueCollection;
-use Maarheeze\Compass\Collections\GitHubRepositoryCollection;
 use Maarheeze\Compass\Collector\CollectionRunId;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\IssueAssignee;
@@ -22,33 +21,34 @@ readonly class IssueSynchronizer
             ->delete();
     }
 
-    public function storeIssues(GitHubRepositoryCollection $gitHubRepositories, CollectionRunId $collectionRunId): void
+    public function storeIssues(GitHubIssueCollection $gitHubIssues, CollectionRunId $collectionRunId): void
     {
         $repositoryIds = Repository::query()
-            ->whereIn('github_id', $gitHubRepositories->pluck('gitHubId'))
-            ->pluck('id', 'github_id');
-        $gitHubIssues = new GitHubIssueCollection();
+            ->whereIn('name', $gitHubIssues->pluck('repositoryName'))
+            ->pluck('id', 'name');
+        $gitHubIssuesOfKnownRepositories = $gitHubIssues->filter(
+            static function (GitHubIssue $gitHubIssue) use ($repositoryIds): bool {
+                return $repositoryIds->has($gitHubIssue->repositoryName);
+            },
+        );
         $issueValues = [];
 
-        foreach ($gitHubRepositories as $gitHubRepository) {
-            foreach ($gitHubRepository->issues as $gitHubIssue) {
-                $gitHubIssues->push($gitHubIssue);
-                $issueValues[] = [
-                    'repository_id' => Assert::integer($repositoryIds->get($gitHubRepository->gitHubId)),
-                    'github_id' => $gitHubIssue->gitHubId,
-                    'number' => $gitHubIssue->number,
-                    'title' => $gitHubIssue->title,
-                    'url' => $gitHubIssue->url,
-                    'author_login' => $gitHubIssue->authorLogin,
-                    'opened_at' => $gitHubIssue->openedAt,
-                    'collection_run_id' => $collectionRunId,
-                    'collected_at' => CarbonImmutable::now(),
-                ];
-            }
+        foreach ($gitHubIssuesOfKnownRepositories as $gitHubIssue) {
+            $issueValues[] = [
+                'repository_id' => Assert::integer($repositoryIds->get($gitHubIssue->repositoryName)),
+                'github_id' => $gitHubIssue->gitHubId,
+                'number' => $gitHubIssue->number,
+                'title' => $gitHubIssue->title,
+                'url' => $gitHubIssue->url,
+                'author_login' => $gitHubIssue->authorLogin,
+                'opened_at' => $gitHubIssue->openedAt,
+                'collection_run_id' => $collectionRunId,
+                'collected_at' => CarbonImmutable::now(),
+            ];
         }
 
         Issue::query()->upsert($issueValues, ['github_id']);
-        $this->storeAssignees($gitHubIssues);
+        $this->storeAssignees($gitHubIssuesOfKnownRepositories);
     }
 
     private function storeAssignees(GitHubIssueCollection $gitHubIssues): void

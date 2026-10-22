@@ -8,6 +8,7 @@ use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Maarheeze\Compass\Analyzer\AlertFinder;
 use Maarheeze\Compass\Analyzer\GitHub\IssueCounter;
+use Maarheeze\Compass\Analyzer\GitHub\PullRequestCounter;
 use Maarheeze\Compass\Authentication\AuthenticatedUser;
 
 readonly class DashboardController
@@ -16,6 +17,7 @@ readonly class DashboardController
         private AlertFinder $alertFinder,
         private AuthenticatedUser $authenticatedUser,
         private IssueCounter $issueCounter,
+        private PullRequestCounter $pullRequestCounter,
         private ViewFactory $view,
     ) {
     }
@@ -25,6 +27,7 @@ readonly class DashboardController
         return $this->view->make('compass::dashboard', [
             'alerts' => $this->alertFinder->find(),
             'issueCounts' => $this->issueCounter->count($this->authenticatedUser->user()),
+            'pullRequestCounts' => $this->pullRequestCounter->count($this->authenticatedUser->user()),
         ]);
     }
 }

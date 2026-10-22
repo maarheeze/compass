@@ -110,3 +110,64 @@ test('query throws when github cannot be reached', function (): void {
     $gitHubClient = $this->app->make(GitHubClient::class);
     $gitHubClient->query(fake()->sentence(), []);
 })->throws(GitHubQueryFailed::class);
+
+test('get is sent to the github api', function (): void {
+    $path = fake()->slug();
+
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response([])]);
+
+    $gitHubClient = $this->app->make(GitHubClient::class);
+    $gitHubClient->get($path);
+
+    $http->assertSent(static function (HttpRequest $request) use ($path): bool {
+        if ($request->method() !== 'GET') {
+            return false;
+        }
+
+        return $request->url() === sprintf('https://api.github.com/%s', $path);
+    });
+});
+
+test('get is sent to an absolute url as is', function (): void {
+    $url = fake()->url();
+
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response([])]);
+
+    $gitHubClient = $this->app->make(GitHubClient::class);
+    $gitHubClient->get($url);
+
+    $http->assertSent(static function (HttpRequest $request) use ($url): bool {
+        return $request->url() === $url;
+    });
+});
+
+test('get is sent with the ci user token', function (): void {
+    $token = fake()->sha1();
+    $this->setConfiguration('compass.github.token', $token);
+
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response([])]);
+
+    $gitHubClient = $this->app->make(GitHubClient::class);
+    $gitHubClient->get(fake()->slug());
+
+    $http->assertSent(static function (HttpRequest $request) use ($token): bool {
+        return $request->hasHeader('Authorization', sprintf('Bearer %s', $token));
+    });
+});
+
+test('get throws when github refuses the request', function (): void {
+    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, 401)]);
+
+    $gitHubClient = $this->app->make(GitHubClient::class);
+    $gitHubClient->get(fake()->slug());
+})->throws(GitHubQueryFailed::class);
+
+test('get throws when github cannot be reached', function (): void {
+    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::failedConnection()]);
+
+    $gitHubClient = $this->app->make(GitHubClient::class);
+    $gitHubClient->get(fake()->slug());
+})->throws(GitHubQueryFailed::class);

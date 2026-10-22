@@ -13,6 +13,7 @@ readonly class GitHubIssue
      */
     public function __construct(
         public string $gitHubId,
+        public string $repositoryName,
         public int $number,
         public string $title,
         public string $url,

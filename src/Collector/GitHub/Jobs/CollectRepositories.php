@@ -8,7 +8,6 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maarheeze\Compass\Collector\CollectionRunId;
 use Maarheeze\Compass\Collector\GitHub\GitHubQueryFailed;
-use Maarheeze\Compass\Collector\GitHub\IssueSynchronizer;
 use Maarheeze\Compass\Collector\GitHub\RepositoriesQuery;
 use Maarheeze\Compass\Collector\GitHub\RepositorySynchronizer;
 
@@ -25,18 +24,11 @@ class CollectRepositories implements ShouldQueue
     /**
      * @throws GitHubQueryFailed
      */
-    public function handle(
-        IssueSynchronizer $issueSynchronizer,
-        RepositoriesQuery $repositoriesQuery,
-        RepositorySynchronizer $repositorySynchronizer,
-    ): void {
+    public function handle(RepositoriesQuery $repositoriesQuery, RepositorySynchronizer $repositorySynchronizer): void
+    {
         $repositoriesQueryResult = $repositoriesQuery->page($this->cursor);
 
         $repositorySynchronizer->storeRepositories(
-            $repositoriesQueryResult->gitHubRepositories,
-            $this->collectionRunId,
-        );
-        $issueSynchronizer->storeIssues(
             $repositoriesQueryResult->gitHubRepositories,
             $this->collectionRunId,
         );
@@ -48,6 +40,5 @@ class CollectRepositories implements ShouldQueue
         }
 
         $repositorySynchronizer->deleteUncollected($this->collectionRunId);
-        $issueSynchronizer->deleteUncollected($this->collectionRunId);
     }
 }

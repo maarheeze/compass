@@ -11,7 +11,7 @@ use Maarheeze\Compass\Collector\Forge\Jobs\CollectSites;
 
 class SyncForgeCommand extends Command
 {
-    public const string SIGNATURE = 'compass:sync-forge';
+    public const string SIGNATURE = 'compass:forge-sync';
 
     public function handle(Dispatcher $dispatcher): void
     {
@@ -22,6 +22,6 @@ class SyncForgeCommand extends Command
     {
         $this
             ->setName(self::SIGNATURE)
-            ->setDescription('Collect the sites from Forge');
+            ->setDescription('Collect the sites from Forge and synchronize the database');
     }
 }

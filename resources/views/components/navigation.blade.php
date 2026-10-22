@@ -20,6 +20,7 @@
             <a href="{{ route(\Maarheeze\Compass\Http\RouteName::DASHBOARD) }}" class="hover:text-zinc-900 dark:hover:text-white">Dashboard</a>
             <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORIES) }}" class="hover:text-zinc-900 dark:hover:text-white">Repositories</a>
             <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES) }}" class="hover:text-zinc-900 dark:hover:text-white">Issues</a>
+            <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_PULL_REQUESTS) }}" class="hover:text-zinc-900 dark:hover:text-white">Pull requests</a>
             <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITES) }}" class="hover:text-zinc-900 dark:hover:text-white">Sites</a>
         </nav>
     </div>

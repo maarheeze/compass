@@ -15,6 +15,7 @@ class GitHubIssueFactory
     {
         return new GitHubIssue(
             fake()->unique()->sha1(),
+            fake()->slug(),
             fake()->numberBetween(1, 9999),
             fake()->sentence(),
             fake()->url(),

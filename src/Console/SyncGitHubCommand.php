@@ -9,11 +9,12 @@ use Illuminate\Contracts\Bus\Dispatcher;
 use Maarheeze\Compass\Collector\CollectionRunId;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectChangedComposerJsons;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectChangedComposerLocks;
+use Maarheeze\Compass\Collector\GitHub\Jobs\CollectIssuesAndPullRequests;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectRepositories;
 
 class SyncGitHubCommand extends Command
 {
-    public const string SIGNATURE = 'compass:sync-github';
+    public const string SIGNATURE = 'compass:github-sync';
 
     public function handle(Dispatcher $dispatcher): void
     {
@@ -21,6 +22,7 @@ class SyncGitHubCommand extends Command
 
         $collectRepositories = new CollectRepositories($collectionRunId, null);
         $collectRepositories->chain([
+            new CollectIssuesAndPullRequests($collectionRunId, null),
             new CollectChangedComposerJsons($collectionRunId),
             new CollectChangedComposerLocks($collectionRunId),
         ]);
@@ -31,6 +33,6 @@ class SyncGitHubCommand extends Command
     {
         $this
             ->setName(self::SIGNATURE)
-            ->setDescription('Collect the repositories of the organization from GitHub');
+            ->setDescription('Collect the required data from GitHub and synchronize the database');
     }
 }

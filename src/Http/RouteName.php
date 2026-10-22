@@ -14,6 +14,8 @@ enum RouteName: string
     case GITHUB_ISSUES = 'compass.github.issues';
     case GITHUB_ISSUES_ASSIGNED = 'compass.github.issues.assigned';
     case GITHUB_PACKAGE = 'compass.github.package';
+    case GITHUB_PULL_REQUESTS = 'compass.github.pull-requests';
+    case GITHUB_PULL_REQUESTS_ASSIGNED = 'compass.github.pull-requests.assigned';
     case GITHUB_REDIRECT = 'compass.auth.github';
     case GITHUB_REPOSITORIES = 'compass.github.repositories';
     case GITHUB_REPOSITORY = 'compass.github.repository';

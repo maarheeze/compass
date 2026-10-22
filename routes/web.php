@@ -7,6 +7,7 @@ use Maarheeze\Compass\Http\Controllers\DashboardController;
 use Maarheeze\Compass\Http\Controllers\GitHubController;
 use Maarheeze\Compass\Http\Controllers\IssueController;
 use Maarheeze\Compass\Http\Controllers\PackageController;
+use Maarheeze\Compass\Http\Controllers\PullRequestController;
 use Maarheeze\Compass\Http\Controllers\RepositoryController;
 use Maarheeze\Compass\Http\Controllers\SiteController;
 use Maarheeze\Compass\Http\Controllers\SyncController;
@@ -27,19 +28,26 @@ Route::middleware('web')
 
         Route::middleware(Authenticate::class)->group(static function (): void {
             Route::get('/', [DashboardController::class, 'show'])->name(RouteName::DASHBOARD);
+
             Route::get('/github/repositories', [RepositoryController::class, 'index'])->name(RouteName::GITHUB_REPOSITORIES);
             Route::get('/github/repositories/{repository}', [RepositoryController::class, 'show'])
                 ->name(RouteName::GITHUB_REPOSITORY);
             Route::get('/github/issues', [IssueController::class, 'index'])->name(RouteName::GITHUB_ISSUES);
             Route::get('/github/issues/assigned', [IssueController::class, 'assigned'])
                 ->name(RouteName::GITHUB_ISSUES_ASSIGNED);
+            Route::get('/github/pull-requests', [PullRequestController::class, 'index'])
+                ->name(RouteName::GITHUB_PULL_REQUESTS);
+            Route::get('/github/pull-requests/assigned', [PullRequestController::class, 'assigned'])
+                ->name(RouteName::GITHUB_PULL_REQUESTS_ASSIGNED);
             Route::get('/github/packages/{packageName}', [PackageController::class, 'show'])
                 ->where('packageName', '.+')
                 ->name(RouteName::GITHUB_PACKAGE);
+
             Route::get('/forge/sites', [SiteController::class, 'index'])->name(RouteName::FORGE_SITES);
             Route::get('/forge/sites/{site}', [SiteController::class, 'show'])->name(RouteName::FORGE_SITE);
 
             Route::post('/logout', [GitHubController::class, 'logout'])->name(RouteName::LOGOUT);
+
             Route::post('/sync/github', [SyncController::class, 'github'])->name(RouteName::GITHUB_SYNC);
             Route::post('/sync/forge', [SyncController::class, 'forge'])->name(RouteName::FORGE_SYNC);
         });

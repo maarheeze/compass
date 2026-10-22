@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Collector\GitHub;
 
-use Maarheeze\Compass\Collections\GitHubIssueCollection;
-
 readonly class GitHubRepository
 {
     public function __construct(
@@ -17,7 +15,6 @@ readonly class GitHubRepository
         public RepositoryVisibility $visibility,
         public ?string $composerJsonOid,
         public ?string $composerLockOid,
-        public GitHubIssueCollection $issues,
     ) {
     }
 }
