@@ -21,7 +21,10 @@
                             </td>
                             <td class="px-4 py-2 text-foreground-muted">{{ $site->server_name }}</td>
                             <td class="px-4 py-2">
-                                <x-compass::forge.deployment-state-label :site="$site" />
+                                <div class="flex items-center gap-2">
+                                    <x-compass::missing-label :missing-at="$site->missing_at" :missing-ignored-at="$site->missing_ignored_at" />
+                                    <x-compass::forge.deployment-state-label :site="$site" />
+                                </div>
                             </td>
                             <td class="px-4 py-2 text-foreground-muted">
                                 <x-compass::commit-hash :repository="$site->repository" :commit-hash="$site->deployed_commit_hash" />

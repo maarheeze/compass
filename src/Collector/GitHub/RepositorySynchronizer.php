@@ -11,11 +11,12 @@ use Maarheeze\Compass\Models\Repository;
 
 readonly class RepositorySynchronizer
 {
-    public function deleteUncollected(CollectionRunId $collectionRunId): void
+    public function markUncollectedMissing(CollectionRunId $collectionRunId): void
     {
         Repository::query()
             ->whereNot('collection_run_id', $collectionRunId)
-            ->delete();
+            ->whereNull('missing_at')
+            ->update(['missing_at' => CarbonImmutable::now()]);
     }
 
     public function storeRepositories(
@@ -36,6 +37,8 @@ readonly class RepositorySynchronizer
                 'composer_lock_oid' => $gitHubRepository->composerLockOid,
                 'collection_run_id' => $collectionRunId,
                 'collected_at' => CarbonImmutable::now(),
+                'missing_at' => null,
+                'missing_ignored_at' => null,
             ];
         }
 

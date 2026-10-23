@@ -2,9 +2,18 @@
     <x-compass::navigation :section="\Maarheeze\Compass\View\NavigationSection::SITES" />
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
+        @if ($site->missing_at)
+            <x-compass::missing-notice
+                :missing-at="$site->missing_at"
+                :missing-ignored-at="$site->missing_ignored_at"
+                :delete-url="route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE_DELETE, $site)"
+                :ignore-url="route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE_IGNORE, $site)" />
+        @endif
+
         <div class="space-y-1">
             <div class="flex items-center gap-3">
                 <h1 class="text-lg font-semibold text-foreground">{{ $site->name }}</h1>
+                <x-compass::missing-label :missing-at="$site->missing_at" :missing-ignored-at="$site->missing_ignored_at" />
                 <x-compass::forge.deployment-state-label :site="$site" />
                 <x-compass::forge.link :site="$site" class="ml-auto" />
             </div>

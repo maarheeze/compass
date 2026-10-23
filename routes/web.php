@@ -32,6 +32,10 @@ Route::middleware('web')
             Route::get('/github/repositories', [RepositoryController::class, 'index'])->name(RouteName::GITHUB_REPOSITORIES);
             Route::get('/github/repositories/{repository}', [RepositoryController::class, 'show'])
                 ->name(RouteName::GITHUB_REPOSITORY);
+            Route::delete('/github/repositories/{repository}', [RepositoryController::class, 'delete'])
+                ->name(RouteName::GITHUB_REPOSITORY_DELETE);
+            Route::post('/github/repositories/{repository}/ignore', [RepositoryController::class, 'ignore'])
+                ->name(RouteName::GITHUB_REPOSITORY_IGNORE);
             Route::get('/github/issues', [IssueController::class, 'index'])->name(RouteName::GITHUB_ISSUES);
             Route::get('/github/issues/assigned', [IssueController::class, 'assigned'])
                 ->name(RouteName::GITHUB_ISSUES_ASSIGNED);
@@ -45,6 +49,8 @@ Route::middleware('web')
 
             Route::get('/forge/sites', [SiteController::class, 'index'])->name(RouteName::FORGE_SITES);
             Route::get('/forge/sites/{site}', [SiteController::class, 'show'])->name(RouteName::FORGE_SITE);
+            Route::delete('/forge/sites/{site}', [SiteController::class, 'delete'])->name(RouteName::FORGE_SITE_DELETE);
+            Route::post('/forge/sites/{site}/ignore', [SiteController::class, 'ignore'])->name(RouteName::FORGE_SITE_IGNORE);
 
             Route::post('/logout', [GitHubController::class, 'logout'])->name(RouteName::LOGOUT);
 

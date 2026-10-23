@@ -2,9 +2,18 @@
     <x-compass::navigation :section="\Maarheeze\Compass\View\NavigationSection::REPOSITORIES" />
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
+        @if ($repository->missing_at)
+            <x-compass::missing-notice
+                :missing-at="$repository->missing_at"
+                :missing-ignored-at="$repository->missing_ignored_at"
+                :delete-url="route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORY_DELETE, $repository)"
+                :ignore-url="route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORY_IGNORE, $repository)" />
+        @endif
+
         <div class="space-y-1">
             <div class="flex items-center gap-3">
                 <h1 class="text-lg font-semibold text-foreground">{{ $repository->name }}</h1>
+                <x-compass::missing-label :missing-at="$repository->missing_at" :missing-ignored-at="$repository->missing_ignored_at" />
                 <x-compass::composer.warning-badge :repository="$repository" />
                 <a href="{{ $repository->url }}" target="_blank" rel="noopener" class="ml-auto text-sm text-foreground-muted hover:underline">GitHub &nearr;</a>
             </div>
@@ -70,7 +79,10 @@
                                     <x-compass::commit-hash :repository="$site->repository" :commit-hash="$site->deployed_commit_hash" />
                                 </td>
                                 <td class="px-4 py-2">
-                                    <x-compass::forge.deployment-state-label :site="$site" />
+                                    <div class="flex items-center gap-2">
+                                        <x-compass::missing-label :missing-at="$site->missing_at" :missing-ignored-at="$site->missing_ignored_at" />
+                                        <x-compass::forge.deployment-state-label :site="$site" />
+                                    </div>
                                 </td>
                             </tr>
                         @empty

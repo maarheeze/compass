@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collector\CollectionRunId;
@@ -103,7 +104,7 @@ test('handle chains the next page when there is one', function (): void {
     $collectRepositories->assertHasChain([new CollectRepositories($collectionRunId, $endCursor)]);
 });
 
-test('handle deletes the repositories of another run on the last page', function (): void {
+test('handle marks the repositories of another run missing on the last page', function (): void {
     $repository = Repository::factory()->create();
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
@@ -124,5 +125,6 @@ test('handle deletes the repositories of another run on the last page', function
     $collectRepositories = new CollectRepositories(CollectionRunId::generate(), null);
     $this->app->call([$collectRepositories, 'handle']);
 
-    $this->assertModelMissing($repository);
+    expect($repository->refresh()->missing_at)
+        ->toBeInstanceOf(CarbonImmutable::class);
 });

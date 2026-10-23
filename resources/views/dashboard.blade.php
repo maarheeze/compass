@@ -28,6 +28,52 @@
         @if ($alerts->isEmpty())
             <p class="text-sm text-foreground-muted">No alerts.</p>
         @else
+            @if ($alerts->missingRepositories->isNotEmpty())
+                <section class="space-y-3">
+                    <x-compass::section-heading>
+                        <x-slot:icon>
+                            <x-compass::icons.repo />
+                        </x-slot:icon>
+                        Missing repositories
+                    </x-compass::section-heading>
+
+                    <ul class="divide-y divide-border overflow-hidden rounded-md border border-border bg-canvas">
+                        @foreach ($alerts->missingRepositories as $repository)
+                            <li class="flex items-center justify-between px-4 py-2 text-sm">
+                                <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORY, $repository) }}" class="font-medium text-accent hover:underline">{{ $repository->name }}</a>
+                                <span class="text-foreground-muted">
+                                    missing since
+                                    <x-compass::time :time="$repository->missing_at" />
+                                </span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </section>
+            @endif
+
+            @if ($alerts->missingSites->isNotEmpty())
+                <section class="space-y-3">
+                    <x-compass::section-heading>
+                        <x-slot:icon>
+                            <x-compass::icons.server />
+                        </x-slot:icon>
+                        Missing sites
+                    </x-compass::section-heading>
+
+                    <ul class="divide-y divide-border overflow-hidden rounded-md border border-border bg-canvas">
+                        @foreach ($alerts->missingSites as $site)
+                            <li class="flex items-center justify-between px-4 py-2 text-sm">
+                                <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE, $site) }}" class="font-medium text-accent hover:underline">{{ $site->name }}</a>
+                                <span class="text-foreground-muted">
+                                    missing since
+                                    <x-compass::time :time="$site->missing_at" />
+                                </span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </section>
+            @endif
+
             @if ($alerts->repositoriesWithComposerWarning->isNotEmpty())
                 <section class="space-y-3">
                     <x-compass::section-heading>

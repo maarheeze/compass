@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Site;
@@ -28,4 +29,50 @@ test('show contains the site', function (): void {
     $response->assertViewHas('site', static function (Site $viewSite) use ($site): bool {
         return $viewSite->is($site);
     });
+});
+
+test('delete deletes a missing site', function (): void {
+    $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $this->delete(route(RouteName::FORGE_SITE_DELETE, $site));
+
+    $this->assertModelMissing($site);
+});
+
+test('delete sends the user back to the dashboard', function (): void {
+    $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->delete(route(RouteName::FORGE_SITE_DELETE, $site));
+
+    $response->assertRedirect(route(RouteName::DASHBOARD));
+});
+
+test('delete is not found for a collected site', function (): void {
+    $site = Site::factory()->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->delete(route(RouteName::FORGE_SITE_DELETE, $site));
+
+    $response->assertNotFound();
+});
+
+test('ignore marks a missing site ignored', function (): void {
+    $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $this->post(route(RouteName::FORGE_SITE_IGNORE, $site));
+
+    expect($site->refresh()->missing_ignored_at)
+        ->toBeInstanceOf(CarbonImmutable::class);
+});
+
+test('ignore sends the user back to the dashboard', function (): void {
+    $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->post(route(RouteName::FORGE_SITE_IGNORE, $site));
+
+    $response->assertRedirect(route(RouteName::DASHBOARD));
 });

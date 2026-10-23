@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\GitHubRepositoryCollection;
 use Maarheeze\Compass\Collector\CollectionRunId;
 use Maarheeze\Compass\Collector\GitHub\GitHubRepository;
@@ -78,21 +79,55 @@ test('store repositories updates the name of a known repository', function (): v
     ]);
 });
 
-test('delete uncollected deletes a repository of another run', function (): void {
+test('store repositories clears the missing marks of a known repository', function (): void {
+    $repository = Repository::factory()->create([
+        'missing_at' => fake()->dateTime(),
+        'missing_ignored_at' => fake()->dateTime(),
+    ]);
+    $gitHubRepository = GitHubRepositoryFactory::forRepository($repository);
+
+    $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
+    $repositorySynchronizer->storeRepositories(new GitHubRepositoryCollection([$gitHubRepository]), CollectionRunId::generate());
+
+    $this->assertDatabaseHas(Repository::class, [
+        'id' => $repository->id,
+        'missing_at' => null,
+        'missing_ignored_at' => null,
+    ]);
+});
+
+test('mark uncollected missing marks a repository of another run missing', function (): void {
     $repository = Repository::factory()->create();
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositorySynchronizer->deleteUncollected(CollectionRunId::generate());
+    $repositorySynchronizer->markUncollectedMissing(CollectionRunId::generate());
 
-    $this->assertModelMissing($repository);
+    expect($repository->refresh()->missing_at)
+        ->toBeInstanceOf(CarbonImmutable::class);
 });
 
-test('delete uncollected keeps a repository of the run', function (): void {
+test('mark uncollected missing keeps the moment a repository went missing', function (): void {
+    $missingAt = fake()->dateTime();
+    $repository = Repository::factory()->create(['missing_at' => $missingAt]);
+
+    $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
+    $repositorySynchronizer->markUncollectedMissing(CollectionRunId::generate());
+
+    $this->assertDatabaseHas(Repository::class, [
+        'id' => $repository->id,
+        'missing_at' => $missingAt,
+    ]);
+});
+
+test('mark uncollected missing leaves a repository of the run unmarked', function (): void {
     $collectionRunId = CollectionRunId::generate();
     $repository = Repository::factory()->create(['collection_run_id' => $collectionRunId]);
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositorySynchronizer->deleteUncollected($collectionRunId);
+    $repositorySynchronizer->markUncollectedMissing($collectionRunId);
 
-    $this->assertModelExists($repository);
+    $this->assertDatabaseHas(Repository::class, [
+        'id' => $repository->id,
+        'missing_at' => null,
+    ]);
 });

@@ -26,7 +26,10 @@
                     </td>
                     <td class="px-4 py-2 text-foreground-muted">{{ $repository->composerJson?->php_constraint }}</td>
                     <td class="px-4 py-2">
-                        <x-compass::composer.warning-badge :repository="$repository" />
+                        <div class="flex items-center gap-2">
+                            <x-compass::missing-label :missing-at="$repository->missing_at" :missing-ignored-at="$repository->missing_ignored_at" />
+                            <x-compass::composer.warning-badge :repository="$repository" />
+                        </div>
                     </td>
                     <td class="px-4 py-2 text-foreground-muted">
                         <x-compass::time :time="$repository->collected_at" />

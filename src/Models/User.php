@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Models;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Carbon;
 use Maarheeze\Compass\Database\Factories\UserFactory;
 
 /**
  * @property ?string $avatar_url
- * @property Carbon $created_at
+ * @property CarbonImmutable $created_at
  * @property ?string $email
  * @property string $github_id
  * @property string $github_token
@@ -20,7 +20,7 @@ use Maarheeze\Compass\Database\Factories\UserFactory;
  * @property ?string $name
  * @property string $nickname
  * @property ?string $remember_token
- * @property Carbon $updated_at
+ * @property CarbonImmutable $updated_at
  */
 class User extends Authenticatable
 {
@@ -65,7 +65,9 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'created_at' => 'immutable_datetime',
             'github_token' => 'encrypted',
+            'updated_at' => 'immutable_datetime',
         ];
     }
 

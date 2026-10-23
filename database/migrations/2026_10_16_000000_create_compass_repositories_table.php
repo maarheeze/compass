@@ -23,6 +23,8 @@ return new class extends Migration
             $table->string('composer_lock_oid')->nullable();
             $table->string('collection_run_id');
             $table->timestamp('collected_at');
+            $table->timestamp('missing_at')->nullable();
+            $table->timestamp('missing_ignored_at')->nullable();
 
             $table->timestamps();
         });

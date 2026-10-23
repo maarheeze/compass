@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Models;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 use Maarheeze\Compass\Collections\IssueAssigneeCollection;
 use Maarheeze\Compass\Database\Factories\IssueAssigneeFactory;
 
 /**
- * @property Carbon $created_at
+ * @property CarbonImmutable $created_at
  * @property int $id
  * @property int $issue_id
  * @property string $login
- * @property Carbon $updated_at
+ * @property CarbonImmutable $updated_at
  *
  * @property-read Issue $issue
  */
@@ -49,6 +49,17 @@ class IssueAssignee extends Model
     public function issue(): BelongsTo
     {
         return $this->belongsTo(Issue::class);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'created_at' => 'immutable_datetime',
+            'updated_at' => 'immutable_datetime',
+        ];
     }
 
     protected static function newFactory(): IssueAssigneeFactory

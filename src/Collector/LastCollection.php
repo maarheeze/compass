@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Collector;
 
-use Illuminate\Support\Carbon;
+use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
 
 readonly class LastCollection
 {
-    public function collectedAt(): ?Carbon
+    public function collectedAt(): ?CarbonImmutable
     {
         $repositoriesCollectedAt = Repository::query()
             ->latest('collected_at')

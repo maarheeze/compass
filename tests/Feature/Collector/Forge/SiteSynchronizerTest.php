@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\ForgeSiteCollection;
 use Maarheeze\Compass\Collector\CollectionRunId;
 use Maarheeze\Compass\Collector\Forge\ForgeSite;
@@ -86,21 +87,55 @@ test('store sites updates the name of a known site', function (): void {
     ]);
 });
 
-test('delete uncollected deletes a site of another run', function (): void {
+test('store sites clears the missing marks of a known site', function (): void {
+    $site = Site::factory()->create([
+        'missing_at' => fake()->dateTime(),
+        'missing_ignored_at' => fake()->dateTime(),
+    ]);
+    $forgeSite = ForgeSiteFactory::forSite($site);
+
+    $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
+    $siteSynchronizer->storeSites(new ForgeSiteCollection([$forgeSite]), CollectionRunId::generate());
+
+    $this->assertDatabaseHas(Site::class, [
+        'id' => $site->id,
+        'missing_at' => null,
+        'missing_ignored_at' => null,
+    ]);
+});
+
+test('mark uncollected missing marks a site of another run missing', function (): void {
     $site = Site::factory()->create();
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->deleteUncollected(CollectionRunId::generate());
+    $siteSynchronizer->markUncollectedMissing(CollectionRunId::generate());
 
-    $this->assertModelMissing($site);
+    expect($site->refresh()->missing_at)
+        ->toBeInstanceOf(CarbonImmutable::class);
 });
 
-test('delete uncollected keeps a site of the run', function (): void {
+test('mark uncollected missing keeps the moment a site went missing', function (): void {
+    $missingAt = fake()->dateTime();
+    $site = Site::factory()->create(['missing_at' => $missingAt]);
+
+    $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
+    $siteSynchronizer->markUncollectedMissing(CollectionRunId::generate());
+
+    $this->assertDatabaseHas(Site::class, [
+        'id' => $site->id,
+        'missing_at' => $missingAt,
+    ]);
+});
+
+test('mark uncollected missing leaves a site of the run unmarked', function (): void {
     $collectionRunId = CollectionRunId::generate();
     $site = Site::factory()->create(['collection_run_id' => $collectionRunId]);
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->deleteUncollected($collectionRunId);
+    $siteSynchronizer->markUncollectedMissing($collectionRunId);
 
-    $this->assertModelExists($site);
+    $this->assertDatabaseHas(Site::class, [
+        'id' => $site->id,
+        'missing_at' => null,
+    ]);
 });

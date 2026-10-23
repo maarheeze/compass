@@ -10,6 +10,8 @@ use Maarheeze\Compass\Collections\SiteCollection;
 readonly class Alerts
 {
     public function __construct(
+        public RepositoryCollection $missingRepositories,
+        public SiteCollection $missingSites,
         public RepositoryCollection $repositoriesWithComposerWarning,
         public SiteCollection $sitesBehind,
     ) {
@@ -17,10 +19,9 @@ readonly class Alerts
 
     public function isEmpty(): bool
     {
-        if ($this->repositoriesWithComposerWarning->isNotEmpty()) {
-            return false;
-        }
-
-        return $this->sitesBehind->isEmpty();
+        return $this->missingRepositories->isEmpty()
+            && $this->missingSites->isEmpty()
+            && $this->repositoriesWithComposerWarning->isEmpty()
+            && $this->sitesBehind->isEmpty();
     }
 }

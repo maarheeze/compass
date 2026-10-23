@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Models;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collector\CollectionRunId;
 use Maarheeze\Compass\Collector\Forge\DeploymentStatus;
@@ -18,16 +18,18 @@ use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use function sprintf;
 
 /**
- * @property Carbon $collected_at
+ * @property CarbonImmutable $collected_at
  * @property CollectionRunId $collection_run_id
- * @property Carbon $created_at
+ * @property CarbonImmutable $created_at
  * @property ?string $deployed_commit_hash
  * @property ?string $deployed_commit_message
- * @property ?Carbon $deployment_ended_at
- * @property ?Carbon $deployment_started_at
+ * @property ?CarbonImmutable $deployment_ended_at
+ * @property ?CarbonImmutable $deployment_started_at
  * @property ?DeploymentStatus $deployment_status
  * @property string $forge_id
  * @property int $id
+ * @property ?CarbonImmutable $missing_at
+ * @property ?CarbonImmutable $missing_ignored_at
  * @property string $name
  * @property ?string $php_version
  * @property ?string $repository_branch
@@ -36,7 +38,7 @@ use function sprintf;
  * @property string $server_name
  * @property string $server_slug
  * @property SiteStatus $status
- * @property Carbon $updated_at
+ * @property CarbonImmutable $updated_at
  * @property string $url
  *
  * @property-read ?Repository $repository
@@ -62,6 +64,8 @@ class Site extends Model
             'deployment_started_at',
             'deployment_status',
             'forge_id',
+            'missing_at',
+            'missing_ignored_at',
             'name',
             'php_version',
             'repository_branch',
@@ -93,12 +97,16 @@ class Site extends Model
     protected function casts(): array
     {
         return [
-            'collected_at' => 'datetime',
+            'collected_at' => 'immutable_datetime',
             'collection_run_id' => sprintf('%s:%s', UuidCast::class, CollectionRunId::class),
-            'deployment_ended_at' => 'datetime',
-            'deployment_started_at' => 'datetime',
+            'created_at' => 'immutable_datetime',
+            'deployment_ended_at' => 'immutable_datetime',
+            'deployment_started_at' => 'immutable_datetime',
             'deployment_status' => DeploymentStatus::class,
+            'missing_at' => 'immutable_datetime',
+            'missing_ignored_at' => 'immutable_datetime',
             'status' => SiteStatus::class,
+            'updated_at' => 'immutable_datetime',
         ];
     }
 

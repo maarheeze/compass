@@ -7,18 +7,38 @@ namespace Maarheeze\Compass\Http\Controllers;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Redirector;
 use Maarheeze\Compass\Analyzer\Composer\RepositoryKind;
 use Maarheeze\Compass\Analyzer\Composer\RepositoryKindClassifier;
 use Maarheeze\Compass\Collections\RepositoryCollection;
+use Maarheeze\Compass\Collector\GitHub\MissingRepositoryResolver;
+use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Repository;
 use Webmozart\Assert\Assert;
 
 readonly class RepositoryController
 {
     public function __construct(
+        private MissingRepositoryResolver $missingRepositoryResolver,
+        private Redirector $redirector,
         private RepositoryKindClassifier $repositoryKindClassifier,
         private ViewFactory $view,
     ) {
+    }
+
+    public function delete(Repository $repository): RedirectResponse
+    {
+        $this->missingRepositoryResolver->delete($repository);
+
+        return $this->redirector->route(RouteName::DASHBOARD);
+    }
+
+    public function ignore(Repository $repository): RedirectResponse
+    {
+        $this->missingRepositoryResolver->ignore($repository);
+
+        return $this->redirector->route(RouteName::DASHBOARD);
     }
 
     public function index(): View

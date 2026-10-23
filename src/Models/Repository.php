@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Models;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Support\Carbon;
 use Maarheeze\Compass\Collections\IssueCollection;
 use Maarheeze\Compass\Collections\PullRequestCollection;
 use Maarheeze\Compass\Collections\RepositoryCollection;
@@ -21,17 +21,19 @@ use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use function sprintf;
 
 /**
- * @property Carbon $collected_at
+ * @property CarbonImmutable $collected_at
  * @property CollectionRunId $collection_run_id
  * @property ?string $composer_json_oid
  * @property ?string $composer_lock_oid
- * @property Carbon $created_at
+ * @property CarbonImmutable $created_at
  * @property string $default_branch
  * @property string $github_id
  * @property int $id
  * @property string $last_commit_sha
+ * @property ?CarbonImmutable $missing_at
+ * @property ?CarbonImmutable $missing_ignored_at
  * @property string $name
- * @property Carbon $updated_at
+ * @property CarbonImmutable $updated_at
  * @property string $url
  * @property RepositoryVisibility $visibility
  *
@@ -61,6 +63,8 @@ class Repository extends Model
             'default_branch',
             'github_id',
             'last_commit_sha',
+            'missing_at',
+            'missing_ignored_at',
             'name',
             'url',
             'visibility',
@@ -118,8 +122,12 @@ class Repository extends Model
     protected function casts(): array
     {
         return [
-            'collected_at' => 'datetime',
+            'collected_at' => 'immutable_datetime',
             'collection_run_id' => sprintf('%s:%s', UuidCast::class, CollectionRunId::class),
+            'created_at' => 'immutable_datetime',
+            'missing_at' => 'immutable_datetime',
+            'missing_ignored_at' => 'immutable_datetime',
+            'updated_at' => 'immutable_datetime',
             'visibility' => RepositoryVisibility::class,
         ];
     }

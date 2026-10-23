@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Models;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Carbon;
 use Maarheeze\Compass\Collections\PullRequestAssigneeCollection;
 use Maarheeze\Compass\Collections\PullRequestCollection;
 use Maarheeze\Compass\Collector\CollectionRunId;
@@ -20,17 +20,17 @@ use function sprintf;
 
 /**
  * @property ?string $author_login
- * @property Carbon $collected_at
+ * @property CarbonImmutable $collected_at
  * @property CollectionRunId $collection_run_id
- * @property Carbon $created_at
+ * @property CarbonImmutable $created_at
  * @property string $github_id
  * @property int $id
  * @property bool $is_draft
  * @property int $number
- * @property Carbon $opened_at
+ * @property CarbonImmutable $opened_at
  * @property int $repository_id
  * @property string $title
- * @property Carbon $updated_at
+ * @property CarbonImmutable $updated_at
  * @property string $url
  *
  * @property-read PullRequestAssigneeCollection $assignees
@@ -99,11 +99,13 @@ class PullRequest extends Model
     protected function casts(): array
     {
         return [
-            'collected_at' => 'datetime',
+            'collected_at' => 'immutable_datetime',
             'collection_run_id' => sprintf('%s:%s', UuidCast::class, CollectionRunId::class),
+            'created_at' => 'immutable_datetime',
             'is_draft' => 'boolean',
             'number' => 'integer',
-            'opened_at' => 'datetime',
+            'opened_at' => 'immutable_datetime',
+            'updated_at' => 'immutable_datetime',
         ];
     }
 
