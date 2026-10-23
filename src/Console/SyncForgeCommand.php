@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Maarheeze\Compass\Collector\Client\Jobs\InspectSites;
 use Maarheeze\Compass\Collector\CollectionRunId;
 use Maarheeze\Compass\Collector\Forge\Jobs\CollectSites;
 
@@ -15,13 +16,17 @@ class SyncForgeCommand extends Command
 
     public function handle(Dispatcher $dispatcher): void
     {
-        $dispatcher->dispatch(new CollectSites(CollectionRunId::generate(), null));
+        $collectSites = new CollectSites(CollectionRunId::generate(), null);
+        $collectSites->chain([
+            new InspectSites(),
+        ]);
+        $dispatcher->dispatch($collectSites);
     }
 
     protected function configure(): void
     {
         $this
             ->setName(self::SIGNATURE)
-            ->setDescription('Collect the sites from Forge and synchronize the database');
+            ->setDescription('Collect the sites from Forge, inspect them and synchronize the database');
     }
 }

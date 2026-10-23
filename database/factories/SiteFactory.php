@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\CollectionRunId;
 use Maarheeze\Compass\Collector\Forge\DeploymentStatus;
 use Maarheeze\Compass\Collector\Forge\SiteStatus;
 use Maarheeze\Compass\Models\Site;
 
 use function fake;
+use function sprintf;
 
 /**
  * @extends Factory<Site>
@@ -41,6 +43,13 @@ class SiteFactory extends Factory
             'deployed_commit_message' => fake()->optional()->sentence(),
             'deployment_started_at' => fake()->optional()->dateTimeBetween('-2 months', '-1 month'),
             'deployment_ended_at' => fake()->optional()->dateTimeBetween('-1 month'),
+            'client_key' => fake()->optional()->sha1(),
+            'client_path' => fake()->optional()->passthrough(sprintf('/%s', fake()->slug())),
+            'client_status' => fake()->optional()->randomElement(ClientStatus::cases()),
+            'app_debug' => fake()->optional()->boolean(),
+            'app_env' => fake()->optional()->word(),
+            'app_name' => fake()->optional()->company(),
+            'client_collected_at' => fake()->optional()->dateTime(),
             'collection_run_id' => CollectionRunId::generate(),
             'collected_at' => fake()->dateTime(),
         ];

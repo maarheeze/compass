@@ -14,6 +14,9 @@ readonly class Alerts
         public SiteCollection $missingSites,
         public RepositoryCollection $repositoriesWithComposerWarning,
         public SiteCollection $sitesBehind,
+        public SiteCollection $sitesOutsideProduction,
+        public SiteCollection $sitesWithDebugEnabled,
+        public SiteCollection $sitesWithUnauthorizedClient,
     ) {
     }
 
@@ -22,6 +25,9 @@ readonly class Alerts
         return $this->missingRepositories->isEmpty()
             && $this->missingSites->isEmpty()
             && $this->repositoriesWithComposerWarning->isEmpty()
-            && $this->sitesBehind->isEmpty();
+            && $this->sitesBehind->isEmpty()
+            && $this->sitesOutsideProduction->isEmpty()
+            && $this->sitesWithDebugEnabled->isEmpty()
+            && $this->sitesWithUnauthorizedClient->isEmpty();
     }
 }

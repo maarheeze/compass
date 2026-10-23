@@ -8,7 +8,10 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Maarheeze\Compass\Collections\SiteCollection;
+use Maarheeze\Compass\Collections\SiteEndpointCollection;
+use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\CollectionRunId;
 use Maarheeze\Compass\Collector\Forge\DeploymentStatus;
 use Maarheeze\Compass\Collector\Forge\SiteStatus;
@@ -18,6 +21,13 @@ use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use function sprintf;
 
 /**
+ * @property ?bool $app_debug
+ * @property ?string $app_env
+ * @property ?string $app_name
+ * @property ?CarbonImmutable $client_collected_at
+ * @property ?string $client_key
+ * @property ?string $client_path
+ * @property ?ClientStatus $client_status
  * @property CarbonImmutable $collected_at
  * @property CollectionRunId $collection_run_id
  * @property CarbonImmutable $created_at
@@ -41,6 +51,7 @@ use function sprintf;
  * @property CarbonImmutable $updated_at
  * @property string $url
  *
+ * @property-read SiteEndpointCollection $endpoints
  * @property-read ?Repository $repository
  */
 class Site extends Model
@@ -56,6 +67,13 @@ class Site extends Model
     public function getFillable(): array
     {
         return [
+            'app_debug',
+            'app_env',
+            'app_name',
+            'client_collected_at',
+            'client_key',
+            'client_path',
+            'client_status',
             'collected_at',
             'collection_run_id',
             'deployed_commit_hash',
@@ -84,6 +102,14 @@ class Site extends Model
     }
 
     /**
+     * @return HasMany<SiteEndpoint, $this>
+     */
+    public function endpoints(): HasMany
+    {
+        return $this->hasMany(SiteEndpoint::class);
+    }
+
+    /**
      * @return BelongsTo<Repository, $this>
      */
     public function repository(): BelongsTo
@@ -97,6 +123,9 @@ class Site extends Model
     protected function casts(): array
     {
         return [
+            'app_debug' => 'boolean',
+            'client_collected_at' => 'immutable_datetime',
+            'client_status' => ClientStatus::class,
             'collected_at' => 'immutable_datetime',
             'collection_run_id' => sprintf('%s:%s', UuidCast::class, CollectionRunId::class),
             'created_at' => 'immutable_datetime',

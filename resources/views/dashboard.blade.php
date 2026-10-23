@@ -115,6 +115,66 @@
                     </ul>
                 </section>
             @endif
+
+            @if ($alerts->sitesWithDebugEnabled->isNotEmpty())
+                <section class="space-y-3">
+                    <x-compass::section-heading>
+                        <x-slot:icon>
+                            <x-compass::icons.alert />
+                        </x-slot:icon>
+                        Debug mode on
+                    </x-compass::section-heading>
+
+                    <ul class="divide-y divide-border overflow-hidden rounded-md border border-border bg-canvas">
+                        @foreach ($alerts->sitesWithDebugEnabled as $site)
+                            <li class="flex items-center justify-between px-4 py-2 text-sm">
+                                <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE, $site) }}" class="font-medium text-accent hover:underline">{{ $site->name }}</a>
+                                <x-compass::forge.link :site="$site" />
+                            </li>
+                        @endforeach
+                    </ul>
+                </section>
+            @endif
+
+            @if ($alerts->sitesOutsideProduction->isNotEmpty())
+                <section class="space-y-3">
+                    <x-compass::section-heading>
+                        <x-slot:icon>
+                            <x-compass::icons.alert />
+                        </x-slot:icon>
+                        Environment not set to production
+                    </x-compass::section-heading>
+
+                    <ul class="divide-y divide-border overflow-hidden rounded-md border border-border bg-canvas">
+                        @foreach ($alerts->sitesOutsideProduction as $site)
+                            <li class="flex items-center justify-between px-4 py-2 text-sm">
+                                <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE, $site) }}" class="font-medium text-accent hover:underline">{{ $site->name }}</a>
+                                <x-compass::forge.link :site="$site" />
+                            </li>
+                        @endforeach
+                    </ul>
+                </section>
+            @endif
+
+            @if ($alerts->sitesWithUnauthorizedClient->isNotEmpty())
+                <section class="space-y-3">
+                    <x-compass::section-heading>
+                        <x-slot:icon>
+                            <x-compass::icons.alert />
+                        </x-slot:icon>
+                        Client key refused
+                    </x-compass::section-heading>
+
+                    <ul class="divide-y divide-border overflow-hidden rounded-md border border-border bg-canvas">
+                        @foreach ($alerts->sitesWithUnauthorizedClient as $site)
+                            <li class="flex items-center justify-between px-4 py-2 text-sm">
+                                <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE, $site) }}" class="font-medium text-accent hover:underline">{{ $site->name }}</a>
+                                <x-compass::forge.link :site="$site" />
+                            </li>
+                        @endforeach
+                    </ul>
+                </section>
+            @endif
         @endif
     </main>
 </x-compass::layouts.app>

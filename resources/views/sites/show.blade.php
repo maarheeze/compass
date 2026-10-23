@@ -86,5 +86,81 @@
                 @endif
             </div>
         </section>
+
+        <section class="space-y-3">
+            <x-compass::section-heading>
+                <x-slot:icon>
+                    <x-compass::icons.file-code />
+                </x-slot:icon>
+                Client
+            </x-compass::section-heading>
+
+            <div class="rounded-md border border-border bg-canvas px-4 py-3 text-sm">
+                <div class="flex items-start gap-4">
+                    <dl class="grid flex-1 grid-cols-[max-content_1fr] gap-x-6 gap-y-2">
+                        <dt class="text-foreground-muted">Status</dt>
+                        <dd class="flex items-center gap-2 text-foreground">
+                            <x-compass::client.status-label :status="$site->client_status" />
+                            @if ($site->client_collected_at)
+                                <span class="text-foreground-muted">
+                                    checked
+                                    <x-compass::time :time="$site->client_collected_at" />
+                                </span>
+                            @endif
+                        </dd>
+
+                        @if ($site->app_name)
+                            <dt class="text-foreground-muted">Application</dt>
+                            <dd class="text-foreground">{{ $site->app_name }}</dd>
+
+                            <dt class="text-foreground-muted">Environment</dt>
+                            <dd class="text-foreground">{{ $site->app_env }}</dd>
+
+                            <dt class="text-foreground-muted">Debug</dt>
+                            <dd class="text-foreground">
+                                @if ($site->app_debug)
+                                    On
+                                @else
+                                    Off
+                                @endif
+                            </dd>
+                        @endif
+
+                        @if ($site->endpoints->isNotEmpty())
+                            <dt class="text-foreground-muted">Endpoints</dt>
+                            <dd>
+                                <ul class="flex flex-wrap gap-2">
+                                    @foreach ($site->endpoints as $endpoint)
+                                        <li class="rounded-md bg-border/50 px-2 py-0.5 font-mono text-xs text-foreground-muted">{{ $endpoint->path }}</li>
+                                    @endforeach
+                                </ul>
+                            </dd>
+                        @endif
+
+                        <dt class="text-foreground-muted">Path</dt>
+                        <dd class="font-mono text-foreground">
+                            {{ $clientPath }}
+                            @if ($site->client_path === null)
+                                <span class="font-sans text-foreground-muted">(default)</span>
+                            @endif
+                        </dd>
+
+                        <dt class="text-foreground-muted">Key</dt>
+                        <dd class="break-all font-mono text-foreground">
+                            @if ($clientKey)
+                                {{ $clientKey }}
+                                @if ($site->client_key === null)
+                                    <span class="font-sans text-foreground-muted">(default)</span>
+                                @endif
+                            @else
+                                <span class="font-sans text-foreground-muted">Not set</span>
+                            @endif
+                        </dd>
+                    </dl>
+
+                    <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE_CLIENT_EDIT, $site) }}" class="rounded-md border border-border bg-canvas-subtle px-3 py-1.5 text-sm font-medium text-foreground hover:bg-border/30">Edit</a>
+                </div>
+            </div>
+        </section>
     </main>
 </x-compass::layouts.app>

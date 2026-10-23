@@ -28,6 +28,13 @@ return new class extends Migration
             $table->text('deployed_commit_message')->nullable();
             $table->timestamp('deployment_started_at')->nullable();
             $table->timestamp('deployment_ended_at')->nullable();
+            $table->string('client_path')->nullable();
+            $table->string('client_key')->nullable();
+            $table->string('client_status')->nullable();
+            $table->boolean('app_debug')->nullable();
+            $table->string('app_env')->nullable();
+            $table->string('app_name')->nullable();
+            $table->timestamp('client_collected_at')->nullable();
             $table->string('collection_run_id');
             $table->timestamp('collected_at');
             $table->timestamp('missing_at')->nullable();

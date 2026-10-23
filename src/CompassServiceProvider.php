@@ -7,6 +7,7 @@ namespace Maarheeze\Compass;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
+use Maarheeze\Compass\Providers\ClientProvider;
 use Maarheeze\Compass\Providers\ForgeProvider;
 use Maarheeze\Compass\Providers\GitHubProvider;
 
@@ -19,6 +20,7 @@ class CompassServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../config/compass.php', 'compass');
 
         $this->app->register(AuthenticationProvider::class);
+        $this->app->register(ClientProvider::class);
         $this->app->register(ForgeProvider::class);
         $this->app->register(GitHubProvider::class);
     }

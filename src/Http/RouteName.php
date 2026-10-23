@@ -8,6 +8,8 @@ enum RouteName: string
 {
     case DASHBOARD = 'compass.dashboard';
     case FORGE_SITE = 'compass.forge.site';
+    case FORGE_SITE_CLIENT_EDIT = 'compass.forge.site.client.edit';
+    case FORGE_SITE_CLIENT_UPDATE = 'compass.forge.site.client.update';
     case FORGE_SITE_DELETE = 'compass.forge.site.delete';
     case FORGE_SITE_IGNORE = 'compass.forge.site.ignore';
     case FORGE_SITES = 'compass.forge.sites';

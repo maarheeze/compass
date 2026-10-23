@@ -8,6 +8,8 @@ use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
+use Maarheeze\Compass\Collector\Client\ClientKey;
+use Maarheeze\Compass\Collector\Client\ClientUrlFactory;
 use Maarheeze\Compass\Collector\Forge\MissingSiteResolver;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Site;
@@ -15,6 +17,8 @@ use Maarheeze\Compass\Models\Site;
 readonly class SiteController
 {
     public function __construct(
+        private ClientKey $clientKey,
+        private ClientUrlFactory $clientUrlFactory,
         private MissingSiteResolver $missingSiteResolver,
         private Redirector $redirector,
         private ViewFactory $view,
@@ -47,9 +51,11 @@ readonly class SiteController
 
     public function show(Site $site): View
     {
-        $site->load('repository');
+        $site->load(['endpoints', 'repository']);
 
         return $this->view->make('compass::sites.show', [
+            'clientKey' => $this->clientKey->find($site),
+            'clientPath' => $this->clientUrlFactory->path($site),
             'site' => $site,
         ]);
     }

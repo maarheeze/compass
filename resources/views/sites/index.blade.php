@@ -9,6 +9,7 @@
                         <th class="px-4 py-2 font-medium">Site</th>
                         <th class="px-4 py-2 font-medium">Server</th>
                         <th class="px-4 py-2 font-medium">Status</th>
+                        <th class="px-4 py-2 font-medium">Client</th>
                         <th class="px-4 py-2 font-medium">Deployed commit</th>
                         <th class="px-4 py-2 font-medium">Collected at</th>
                     </tr>
@@ -26,6 +27,9 @@
                                     <x-compass::forge.deployment-state-label :site="$site" />
                                 </div>
                             </td>
+                            <td class="px-4 py-2">
+                                <x-compass::client.status-label :status="$site->client_status" />
+                            </td>
                             <td class="px-4 py-2 text-foreground-muted">
                                 <x-compass::commit-hash :repository="$site->repository" :commit-hash="$site->deployed_commit_hash" />
                             </td>
@@ -35,7 +39,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-4 py-6 text-center text-foreground-muted">No sites collected yet.</td>
+                            <td colspan="6" class="px-4 py-6 text-center text-foreground-muted">No sites collected yet.</td>
                         </tr>
                     @endforelse
                 </tbody>

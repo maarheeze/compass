@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Maarheeze\Compass\Analyzer\AlertFinder;
+use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
@@ -53,5 +54,35 @@ test('find holds the sites behind', function (): void {
     $alerts = $alertFinder->find();
 
     expect($alerts->sitesBehind->sole()->is($site))
+        ->toBeTrue();
+});
+
+test('find holds the sites outside production', function (): void {
+    $site = Site::factory()->create(['app_env' => 'staging']);
+
+    $alertFinder = $this->app->make(AlertFinder::class);
+    $alerts = $alertFinder->find();
+
+    expect($alerts->sitesOutsideProduction->sole()->is($site))
+        ->toBeTrue();
+});
+
+test('find holds the sites with debug mode on', function (): void {
+    $site = Site::factory()->create(['app_debug' => true]);
+
+    $alertFinder = $this->app->make(AlertFinder::class);
+    $alerts = $alertFinder->find();
+
+    expect($alerts->sitesWithDebugEnabled->sole()->is($site))
+        ->toBeTrue();
+});
+
+test('find holds the sites whose client refuses the key', function (): void {
+    $site = Site::factory()->create(['client_status' => ClientStatus::UNAUTHORIZED]);
+
+    $alertFinder = $this->app->make(AlertFinder::class);
+    $alerts = $alertFinder->find();
+
+    expect($alerts->sitesWithUnauthorizedClient->sole()->is($site))
         ->toBeTrue();
 });
