@@ -22,7 +22,7 @@
                     <td class="px-4 py-2 text-foreground-muted lowercase">{{ $repository->visibility->value }}</td>
                     <td class="truncate px-4 py-2 text-foreground-muted">{{ $repository->default_branch }}</td>
                     <td class="px-4 py-2 text-foreground-muted">
-                        <code class="block w-[7ch] overflow-hidden" title="{{ $repository->last_commit_sha }}">{{ $repository->last_commit_sha }}</code>
+                        <x-compass::commit-hash :repository="$repository" :commit-hash="$repository->last_commit_sha" />
                     </td>
                     <td class="px-4 py-2 text-foreground-muted">{{ $repository->composerJson?->php_constraint }}</td>
                     <td class="px-4 py-2">

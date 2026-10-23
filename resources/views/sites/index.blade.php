@@ -24,7 +24,7 @@
                                 <x-compass::forge.deployment-state-label :site="$site" />
                             </td>
                             <td class="px-4 py-2 text-foreground-muted">
-                                <code class="block w-[7ch] overflow-hidden" title="{{ $site->deployed_commit_hash }}">{{ $site->deployed_commit_hash }}</code>
+                                <x-compass::commit-hash :repository="$site->repository" :commit-hash="$site->deployed_commit_hash" />
                             </td>
                             <td class="px-4 py-2 text-foreground-muted">
                                 <x-compass::time :time="$site->collected_at" />

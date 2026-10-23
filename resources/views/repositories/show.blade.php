@@ -2,16 +2,14 @@
     <x-compass::navigation :section="\Maarheeze\Compass\View\NavigationSection::REPOSITORIES" />
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
-        <div class="flex items-center gap-3">
-            <h1 class="text-lg font-semibold text-foreground">{{ $repository->name }}</h1>
-            <x-compass::composer.warning-badge :repository="$repository" />
-            <a href="{{ $repository->url }}" target="_blank" rel="noopener" class="ml-auto text-sm text-foreground-muted hover:underline">GitHub &nearr;</a>
-        </div>
-
-        <section class="rounded-md border border-border bg-canvas p-4">
-            <dl class="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2 text-sm">
-                <dt class="text-foreground-muted">Kind</dt>
-                <dd>
+        <div class="space-y-1">
+            <div class="flex items-center gap-3">
+                <h1 class="text-lg font-semibold text-foreground">{{ $repository->name }}</h1>
+                <x-compass::composer.warning-badge :repository="$repository" />
+                <a href="{{ $repository->url }}" target="_blank" rel="noopener" class="ml-auto text-sm text-foreground-muted hover:underline">GitHub &nearr;</a>
+            </div>
+            <p class="flex flex-wrap items-center gap-x-2 text-sm text-foreground-muted">
+                <span>
                     @switch ($kind)
                         @case (\Maarheeze\Compass\Analyzer\Composer\RepositoryKind::LIBRARY)
                             Library
@@ -23,40 +21,34 @@
                             Project
                             @break
                     @endswitch
-                </dd>
-                <dt class="text-foreground-muted">Visibility</dt>
-                <dd class="lowercase">{{ $repository->visibility->value }}</dd>
-                <dt class="text-foreground-muted">Branch</dt>
-                <dd>{{ $repository->default_branch }}</dd>
-                <dt class="text-foreground-muted">Last commit</dt>
-                <dd><code>{{ $repository->last_commit_sha }}</code></dd>
-                <dt class="text-foreground-muted">composer.json</dt>
-                <dd><code>{{ $repository->composer_json_oid }}</code></dd>
-                <dt class="text-foreground-muted">composer.lock</dt>
-                <dd><code>{{ $repository->composer_lock_oid }}</code></dd>
-                <dt class="text-foreground-muted">Collected at</dt>
-                <dd>
+                </span>
+                <span>&middot;</span>
+                <span class="lowercase">{{ $repository->visibility->value }}</span>
+                <span>&middot;</span>
+                <span>{{ $repository->default_branch }}</span>
+                @if ($repository->composerJson?->php_constraint)
+                    <span>&middot;</span>
+                    <span>PHP {{ $repository->composerJson->php_constraint }}</span>
+                @endif
+                <span>&middot;</span>
+                <span>
+                    collected
                     <x-compass::time :time="$repository->collected_at" />
-                </dd>
-            </dl>
-        </section>
+                </span>
+            </p>
+        </div>
 
-        @if ($repository->sites->isEmpty())
-            <p class="text-sm text-foreground-muted">No Forge sites deploy this repository.</p>
-        @else
-            <details class="group rounded-md border border-border bg-canvas">
-                <summary class="flex cursor-pointer items-center gap-2 px-4 py-3 text-sm">
-                    <span class="text-foreground-muted transition group-open:rotate-90">&rsaquo;</span>
-                    <x-compass::section-heading>
-                        <x-slot:icon>
-                            <x-compass::icons.server />
-                        </x-slot:icon>
-                        Forge sites
-                    </x-compass::section-heading>
-                    <span class="text-foreground-muted">&middot; {{ $repository->sites->count() }} sites</span>
-                </summary>
+        <section class="space-y-3">
+            <x-compass::section-heading>
+                <x-slot:icon>
+                    <x-compass::icons.server />
+                </x-slot:icon>
+                Forge sites
+                <span class="rounded-full bg-border/50 px-2 text-xs font-medium text-foreground-muted">{{ $repository->sites->count() }}</span>
+            </x-compass::section-heading>
 
-                <table class="w-full table-fixed border-t border-border text-left text-sm">
+            <div class="overflow-hidden rounded-md border border-border bg-canvas">
+                <table class="w-full table-fixed text-left text-sm">
                     <thead class="bg-canvas-subtle text-xs text-foreground-muted">
                         <tr>
                             <th class="px-4 py-2 font-medium">Site</th>
@@ -67,7 +59,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-border">
-                        @foreach ($repository->sites as $site)
+                        @forelse ($repository->sites as $site)
                             <tr>
                                 <td class="truncate px-4 py-2 text-foreground">
                                     <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE, $site) }}" class="text-accent hover:underline">{{ $site->name }}</a>
@@ -75,81 +67,83 @@
                                 <td class="truncate px-4 py-2 text-foreground-muted">{{ $site->repository_branch }}</td>
                                 <td class="px-4 py-2 text-foreground-muted">{{ $site->deployment_status?->value }}</td>
                                 <td class="px-4 py-2 text-foreground-muted">
-                                    <code class="block w-[7ch] overflow-hidden" title="{{ $site->deployed_commit_hash }}">{{ $site->deployed_commit_hash }}</code>
+                                    <x-compass::commit-hash :repository="$site->repository" :commit-hash="$site->deployed_commit_hash" />
                                 </td>
                                 <td class="px-4 py-2">
                                     <x-compass::forge.deployment-state-label :site="$site" />
                                 </td>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </details>
-        @endif
-
-        @if ($repository->issues->isEmpty())
-            <p class="text-sm text-foreground-muted">No open issues.</p>
-        @else
-            <details class="group rounded-md border border-border bg-canvas">
-                <summary class="flex cursor-pointer items-center gap-2 px-4 py-3 text-sm">
-                    <span class="text-foreground-muted transition group-open:rotate-90">&rsaquo;</span>
-                    <x-compass::section-heading>
-                        <x-slot:icon>
-                            <x-compass::icons.issue-opened />
-                        </x-slot:icon>
-                        Issues
-                    </x-compass::section-heading>
-                    <span class="text-foreground-muted">&middot; {{ $repository->issues->count() }} open</span>
-                </summary>
-
-                <table class="w-full table-fixed border-t border-border text-left text-sm">
-                    <thead class="bg-canvas-subtle text-xs text-foreground-muted">
-                        <tr>
-                            <x-compass::issue-heading-cells />
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-border">
-                        @foreach ($repository->issues as $issue)
+                        @empty
                             <tr>
-                                <x-compass::issue-cells :issue="$issue" />
+                                <td colspan="5" class="px-4 py-6 text-center text-foreground-muted">No Forge sites deploy this repository.</td>
                             </tr>
-                        @endforeach
+                        @endforelse
                     </tbody>
                 </table>
-            </details>
-        @endif
+            </div>
+        </section>
 
-        @if ($repository->pullRequests->isEmpty())
-            <p class="text-sm text-foreground-muted">No open pull requests.</p>
-        @else
-            <details class="group rounded-md border border-border bg-canvas">
-                <summary class="flex cursor-pointer items-center gap-2 px-4 py-3 text-sm">
-                    <span class="text-foreground-muted transition group-open:rotate-90">&rsaquo;</span>
-                    <x-compass::section-heading>
-                        <x-slot:icon>
-                            <x-compass::icons.git-pull-request />
-                        </x-slot:icon>
-                        Pull requests
-                    </x-compass::section-heading>
-                    <span class="text-foreground-muted">&middot; {{ $repository->pullRequests->count() }} open</span>
-                </summary>
+        <section class="space-y-3">
+            <x-compass::section-heading>
+                <x-slot:icon>
+                    <x-compass::icons.git-pull-request />
+                </x-slot:icon>
+                Pull requests
+                <span class="rounded-full bg-border/50 px-2 text-xs font-medium text-foreground-muted">{{ $repository->pullRequests->count() }}</span>
+            </x-compass::section-heading>
 
-                <table class="w-full table-fixed border-t border-border text-left text-sm">
+            <div class="overflow-hidden rounded-md border border-border bg-canvas">
+                <table class="w-full table-fixed text-left text-sm">
                     <thead class="bg-canvas-subtle text-xs text-foreground-muted">
                         <tr>
                             <x-compass::pull-request-heading-cells />
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-border">
-                        @foreach ($repository->pullRequests as $pullRequest)
+                        @forelse ($repository->pullRequests as $pullRequest)
                             <tr>
                                 <x-compass::pull-request-cells :pull-request="$pullRequest" />
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="3" class="px-4 py-6 text-center text-foreground-muted">No open pull requests.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
-            </details>
-        @endif
+            </div>
+        </section>
+
+        <section class="space-y-3">
+            <x-compass::section-heading>
+                <x-slot:icon>
+                    <x-compass::icons.issue-opened />
+                </x-slot:icon>
+                Issues
+                <span class="rounded-full bg-border/50 px-2 text-xs font-medium text-foreground-muted">{{ $repository->issues->count() }}</span>
+            </x-compass::section-heading>
+
+            <div class="overflow-hidden rounded-md border border-border bg-canvas">
+                <table class="w-full table-fixed text-left text-sm">
+                    <thead class="bg-canvas-subtle text-xs text-foreground-muted">
+                        <tr>
+                            <x-compass::issue-heading-cells />
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border">
+                        @forelse ($repository->issues as $issue)
+                            <tr>
+                                <x-compass::issue-cells :issue="$issue" />
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="px-4 py-6 text-center text-foreground-muted">No open issues.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </section>
 
         @if ($repository->composerJson)
             <details class="group rounded-md border border-border bg-canvas">

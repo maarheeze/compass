@@ -61,7 +61,8 @@
                         @foreach ($alerts->sitesBehind as $site)
                             <li class="flex items-center justify-between gap-4 px-4 py-2 text-sm">
                                 <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE, $site) }}" class="font-medium text-accent hover:underline">{{ $site->name }}</a>
-                                <code class="ml-auto block w-[7ch] overflow-hidden text-foreground-muted" title="{{ $site->deployed_commit_hash }}">{{ $site->deployed_commit_hash }}</code>
+                                <x-compass::commit-hash :repository="$site->repository" :commit-hash="$site->deployed_commit_hash" class="ml-auto" />
+                                <x-compass::comparison-link :repository="$site->repository" :base-commit-hash="$site->deployed_commit_hash" />
                                 <x-compass::forge.link :site="$site" />
                             </li>
                         @endforeach
