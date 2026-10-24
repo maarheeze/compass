@@ -39,6 +39,24 @@ test('handle clears the report of a site without a client', function (): void {
     ]);
 });
 
+test('handle marks a client that reports in another shape incompatible', function (): void {
+    $site = Site::factory()->create();
+    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([
+        'app_debug' => fake()->boolean(),
+        'app_env' => fake()->word(),
+        'app_name' => fake()->company(),
+    ]),
+    ]);
+
+    $inspectSite = new InspectSite($site);
+    $this->app->call([$inspectSite, 'handle']);
+
+    $this->assertDatabaseHas(Site::class, [
+        'id' => $site->id,
+        'client_status' => ClientStatus::INCOMPATIBLE,
+    ]);
+});
+
 test('handle marks a client that refuses the key unauthorized', function (): void {
     $site = Site::factory()->create();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, 401)]);

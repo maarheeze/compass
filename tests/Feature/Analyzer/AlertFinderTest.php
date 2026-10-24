@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Maarheeze\Compass\Analyzer\AlertFinder;
 use Maarheeze\Compass\Analyzer\Client\DebugEnabledAlert;
+use Maarheeze\Compass\Analyzer\Client\IncompatibleClientAlert;
 use Maarheeze\Compass\Analyzer\Client\NonProductionAlert;
 use Maarheeze\Compass\Analyzer\Client\UnauthorizedClientAlert;
 use Maarheeze\Compass\Analyzer\Composer\ComposerWarningAlert;
@@ -101,6 +102,17 @@ test('find holds the sites whose client refuses the key', function (): void {
 
     $unauthorizedClientAlert = $alerts->whereInstanceOf(UnauthorizedClientAlert::class)->sole();
     expect($unauthorizedClientAlert->site->is($site))
+        ->toBeTrue();
+});
+
+test('find holds the sites whose client is incompatible', function (): void {
+    $site = Site::factory()->create(['client_status' => ClientStatus::INCOMPATIBLE]);
+
+    $alertFinder = $this->app->make(AlertFinder::class);
+    $alerts = $alertFinder->find();
+
+    $incompatibleClientAlert = $alerts->whereInstanceOf(IncompatibleClientAlert::class)->sole();
+    expect($incompatibleClientAlert->site->is($site))
         ->toBeTrue();
 });
 

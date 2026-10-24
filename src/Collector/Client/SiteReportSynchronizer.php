@@ -34,6 +34,14 @@ readonly class SiteReportSynchronizer
         });
     }
 
+    public function markIncompatible(Site $site): void
+    {
+        $site->update([
+            'client_status' => ClientStatus::INCOMPATIBLE,
+            'client_collected_at' => CarbonImmutable::now(),
+        ]);
+    }
+
     public function markUnauthorized(Site $site): void
     {
         $site->update([

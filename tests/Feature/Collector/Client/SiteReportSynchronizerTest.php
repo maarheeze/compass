@@ -82,6 +82,27 @@ test('clear report deletes the endpoints', function (): void {
     $this->assertModelMissing($siteEndpoint);
 });
 
+test('mark incompatible marks the client incompatible', function (): void {
+    $site = Site::factory()->create();
+
+    $siteReportSynchronizer = $this->app->make(SiteReportSynchronizer::class);
+    $siteReportSynchronizer->markIncompatible($site);
+
+    $this->assertDatabaseHas(Site::class, [
+        'id' => $site->id,
+        'client_status' => ClientStatus::INCOMPATIBLE,
+    ]);
+});
+
+test('mark incompatible keeps the endpoints', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+
+    $siteReportSynchronizer = $this->app->make(SiteReportSynchronizer::class);
+    $siteReportSynchronizer->markIncompatible($siteEndpoint->site);
+
+    $this->assertModelExists($siteEndpoint);
+});
+
 test('mark unauthorized marks the client unauthorized', function (): void {
     $site = Site::factory()->create();
 

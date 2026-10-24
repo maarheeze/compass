@@ -7,6 +7,7 @@ namespace Maarheeze\Compass\Collector\Client\Jobs;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\SerializesModels;
+use Maarheeze\Compass\Collector\Client\ClientIncompatible;
 use Maarheeze\Compass\Collector\Client\ClientKey;
 use Maarheeze\Compass\Collector\Client\ClientNotInstalled;
 use Maarheeze\Compass\Collector\Client\ClientUnauthorized;
@@ -40,6 +41,10 @@ class InspectSite implements ShouldQueue
 
         try {
             $siteReport = $siteQuery->report($this->site);
+        } catch (ClientIncompatible) {
+            $siteReportSynchronizer->markIncompatible($this->site);
+
+            return;
         } catch (ClientNotInstalled) {
             $siteReportSynchronizer->clearReport($this->site);
 

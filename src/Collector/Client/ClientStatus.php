@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Collector\Client;
 
 enum ClientStatus: string
 {
+    case INCOMPATIBLE = 'incompatible';
     case INSTALLED = 'installed';
     case NOT_INSTALLED = 'not-installed';
     case UNAUTHORIZED = 'unauthorized';

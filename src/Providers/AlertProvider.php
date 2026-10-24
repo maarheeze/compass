@@ -8,6 +8,7 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\ServiceProvider;
 use Maarheeze\Compass\Analyzer\AlertFinder;
 use Maarheeze\Compass\Analyzer\Client\DebugEnabledAlertDetector;
+use Maarheeze\Compass\Analyzer\Client\IncompatibleClientAlertDetector;
 use Maarheeze\Compass\Analyzer\Client\NonProductionAlertDetector;
 use Maarheeze\Compass\Analyzer\Client\UnauthorizedClientAlertDetector;
 use Maarheeze\Compass\Analyzer\Composer\ComposerWarningAlertDetector;
@@ -33,6 +34,7 @@ class AlertProvider extends ServiceProvider
                     $container->make(DebugEnabledAlertDetector::class),
                     $container->make(NonProductionAlertDetector::class),
                     $container->make(UnauthorizedClientAlertDetector::class),
+                    $container->make(IncompatibleClientAlertDetector::class),
                     $container->make(DownSiteEndpointAlertDetector::class),
                 ]);
             });

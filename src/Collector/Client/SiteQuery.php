@@ -7,10 +7,10 @@ namespace Maarheeze\Compass\Collector\Client;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Response;
+use InvalidArgumentException;
 use Maarheeze\Compass\Models\Site;
 use Webmozart\Assert\Assert;
 
-use function array_key_exists;
 use function is_array;
 
 readonly class SiteQuery
@@ -29,12 +29,11 @@ readonly class SiteQuery
     {
         $reportResponse = $this->getReportResponse($this->get($site));
 
-        return new SiteReport(
-            Assert::boolean($reportResponse['app_debug']),
-            Assert::string($reportResponse['app_env']),
-            Assert::string($reportResponse['app_name']),
-            $this->getEndpoints(Assert::isList($reportResponse['endpoints'])),
-        );
+        try {
+            return $this->getSiteReport($reportResponse);
+        } catch (InvalidArgumentException $exception) {
+            throw new ClientIncompatible(previous: $exception);
+        }
     }
 
     /**
@@ -90,10 +89,28 @@ readonly class SiteQuery
 
         $reportResponse = $response->json();
 
-        if (!is_array($reportResponse) || !array_key_exists('endpoints', $reportResponse)) {
+        if (!is_array($reportResponse)) {
             throw new ClientNotInstalled();
         }
 
         return $reportResponse;
+    }
+
+    /**
+     * @param array<mixed> $reportResponse
+     */
+    private function getSiteReport(array $reportResponse): SiteReport
+    {
+        Assert::keyExists($reportResponse, 'app_debug');
+        Assert::keyExists($reportResponse, 'app_env');
+        Assert::keyExists($reportResponse, 'app_name');
+        Assert::keyExists($reportResponse, 'endpoints');
+
+        return new SiteReport(
+            Assert::boolean($reportResponse['app_debug']),
+            Assert::string($reportResponse['app_env']),
+            Assert::string($reportResponse['app_name']),
+            $this->getEndpoints(Assert::isList($reportResponse['endpoints'])),
+        );
     }
 }

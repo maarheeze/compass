@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
+use Maarheeze\Compass\Collector\Client\ClientIncompatible;
 use Maarheeze\Compass\Collector\Client\ClientNotInstalled;
 use Maarheeze\Compass\Collector\Client\ClientUnauthorized;
 use Maarheeze\Compass\Collector\Client\ClientUnreachable;
@@ -90,6 +91,35 @@ test('report throws when the site answers without a site report', function (): v
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(fake()->randomHtml())]);
 
     $this->expectException(ClientNotInstalled::class);
+
+    $siteQuery = $this->app->make(SiteQuery::class);
+    $siteQuery->report(Site::factory()->create());
+});
+
+test('report throws when the client reports without a field', function (): void {
+    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([
+        'app_debug' => fake()->boolean(),
+        'app_env' => fake()->word(),
+        'app_name' => fake()->company(),
+    ]),
+    ]);
+
+    $this->expectException(ClientIncompatible::class);
+
+    $siteQuery = $this->app->make(SiteQuery::class);
+    $siteQuery->report(Site::factory()->create());
+});
+
+test('report throws when the client reports a field of another type', function (): void {
+    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([
+        'app_debug' => fake()->word(),
+        'app_env' => fake()->word(),
+        'app_name' => fake()->company(),
+        'endpoints' => [],
+    ]),
+    ]);
+
+    $this->expectException(ClientIncompatible::class);
 
     $siteQuery = $this->app->make(SiteQuery::class);
     $siteQuery->report(Site::factory()->create());
