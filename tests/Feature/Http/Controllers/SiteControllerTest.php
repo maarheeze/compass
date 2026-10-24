@@ -3,9 +3,11 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Collection;
 use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteEndpointCheck;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 
@@ -28,6 +30,21 @@ test('show contains the site', function (): void {
 
     $response->assertViewHas('site', static function (Site $viewSite) use ($site): bool {
         return $viewSite->is($site);
+    });
+});
+
+test('show contains each checked endpoint path once', function (): void {
+    $siteEndpointCheck = SiteEndpointCheck::factory()->create();
+    SiteEndpointCheck::factory()->create([
+        'site_id' => $siteEndpointCheck->site_id,
+        'path' => $siteEndpointCheck->path,
+    ]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::FORGE_SITE, $siteEndpointCheck->site));
+
+    $response->assertViewHas('checkedEndpointPaths', static function (Collection $viewCheckedEndpointPaths) use ($siteEndpointCheck): bool {
+        return $viewCheckedEndpointPaths->sole()->path === $siteEndpointCheck->path;
     });
 });
 

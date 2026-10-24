@@ -14,9 +14,10 @@ use Maarheeze\Compass\Analyzer\Composer\ComposerWarningAlertDetector;
 use Maarheeze\Compass\Analyzer\Forge\MissingSiteAlertDetector;
 use Maarheeze\Compass\Analyzer\Forge\SiteBehindAlertDetector;
 use Maarheeze\Compass\Analyzer\GitHub\MissingRepositoryAlertDetector;
+use Maarheeze\Compass\Analyzer\SiteEndpoint\DownSiteEndpointAlertDetector;
 use Maarheeze\Compass\Collections\AlertDetectorCollection;
 
-class AnalyzerProvider extends ServiceProvider
+class AlertProvider extends ServiceProvider
 {
     public function register(): void
     {
@@ -32,6 +33,7 @@ class AnalyzerProvider extends ServiceProvider
                     $container->make(DebugEnabledAlertDetector::class),
                     $container->make(NonProductionAlertDetector::class),
                     $container->make(UnauthorizedClientAlertDetector::class),
+                    $container->make(DownSiteEndpointAlertDetector::class),
                 ]);
             });
     }

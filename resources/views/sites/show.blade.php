@@ -162,5 +162,28 @@
                 </div>
             </div>
         </section>
+
+        <section class="space-y-3">
+            <x-compass::section-heading>
+                <x-slot:icon>
+                    <x-compass::icons.check-circle />
+                </x-slot:icon>
+                Endpoint history
+            </x-compass::section-heading>
+
+            <div class="rounded-md border border-border bg-canvas px-4 py-3 text-sm">
+                @if ($checkedEndpointPaths->isNotEmpty())
+                    <ul class="flex flex-wrap gap-2">
+                        @foreach ($checkedEndpointPaths as $checkedEndpointPath)
+                            <li>
+                                <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE_ENDPOINT_CHECKS, [$site, $checkedEndpointPath->routeKey()]) }}" class="rounded-md bg-border/50 px-2 py-0.5 font-mono text-xs text-accent hover:underline">{{ $checkedEndpointPath->path }}</a>
+                            </li>
+                        @endforeach
+                    </ul>
+                @else
+                    <p class="text-foreground-muted">No endpoints checked yet.</p>
+                @endif
+            </div>
+        </section>
     </main>
 </x-compass::layouts.app>

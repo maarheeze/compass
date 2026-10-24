@@ -11,6 +11,7 @@ use Maarheeze\Compass\Http\Controllers\PullRequestController;
 use Maarheeze\Compass\Http\Controllers\RepositoryController;
 use Maarheeze\Compass\Http\Controllers\SiteClientController;
 use Maarheeze\Compass\Http\Controllers\SiteController;
+use Maarheeze\Compass\Http\Controllers\SiteEndpointCheckController;
 use Maarheeze\Compass\Http\Controllers\SyncController;
 use Maarheeze\Compass\Http\Middleware\Authenticate;
 use Maarheeze\Compass\Http\Middleware\RedirectIfAuthenticated;
@@ -52,6 +53,8 @@ Route::middleware('web')
             Route::get('/forge/sites/{site}', [SiteController::class, 'show'])->name(RouteName::FORGE_SITE);
             Route::delete('/forge/sites/{site}', [SiteController::class, 'delete'])->name(RouteName::FORGE_SITE_DELETE);
             Route::post('/forge/sites/{site}/ignore', [SiteController::class, 'ignore'])->name(RouteName::FORGE_SITE_IGNORE);
+            Route::get('/forge/sites/{site}/endpoint-checks/{endpointPathRouteKey}', [SiteEndpointCheckController::class, 'index'])
+                ->name(RouteName::FORGE_SITE_ENDPOINT_CHECKS);
             Route::get('/forge/sites/{site}/client/edit', [SiteClientController::class, 'edit'])
                 ->name(RouteName::FORGE_SITE_CLIENT_EDIT);
             Route::patch('/forge/sites/{site}/client', [SiteClientController::class, 'update'])

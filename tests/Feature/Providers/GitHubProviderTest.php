@@ -11,7 +11,7 @@ test('sync github is scheduled every hour', function (): void {
     $schedule = $this->app->make(Schedule::class);
 
     $scheduledEvent = new Collection($schedule->events())->sole(static function (Event $event): bool {
-        return str_contains($event->command, SyncGitHubCommand::SIGNATURE);
+        return $event->command !== null && str_contains($event->command, SyncGitHubCommand::SIGNATURE);
     });
 
     expect($scheduledEvent->expression)

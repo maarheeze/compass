@@ -11,6 +11,7 @@ enum RouteName: string
     case FORGE_SITE_CLIENT_EDIT = 'compass.forge.site.client.edit';
     case FORGE_SITE_CLIENT_UPDATE = 'compass.forge.site.client.update';
     case FORGE_SITE_DELETE = 'compass.forge.site.delete';
+    case FORGE_SITE_ENDPOINT_CHECKS = 'compass.forge.site.endpoint-checks';
     case FORGE_SITE_IGNORE = 'compass.forge.site.ignore';
     case FORGE_SITES = 'compass.forge.sites';
     case GITHUB_CALLBACK = 'compass.auth.github.callback';

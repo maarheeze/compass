@@ -38,6 +38,16 @@ test('store report stores the reported endpoints', function (): void {
     ]);
 });
 
+test('store report keeps the endpoints that are still reported', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $siteReport = new SiteReport(fake()->boolean(), fake()->word(), fake()->company(), [$siteEndpoint->path]);
+
+    $siteReportSynchronizer = $this->app->make(SiteReportSynchronizer::class);
+    $siteReportSynchronizer->storeReport($siteEndpoint->site, $siteReport);
+
+    $this->assertModelExists($siteEndpoint);
+});
+
 test('store report deletes the endpoints that are no longer reported', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $siteReport = new SiteReport(fake()->boolean(), fake()->word(), fake()->company(), []);

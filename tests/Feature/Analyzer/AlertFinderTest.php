@@ -10,10 +10,13 @@ use Maarheeze\Compass\Analyzer\Composer\ComposerWarningAlert;
 use Maarheeze\Compass\Analyzer\Forge\MissingSiteAlert;
 use Maarheeze\Compass\Analyzer\Forge\SiteBehindAlert;
 use Maarheeze\Compass\Analyzer\GitHub\MissingRepositoryAlert;
+use Maarheeze\Compass\Analyzer\SiteEndpoint\DownSiteEndpointAlert;
 use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteEndpoint;
+use Maarheeze\Compass\Models\SiteEndpointCheck;
 
 test('find holds the missing repositories', function (): void {
     $repository = Repository::factory()->create(['missing_at' => fake()->dateTime()]);
@@ -98,5 +101,21 @@ test('find holds the sites whose client refuses the key', function (): void {
 
     $unauthorizedClientAlert = $alerts->whereInstanceOf(UnauthorizedClientAlert::class)->sole();
     expect($unauthorizedClientAlert->site->is($site))
+        ->toBeTrue();
+});
+
+test('find holds the endpoints that are down', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $siteEndpointCheck = SiteEndpointCheck::factory()->create([
+        'site_id' => $siteEndpoint->site_id,
+        'path' => $siteEndpoint->path,
+        'status_code' => null,
+    ]);
+
+    $alertFinder = $this->app->make(AlertFinder::class);
+    $alerts = $alertFinder->find();
+
+    $downSiteEndpointAlert = $alerts->whereInstanceOf(DownSiteEndpointAlert::class)->sole();
+    expect($downSiteEndpointAlert->siteEndpointCheck->is($siteEndpointCheck))
         ->toBeTrue();
 });
