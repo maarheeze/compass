@@ -7,7 +7,6 @@ namespace Maarheeze\Compass\Models;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Maarheeze\Compass\Collections\PullRequestAssigneeCollection;
 use Maarheeze\Compass\Database\Factories\PullRequestAssigneeFactory;
 
@@ -17,8 +16,6 @@ use Maarheeze\Compass\Database\Factories\PullRequestAssigneeFactory;
  * @property string $login
  * @property int $pull_request_id
  * @property CarbonImmutable $updated_at
- *
- * @property-read PullRequest $pullRequest
  */
 class PullRequestAssignee extends Model
 {
@@ -41,14 +38,6 @@ class PullRequestAssignee extends Model
     public function getTable(): string
     {
         return 'compass_pull_request_assignees';
-    }
-
-    /**
-     * @return BelongsTo<PullRequest, $this>
-     */
-    public function pullRequest(): BelongsTo
-    {
-        return $this->belongsTo(PullRequest::class);
     }
 
     /**

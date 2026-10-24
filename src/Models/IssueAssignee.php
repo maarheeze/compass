@@ -7,7 +7,6 @@ namespace Maarheeze\Compass\Models;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Maarheeze\Compass\Collections\IssueAssigneeCollection;
 use Maarheeze\Compass\Database\Factories\IssueAssigneeFactory;
 
@@ -17,8 +16,6 @@ use Maarheeze\Compass\Database\Factories\IssueAssigneeFactory;
  * @property int $issue_id
  * @property string $login
  * @property CarbonImmutable $updated_at
- *
- * @property-read Issue $issue
  */
 class IssueAssignee extends Model
 {
@@ -41,14 +38,6 @@ class IssueAssignee extends Model
     public function getTable(): string
     {
         return 'compass_issue_assignees';
-    }
-
-    /**
-     * @return BelongsTo<Issue, $this>
-     */
-    public function issue(): BelongsTo
-    {
-        return $this->belongsTo(Issue::class);
     }
 
     /**

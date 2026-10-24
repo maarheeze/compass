@@ -34,10 +34,6 @@ class CompassServiceProvider extends ServiceProvider
         Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components', 'compass');
         Blade::componentNamespace('Maarheeze\\Compass\\View\\Components', 'compass');
 
-        if (!$this->app->runningInConsole()) {
-            return;
-        }
-
         $this->publishes([
             __DIR__ . '/../config/compass.php' => config_path('compass.php'),
         ], 'compass-config');

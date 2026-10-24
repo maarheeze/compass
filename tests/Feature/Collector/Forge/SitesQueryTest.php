@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collections\ForgeSiteCollection;
+use Maarheeze\Compass\Collector\Forge\ForgeDeployment;
 use Maarheeze\Compass\Collector\Forge\SitesQuery;
 use Maarheeze\Compass\Tests\Fixtures\ForgeSiteFactory;
 
@@ -181,6 +182,79 @@ test('page holds no latest deployment for a site that was never deployed', funct
 
     expect($sitesQueryResult->forgeSites->sole()->latestDeployment)
         ->toBeNull();
+});
+
+test('page holds no end time for a deployment that has not ended', function (): void {
+    $serverId = fake()->numerify('####');
+    $deploymentId = fake()->numerify('####');
+    $this->app->make(HttpFactory::class)->fake([
+        '*' => HttpFactory::response([
+            'data' => [
+                [
+                    'id' => fake()->numerify('#######'),
+                    'type' => 'sites',
+                    'attributes' => [
+                        'name' => fake()->domainName(),
+                        'url' => fake()->url(),
+                        'status' => 'deploying',
+                        'php_version' => null,
+                        'repository' => [
+                            'url' => null,
+                            'branch' => null,
+                        ],
+                    ],
+                    'relationships' => [
+                        'server' => [
+                            'data' => [
+                                'type' => 'servers',
+                                'id' => $serverId,
+                            ],
+                        ],
+                        'latestDeployment' => [
+                            'data' => [
+                                'type' => 'deployments',
+                                'id' => $deploymentId,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'included' => [
+                [
+                    'id' => $serverId,
+                    'type' => 'servers',
+                    'attributes' => [
+                        'slug' => fake()->slug(),
+                        'name' => fake()->slug(),
+                        'ip_address' => fake()->ipv4(),
+                    ],
+                ],
+                [
+                    'id' => $deploymentId,
+                    'type' => 'deployments',
+                    'attributes' => [
+                        'commit' => [
+                            'hash' => fake()->sha1(),
+                            'message' => fake()->sentence(),
+                        ],
+                        'status' => 'deploying',
+                        'started_at' => fake()->iso8601(),
+                        'ended_at' => null,
+                    ],
+                ],
+            ],
+            'meta' => [
+                'next_cursor' => null,
+            ],
+        ]),
+    ]);
+
+    $sitesQuery = $this->app->make(SitesQuery::class);
+    $sitesQueryResult = $sitesQuery->page(null);
+
+    expect($sitesQueryResult->forgeSites->sole()->latestDeployment)
+        ->toBeInstanceOf(ForgeDeployment::class)
+        ->endedAt->toBeNull();
 });
 
 test('page leaves out the sites of servers that do not match the server pattern', function (): void {
