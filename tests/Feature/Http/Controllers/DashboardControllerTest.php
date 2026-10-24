@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Analyzer\Alerts;
+use Maarheeze\Compass\Analyzer\Forge\SiteBehindAlert;
 use Maarheeze\Compass\Analyzer\GitHub\IssueCounts;
 use Maarheeze\Compass\Analyzer\GitHub\PullRequestCounts;
+use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\IssueAssignee;
 use Maarheeze\Compass\Models\PullRequestAssignee;
@@ -24,8 +25,10 @@ test('show contains the alerts', function (): void {
 
     $response = $this->get(route(RouteName::DASHBOARD));
 
-    $response->assertViewHas('alerts', static function (Alerts $alerts) use ($site): bool {
-        return $alerts->sitesBehind->sole()->is($site);
+    $response->assertViewHas('alerts', static function (AlertCollection $alerts) use ($site): bool {
+        $siteBehindAlert = $alerts->whereInstanceOf(SiteBehindAlert::class)->sole();
+
+        return $siteBehindAlert->site->is($site);
     });
 });
 

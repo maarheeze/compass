@@ -25,156 +25,28 @@
             </x-compass::assigned-and-open-counts>
         </div>
 
-        @if ($alerts->isEmpty())
-            <p class="text-sm text-foreground-muted">No alerts.</p>
-        @else
-            @if ($alerts->missingRepositories->isNotEmpty())
-                <section class="space-y-3">
-                    <x-compass::section-heading>
-                        <x-slot:icon>
-                            <x-compass::icons.repo />
-                        </x-slot:icon>
-                        Missing repositories
-                    </x-compass::section-heading>
+        <section class="overflow-hidden rounded-md border border-border bg-canvas">
+            <div class="px-4 py-3">
+                <x-compass::section-heading>
+                    <x-slot:icon>
+                        <x-compass::icons.alert />
+                    </x-slot:icon>
+                    Alerts
+                </x-compass::section-heading>
+            </div>
 
-                    <ul class="divide-y divide-border overflow-hidden rounded-md border border-border bg-canvas">
-                        @foreach ($alerts->missingRepositories as $repository)
-                            <li class="flex items-center justify-between px-4 py-2 text-sm">
-                                <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORY, $repository) }}" class="font-medium text-accent hover:underline">{{ $repository->name }}</a>
-                                <span class="text-foreground-muted">
-                                    missing since
-                                    <x-compass::time :time="$repository->missing_at" />
-                                </span>
-                            </li>
-                        @endforeach
-                    </ul>
-                </section>
+            @if ($alerts->isEmpty())
+                <p class="flex items-center gap-2 border-t border-border px-4 py-3 text-sm text-emerald-700 dark:text-emerald-400">
+                    <x-compass::icons.check-circle />
+                    No alerts
+                </p>
+            @else
+                <ul class="divide-y divide-border border-t border-border">
+                    @foreach ($alerts as $alert)
+                        <x-compass::alert-item :alert="$alert" />
+                    @endforeach
+                </ul>
             @endif
-
-            @if ($alerts->missingSites->isNotEmpty())
-                <section class="space-y-3">
-                    <x-compass::section-heading>
-                        <x-slot:icon>
-                            <x-compass::icons.server />
-                        </x-slot:icon>
-                        Missing sites
-                    </x-compass::section-heading>
-
-                    <ul class="divide-y divide-border overflow-hidden rounded-md border border-border bg-canvas">
-                        @foreach ($alerts->missingSites as $site)
-                            <li class="flex items-center justify-between px-4 py-2 text-sm">
-                                <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE, $site) }}" class="font-medium text-accent hover:underline">{{ $site->name }}</a>
-                                <span class="text-foreground-muted">
-                                    missing since
-                                    <x-compass::time :time="$site->missing_at" />
-                                </span>
-                            </li>
-                        @endforeach
-                    </ul>
-                </section>
-            @endif
-
-            @if ($alerts->repositoriesWithComposerWarning->isNotEmpty())
-                <section class="space-y-3">
-                    <x-compass::section-heading>
-                        <x-slot:icon>
-                            <x-compass::icons.alert />
-                        </x-slot:icon>
-                        Composer warnings
-                    </x-compass::section-heading>
-
-                    <ul class="divide-y divide-border overflow-hidden rounded-md border border-border bg-canvas">
-                        @foreach ($alerts->repositoriesWithComposerWarning as $repository)
-                            <li class="flex items-center justify-between px-4 py-2 text-sm">
-                                <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORY, $repository) }}" class="font-medium text-accent hover:underline">{{ $repository->name }}</a>
-                                <x-compass::composer.warning-badge :repository="$repository" />
-                            </li>
-                        @endforeach
-                    </ul>
-                </section>
-            @endif
-
-            @if ($alerts->sitesBehind->isNotEmpty())
-                <section class="space-y-3">
-                    <x-compass::section-heading>
-                        <x-slot:icon>
-                            <x-compass::icons.server />
-                        </x-slot:icon>
-                        Sites behind
-                    </x-compass::section-heading>
-
-                    <ul class="divide-y divide-border overflow-hidden rounded-md border border-border bg-canvas">
-                        @foreach ($alerts->sitesBehind as $site)
-                            <li class="flex items-center justify-between gap-4 px-4 py-2 text-sm">
-                                <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE, $site) }}" class="font-medium text-accent hover:underline">{{ $site->name }}</a>
-                                <x-compass::commit-hash :repository="$site->repository" :commit-hash="$site->deployed_commit_hash" class="ml-auto" />
-                                <x-compass::comparison-link :repository="$site->repository" :base-commit-hash="$site->deployed_commit_hash" />
-                                <x-compass::forge.link :site="$site" />
-                            </li>
-                        @endforeach
-                    </ul>
-                </section>
-            @endif
-
-            @if ($alerts->sitesWithDebugEnabled->isNotEmpty())
-                <section class="space-y-3">
-                    <x-compass::section-heading>
-                        <x-slot:icon>
-                            <x-compass::icons.alert />
-                        </x-slot:icon>
-                        Debug mode on
-                    </x-compass::section-heading>
-
-                    <ul class="divide-y divide-border overflow-hidden rounded-md border border-border bg-canvas">
-                        @foreach ($alerts->sitesWithDebugEnabled as $site)
-                            <li class="flex items-center justify-between px-4 py-2 text-sm">
-                                <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE, $site) }}" class="font-medium text-accent hover:underline">{{ $site->name }}</a>
-                                <x-compass::forge.link :site="$site" />
-                            </li>
-                        @endforeach
-                    </ul>
-                </section>
-            @endif
-
-            @if ($alerts->sitesOutsideProduction->isNotEmpty())
-                <section class="space-y-3">
-                    <x-compass::section-heading>
-                        <x-slot:icon>
-                            <x-compass::icons.alert />
-                        </x-slot:icon>
-                        Environment not set to production
-                    </x-compass::section-heading>
-
-                    <ul class="divide-y divide-border overflow-hidden rounded-md border border-border bg-canvas">
-                        @foreach ($alerts->sitesOutsideProduction as $site)
-                            <li class="flex items-center justify-between px-4 py-2 text-sm">
-                                <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE, $site) }}" class="font-medium text-accent hover:underline">{{ $site->name }}</a>
-                                <x-compass::forge.link :site="$site" />
-                            </li>
-                        @endforeach
-                    </ul>
-                </section>
-            @endif
-
-            @if ($alerts->sitesWithUnauthorizedClient->isNotEmpty())
-                <section class="space-y-3">
-                    <x-compass::section-heading>
-                        <x-slot:icon>
-                            <x-compass::icons.alert />
-                        </x-slot:icon>
-                        Client key refused
-                    </x-compass::section-heading>
-
-                    <ul class="divide-y divide-border overflow-hidden rounded-md border border-border bg-canvas">
-                        @foreach ($alerts->sitesWithUnauthorizedClient as $site)
-                            <li class="flex items-center justify-between px-4 py-2 text-sm">
-                                <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE, $site) }}" class="font-medium text-accent hover:underline">{{ $site->name }}</a>
-                                <x-compass::forge.link :site="$site" />
-                            </li>
-                        @endforeach
-                    </ul>
-                </section>
-            @endif
-        @endif
+        </section>
     </main>
 </x-compass::layouts.app>

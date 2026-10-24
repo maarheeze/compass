@@ -3,6 +3,13 @@
 declare(strict_types=1);
 
 use Maarheeze\Compass\Analyzer\AlertFinder;
+use Maarheeze\Compass\Analyzer\Client\DebugEnabledAlert;
+use Maarheeze\Compass\Analyzer\Client\NonProductionAlert;
+use Maarheeze\Compass\Analyzer\Client\UnauthorizedClientAlert;
+use Maarheeze\Compass\Analyzer\Composer\ComposerWarningAlert;
+use Maarheeze\Compass\Analyzer\Forge\MissingSiteAlert;
+use Maarheeze\Compass\Analyzer\Forge\SiteBehindAlert;
+use Maarheeze\Compass\Analyzer\GitHub\MissingRepositoryAlert;
 use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\Repository;
@@ -14,7 +21,8 @@ test('find holds the missing repositories', function (): void {
     $alertFinder = $this->app->make(AlertFinder::class);
     $alerts = $alertFinder->find();
 
-    expect($alerts->missingRepositories->sole()->is($repository))
+    $missingRepositoryAlert = $alerts->whereInstanceOf(MissingRepositoryAlert::class)->sole();
+    expect($missingRepositoryAlert->repository->is($repository))
         ->toBeTrue();
 });
 
@@ -24,7 +32,8 @@ test('find holds the missing sites', function (): void {
     $alertFinder = $this->app->make(AlertFinder::class);
     $alerts = $alertFinder->find();
 
-    expect($alerts->missingSites->sole()->is($site))
+    $missingSiteAlert = $alerts->whereInstanceOf(MissingSiteAlert::class)->sole();
+    expect($missingSiteAlert->site->is($site))
         ->toBeTrue();
 });
 
@@ -38,7 +47,8 @@ test('find holds the repositories with a composer warning', function (): void {
     $alertFinder = $this->app->make(AlertFinder::class);
     $alerts = $alertFinder->find();
 
-    expect($alerts->repositoriesWithComposerWarning->sole()->is($repository))
+    $composerWarningAlert = $alerts->whereInstanceOf(ComposerWarningAlert::class)->sole();
+    expect($composerWarningAlert->repository->is($repository))
         ->toBeTrue();
 });
 
@@ -53,7 +63,8 @@ test('find holds the sites behind', function (): void {
     $alertFinder = $this->app->make(AlertFinder::class);
     $alerts = $alertFinder->find();
 
-    expect($alerts->sitesBehind->sole()->is($site))
+    $siteBehindAlert = $alerts->whereInstanceOf(SiteBehindAlert::class)->sole();
+    expect($siteBehindAlert->site->is($site))
         ->toBeTrue();
 });
 
@@ -63,7 +74,8 @@ test('find holds the sites outside production', function (): void {
     $alertFinder = $this->app->make(AlertFinder::class);
     $alerts = $alertFinder->find();
 
-    expect($alerts->sitesOutsideProduction->sole()->is($site))
+    $nonProductionAlert = $alerts->whereInstanceOf(NonProductionAlert::class)->sole();
+    expect($nonProductionAlert->site->is($site))
         ->toBeTrue();
 });
 
@@ -73,7 +85,8 @@ test('find holds the sites with debug mode on', function (): void {
     $alertFinder = $this->app->make(AlertFinder::class);
     $alerts = $alertFinder->find();
 
-    expect($alerts->sitesWithDebugEnabled->sole()->is($site))
+    $debugEnabledAlert = $alerts->whereInstanceOf(DebugEnabledAlert::class)->sole();
+    expect($debugEnabledAlert->site->is($site))
         ->toBeTrue();
 });
 
@@ -83,6 +96,7 @@ test('find holds the sites whose client refuses the key', function (): void {
     $alertFinder = $this->app->make(AlertFinder::class);
     $alerts = $alertFinder->find();
 
-    expect($alerts->sitesWithUnauthorizedClient->sole()->is($site))
+    $unauthorizedClientAlert = $alerts->whereInstanceOf(UnauthorizedClientAlert::class)->sole();
+    expect($unauthorizedClientAlert->site->is($site))
         ->toBeTrue();
 });

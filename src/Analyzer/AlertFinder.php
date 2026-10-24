@@ -4,37 +4,24 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Analyzer;
 
-use Maarheeze\Compass\Analyzer\Client\DebugEnabledSiteFinder;
-use Maarheeze\Compass\Analyzer\Client\NonProductionSiteFinder;
-use Maarheeze\Compass\Analyzer\Client\UnauthorizedClientSiteFinder;
-use Maarheeze\Compass\Analyzer\Composer\ComposerWarningFinder;
-use Maarheeze\Compass\Analyzer\Forge\MissingSiteFinder;
-use Maarheeze\Compass\Analyzer\Forge\SiteBehindFinder;
-use Maarheeze\Compass\Analyzer\GitHub\MissingRepositoryFinder;
+use Maarheeze\Compass\Collections\AlertCollection;
+use Maarheeze\Compass\Collections\AlertDetectorCollection;
 
 readonly class AlertFinder
 {
     public function __construct(
-        private ComposerWarningFinder $composerWarningFinder,
-        private DebugEnabledSiteFinder $debugEnabledSiteFinder,
-        private MissingRepositoryFinder $missingRepositoryFinder,
-        private MissingSiteFinder $missingSiteFinder,
-        private NonProductionSiteFinder $nonProductionSiteFinder,
-        private SiteBehindFinder $siteBehindFinder,
-        private UnauthorizedClientSiteFinder $unauthorizedClientSiteFinder,
+        private AlertDetectorCollection $alertDetectors,
     ) {
     }
 
-    public function find(): Alerts
+    public function find(): AlertCollection
     {
-        return new Alerts(
-            $this->missingRepositoryFinder->findRepositories(),
-            $this->missingSiteFinder->findSites(),
-            $this->composerWarningFinder->findRepositories(),
-            $this->siteBehindFinder->findSites(),
-            $this->nonProductionSiteFinder->findSites(),
-            $this->debugEnabledSiteFinder->findSites(),
-            $this->unauthorizedClientSiteFinder->findSites(),
-        );
+        $alerts = new AlertCollection();
+
+        foreach ($this->alertDetectors as $alertDetector) {
+            $alerts = $alerts->merge($alertDetector->findAlerts());
+        }
+
+        return $alerts;
     }
 }
