@@ -20,6 +20,7 @@ test('show contains the alerts', function (): void {
         'repository_url' => $repository->url,
         'repository_branch' => $repository->default_branch,
         'deployed_commit_hash' => fake()->unique()->sha1(),
+        'auto_deploy' => false,
     ]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 

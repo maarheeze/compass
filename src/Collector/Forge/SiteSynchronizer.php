@@ -32,7 +32,7 @@ readonly class SiteSynchronizer
                 'php_version' => $forgeSite->phpVersion,
                 'repository_url' => $forgeSite->repositoryUrl,
                 'repository_branch' => $forgeSite->repositoryBranch,
-                'quick_deploy' => $forgeSite->quickDeploy,
+                'auto_deploy' => $forgeSite->autoDeploy,
                 'server_name' => $forgeSite->serverName,
                 'server_slug' => $forgeSite->serverSlug,
                 'server_ip_address' => $forgeSite->serverIpAddress,

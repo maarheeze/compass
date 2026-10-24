@@ -12,6 +12,7 @@ test('find alerts finds a site that is behind', function (): void {
         'repository_url' => $repository->url,
         'repository_branch' => $repository->default_branch,
         'deployed_commit_hash' => fake()->unique()->sha1(),
+        'auto_deploy' => false,
     ]);
 
     $siteBehindAlertDetector = $this->app->make(SiteBehindAlertDetector::class);

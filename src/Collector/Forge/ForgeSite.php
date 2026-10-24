@@ -14,7 +14,7 @@ readonly class ForgeSite
         public ?string $phpVersion,
         public ?string $repositoryUrl,
         public ?string $repositoryBranch,
-        public ?bool $quickDeploy,
+        public ?bool $autoDeploy,
         public string $serverName,
         public string $serverSlug,
         public ?string $serverIpAddress,

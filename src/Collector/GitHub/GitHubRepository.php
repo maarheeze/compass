@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Collector\GitHub;
 
+use Carbon\CarbonImmutable;
+
 readonly class GitHubRepository
 {
     public function __construct(
@@ -12,6 +14,7 @@ readonly class GitHubRepository
         public string $url,
         public string $defaultBranch,
         public string $lastCommitSha,
+        public CarbonImmutable $lastCommitCommittedAt,
         public RepositoryVisibility $visibility,
         public ?string $composerJsonOid,
         public ?string $composerLockOid,

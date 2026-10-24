@@ -94,6 +94,7 @@ test('page holds the github repositories in the response', function (): void {
                                     'name' => $gitHubRepository->defaultBranch,
                                     'target' => [
                                         'oid' => $gitHubRepository->lastCommitSha,
+                                        'committedDate' => $gitHubRepository->lastCommitCommittedAt->toIso8601String(),
                                     ],
                                 ],
                                 'composerJson' => [

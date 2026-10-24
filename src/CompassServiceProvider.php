@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass;
 
+use Carbon\FactoryImmutable;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Maarheeze\Compass\Providers\AlertProvider;
@@ -12,6 +13,7 @@ use Maarheeze\Compass\Providers\ClientProvider;
 use Maarheeze\Compass\Providers\ForgeProvider;
 use Maarheeze\Compass\Providers\GitHubProvider;
 use Maarheeze\Compass\Providers\SiteEndpointProvider;
+use Psr\Clock\ClockInterface;
 
 use function config_path;
 
@@ -20,6 +22,8 @@ class CompassServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/compass.php', 'compass');
+
+        $this->app->bindIf(ClockInterface::class, FactoryImmutable::class);
 
         $this->app->register(AlertProvider::class);
         $this->app->register(AuthenticationProvider::class);

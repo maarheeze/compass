@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Collector\GitHub;
 
+use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\GitHubRepositoryCollection;
 use Webmozart\Assert\Assert;
 
@@ -55,6 +56,7 @@ readonly class RepositoriesQuery
                 Assert::string($repositoryResponse['url']),
                 Assert::string($defaultBranchResponse['name']),
                 Assert::string($lastCommitResponse['oid']),
+                CarbonImmutable::parse(Assert::string($lastCommitResponse['committedDate'])),
                 RepositoryVisibility::from(Assert::string($repositoryResponse['visibility'])),
                 $this->getOid($repositoryResponse['composerJson']),
                 $this->getOid($repositoryResponse['composerLock']),
@@ -99,7 +101,7 @@ readonly class RepositoriesQuery
                     name
                     url
                     visibility
-                    defaultBranchRef { name target { oid } }
+                    defaultBranchRef { name target { oid ... on Commit { committedDate } } }
                     composerJson: object(expression: "HEAD:composer.json") { oid }
                     composerLock: object(expression: "HEAD:composer.lock") { oid }
                   }

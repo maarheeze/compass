@@ -9,6 +9,7 @@ use Maarheeze\Compass\Analyzer\Client\NonProductionAlert;
 use Maarheeze\Compass\Analyzer\Client\UnauthorizedClientAlert;
 use Maarheeze\Compass\Analyzer\Composer\ComposerWarningAlert;
 use Maarheeze\Compass\Analyzer\Forge\MissingSiteAlert;
+use Maarheeze\Compass\Analyzer\Forge\OverdueDeploymentAlert;
 use Maarheeze\Compass\Analyzer\Forge\SiteBehindAlert;
 use Maarheeze\Compass\Analyzer\GitHub\MissingRepositoryAlert;
 use Maarheeze\Compass\Analyzer\SiteEndpoint\DownSiteEndpointAlert;
@@ -62,6 +63,7 @@ test('find holds the sites behind', function (): void {
         'repository_url' => $repository->url,
         'repository_branch' => $repository->default_branch,
         'deployed_commit_hash' => fake()->unique()->sha1(),
+        'auto_deploy' => false,
     ]);
 
     $alertFinder = $this->app->make(AlertFinder::class);
@@ -69,6 +71,26 @@ test('find holds the sites behind', function (): void {
 
     $siteBehindAlert = $alerts->whereInstanceOf(SiteBehindAlert::class)->sole();
     expect($siteBehindAlert->site->is($site))
+        ->toBeTrue();
+});
+
+test('find holds the sites with an overdue deployment', function (): void {
+    $repository = Repository::factory()->create([
+        'last_commit_sha' => fake()->unique()->sha1(),
+        'last_commit_committed_at' => fake()->dateTime('-1 hour'),
+    ]);
+    $site = Site::factory()->create([
+        'repository_url' => $repository->url,
+        'repository_branch' => $repository->default_branch,
+        'deployed_commit_hash' => fake()->unique()->sha1(),
+        'auto_deploy' => true,
+    ]);
+
+    $alertFinder = $this->app->make(AlertFinder::class);
+    $alerts = $alertFinder->find();
+
+    $overdueDeploymentAlert = $alerts->whereInstanceOf(OverdueDeploymentAlert::class)->sole();
+    expect($overdueDeploymentAlert->site->is($site))
         ->toBeTrue();
 });
 

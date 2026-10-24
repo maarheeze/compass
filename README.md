@@ -34,6 +34,7 @@ GITHUB_CLIENT_SECRET=
 COMPASS_GITHUB_ORGANIZATION=your-org
 COMPASS_GITHUB_TOKEN=
 
+COMPASS_FORGE_AUTO_DEPLOY_GRACE_MINUTES=5
 COMPASS_FORGE_ORGANIZATION=your-forge-organization
 COMPASS_FORGE_SERVER_PATTERN=/^production-/
 COMPASS_FORGE_TOKEN=
@@ -44,7 +45,7 @@ COMPASS_CLIENT_PATH=/_compass
 
 - `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` — a GitHub OAuth App of the organization, with `{APP_URL}/auth/github/callback` as callback URL (prefixed with `COMPASS_PATH` when set). Only active members of the organization are let in.
 - `COMPASS_GITHUB_TOKEN` — a token with read access to the organization's repositories: a classic token with the `repo` scope, or a fine-grained token with read-only *Contents*, *Metadata*, *Issues* and *Pull requests* permissions.
-- `COMPASS_FORGE_TOKEN` — created under **Forge → Account → API Tokens**. The optional server pattern limits the sites to those of matching servers.
+- `COMPASS_FORGE_TOKEN` — created under **Forge → Account → API Tokens**. The optional server pattern limits the sites to those of matching servers. A site with auto-deploy enabled gets the grace minutes to deploy a new commit before its deployment counts as overdue.
 - `COMPASS_CLIENT_KEY` and `COMPASS_CLIENT_PATH` — the default key and path for reading [the client](#client); a site can override both on its page.
 
 ## Usage

@@ -13,6 +13,7 @@ test('deployment state is the classified deployment state of the site', function
         'repository_url' => $repository->url,
         'repository_branch' => $repository->default_branch,
         'deployed_commit_hash' => fake()->unique()->sha1(),
+        'auto_deploy' => false,
     ]);
 
     $deploymentStateLabel = $this->app->make(DeploymentStateLabel::class, ['site' => $site]);

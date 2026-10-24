@@ -30,6 +30,7 @@ class RepositoryFactory extends Factory
             'url' => fake()->url(),
             'default_branch' => fake()->word(),
             'last_commit_sha' => fake()->sha1(),
+            'last_commit_committed_at' => fake()->dateTime(),
             'visibility' => fake()->randomElement(RepositoryVisibility::cases()),
             'composer_json_oid' => fake()->optional()->sha1(),
             'composer_lock_oid' => fake()->optional()->sha1(),

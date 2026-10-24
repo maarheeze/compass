@@ -36,10 +36,10 @@
                         @endif
                     </span>
                 @endif
-                @if ($site->quick_deploy !== null)
+                @if ($site->auto_deploy !== null)
                     <span>&middot;</span>
                     <span>
-                        @if ($site->quick_deploy)
+                        @if ($site->auto_deploy)
                             Auto-deploy on
                         @else
                             Auto-deploy off

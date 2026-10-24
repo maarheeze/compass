@@ -32,6 +32,7 @@ readonly class RepositorySynchronizer
                 'url' => $gitHubRepository->url,
                 'default_branch' => $gitHubRepository->defaultBranch,
                 'last_commit_sha' => $gitHubRepository->lastCommitSha,
+                'last_commit_committed_at' => $gitHubRepository->lastCommitCommittedAt,
                 'visibility' => $gitHubRepository->visibility,
                 'composer_json_oid' => $gitHubRepository->composerJsonOid,
                 'composer_lock_oid' => $gitHubRepository->composerLockOid,

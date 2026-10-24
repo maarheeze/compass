@@ -13,6 +13,7 @@ use Maarheeze\Compass\Analyzer\Client\NonProductionAlertDetector;
 use Maarheeze\Compass\Analyzer\Client\UnauthorizedClientAlertDetector;
 use Maarheeze\Compass\Analyzer\Composer\ComposerWarningAlertDetector;
 use Maarheeze\Compass\Analyzer\Forge\MissingSiteAlertDetector;
+use Maarheeze\Compass\Analyzer\Forge\OverdueDeploymentAlertDetector;
 use Maarheeze\Compass\Analyzer\Forge\SiteBehindAlertDetector;
 use Maarheeze\Compass\Analyzer\GitHub\MissingRepositoryAlertDetector;
 use Maarheeze\Compass\Analyzer\SiteEndpoint\DownSiteEndpointAlertDetector;
@@ -31,6 +32,7 @@ class AlertProvider extends ServiceProvider
                     $container->make(MissingSiteAlertDetector::class),
                     $container->make(ComposerWarningAlertDetector::class),
                     $container->make(SiteBehindAlertDetector::class),
+                    $container->make(OverdueDeploymentAlertDetector::class),
                     $container->make(DebugEnabledAlertDetector::class),
                     $container->make(NonProductionAlertDetector::class),
                     $container->make(UnauthorizedClientAlertDetector::class),

@@ -71,7 +71,7 @@ test('page holds the forge sites in the response', function (): void {
                         'url' => $forgeSite->url,
                         'status' => $forgeSite->status->value,
                         'php_version' => $forgeSite->phpVersion,
-                        'quick_deploy' => $forgeSite->quickDeploy,
+                        'quick_deploy' => $forgeSite->autoDeploy,
                         'repository' => [
                             'url' => $forgeSite->repositoryUrl,
                             'branch' => $forgeSite->repositoryBranch,

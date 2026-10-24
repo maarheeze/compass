@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('url');
             $table->string('default_branch');
             $table->string('last_commit_sha');
+            $table->timestamp('last_commit_committed_at');
             $table->string('visibility');
             $table->string('composer_json_oid')->nullable();
             $table->string('composer_lock_oid')->nullable();

@@ -29,6 +29,7 @@ use function sprintf;
  * @property string $default_branch
  * @property string $github_id
  * @property int $id
+ * @property CarbonImmutable $last_commit_committed_at
  * @property string $last_commit_sha
  * @property ?CarbonImmutable $missing_at
  * @property ?CarbonImmutable $missing_ignored_at
@@ -62,6 +63,7 @@ class Repository extends Model
             'composer_lock_oid',
             'default_branch',
             'github_id',
+            'last_commit_committed_at',
             'last_commit_sha',
             'missing_at',
             'missing_ignored_at',
@@ -125,6 +127,7 @@ class Repository extends Model
             'collected_at' => 'immutable_datetime',
             'collection_run_id' => sprintf('%s:%s', UuidCast::class, CollectionRunId::class),
             'created_at' => 'immutable_datetime',
+            'last_commit_committed_at' => 'immutable_datetime',
             'missing_at' => 'immutable_datetime',
             'missing_ignored_at' => 'immutable_datetime',
             'updated_at' => 'immutable_datetime',

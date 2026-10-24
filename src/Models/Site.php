@@ -24,6 +24,7 @@ use function sprintf;
  * @property ?bool $app_debug
  * @property ?string $app_env
  * @property ?string $app_name
+ * @property ?bool $auto_deploy
  * @property ?CarbonImmutable $client_collected_at
  * @property ?string $client_key
  * @property ?string $client_path
@@ -42,7 +43,6 @@ use function sprintf;
  * @property ?CarbonImmutable $missing_ignored_at
  * @property string $name
  * @property ?string $php_version
- * @property ?bool $quick_deploy
  * @property ?string $repository_branch
  * @property ?string $repository_url
  * @property ?string $server_ip_address
@@ -71,6 +71,7 @@ class Site extends Model
             'app_debug',
             'app_env',
             'app_name',
+            'auto_deploy',
             'client_collected_at',
             'client_key',
             'client_path',
@@ -87,7 +88,6 @@ class Site extends Model
             'missing_ignored_at',
             'name',
             'php_version',
-            'quick_deploy',
             'repository_branch',
             'repository_url',
             'server_ip_address',
@@ -126,6 +126,7 @@ class Site extends Model
     {
         return [
             'app_debug' => 'boolean',
+            'auto_deploy' => 'boolean',
             'client_collected_at' => 'immutable_datetime',
             'client_status' => ClientStatus::class,
             'collected_at' => 'immutable_datetime',
@@ -136,7 +137,6 @@ class Site extends Model
             'deployment_status' => DeploymentStatus::class,
             'missing_at' => 'immutable_datetime',
             'missing_ignored_at' => 'immutable_datetime',
-            'quick_deploy' => 'boolean',
             'status' => SiteStatus::class,
             'updated_at' => 'immutable_datetime',
         ];

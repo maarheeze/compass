@@ -39,12 +39,14 @@ return [
     |
     | The slug of the Forge organization whose sites are collected, a regular
     | expression on the server name (only the sites of matching servers are
-    | collected; the default matches every server), and the Forge API token
-    | the sites are read with.
+    | collected; the default matches every server), the Forge API token the
+    | sites are read with, and the minutes a site with auto-deploy enabled may
+    | take to deploy the last commit before its deployment is overdue.
     |
     */
 
     'forge' => [
+        'auto_deploy_grace_minutes' => env('COMPASS_FORGE_AUTO_DEPLOY_GRACE_MINUTES', 5),
         'organization' => env('COMPASS_FORGE_ORGANIZATION'),
         'server_pattern' => env('COMPASS_FORGE_SERVER_PATTERN', '/.*/'),
         'token' => env('COMPASS_FORGE_TOKEN'),

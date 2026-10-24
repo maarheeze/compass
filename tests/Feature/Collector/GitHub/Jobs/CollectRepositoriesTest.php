@@ -48,6 +48,7 @@ test('handle stores the repositories of the page', function (): void {
             'name' => fake()->word(),
             'target' => [
                 'oid' => fake()->sha1(),
+                'committedDate' => fake()->iso8601(),
             ],
         ],
         'composerJson' => null,
