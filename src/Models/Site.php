@@ -42,6 +42,7 @@ use function sprintf;
  * @property ?CarbonImmutable $missing_ignored_at
  * @property string $name
  * @property ?string $php_version
+ * @property ?bool $quick_deploy
  * @property ?string $repository_branch
  * @property ?string $repository_url
  * @property ?string $server_ip_address
@@ -86,6 +87,7 @@ class Site extends Model
             'missing_ignored_at',
             'name',
             'php_version',
+            'quick_deploy',
             'repository_branch',
             'repository_url',
             'server_ip_address',
@@ -134,6 +136,7 @@ class Site extends Model
             'deployment_status' => DeploymentStatus::class,
             'missing_at' => 'immutable_datetime',
             'missing_ignored_at' => 'immutable_datetime',
+            'quick_deploy' => 'boolean',
             'status' => SiteStatus::class,
             'updated_at' => 'immutable_datetime',
         ];

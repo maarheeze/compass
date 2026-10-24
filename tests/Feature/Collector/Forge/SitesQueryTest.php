@@ -71,6 +71,7 @@ test('page holds the forge sites in the response', function (): void {
                         'url' => $forgeSite->url,
                         'status' => $forgeSite->status->value,
                         'php_version' => $forgeSite->phpVersion,
+                        'quick_deploy' => $forgeSite->quickDeploy,
                         'repository' => [
                             'url' => $forgeSite->repositoryUrl,
                             'branch' => $forgeSite->repositoryBranch,
@@ -142,6 +143,7 @@ test('page holds no latest deployment for a site that was never deployed', funct
                         'url' => fake()->url(),
                         'status' => 'never-deployed',
                         'php_version' => null,
+                        'quick_deploy' => null,
                         'repository' => [
                             'url' => null,
                             'branch' => null,
@@ -198,6 +200,7 @@ test('page holds no end time for a deployment that has not ended', function (): 
                         'url' => fake()->url(),
                         'status' => 'deploying',
                         'php_version' => null,
+                        'quick_deploy' => null,
                         'repository' => [
                             'url' => null,
                             'branch' => null,
@@ -271,6 +274,7 @@ test('page leaves out the sites of servers that do not match the server pattern'
                         'url' => fake()->url(),
                         'status' => 'never-deployed',
                         'php_version' => null,
+                        'quick_deploy' => null,
                         'repository' => [
                             'url' => null,
                             'branch' => null,

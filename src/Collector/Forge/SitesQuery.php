@@ -91,6 +91,7 @@ readonly class SitesQuery
             Assert::nullOrString($siteAttributes['php_version']),
             Assert::nullOrString($repositoryAttributes['url']),
             Assert::nullOrString($repositoryAttributes['branch']),
+            Assert::nullOrBoolean($siteAttributes['quick_deploy']),
             Assert::string($serverAttributes['name']),
             Assert::string($serverAttributes['slug']),
             Assert::nullOrString($serverAttributes['ip_address']),

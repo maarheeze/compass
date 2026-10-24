@@ -35,6 +35,7 @@ class SiteFactory extends Factory
             'php_version' => fake()->optional()->numerify('php8#'),
             'repository_url' => fake()->optional()->url(),
             'repository_branch' => fake()->optional()->word(),
+            'quick_deploy' => fake()->optional()->boolean(),
             'server_name' => fake()->slug(),
             'server_slug' => fake()->slug(),
             'server_ip_address' => fake()->optional()->ipv4(),

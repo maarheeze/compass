@@ -36,11 +36,21 @@
                         @endif
                     </span>
                 @endif
+                @if ($site->quick_deploy !== null)
+                    <span>&middot;</span>
+                    <span>
+                        @if ($site->quick_deploy)
+                            Auto-deploy on
+                        @else
+                            Auto-deploy off
+                        @endif
+                    </span>
+                @endif
                 <span>&middot;</span>
                 <span>{{ $site->status->value }}</span>
                 @if ($site->php_version)
                     <span>&middot;</span>
-                    <span>PHP {{ $site->php_version }}</span>
+                    <span>{{ $site->php_version }}</span>
                 @endif
                 <span>&middot;</span>
                 <span title="{{ $site->server_ip_address }}">{{ $site->server_name }}</span>

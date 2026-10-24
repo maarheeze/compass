@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('php_version')->nullable();
             $table->string('repository_url')->nullable();
             $table->string('repository_branch')->nullable();
+            $table->boolean('quick_deploy')->nullable();
             $table->string('server_name');
             $table->string('server_slug');
             $table->string('server_ip_address')->nullable();

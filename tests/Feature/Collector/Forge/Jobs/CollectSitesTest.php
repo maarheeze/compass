@@ -45,6 +45,7 @@ test('handle stores the sites of the page', function (): void {
                         'url' => fake()->url(),
                         'status' => 'deployed',
                         'php_version' => null,
+                        'quick_deploy' => null,
                         'repository' => [
                             'url' => null,
                             'branch' => null,
