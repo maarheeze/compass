@@ -6,14 +6,16 @@ namespace Maarheeze\Compass\Providers;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
-use Maarheeze\Compass\Collector\SiteEndpoint\Jobs\CheckSiteEndpoints;
+use Maarheeze\Compass\Console\CheckSiteEndpointsCommand;
 
 class SiteEndpointProvider extends ServiceProvider
 {
     public function boot(): void
     {
+        $this->commands([CheckSiteEndpointsCommand::class]);
+
         $this->callAfterResolving(Schedule::class, static function (Schedule $schedule): void {
-            $schedule->job(CheckSiteEndpoints::class)
+            $schedule->command(CheckSiteEndpointsCommand::class)
                 ->everyFifteenMinutes();
         });
     }

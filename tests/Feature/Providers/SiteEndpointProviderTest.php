@@ -5,13 +5,13 @@ declare(strict_types=1);
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Collection;
-use Maarheeze\Compass\Collector\SiteEndpoint\Jobs\CheckSiteEndpoints;
+use Maarheeze\Compass\Console\CheckSiteEndpointsCommand;
 
-test('check endpoints is scheduled every fifteen minutes', function (): void {
+test('check site endpoints is scheduled every fifteen minutes', function (): void {
     $schedule = $this->app->make(Schedule::class);
 
     $scheduledEvent = new Collection($schedule->events())->sole(static function (Event $event): bool {
-        return $event->description === CheckSiteEndpoints::class;
+        return str_contains($event->command, CheckSiteEndpointsCommand::SIGNATURE);
     });
 
     expect($scheduledEvent->expression)

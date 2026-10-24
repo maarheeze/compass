@@ -64,6 +64,12 @@ php artisan compass:github-sync
 php artisan compass:forge-sync
 ```
 
+The endpoints the sites report are checked every 15 minutes, or by hand:
+
+```bash
+php artisan compass:endpoints-check
+```
+
 ### Client
 
 Install [maarheeze/compass-client-laravel](https://github.com/maarheeze/compass-client-laravel) on a site to report what cannot be seen from outside: debug mode, the environment and the endpoints to monitor. The Forge sync reads it from every site.
