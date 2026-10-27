@@ -6,6 +6,16 @@
             <div class="flex items-center gap-2">
                 <livewire:compass::sync-button />
 
+                @if ($hasAlerts)
+                    <a
+                        href="{{ $dashboardUrl }}"
+                        title="{{ __('compass::navigation.alerts_found') }}"
+                        aria-label="{{ __('compass::navigation.alerts_found') }}"
+                        class="rounded-md border border-red-600/30 bg-red-50 px-3 py-1.5 text-sm text-red-700 hover:bg-red-100 dark:border-red-400/30 dark:bg-red-400/10 dark:text-red-400 dark:hover:bg-red-400/20">
+                        <x-compass::icons.alert />
+                    </a>
+                @endif
+
                 <details x-data class="relative ml-2" @click.outside="$el.removeAttribute('open')">
                     <summary class="flex cursor-pointer list-none items-center">
                         @if ($user->avatar_url)
