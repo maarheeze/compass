@@ -10,10 +10,7 @@
                 <p class="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">{{ $message }}</p>
             @enderror
 
-            <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_REDIRECT) }}"
-               class="flex w-full items-center justify-center gap-2 rounded-md bg-green-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-green-800 dark:bg-green-600 dark:hover:bg-green-700">
-                {{ __('compass::authentication.continue_with_github') }}
-            </a>
+            <x-compass::git-hub-sign-in-link />
 
             <p class="text-xs text-foreground-muted">
                 {!! __('compass::authentication.scopes') !!}

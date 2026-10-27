@@ -3,26 +3,8 @@
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
         <div class="grid gap-4 sm:grid-cols-2">
-            <x-compass::assigned-and-open-counts
-                :title="__('compass::navigation.issues')"
-                :assigned-route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES_ASSIGNED"
-                :assigned-count="$issueCounts->assignedIssueCount"
-                :open-route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES"
-                :open-count="$issueCounts->openIssueCount">
-                <x-slot:icon>
-                    <x-compass::icons.issue-opened />
-                </x-slot:icon>
-            </x-compass::assigned-and-open-counts>
-            <x-compass::assigned-and-open-counts
-                :title="__('compass::navigation.pull_requests')"
-                :assigned-route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_PULL_REQUESTS_ASSIGNED"
-                :assigned-count="$pullRequestCounts->assignedPullRequestCount"
-                :open-route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_PULL_REQUESTS"
-                :open-count="$pullRequestCounts->openPullRequestCount">
-                <x-slot:icon>
-                    <x-compass::icons.git-pull-request />
-                </x-slot:icon>
-            </x-compass::assigned-and-open-counts>
+            <x-compass::issue-counts-card :issue-counts="$issueCounts" />
+            <x-compass::pull-request-counts-card :pull-request-counts="$pullRequestCounts" />
         </div>
 
         <section class="overflow-hidden rounded-md border border-border bg-canvas">

@@ -2,13 +2,7 @@
     <x-compass::navigation />
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
-        @if ($site->missing_at)
-            <x-compass::missing-notice
-                :missing-at="$site->missing_at"
-                :missing-ignored-at="$site->missing_ignored_at"
-                :delete-url="route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE_DELETE, $site)"
-                :ignore-url="route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE_IGNORE, $site)" />
-        @endif
+        <x-compass::site-missing-notice :site="$site" />
 
         <div class="space-y-1">
             <div class="flex items-center gap-3">
@@ -168,7 +162,7 @@
                         </dd>
                     </dl>
 
-                    <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE_CLIENT_EDIT, $site) }}" class="rounded-md border border-border bg-canvas-subtle px-3 py-1.5 text-sm font-medium text-foreground hover:bg-border/30">{{ __('compass::client.edit') }}</a>
+                    <x-compass::site-client-edit-link :site="$site" />
                 </div>
             </div>
         </section>
@@ -194,7 +188,7 @@
                         @forelse ($latestSiteEndpointChecks as $latestSiteEndpointCheck)
                             <tr>
                                 <td class="px-4 py-2">
-                                    <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE_ENDPOINT_CHECKS, [$site, $latestSiteEndpointCheck->path->routeKey()]) }}" class="font-mono text-accent hover:underline">{{ $latestSiteEndpointCheck->path->path }}</a>
+                                    <x-compass::site-endpoint-checks-link :site="$site" :path="$latestSiteEndpointCheck->path" />
                                 </td>
                                 <td class="px-4 py-2">
                                     <x-compass::site-endpoint-check.status-label :site-endpoint-check="$latestSiteEndpointCheck" />

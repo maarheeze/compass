@@ -2,13 +2,7 @@
     <x-compass::navigation />
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
-        @if ($repository->missing_at)
-            <x-compass::missing-notice
-                :missing-at="$repository->missing_at"
-                :missing-ignored-at="$repository->missing_ignored_at"
-                :delete-url="route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORY_DELETE, $repository)"
-                :ignore-url="route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORY_IGNORE, $repository)" />
-        @endif
+        <x-compass::repository-missing-notice :repository="$repository" />
 
         <div class="space-y-1">
             <div class="flex items-center gap-3">

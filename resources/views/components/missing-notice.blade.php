@@ -1,5 +1,3 @@
-@props(['missingAt', 'missingIgnoredAt', 'deleteUrl', 'ignoreUrl'])
-
 <div class="flex flex-wrap items-center gap-3 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-700 ring-1 ring-amber-600/20 dark:bg-amber-400/10 dark:text-amber-400 dark:ring-amber-400/20">
     <x-compass::icons.alert />
     <span>
