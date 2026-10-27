@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
 use Maarheeze\Compass\Http\RouteName;
-use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 use Maarheeze\Compass\View\Components\Navigation;
@@ -53,23 +52,4 @@ test('logout url is the url of the logout', function (): void {
 
     expect($navigation->logoutUrl)
         ->toBe(route(RouteName::LOGOUT));
-});
-
-test('has alerts when an alert is found', function (): void {
-    Repository::factory()->create(['missing_at' => fake()->dateTime()]);
-    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
-
-    $navigation = $this->app->make(Navigation::class);
-
-    expect($navigation->hasAlerts)
-        ->toBeTrue();
-});
-
-test('has no alerts when no alert is found', function (): void {
-    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
-
-    $navigation = $this->app->make(Navigation::class);
-
-    expect($navigation->hasAlerts)
-        ->toBeFalse();
 });
