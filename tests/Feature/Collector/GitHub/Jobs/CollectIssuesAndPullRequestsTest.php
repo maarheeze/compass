@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
-use Maarheeze\Compass\Collector\CollectionRunId;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectIssuesAndPullRequests;
+use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\PullRequest;
 use Maarheeze\Compass\Models\Repository;
@@ -16,7 +16,7 @@ test('handle queries its page url', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response([])]);
 
-    $collectIssuesAndPullRequests = new CollectIssuesAndPullRequests(CollectionRunId::generate(), $pageUrl);
+    $collectIssuesAndPullRequests = new CollectIssuesAndPullRequests(RunId::generate(), $pageUrl);
     $this->app->call([$collectIssuesAndPullRequests, 'handle']);
 
     $http->assertSent(static function (HttpRequest $request) use ($pageUrl): bool {
@@ -38,15 +38,15 @@ test('handle stores the issues of the page', function (): void {
         'created_at' => fake()->iso8601(),
         'assignees' => [],
     ];
-    $collectionRunId = CollectionRunId::generate();
+    $runId = RunId::generate();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([$issueResponse])]);
 
-    $collectIssuesAndPullRequests = new CollectIssuesAndPullRequests($collectionRunId, null);
+    $collectIssuesAndPullRequests = new CollectIssuesAndPullRequests($runId, null);
     $this->app->call([$collectIssuesAndPullRequests, 'handle']);
 
     $this->assertDatabaseHas(Issue::class, [
         'github_id' => $issueResponse['node_id'],
-        'collection_run_id' => $collectionRunId,
+        'run_id' => $runId,
     ]);
 });
 
@@ -68,38 +68,38 @@ test('handle stores the pull requests of the page', function (): void {
             'url' => fake()->url(),
         ],
     ];
-    $collectionRunId = CollectionRunId::generate();
+    $runId = RunId::generate();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([$pullRequestResponse])]);
 
-    $collectIssuesAndPullRequests = new CollectIssuesAndPullRequests($collectionRunId, null);
+    $collectIssuesAndPullRequests = new CollectIssuesAndPullRequests($runId, null);
     $this->app->call([$collectIssuesAndPullRequests, 'handle']);
 
     $this->assertDatabaseHas(PullRequest::class, [
         'github_id' => $pullRequestResponse['node_id'],
-        'collection_run_id' => $collectionRunId,
+        'run_id' => $runId,
     ]);
 });
 
 test('handle chains the next page when there is one', function (): void {
     $nextPageUrl = fake()->url();
-    $collectionRunId = CollectionRunId::generate();
+    $runId = RunId::generate();
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([], 200, [
             'Link' => sprintf('<%s>; rel="next"', $nextPageUrl),
         ]),
     ]);
 
-    $collectIssuesAndPullRequests = new CollectIssuesAndPullRequests($collectionRunId, null);
+    $collectIssuesAndPullRequests = new CollectIssuesAndPullRequests($runId, null);
     $this->app->call([$collectIssuesAndPullRequests, 'handle']);
 
-    $collectIssuesAndPullRequests->assertHasChain([new CollectIssuesAndPullRequests($collectionRunId, $nextPageUrl)]);
+    $collectIssuesAndPullRequests->assertHasChain([new CollectIssuesAndPullRequests($runId, $nextPageUrl)]);
 });
 
 test('handle deletes the issues of another run on the last page', function (): void {
     $issue = Issue::factory()->create();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([])]);
 
-    $collectIssuesAndPullRequests = new CollectIssuesAndPullRequests(CollectionRunId::generate(), null);
+    $collectIssuesAndPullRequests = new CollectIssuesAndPullRequests(RunId::generate(), null);
     $this->app->call([$collectIssuesAndPullRequests, 'handle']);
 
     $this->assertModelMissing($issue);
@@ -109,7 +109,7 @@ test('handle deletes the pull requests of another run on the last page', functio
     $pullRequest = PullRequest::factory()->create();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([])]);
 
-    $collectIssuesAndPullRequests = new CollectIssuesAndPullRequests(CollectionRunId::generate(), null);
+    $collectIssuesAndPullRequests = new CollectIssuesAndPullRequests(RunId::generate(), null);
     $this->app->call([$collectIssuesAndPullRequests, 'handle']);
 
     $this->assertModelMissing($pullRequest);
@@ -123,7 +123,7 @@ test('handle keeps the issues of another run before the last page', function ():
         ]),
     ]);
 
-    $collectIssuesAndPullRequests = new CollectIssuesAndPullRequests(CollectionRunId::generate(), null);
+    $collectIssuesAndPullRequests = new CollectIssuesAndPullRequests(RunId::generate(), null);
     $this->app->call([$collectIssuesAndPullRequests, 'handle']);
 
     $this->assertModelExists($issue);

@@ -6,22 +6,22 @@ namespace Maarheeze\Compass\Collector\GitHub;
 
 use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\GitHubRepositoryCollection;
-use Maarheeze\Compass\Collector\CollectionRunId;
+use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\Repository;
 
 readonly class RepositorySynchronizer
 {
-    public function markUncollectedMissing(CollectionRunId $collectionRunId): void
+    public function markUncollectedMissing(RunId $runId): void
     {
         Repository::query()
-            ->whereNot('collection_run_id', $collectionRunId)
+            ->whereNot('run_id', $runId)
             ->whereNull('missing_at')
             ->update(['missing_at' => CarbonImmutable::now()]);
     }
 
     public function storeRepositories(
         GitHubRepositoryCollection $gitHubRepositories,
-        CollectionRunId $collectionRunId,
+        RunId $runId,
     ): void {
         $repositoryValues = [];
 
@@ -36,7 +36,7 @@ readonly class RepositorySynchronizer
                 'visibility' => $gitHubRepository->visibility,
                 'composer_json_oid' => $gitHubRepository->composerJsonOid,
                 'composer_lock_oid' => $gitHubRepository->composerLockOid,
-                'collection_run_id' => $collectionRunId,
+                'run_id' => $runId,
                 'collected_at' => CarbonImmutable::now(),
                 'missing_at' => null,
                 'missing_ignored_at' => null,

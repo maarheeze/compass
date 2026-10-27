@@ -36,7 +36,7 @@ return new class extends Migration
             $table->string('app_env')->nullable();
             $table->string('app_name')->nullable();
             $table->timestamp('client_collected_at')->nullable();
-            $table->string('collection_run_id');
+            $table->string('run_id');
             $table->timestamp('collected_at');
             $table->timestamp('missing_at')->nullable();
             $table->timestamp('missing_ignored_at')->nullable();

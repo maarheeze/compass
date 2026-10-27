@@ -6,9 +6,9 @@ namespace Maarheeze\Compass\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Maarheeze\Compass\Collector\Client\ClientStatus;
-use Maarheeze\Compass\Collector\CollectionRunId;
 use Maarheeze\Compass\Collector\Forge\DeploymentStatus;
 use Maarheeze\Compass\Collector\Forge\SiteStatus;
+use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\Site;
 
 use function fake;
@@ -51,7 +51,7 @@ class SiteFactory extends Factory
             'app_env' => fake()->optional()->word(),
             'app_name' => fake()->optional()->company(),
             'client_collected_at' => fake()->optional()->dateTime(),
-            'collection_run_id' => CollectionRunId::generate(),
+            'run_id' => RunId::generate(),
             'collected_at' => fake()->dateTime(),
         ];
     }

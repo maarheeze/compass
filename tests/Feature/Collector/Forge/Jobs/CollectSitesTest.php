@@ -5,8 +5,8 @@ declare(strict_types=1);
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
-use Maarheeze\Compass\Collector\CollectionRunId;
 use Maarheeze\Compass\Collector\Forge\Jobs\CollectSites;
+use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\Site;
 
 test('handle queries the page of its cursor', function (): void {
@@ -22,7 +22,7 @@ test('handle queries the page of its cursor', function (): void {
         ]),
     ]);
 
-    $collectSites = new CollectSites(CollectionRunId::generate(), $cursor);
+    $collectSites = new CollectSites(RunId::generate(), $cursor);
     $this->app->call([$collectSites, 'handle']);
 
     $http->assertSent(static function (HttpRequest $request) use ($cursor): bool {
@@ -33,7 +33,7 @@ test('handle queries the page of its cursor', function (): void {
 test('handle stores the sites of the page', function (): void {
     $forgeId = fake()->numerify('#######');
     $serverId = fake()->numerify('####');
-    $collectionRunId = CollectionRunId::generate();
+    $runId = RunId::generate();
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             'data' => [
@@ -81,18 +81,18 @@ test('handle stores the sites of the page', function (): void {
         ]),
     ]);
 
-    $collectSites = new CollectSites($collectionRunId, null);
+    $collectSites = new CollectSites($runId, null);
     $this->app->call([$collectSites, 'handle']);
 
     $this->assertDatabaseHas(Site::class, [
         'forge_id' => $forgeId,
-        'collection_run_id' => $collectionRunId,
+        'run_id' => $runId,
     ]);
 });
 
 test('handle chains the next page when there is one', function (): void {
     $nextCursor = fake()->sha1();
-    $collectionRunId = CollectionRunId::generate();
+    $runId = RunId::generate();
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             'data' => [],
@@ -102,10 +102,10 @@ test('handle chains the next page when there is one', function (): void {
         ]),
     ]);
 
-    $collectSites = new CollectSites($collectionRunId, null);
+    $collectSites = new CollectSites($runId, null);
     $this->app->call([$collectSites, 'handle']);
 
-    $collectSites->assertHasChain([new CollectSites($collectionRunId, $nextCursor)]);
+    $collectSites->assertHasChain([new CollectSites($runId, $nextCursor)]);
 });
 
 test('handle marks the sites of another run missing on the last page', function (): void {
@@ -119,7 +119,7 @@ test('handle marks the sites of another run missing on the last page', function 
         ]),
     ]);
 
-    $collectSites = new CollectSites(CollectionRunId::generate(), null);
+    $collectSites = new CollectSites(RunId::generate(), null);
     $this->app->call([$collectSites, 'handle']);
 
     expect($site->refresh()->missing_at)

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Maarheeze\Compass\Collector\CollectionRunId;
+use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\PullRequest;
 use Maarheeze\Compass\Models\Repository;
 
@@ -33,7 +33,7 @@ class PullRequestFactory extends Factory
             'author_login' => fake()->optional()->userName(),
             'is_draft' => fake()->boolean(),
             'opened_at' => fake()->dateTime(),
-            'collection_run_id' => CollectionRunId::generate(),
+            'run_id' => RunId::generate(),
             'collected_at' => fake()->dateTime(),
         ];
     }

@@ -5,9 +5,9 @@ declare(strict_types=1);
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
-use Maarheeze\Compass\Collector\CollectionRunId;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectRepositories;
 use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
+use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\Repository;
 
 test('handle queries the page of its cursor', function (): void {
@@ -30,7 +30,7 @@ test('handle queries the page of its cursor', function (): void {
         ]),
     ]);
 
-    $collectRepositories = new CollectRepositories(CollectionRunId::generate(), $cursor);
+    $collectRepositories = new CollectRepositories(RunId::generate(), $cursor);
     $this->app->call([$collectRepositories, 'handle']);
 
     $http->assertSent(static function (HttpRequest $request) use ($cursor): bool {
@@ -54,7 +54,7 @@ test('handle stores the repositories of the page', function (): void {
         'composerJson' => null,
         'composerLock' => null,
     ];
-    $collectionRunId = CollectionRunId::generate();
+    $runId = RunId::generate();
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             'data' => [
@@ -71,18 +71,18 @@ test('handle stores the repositories of the page', function (): void {
         ]),
     ]);
 
-    $collectRepositories = new CollectRepositories($collectionRunId, null);
+    $collectRepositories = new CollectRepositories($runId, null);
     $this->app->call([$collectRepositories, 'handle']);
 
     $this->assertDatabaseHas(Repository::class, [
         'name' => $repositoryResponse['name'],
-        'collection_run_id' => $collectionRunId,
+        'run_id' => $runId,
     ]);
 });
 
 test('handle chains the next page when there is one', function (): void {
     $endCursor = fake()->sha1();
-    $collectionRunId = CollectionRunId::generate();
+    $runId = RunId::generate();
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             'data' => [
@@ -99,10 +99,10 @@ test('handle chains the next page when there is one', function (): void {
         ]),
     ]);
 
-    $collectRepositories = new CollectRepositories($collectionRunId, null);
+    $collectRepositories = new CollectRepositories($runId, null);
     $this->app->call([$collectRepositories, 'handle']);
 
-    $collectRepositories->assertHasChain([new CollectRepositories($collectionRunId, $endCursor)]);
+    $collectRepositories->assertHasChain([new CollectRepositories($runId, $endCursor)]);
 });
 
 test('handle marks the repositories of another run missing on the last page', function (): void {
@@ -123,7 +123,7 @@ test('handle marks the repositories of another run missing on the last page', fu
         ]),
     ]);
 
-    $collectRepositories = new CollectRepositories(CollectionRunId::generate(), null);
+    $collectRepositories = new CollectRepositories(RunId::generate(), null);
     $this->app->call([$collectRepositories, 'handle']);
 
     expect($repository->refresh()->missing_at)

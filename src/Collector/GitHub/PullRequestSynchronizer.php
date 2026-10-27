@@ -6,7 +6,7 @@ namespace Maarheeze\Compass\Collector\GitHub;
 
 use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\GitHubPullRequestCollection;
-use Maarheeze\Compass\Collector\CollectionRunId;
+use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\PullRequest;
 use Maarheeze\Compass\Models\PullRequestAssignee;
 use Maarheeze\Compass\Models\Repository;
@@ -14,16 +14,16 @@ use Webmozart\Assert\Assert;
 
 readonly class PullRequestSynchronizer
 {
-    public function deleteUncollected(CollectionRunId $collectionRunId): void
+    public function deleteUncollected(RunId $runId): void
     {
         PullRequest::query()
-            ->whereNot('collection_run_id', $collectionRunId)
+            ->whereNot('run_id', $runId)
             ->delete();
     }
 
     public function storePullRequests(
         GitHubPullRequestCollection $gitHubPullRequests,
-        CollectionRunId $collectionRunId,
+        RunId $runId,
     ): void {
         $repositoryIds = Repository::query()
             ->whereIn('name', $gitHubPullRequests->pluck('repositoryName'))
@@ -45,7 +45,7 @@ readonly class PullRequestSynchronizer
                 'author_login' => $gitHubPullRequest->authorLogin,
                 'is_draft' => $gitHubPullRequest->isDraft,
                 'opened_at' => $gitHubPullRequest->openedAt,
-                'collection_run_id' => $collectionRunId,
+                'run_id' => $runId,
                 'collected_at' => CarbonImmutable::now(),
             ];
         }

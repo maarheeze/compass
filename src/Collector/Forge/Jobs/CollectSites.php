@@ -6,17 +6,17 @@ namespace Maarheeze\Compass\Collector\Forge\Jobs;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Maarheeze\Compass\Collector\CollectionRunId;
 use Maarheeze\Compass\Collector\Forge\ForgeRequestFailed;
 use Maarheeze\Compass\Collector\Forge\SitesQuery;
 use Maarheeze\Compass\Collector\Forge\SiteSynchronizer;
+use Maarheeze\Compass\Collector\RunId;
 
 class CollectSites implements ShouldQueue
 {
     use Queueable;
 
     public function __construct(
-        private readonly CollectionRunId $collectionRunId,
+        private readonly RunId $runId,
         private readonly ?string $cursor,
     ) {
     }
@@ -32,15 +32,15 @@ class CollectSites implements ShouldQueue
 
         $siteSynchronizer->storeSites(
             $sitesQueryResult->forgeSites,
-            $this->collectionRunId,
+            $this->runId,
         );
 
         if ($sitesQueryResult->nextCursor !== null) {
-            $this->prependToChain(new self($this->collectionRunId, $sitesQueryResult->nextCursor));
+            $this->prependToChain(new self($this->runId, $sitesQueryResult->nextCursor));
 
             return;
         }
 
-        $siteSynchronizer->markUncollectedMissing($this->collectionRunId);
+        $siteSynchronizer->markUncollectedMissing($this->runId);
     }
 }

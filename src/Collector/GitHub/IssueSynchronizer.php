@@ -6,7 +6,7 @@ namespace Maarheeze\Compass\Collector\GitHub;
 
 use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\GitHubIssueCollection;
-use Maarheeze\Compass\Collector\CollectionRunId;
+use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\IssueAssignee;
 use Maarheeze\Compass\Models\Repository;
@@ -14,14 +14,14 @@ use Webmozart\Assert\Assert;
 
 readonly class IssueSynchronizer
 {
-    public function deleteUncollected(CollectionRunId $collectionRunId): void
+    public function deleteUncollected(RunId $runId): void
     {
         Issue::query()
-            ->whereNot('collection_run_id', $collectionRunId)
+            ->whereNot('run_id', $runId)
             ->delete();
     }
 
-    public function storeIssues(GitHubIssueCollection $gitHubIssues, CollectionRunId $collectionRunId): void
+    public function storeIssues(GitHubIssueCollection $gitHubIssues, RunId $runId): void
     {
         $repositoryIds = Repository::query()
             ->whereIn('name', $gitHubIssues->pluck('repositoryName'))
@@ -42,7 +42,7 @@ readonly class IssueSynchronizer
                 'url' => $gitHubIssue->url,
                 'author_login' => $gitHubIssue->authorLogin,
                 'opened_at' => $gitHubIssue->openedAt,
-                'collection_run_id' => $collectionRunId,
+                'run_id' => $runId,
                 'collected_at' => CarbonImmutable::now(),
             ];
         }

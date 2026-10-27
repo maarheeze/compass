@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('author_login')->nullable();
             $table->boolean('is_draft');
             $table->timestamp('opened_at');
-            $table->string('collection_run_id');
+            $table->string('run_id');
             $table->timestamp('collected_at');
 
             $table->timestamps();

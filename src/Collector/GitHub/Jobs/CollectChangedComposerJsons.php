@@ -8,7 +8,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Maarheeze\Compass\Collector\CollectionRunId;
+use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\Repository;
 
 class CollectChangedComposerJsons implements ShouldQueue
@@ -16,14 +16,14 @@ class CollectChangedComposerJsons implements ShouldQueue
     use Queueable;
 
     public function __construct(
-        private readonly CollectionRunId $collectionRunId,
+        private readonly RunId $runId,
     ) {
     }
 
     public function handle(Dispatcher $dispatcher): void
     {
         $repositoriesWithChangedComposerJson = Repository::query()
-            ->where('collection_run_id', $this->collectionRunId)
+            ->where('run_id', $this->runId)
             ->whereNotNull('composer_json_oid')
             ->whereDoesntHave('composerJson', static function (Builder $composerJsonQuery): void {
                 $composerJsonQuery->whereColumn('oid', 'compass_repositories.composer_json_oid');
@@ -31,7 +31,7 @@ class CollectChangedComposerJsons implements ShouldQueue
             ->get();
 
         $repositoriesWithRemovedComposerJson = Repository::query()
-            ->where('collection_run_id', $this->collectionRunId)
+            ->where('run_id', $this->runId)
             ->whereNull('composer_json_oid')
             ->has('composerJson')
             ->get();

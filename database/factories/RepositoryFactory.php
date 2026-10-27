@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Maarheeze\Compass\Collector\CollectionRunId;
 use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
+use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\Repository;
 
 use function fake;
@@ -34,7 +34,7 @@ class RepositoryFactory extends Factory
             'visibility' => fake()->randomElement(RepositoryVisibility::cases()),
             'composer_json_oid' => fake()->optional()->sha1(),
             'composer_lock_oid' => fake()->optional()->sha1(),
-            'collection_run_id' => CollectionRunId::generate(),
+            'run_id' => RunId::generate(),
             'collected_at' => fake()->dateTime(),
         ];
     }

@@ -12,9 +12,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCollection;
 use Maarheeze\Compass\Collector\Client\ClientStatus;
-use Maarheeze\Compass\Collector\CollectionRunId;
 use Maarheeze\Compass\Collector\Forge\DeploymentStatus;
 use Maarheeze\Compass\Collector\Forge\SiteStatus;
+use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Database\Factories\SiteFactory;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 
@@ -30,7 +30,6 @@ use function sprintf;
  * @property ?string $client_path
  * @property ?ClientStatus $client_status
  * @property CarbonImmutable $collected_at
- * @property CollectionRunId $collection_run_id
  * @property CarbonImmutable $created_at
  * @property ?string $deployed_commit_hash
  * @property ?string $deployed_commit_message
@@ -45,6 +44,7 @@ use function sprintf;
  * @property ?string $php_version
  * @property ?string $repository_branch
  * @property ?string $repository_url
+ * @property RunId $run_id
  * @property ?string $server_ip_address
  * @property string $server_name
  * @property string $server_slug
@@ -77,7 +77,6 @@ class Site extends Model
             'client_path',
             'client_status',
             'collected_at',
-            'collection_run_id',
             'deployed_commit_hash',
             'deployed_commit_message',
             'deployment_ended_at',
@@ -90,6 +89,7 @@ class Site extends Model
             'php_version',
             'repository_branch',
             'repository_url',
+            'run_id',
             'server_ip_address',
             'server_name',
             'server_slug',
@@ -130,13 +130,13 @@ class Site extends Model
             'client_collected_at' => 'immutable_datetime',
             'client_status' => ClientStatus::class,
             'collected_at' => 'immutable_datetime',
-            'collection_run_id' => sprintf('%s:%s', UuidCast::class, CollectionRunId::class),
             'created_at' => 'immutable_datetime',
             'deployment_ended_at' => 'immutable_datetime',
             'deployment_started_at' => 'immutable_datetime',
             'deployment_status' => DeploymentStatus::class,
             'missing_at' => 'immutable_datetime',
             'missing_ignored_at' => 'immutable_datetime',
+            'run_id' => sprintf('%s:%s', UuidCast::class, RunId::class),
             'status' => SiteStatus::class,
             'updated_at' => 'immutable_datetime',
         ];
