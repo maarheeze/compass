@@ -5,22 +5,20 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Console;
 
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Bus\Dispatcher;
-use Maarheeze\Compass\Collector\Client\Jobs\InspectSites;
 use Maarheeze\Compass\Collector\Forge\Jobs\CollectSites;
 use Maarheeze\Compass\Collector\RunId;
+use Maarheeze\Compass\Collector\RunRecorder;
+use Maarheeze\Compass\Collector\RunType;
 
 class SyncForgeCommand extends Command
 {
     public const string SIGNATURE = 'compass:forge-sync';
 
-    public function handle(Dispatcher $dispatcher): void
+    public function handle(RunRecorder $runRecorder): void
     {
-        $collectSites = new CollectSites(RunId::generate());
-        $collectSites->chain([
-            new InspectSites(),
-        ]);
-        $dispatcher->dispatch($collectSites);
+        $runId = RunId::generate();
+
+        $runRecorder->start($runId, RunType::FORGE_SYNC, new CollectSites($runId));
     }
 
     protected function configure(): void

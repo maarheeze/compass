@@ -2,16 +2,13 @@
 
 declare(strict_types=1);
 
-use Illuminate\Contracts\Bus\Dispatcher;
-use Illuminate\Contracts\Bus\QueueingDispatcher;
-use Illuminate\Support\Testing\Fakes\BusFake;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectChangedComposerJsons;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectComposerJson;
 use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\Repository;
 
-test('handle dispatches collect composer json when its oid differs from the collected one', function (): void {
+test('handle adds collect composer json when its oid differs from the collected one', function (): void {
     $runId = RunId::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
@@ -22,21 +19,21 @@ test('handle dispatches collect composer json when its oid differs from the coll
         'oid' => fake()->unique()->sha1(),
     ]);
 
-    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
-    $this->app->instance(Dispatcher::class, $busFake);
-
-    $collectChangedComposerJsons = new CollectChangedComposerJsons($runId);
+    [$collectChangedComposerJsons, $batchFake] = new CollectChangedComposerJsons($runId)->withFakeBatch();
     $this->app->call([$collectChangedComposerJsons, 'handle']);
 
-    $busFake->assertDispatched(
-        CollectComposerJson::class,
-        static function (CollectComposerJson $collectComposerJson) use ($repository): bool {
-            return $collectComposerJson->repository->is($repository);
+    $addedRepositoryIds = array_map(
+        static function (CollectComposerJson $collectComposerJson): int {
+            return $collectComposerJson->repository->id;
         },
+        $batchFake->added,
     );
+
+    expect($addedRepositoryIds)
+        ->toBe([$repository->id]);
 });
 
-test('handle dispatches collect composer json when the composer json is gone', function (): void {
+test('handle adds collect composer json when the composer json is gone', function (): void {
     $runId = RunId::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
@@ -44,21 +41,21 @@ test('handle dispatches collect composer json when the composer json is gone', f
     ]);
     ComposerJson::factory()->create(['repository_id' => $repository->id]);
 
-    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
-    $this->app->instance(Dispatcher::class, $busFake);
-
-    $collectChangedComposerJsons = new CollectChangedComposerJsons($runId);
+    [$collectChangedComposerJsons, $batchFake] = new CollectChangedComposerJsons($runId)->withFakeBatch();
     $this->app->call([$collectChangedComposerJsons, 'handle']);
 
-    $busFake->assertDispatched(
-        CollectComposerJson::class,
-        static function (CollectComposerJson $collectComposerJson) use ($repository): bool {
-            return $collectComposerJson->repository->is($repository);
+    $addedRepositoryIds = array_map(
+        static function (CollectComposerJson $collectComposerJson): int {
+            return $collectComposerJson->repository->id;
         },
+        $batchFake->added,
     );
+
+    expect($addedRepositoryIds)
+        ->toBe([$repository->id]);
 });
 
-test('handle does not dispatch collect composer json when its oid is the collected one', function (): void {
+test('handle does not add collect composer json when its oid is the collected one', function (): void {
     $runId = RunId::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
@@ -69,30 +66,24 @@ test('handle does not dispatch collect composer json when its oid is the collect
         'oid' => $repository->composer_json_oid,
     ]);
 
-    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
-    $this->app->instance(Dispatcher::class, $busFake);
-
-    $collectChangedComposerJsons = new CollectChangedComposerJsons($runId);
+    [$collectChangedComposerJsons, $batchFake] = new CollectChangedComposerJsons($runId)->withFakeBatch();
     $this->app->call([$collectChangedComposerJsons, 'handle']);
 
-    expect($busFake->dispatched(CollectComposerJson::class))
+    expect($batchFake->added)
         ->toBeEmpty();
 });
 
-test('handle does not dispatch collect composer json for a repository without one', function (): void {
+test('handle does not add collect composer json for a repository without one', function (): void {
     $runId = RunId::generate();
     Repository::factory()->create([
         'run_id' => $runId,
         'composer_json_oid' => null,
     ]);
 
-    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
-    $this->app->instance(Dispatcher::class, $busFake);
-
-    $collectChangedComposerJsons = new CollectChangedComposerJsons($runId);
+    [$collectChangedComposerJsons, $batchFake] = new CollectChangedComposerJsons($runId)->withFakeBatch();
     $this->app->call([$collectChangedComposerJsons, 'handle']);
 
-    expect($busFake->dispatched(CollectComposerJson::class))
+    expect($batchFake->added)
         ->toBeEmpty();
 });
 
@@ -102,12 +93,9 @@ test('handle ignores repositories of another run', function (): void {
         'composer_json_oid' => fake()->sha1(),
     ]);
 
-    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
-    $this->app->instance(Dispatcher::class, $busFake);
-
-    $collectChangedComposerJsons = new CollectChangedComposerJsons(RunId::generate());
+    [$collectChangedComposerJsons, $batchFake] = new CollectChangedComposerJsons(RunId::generate())->withFakeBatch();
     $this->app->call([$collectChangedComposerJsons, 'handle']);
 
-    expect($busFake->dispatched(CollectComposerJson::class))
+    expect($batchFake->added)
         ->toBeEmpty();
 });

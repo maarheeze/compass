@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Collector\Client\Jobs;
 
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Log\Context\Repository as Context;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Maarheeze\Compass\Collector\Client\ClientIncompatible;
 use Maarheeze\Compass\Collector\Client\ClientKey;
@@ -21,6 +23,8 @@ use Throwable;
 
 class InspectSite implements ShouldQueue
 {
+    use Batchable;
+    use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
 

@@ -4,16 +4,22 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Collector\GitHub\Jobs;
 
+use Illuminate\Bus\Batch;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\GitHub\GitHubQueryFailed;
 use Maarheeze\Compass\Collector\GitHub\RepositoriesQuery;
 use Maarheeze\Compass\Collector\GitHub\RepositorySynchronizer;
 use Maarheeze\Compass\Collector\RunId;
+use Webmozart\Assert\Assert;
 
 class CollectRepositories implements ShouldQueue
 {
+    use Batchable;
+    use InteractsWithQueue;
     use Queueable;
 
     public function __construct(
@@ -45,5 +51,12 @@ class CollectRepositories implements ShouldQueue
         $repositorySynchronizer->markUncollectedMissing($this->runId);
 
         $collectorLogger->info('Repositories collection ended');
+
+        Assert::isInstanceOf($this->batch(), Batch::class)
+            ->add([
+                new CollectIssuesAndPullRequests($this->runId),
+                new CollectChangedComposerJsons($this->runId),
+                new CollectChangedComposerLocks($this->runId),
+            ]);
     }
 }

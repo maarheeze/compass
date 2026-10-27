@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Client\Factory as HttpFactory;
+use Maarheeze\Compass\Collector\GitHub\Jobs\CollectChangedComposerJsons;
+use Maarheeze\Compass\Collector\GitHub\Jobs\CollectChangedComposerLocks;
+use Maarheeze\Compass\Collector\GitHub\Jobs\CollectIssuesAndPullRequests;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectRepositories;
 use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
 use Maarheeze\Compass\Collector\RunId;
@@ -42,7 +45,7 @@ test('handle stores the repositories of the page', function (): void {
         ]),
     ]);
 
-    $collectRepositories = new CollectRepositories($runId);
+    [$collectRepositories] = new CollectRepositories($runId)->withFakeBatch();
     $this->app->call([$collectRepositories, 'handle']);
 
     $this->assertDatabaseHas(Repository::class, [
@@ -69,9 +72,37 @@ test('handle marks the repositories of another run missing on the last page', fu
         ]),
     ]);
 
-    $collectRepositories = new CollectRepositories(RunId::generate());
+    [$collectRepositories] = new CollectRepositories(RunId::generate())->withFakeBatch();
     $this->app->call([$collectRepositories, 'handle']);
 
     expect($repository->refresh()->missing_at)
         ->toBeInstanceOf(CarbonImmutable::class);
+});
+
+test('handle adds the collection of the issues, pull requests and composer files to its batch', function (): void {
+    $this->app->make(HttpFactory::class)->fake([
+        '*' => HttpFactory::response([
+            'data' => [
+                'organization' => [
+                    'repositories' => [
+                        'pageInfo' => [
+                            'hasNextPage' => false,
+                            'endCursor' => null,
+                        ],
+                        'nodes' => [],
+                    ],
+                ],
+            ],
+        ]),
+    ]);
+
+    [$collectRepositories, $batchFake] = new CollectRepositories(RunId::generate())->withFakeBatch();
+    $this->app->call([$collectRepositories, 'handle']);
+
+    expect(array_map(get_class(...), $batchFake->added))
+        ->toBe([
+            CollectIssuesAndPullRequests::class,
+            CollectChangedComposerJsons::class,
+            CollectChangedComposerLocks::class,
+        ]);
 });

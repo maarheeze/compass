@@ -2,16 +2,13 @@
 
 declare(strict_types=1);
 
-use Illuminate\Contracts\Bus\Dispatcher;
-use Illuminate\Contracts\Bus\QueueingDispatcher;
-use Illuminate\Support\Testing\Fakes\BusFake;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectChangedComposerLocks;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectComposerLock;
 use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\ComposerLock;
 use Maarheeze\Compass\Models\Repository;
 
-test('handle dispatches collect composer lock when its oid differs from the collected one', function (): void {
+test('handle adds collect composer lock when its oid differs from the collected one', function (): void {
     $runId = RunId::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
@@ -22,21 +19,21 @@ test('handle dispatches collect composer lock when its oid differs from the coll
         'oid' => fake()->unique()->sha1(),
     ]);
 
-    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
-    $this->app->instance(Dispatcher::class, $busFake);
-
-    $collectChangedComposerLocks = new CollectChangedComposerLocks($runId);
+    [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks($runId)->withFakeBatch();
     $this->app->call([$collectChangedComposerLocks, 'handle']);
 
-    $busFake->assertDispatched(
-        CollectComposerLock::class,
-        static function (CollectComposerLock $collectComposerLock) use ($repository): bool {
-            return $collectComposerLock->repository->is($repository);
+    $addedRepositoryIds = array_map(
+        static function (CollectComposerLock $collectComposerLock): int {
+            return $collectComposerLock->repository->id;
         },
+        $batchFake->added,
     );
+
+    expect($addedRepositoryIds)
+        ->toBe([$repository->id]);
 });
 
-test('handle dispatches collect composer lock when the composer lock is gone', function (): void {
+test('handle adds collect composer lock when the composer lock is gone', function (): void {
     $runId = RunId::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
@@ -44,21 +41,21 @@ test('handle dispatches collect composer lock when the composer lock is gone', f
     ]);
     ComposerLock::factory()->create(['repository_id' => $repository->id]);
 
-    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
-    $this->app->instance(Dispatcher::class, $busFake);
-
-    $collectChangedComposerLocks = new CollectChangedComposerLocks($runId);
+    [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks($runId)->withFakeBatch();
     $this->app->call([$collectChangedComposerLocks, 'handle']);
 
-    $busFake->assertDispatched(
-        CollectComposerLock::class,
-        static function (CollectComposerLock $collectComposerLock) use ($repository): bool {
-            return $collectComposerLock->repository->is($repository);
+    $addedRepositoryIds = array_map(
+        static function (CollectComposerLock $collectComposerLock): int {
+            return $collectComposerLock->repository->id;
         },
+        $batchFake->added,
     );
+
+    expect($addedRepositoryIds)
+        ->toBe([$repository->id]);
 });
 
-test('handle does not dispatch collect composer lock when its oid is the collected one', function (): void {
+test('handle does not add collect composer lock when its oid is the collected one', function (): void {
     $runId = RunId::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
@@ -69,30 +66,24 @@ test('handle does not dispatch collect composer lock when its oid is the collect
         'oid' => $repository->composer_lock_oid,
     ]);
 
-    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
-    $this->app->instance(Dispatcher::class, $busFake);
-
-    $collectChangedComposerLocks = new CollectChangedComposerLocks($runId);
+    [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks($runId)->withFakeBatch();
     $this->app->call([$collectChangedComposerLocks, 'handle']);
 
-    expect($busFake->dispatched(CollectComposerLock::class))
+    expect($batchFake->added)
         ->toBeEmpty();
 });
 
-test('handle does not dispatch collect composer lock for a repository without one', function (): void {
+test('handle does not add collect composer lock for a repository without one', function (): void {
     $runId = RunId::generate();
     Repository::factory()->create([
         'run_id' => $runId,
         'composer_lock_oid' => null,
     ]);
 
-    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
-    $this->app->instance(Dispatcher::class, $busFake);
-
-    $collectChangedComposerLocks = new CollectChangedComposerLocks($runId);
+    [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks($runId)->withFakeBatch();
     $this->app->call([$collectChangedComposerLocks, 'handle']);
 
-    expect($busFake->dispatched(CollectComposerLock::class))
+    expect($batchFake->added)
         ->toBeEmpty();
 });
 
@@ -102,12 +93,9 @@ test('handle ignores repositories of another run', function (): void {
         'composer_lock_oid' => fake()->sha1(),
     ]);
 
-    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
-    $this->app->instance(Dispatcher::class, $busFake);
-
-    $collectChangedComposerLocks = new CollectChangedComposerLocks(RunId::generate());
+    [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks(RunId::generate())->withFakeBatch();
     $this->app->call([$collectChangedComposerLocks, 'handle']);
 
-    expect($busFake->dispatched(CollectComposerLock::class))
+    expect($batchFake->added)
         ->toBeEmpty();
 });

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Collector\GitHub\Jobs;
 
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Log\Context\Repository as Context;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use JsonException;
 use Maarheeze\Compass\Collector\CollectorLogger;
@@ -19,6 +21,8 @@ use Throwable;
 
 class CollectComposerJson implements ShouldQueue
 {
+    use Batchable;
+    use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
 
