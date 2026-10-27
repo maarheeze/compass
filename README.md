@@ -53,7 +53,7 @@ COMPASS_LOG_CHANNEL=
 
 ## Usage
 
-The collector runs on the Laravel scheduler and queue, so both need to run. Each sync is a job batch, so the host needs the `job_batches` table (part of the default Laravel skeleton, or created with `php artisan make:queue-batches-table`):
+The collector runs on the Laravel scheduler and queue, so both need to run. Each sync and endpoint check is a job batch, so the host needs the `job_batches` table (part of the default Laravel skeleton, or created with `php artisan make:queue-batches-table`):
 
 ```bash
 * * * * * cd /path-to-app && php artisan schedule:run >> /dev/null 2>&1
