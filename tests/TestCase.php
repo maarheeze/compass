@@ -9,6 +9,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Laravel\Socialite\SocialiteServiceProvider;
+use Livewire\LivewireServiceProvider;
 use Maarheeze\Compass\CompassServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
@@ -57,6 +58,7 @@ abstract class TestCase extends Orchestra
     protected function getPackageProviders($app): array
     {
         return [
+            LivewireServiceProvider::class,
             CompassServiceProvider::class,
             SocialiteServiceProvider::class,
         ];

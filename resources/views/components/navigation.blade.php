@@ -4,18 +4,7 @@
             <a href="{{ $dashboardUrl }}" class="text-base font-semibold text-foreground"><x-compass::application-name /></a>
 
             <div class="flex items-center gap-2">
-                @if ($lastCollectedAt !== null)
-                    <span class="text-xs text-foreground-muted">
-                        <x-compass::time :time="$lastCollectedAt" />
-                    </span>
-                @endif
-
-                <form method="POST" action="{{ $syncUrl }}">
-                    @csrf
-                    <x-compass::button title="{{ __('compass::navigation.sync') }}" aria-label="{{ __('compass::navigation.sync') }}">
-                        <x-compass::icons.sync class="text-foreground-muted" />
-                    </x-compass::button>
-                </form>
+                <livewire:compass::sync-button />
 
                 <details x-data class="relative ml-2" @click.outside="$el.removeAttribute('open')">
                     <summary class="flex cursor-pointer list-none items-center">

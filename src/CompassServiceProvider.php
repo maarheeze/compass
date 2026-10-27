@@ -7,7 +7,10 @@ namespace Maarheeze\Compass;
 use Carbon\FactoryImmutable;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Livewire\LivewireManager;
 use Maarheeze\Compass\Collector\CollectorLogger;
+use Maarheeze\Compass\Console\SyncCommand;
+use Maarheeze\Compass\Http\Middleware\Authenticate;
 use Maarheeze\Compass\Providers\AlertProvider;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 use Maarheeze\Compass\Providers\ClientProvider;
@@ -26,6 +29,7 @@ class CompassServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../config/compass.php', 'compass');
 
         $this->app->bindIf(ClockInterface::class, FactoryImmutable::class);
+        $this->commands([SyncCommand::class]);
 
         $this->app
             ->when(CollectorLogger::class)
@@ -40,7 +44,7 @@ class CompassServiceProvider extends ServiceProvider
         $this->app->register(SiteEndpointProvider::class);
     }
 
-    public function boot(): void
+    public function boot(LivewireManager $livewire): void
     {
         $this->loadTranslationsFrom(sprintf('%s/../lang', __DIR__), 'compass');
         $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
@@ -49,6 +53,9 @@ class CompassServiceProvider extends ServiceProvider
 
         Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components', 'compass');
         Blade::componentNamespace('Maarheeze\\Compass\\View\\Components', 'compass');
+
+        $livewire->addNamespace('compass', classNamespace: 'Maarheeze\\Compass\\Livewire');
+        $livewire->addPersistentMiddleware([Authenticate::class]);
 
         $this->publishes([
             __DIR__ . '/../config/compass.php' => config_path('compass.php'),

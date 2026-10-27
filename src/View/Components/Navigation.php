@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\View\Components;
 
-use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
@@ -12,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\View\Component;
 use Maarheeze\Compass\Authentication\AuthenticatedUser;
 use Maarheeze\Compass\Collections\NavigationTabCollection;
-use Maarheeze\Compass\Collector\LastCollection;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\View\NavigationTab;
@@ -20,23 +18,18 @@ use Maarheeze\Compass\View\NavigationTab;
 class Navigation extends Component
 {
     public readonly string $dashboardUrl;
-    public readonly ?CarbonImmutable $lastCollectedAt;
     public readonly string $logoutUrl;
-    public readonly string $syncUrl;
     public readonly NavigationTabCollection $tabs;
     public readonly User $user;
 
     public function __construct(
         AuthenticatedUser $authenticatedUser,
-        LastCollection $lastCollection,
         Request $request,
         UrlGenerator $url,
         private readonly ViewFactory $view,
     ) {
         $this->dashboardUrl = $url->route(RouteName::DASHBOARD->value);
-        $this->lastCollectedAt = $lastCollection->collectedAt();
         $this->logoutUrl = $url->route(RouteName::LOGOUT->value);
-        $this->syncUrl = $url->route(RouteName::SYNC->value);
         $this->tabs = $this->navigationTabs($request, $url);
         $this->user = $authenticatedUser->user();
     }
@@ -92,15 +85,6 @@ class Navigation extends Component
                     RouteName::FORGE_SITE->value,
                     RouteName::FORGE_SITE_ENDPOINT_CHECKS->value,
                     RouteName::FORGE_SITE_CLIENT_EDIT->value,
-                ),
-            ),
-            new NavigationTab(
-                $url->route(RouteName::RUNS->value),
-                'compass::navigation.runs',
-                'compass::icons.sync',
-                $request->routeIs(
-                    RouteName::RUNS->value,
-                    RouteName::RUNS_OF_TYPE->value,
                 ),
             ),
         ]);

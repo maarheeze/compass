@@ -10,4 +10,5 @@ return [
     'runs' => 'Runs',
     'sites' => 'Sites',
     'sync' => 'Sync',
+    'syncing' => 'Syncing now…',
 ];

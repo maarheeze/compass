@@ -13,7 +13,6 @@ use Maarheeze\Compass\Http\Controllers\RunController;
 use Maarheeze\Compass\Http\Controllers\SiteClientController;
 use Maarheeze\Compass\Http\Controllers\SiteController;
 use Maarheeze\Compass\Http\Controllers\SiteEndpointCheckController;
-use Maarheeze\Compass\Http\Controllers\SyncController;
 use Maarheeze\Compass\Http\Middleware\Authenticate;
 use Maarheeze\Compass\Http\Middleware\RedirectIfAuthenticated;
 use Maarheeze\Compass\Http\RouteName;
@@ -65,7 +64,5 @@ Route::middleware('web')
             Route::get('/runs/{runType}', [RunController::class, 'type'])->name(RouteName::RUNS_OF_TYPE);
 
             Route::post('/logout', [GitHubController::class, 'logout'])->name(RouteName::LOGOUT);
-
-            Route::post('/sync', SyncController::class)->name(RouteName::SYNC);
         });
     });

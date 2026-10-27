@@ -1,2 +1,3 @@
 providers:
+  - Livewire\LivewireServiceProvider
   - Maarheeze\Compass\CompassServiceProvider
