@@ -1,4 +1,7 @@
-<x-compass::alerts.row :url="route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE, $alert->site)" :name="$alert->site->name">
+<x-compass::alerts.row>
+    <x-slot:link>
+        <x-compass::site-link :site="$alert->site" class="font-medium" />
+    </x-slot:link>
     <x-slot:icon>
         <x-compass::icons.server />
     </x-slot:icon>

@@ -4,7 +4,7 @@
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
         <div class="space-y-1">
             <h1 class="text-lg font-semibold text-foreground">
-                <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE, $site) }}" class="text-accent hover:underline">{{ $site->name }}</a>
+                <x-compass::site-link :site="$site" />
                 <span class="font-mono">{{ $endpointPath->path }}</span>
             </h1>
         </div>

@@ -18,7 +18,7 @@
                     @forelse ($sites as $site)
                         <tr>
                             <td class="px-4 py-2 font-medium text-foreground">
-                                <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE, $site) }}" class="text-accent hover:underline">{{ $site->name }}</a>
+                                <x-compass::site-link :site="$site" />
                             </td>
                             <td class="px-4 py-2 text-foreground-muted">{{ $site->server_name }}</td>
                             <td class="px-4 py-2">

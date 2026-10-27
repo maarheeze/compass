@@ -71,7 +71,7 @@
                         @forelse ($repository->sites as $site)
                             <tr>
                                 <td class="truncate px-4 py-2 text-foreground">
-                                    <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE, $site) }}" class="text-accent hover:underline">{{ $site->name }}</a>
+                                    <x-compass::site-link :site="$site" />
                                 </td>
                                 <td class="truncate px-4 py-2 text-foreground-muted">{{ $site->repository_branch }}</td>
                                 <td class="px-4 py-2 text-foreground-muted">{{ $site->deployment_status?->value }}</td>

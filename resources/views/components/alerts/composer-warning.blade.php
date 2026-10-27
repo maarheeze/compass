@@ -1,4 +1,7 @@
-<x-compass::alerts.row :url="route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORY, $alert->repository)" :name="$alert->repository->name">
+<x-compass::alerts.row>
+    <x-slot:link>
+        <x-compass::repository-link :repository="$alert->repository" class="font-medium" />
+    </x-slot:link>
     <x-slot:icon>
         <x-compass::icons.alert />
     </x-slot:icon>
