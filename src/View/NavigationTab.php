@@ -9,7 +9,7 @@ readonly class NavigationTab
     public function __construct(
         public string $url,
         public string $labelKey,
-        public string $icon,
+        public ?string $icon,
         public bool $isActive,
     ) {
     }

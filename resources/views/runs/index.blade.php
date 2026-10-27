@@ -3,24 +3,7 @@
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
         <nav class="flex items-center gap-6 border-b border-border text-sm font-medium">
-            <x-compass::tab :url="route(\Maarheeze\Compass\Http\RouteName::RUNS)" :is-active="$activeRunType === null">
-                {{ __('compass::run.all_runs') }}
-            </x-compass::tab>
-            <x-compass::tab
-                :url="route(\Maarheeze\Compass\Http\RouteName::RUNS_OF_TYPE, \Maarheeze\Compass\Collector\RunType::GITHUB_SYNC)"
-                :is-active="$activeRunType === \Maarheeze\Compass\Collector\RunType::GITHUB_SYNC">
-                <x-compass::run.type-name :type="\Maarheeze\Compass\Collector\RunType::GITHUB_SYNC" />
-            </x-compass::tab>
-            <x-compass::tab
-                :url="route(\Maarheeze\Compass\Http\RouteName::RUNS_OF_TYPE, \Maarheeze\Compass\Collector\RunType::FORGE_SYNC)"
-                :is-active="$activeRunType === \Maarheeze\Compass\Collector\RunType::FORGE_SYNC">
-                <x-compass::run.type-name :type="\Maarheeze\Compass\Collector\RunType::FORGE_SYNC" />
-            </x-compass::tab>
-            <x-compass::tab
-                :url="route(\Maarheeze\Compass\Http\RouteName::RUNS_OF_TYPE, \Maarheeze\Compass\Collector\RunType::ENDPOINT_CHECK)"
-                :is-active="$activeRunType === \Maarheeze\Compass\Collector\RunType::ENDPOINT_CHECK">
-                <x-compass::run.type-name :type="\Maarheeze\Compass\Collector\RunType::ENDPOINT_CHECK" />
-            </x-compass::tab>
+            <x-compass::run-tabs />
         </nav>
 
         <div class="overflow-hidden rounded-md border border-border bg-canvas">
