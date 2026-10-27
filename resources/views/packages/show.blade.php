@@ -31,7 +31,9 @@
                                         <x-compass::repository-link :repository="$lockedPackage->composerLock->repository" />
                                     </td>
                                     <td class="px-4 py-2 text-foreground-muted">{{ $lockedPackage->version }}</td>
-                                    <td class="px-4 py-2 text-foreground-muted lowercase">{{ $lockedPackage->section->value }}</td>
+                                    <td class="px-4 py-2 text-foreground-muted lowercase">
+                                        <x-compass::enum-label :value="$lockedPackage->section" />
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -67,7 +69,9 @@
                                         <x-compass::repository-link :repository="$requiredPackage->composerJson->repository" />
                                     </td>
                                     <td class="px-4 py-2 text-foreground-muted">{{ $requiredPackage->constraint }}</td>
-                                    <td class="px-4 py-2 text-foreground-muted lowercase">{{ $requiredPackage->section->value }}</td>
+                                    <td class="px-4 py-2 text-foreground-muted lowercase">
+                                        <x-compass::enum-label :value="$requiredPackage->section" />
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>

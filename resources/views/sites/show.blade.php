@@ -8,7 +8,7 @@
             <div class="flex items-center gap-3">
                 <h1 class="text-lg font-semibold text-foreground">{{ $site->name }}</h1>
                 <x-compass::missing-label :missing-at="$site->missing_at" :missing-ignored-at="$site->missing_ignored_at" />
-                <x-compass::forge.deployment-state-label :site="$site" />
+                <x-compass::forge.deployment-state-badge :site="$site" />
                 <x-compass::forge.link :site="$site" class="ml-auto" />
             </div>
             <p class="flex flex-wrap items-center gap-x-2 text-sm text-foreground-muted">
@@ -41,7 +41,9 @@
                     </span>
                 @endif
                 <span>&middot;</span>
-                <span>{{ $site->status->value }}</span>
+                <span>
+                    <x-compass::enum-label :value="$site->status" />
+                </span>
                 @if ($site->php_version)
                     <span>&middot;</span>
                     <span>{{ $site->php_version }}</span>
@@ -70,7 +72,9 @@
                     <p class="mt-1 flex flex-wrap items-center gap-x-2 text-foreground-muted">
                         <x-compass::commit-hash :repository="$site->repository" :commit-hash="$site->deployed_commit_hash" />
                         <span>&middot;</span>
-                        <span>{{ $site->deployment_status->value }}</span>
+                        <span>
+                            <x-compass::enum-label :value="$site->deployment_status" />
+                        </span>
                         @if ($site->deployment_ended_at)
                             <span>&middot;</span>
                             <span>
@@ -104,7 +108,7 @@
                     <dl class="grid flex-1 grid-cols-[max-content_1fr] gap-x-6 gap-y-2">
                         <dt class="text-foreground-muted">{{ __('compass::client.status') }}</dt>
                         <dd class="flex items-center gap-2 text-foreground">
-                            <x-compass::client.status-label :status="$site->client_status" />
+                            <x-compass::client-status-badge :status="$site->client_status" />
                             @if ($site->client_collected_at)
                                 <span class="text-foreground-muted">
                                     {{ __('compass::client.checked') }}

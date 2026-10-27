@@ -19,7 +19,9 @@
                     <td class="truncate px-4 py-2 font-medium text-foreground">
                         <x-compass::repository-link :repository="$repository" />
                     </td>
-                    <td class="px-4 py-2 text-foreground-muted lowercase">{{ $repository->visibility->value }}</td>
+                    <td class="px-4 py-2 text-foreground-muted lowercase">
+                        <x-compass::enum-label :value="$repository->visibility" />
+                    </td>
                     <td class="truncate px-4 py-2 text-foreground-muted">{{ $repository->default_branch }}</td>
                     <td class="px-4 py-2 text-foreground-muted">
                         <x-compass::commit-hash :repository="$repository" :commit-hash="$repository->last_commit_sha" />

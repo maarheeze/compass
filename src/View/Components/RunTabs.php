@@ -12,15 +12,15 @@ use Illuminate\View\Component;
 use Maarheeze\Compass\Collections\NavigationTabCollection;
 use Maarheeze\Compass\Collector\RunType;
 use Maarheeze\Compass\Http\RouteName;
+use Maarheeze\Compass\View\EnumLabels;
 use Maarheeze\Compass\View\NavigationTab;
-
-use function sprintf;
 
 class RunTabs extends Component
 {
     public readonly NavigationTabCollection $tabs;
 
     public function __construct(
+        EnumLabels $enumLabels,
         Request $request,
         UrlGenerator $url,
         private readonly ViewFactory $view,
@@ -29,9 +29,9 @@ class RunTabs extends Component
 
         $this->tabs = new NavigationTabCollection([
             new NavigationTab($allRunsUrl, 'compass::run.all_runs', null, $request->url() === $allRunsUrl),
-            $this->runTypeTab($request, $url, RunType::GITHUB_SYNC),
-            $this->runTypeTab($request, $url, RunType::FORGE_SYNC),
-            $this->runTypeTab($request, $url, RunType::ENDPOINT_CHECK),
+            $this->runTypeTab($enumLabels, $request, $url, RunType::GITHUB_SYNC),
+            $this->runTypeTab($enumLabels, $request, $url, RunType::FORGE_SYNC),
+            $this->runTypeTab($enumLabels, $request, $url, RunType::ENDPOINT_CHECK),
         ]);
     }
 
@@ -40,13 +40,17 @@ class RunTabs extends Component
         return $this->view->make('compass::components.run-tabs');
     }
 
-    private function runTypeTab(Request $request, UrlGenerator $url, RunType $runType): NavigationTab
-    {
+    private function runTypeTab(
+        EnumLabels $enumLabels,
+        Request $request,
+        UrlGenerator $url,
+        RunType $runType,
+    ): NavigationTab {
         $runTypeUrl = $url->route(RouteName::RUNS_OF_TYPE->value, $runType);
 
         return new NavigationTab(
             $runTypeUrl,
-            sprintf('compass::run-type.%s', $runType->name),
+            $enumLabels->labelKey($runType),
             null,
             $request->url() === $runTypeUrl,
         );

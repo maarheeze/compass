@@ -24,11 +24,11 @@
                             <td class="px-4 py-2">
                                 <div class="flex items-center gap-2">
                                     <x-compass::missing-label :missing-at="$site->missing_at" :missing-ignored-at="$site->missing_ignored_at" />
-                                    <x-compass::forge.deployment-state-label :site="$site" />
+                                    <x-compass::forge.deployment-state-badge :site="$site" />
                                 </div>
                             </td>
                             <td class="px-4 py-2">
-                                <x-compass::client.status-label :status="$site->client_status" />
+                                <x-compass::client-status-badge :status="$site->client_status" />
                             </td>
                             <td class="px-4 py-2 text-foreground-muted">
                                 <x-compass::commit-hash :repository="$site->repository" :commit-hash="$site->deployed_commit_hash" />

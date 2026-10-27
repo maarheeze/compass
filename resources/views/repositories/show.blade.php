@@ -13,20 +13,10 @@
             </div>
             <p class="flex flex-wrap items-center gap-x-2 text-sm text-foreground-muted">
                 <span>
-                    @switch ($kind)
-                        @case (\Maarheeze\Compass\Analyzer\Composer\RepositoryKind::LIBRARY)
-                            {{ __('compass::repository-kind.LIBRARY') }}
-                            @break
-                        @case (\Maarheeze\Compass\Analyzer\Composer\RepositoryKind::OTHER)
-                            {{ __('compass::repository-kind.OTHER') }}
-                            @break
-                        @case (\Maarheeze\Compass\Analyzer\Composer\RepositoryKind::PROJECT)
-                            {{ __('compass::repository-kind.PROJECT') }}
-                            @break
-                    @endswitch
+                    <x-compass::enum-label :value="$kind" />
                 </span>
                 <span>&middot;</span>
-                <span class="lowercase">{{ $repository->visibility->value }}</span>
+                <span class="lowercase"><x-compass::enum-label :value="$repository->visibility" /></span>
                 <span>&middot;</span>
                 <span>{{ $repository->default_branch }}</span>
                 @if ($repository->composerJson?->php_constraint)
@@ -68,14 +58,18 @@
                                     <x-compass::site-link :site="$site" />
                                 </td>
                                 <td class="truncate px-4 py-2 text-foreground-muted">{{ $site->repository_branch }}</td>
-                                <td class="px-4 py-2 text-foreground-muted">{{ $site->deployment_status?->value }}</td>
+                                <td class="px-4 py-2 text-foreground-muted">
+                                    @if ($site->deployment_status !== null)
+                                        <x-compass::enum-label :value="$site->deployment_status" />
+                                    @endif
+                                </td>
                                 <td class="px-4 py-2 text-foreground-muted">
                                     <x-compass::commit-hash :repository="$site->repository" :commit-hash="$site->deployed_commit_hash" />
                                 </td>
                                 <td class="px-4 py-2">
                                     <div class="flex items-center gap-2">
                                         <x-compass::missing-label :missing-at="$site->missing_at" :missing-ignored-at="$site->missing_ignored_at" />
-                                        <x-compass::forge.deployment-state-label :site="$site" />
+                                        <x-compass::forge.deployment-state-badge :site="$site" />
                                     </div>
                                 </td>
                             </tr>
@@ -245,7 +239,9 @@
                                     <x-compass::composer.package-link :package-name="$package->name" />
                                 </td>
                                 <td class="px-4 py-2 text-foreground-muted">{{ $package->version }}</td>
-                                <td class="px-4 py-2 text-foreground-muted lowercase">{{ $package->section->value }}</td>
+                                <td class="px-4 py-2 text-foreground-muted lowercase">
+                                    <x-compass::enum-label :value="$package->section" />
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>

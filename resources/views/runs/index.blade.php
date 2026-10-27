@@ -21,11 +21,11 @@
                     @forelse ($runs as $run)
                         <tr>
                             <td class="px-4 py-2 text-foreground">
-                                <x-compass::run.type-name :type="$run->type" />
+                                <x-compass::enum-label :value="$run->type" />
                                 <span class="block font-mono text-xs text-foreground-muted">{{ $run->id }}</span>
                             </td>
                             <td class="px-4 py-2">
-                                <x-compass::run.status-label :status="$run->status" />
+                                <x-compass::run-status-badge :status="$run->status" />
                             </td>
                             <td class="px-4 py-2 text-foreground-muted">
                                 <x-compass::date-time :time="$run->created_at" />
