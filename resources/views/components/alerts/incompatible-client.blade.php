@@ -6,7 +6,7 @@
         <x-compass::icons.alert />
     </x-slot:icon>
     <x-slot:text>
-        Client outdated
+        {{ __('compass::alert.incompatible_client') }}
     </x-slot:text>
 
     <x-compass::forge.link :site="$alert->site" />

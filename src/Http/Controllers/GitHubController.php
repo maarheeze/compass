@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Http\Controllers;
 
 use Illuminate\Contracts\Auth\Factory as AuthenticationFactory;
 use Illuminate\Contracts\Routing\UrlGenerator;
+use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
@@ -14,6 +15,7 @@ use Maarheeze\Compass\Authentication\GitHubAuthentication;
 use Maarheeze\Compass\Authentication\NotAnOrganizationMember;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
+use Webmozart\Assert\Assert;
 
 readonly class GitHubController
 {
@@ -21,6 +23,7 @@ readonly class GitHubController
         private AuthenticationFactory $authentication,
         private GitHubAuthentication $githubAuthentication,
         private Redirector $redirector,
+        private Translator $translator,
         private UrlGenerator $url,
     ) {
     }
@@ -30,13 +33,17 @@ readonly class GitHubController
         try {
             $this->githubAuthentication->callback();
         } catch (AuthenticationExpired) {
+            $message = Assert::string($this->translator->get('compass::authentication.expired'));
+
             return $this->redirector
                 ->route(RouteName::LOGIN)
-                ->withErrors(['github' => 'Sign-in expired. Please try again.']);
+                ->withErrors(['github' => $message]);
         } catch (NotAnOrganizationMember) {
+            $message = Assert::string($this->translator->get('compass::authentication.not_an_organization_member'));
+
             return $this->redirector
                 ->route(RouteName::LOGIN)
-                ->withErrors(['github' => 'You are not a member of the organization.']);
+                ->withErrors(['github' => $message]);
         }
 
         return $this->redirector->intended($this->url->route(RouteName::DASHBOARD->value));

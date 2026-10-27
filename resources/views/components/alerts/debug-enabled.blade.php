@@ -6,7 +6,7 @@
         <x-compass::icons.alert />
     </x-slot:icon>
     <x-slot:text>
-        Debug mode on
+        {{ __('compass::alert.debug_enabled') }}
     </x-slot:text>
 
     <x-compass::forge.link :site="$alert->site" />

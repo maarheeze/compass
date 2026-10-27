@@ -25,13 +25,13 @@ class IssueTabs extends Component
         $this->tabs = new NavigationTabCollection([
             new NavigationTab(
                 $url->route(RouteName::GITHUB_ISSUES->value),
-                'All open',
+                'compass::filter.all_open',
                 'compass::icons.issue-opened',
                 $request->routeIs(RouteName::GITHUB_ISSUES->value),
             ),
             new NavigationTab(
                 $url->route(RouteName::GITHUB_ISSUES_ASSIGNED->value),
-                'Assigned to me',
+                'compass::filter.assigned_to_me',
                 'compass::icons.person',
                 $request->routeIs(RouteName::GITHUB_ISSUES_ASSIGNED->value),
             ),

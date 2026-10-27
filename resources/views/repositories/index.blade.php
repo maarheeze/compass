@@ -1,4 +1,4 @@
-<x-compass::layouts.app :title="__('Repositories')">
+<x-compass::layouts.app :title="__('compass::navigation.repositories')">
     <x-compass::navigation />
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
@@ -7,7 +7,7 @@
                 <x-slot:icon>
                     <x-compass::icons.repo />
                 </x-slot:icon>
-                Projects
+                {{ __('compass::repository.projects') }}
             </x-compass::section-heading>
             <x-compass::repository-table :repositories="$projects" />
         </section>
@@ -17,7 +17,7 @@
                 <x-slot:icon>
                     <x-compass::icons.package />
                 </x-slot:icon>
-                Libraries
+                {{ __('compass::repository.libraries') }}
             </x-compass::section-heading>
             <x-compass::repository-table :repositories="$libraries" />
         </section>
@@ -27,7 +27,7 @@
                 <x-slot:icon>
                     <x-compass::icons.file-directory />
                 </x-slot:icon>
-                Other
+                {{ __('compass::repository.other') }}
             </x-compass::section-heading>
             <x-compass::repository-table :repositories="$otherRepositories" />
         </section>

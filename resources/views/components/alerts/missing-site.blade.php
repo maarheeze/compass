@@ -6,7 +6,7 @@
         <x-compass::icons.server />
     </x-slot:icon>
     <x-slot:text>
-        missing since
+        {{ __('compass::alert.missing_since') }}
         <x-compass::time :time="$alert->site->missing_at" />
     </x-slot:text>
 </x-compass::alerts.row>

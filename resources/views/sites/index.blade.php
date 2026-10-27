@@ -1,4 +1,4 @@
-<x-compass::layouts.app :title="__('Sites')">
+<x-compass::layouts.app :title="__('compass::navigation.sites')">
     <x-compass::navigation />
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
@@ -6,12 +6,12 @@
             <table class="w-full text-left text-sm">
                 <thead class="bg-canvas-subtle text-xs text-foreground-muted">
                     <tr>
-                        <th class="px-4 py-2 font-medium">Site</th>
-                        <th class="px-4 py-2 font-medium">Server</th>
-                        <th class="px-4 py-2 font-medium">Status</th>
-                        <th class="px-4 py-2 font-medium">Client</th>
-                        <th class="px-4 py-2 font-medium">Deployed commit</th>
-                        <th class="px-4 py-2 font-medium">Collected at</th>
+                        <th class="px-4 py-2 font-medium">{{ __('compass::site.site') }}</th>
+                        <th class="px-4 py-2 font-medium">{{ __('compass::site.server') }}</th>
+                        <th class="px-4 py-2 font-medium">{{ __('compass::site.status') }}</th>
+                        <th class="px-4 py-2 font-medium">{{ __('compass::site.client') }}</th>
+                        <th class="px-4 py-2 font-medium">{{ __('compass::site.deployed_commit') }}</th>
+                        <th class="px-4 py-2 font-medium">{{ __('compass::site.collected_at') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border">
@@ -39,7 +39,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-4 py-6 text-center text-foreground-muted">No sites collected yet.</td>
+                            <td colspan="6" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::site.no_sites') }}</td>
                         </tr>
                     @endforelse
                 </tbody>

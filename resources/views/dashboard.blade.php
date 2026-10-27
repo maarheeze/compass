@@ -1,10 +1,10 @@
-<x-compass::layouts.app :title="__('Dashboard')">
+<x-compass::layouts.app :title="__('compass::navigation.dashboard')">
     <x-compass::navigation />
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
         <div class="grid gap-4 sm:grid-cols-2">
             <x-compass::assigned-and-open-counts
-                :title="__('Issues')"
+                :title="__('compass::navigation.issues')"
                 :assigned-route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES_ASSIGNED"
                 :assigned-count="$issueCounts->assignedIssueCount"
                 :open-route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES"
@@ -14,7 +14,7 @@
                 </x-slot:icon>
             </x-compass::assigned-and-open-counts>
             <x-compass::assigned-and-open-counts
-                :title="__('Pull requests')"
+                :title="__('compass::navigation.pull_requests')"
                 :assigned-route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_PULL_REQUESTS_ASSIGNED"
                 :assigned-count="$pullRequestCounts->assignedPullRequestCount"
                 :open-route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_PULL_REQUESTS"
@@ -31,14 +31,14 @@
                     <x-slot:icon>
                         <x-compass::icons.alert />
                     </x-slot:icon>
-                    Alerts
+                    {{ __('compass::dashboard.alerts') }}
                 </x-compass::section-heading>
             </div>
 
             @if ($alerts->isEmpty())
                 <p class="flex items-center gap-2 border-t border-border px-4 py-3 text-sm text-emerald-700 dark:text-emerald-400">
                     <x-compass::icons.check-circle />
-                    No alerts
+                    {{ __('compass::dashboard.no_alerts') }}
                 </p>
             @else
                 <ul class="divide-y divide-border border-t border-border">

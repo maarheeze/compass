@@ -25,13 +25,13 @@ class PullRequestTabs extends Component
         $this->tabs = new NavigationTabCollection([
             new NavigationTab(
                 $url->route(RouteName::GITHUB_PULL_REQUESTS->value),
-                'All open',
+                'compass::filter.all_open',
                 'compass::icons.git-pull-request',
                 $request->routeIs(RouteName::GITHUB_PULL_REQUESTS->value),
             ),
             new NavigationTab(
                 $url->route(RouteName::GITHUB_PULL_REQUESTS_ASSIGNED->value),
-                'Assigned to me',
+                'compass::filter.assigned_to_me',
                 'compass::icons.person',
                 $request->routeIs(RouteName::GITHUB_PULL_REQUESTS_ASSIGNED->value),
             ),

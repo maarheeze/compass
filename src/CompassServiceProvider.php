@@ -17,6 +17,7 @@ use Maarheeze\Compass\Providers\SiteEndpointProvider;
 use Psr\Clock\ClockInterface;
 
 use function config_path;
+use function sprintf;
 
 class CompassServiceProvider extends ServiceProvider
 {
@@ -41,6 +42,7 @@ class CompassServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->loadTranslationsFrom(sprintf('%s/../lang', __DIR__), 'compass');
         $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'compass');
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');

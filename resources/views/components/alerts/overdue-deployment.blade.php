@@ -6,7 +6,7 @@
         <x-compass::icons.server />
     </x-slot:icon>
     <x-slot:text>
-        Auto-deploy overdue
+        {{ __('compass::alert.overdue_deployment') }}
     </x-slot:text>
 
     <x-compass::commit-hash :repository="$alert->site->repository" :commit-hash="$alert->site->deployed_commit_hash" />

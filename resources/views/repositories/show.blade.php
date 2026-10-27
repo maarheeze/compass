@@ -21,13 +21,13 @@
                 <span>
                     @switch ($kind)
                         @case (\Maarheeze\Compass\Analyzer\Composer\RepositoryKind::LIBRARY)
-                            Library
+                            {{ __('compass::repository-kind.LIBRARY') }}
                             @break
                         @case (\Maarheeze\Compass\Analyzer\Composer\RepositoryKind::OTHER)
-                            Other
+                            {{ __('compass::repository-kind.OTHER') }}
                             @break
                         @case (\Maarheeze\Compass\Analyzer\Composer\RepositoryKind::PROJECT)
-                            Project
+                            {{ __('compass::repository-kind.PROJECT') }}
                             @break
                     @endswitch
                 </span>
@@ -41,7 +41,7 @@
                 @endif
                 <span>&middot;</span>
                 <span>
-                    collected
+                    {{ __('compass::repository.collected') }}
                     <x-compass::time :time="$repository->collected_at" />
                 </span>
             </p>
@@ -52,7 +52,7 @@
                 <x-slot:icon>
                     <x-compass::icons.server />
                 </x-slot:icon>
-                Forge sites
+                {{ __('compass::repository.forge_sites') }}
                 <span class="rounded-full bg-border/50 px-2 text-xs font-medium text-foreground-muted">{{ $repository->sites->count() }}</span>
             </x-compass::section-heading>
 
@@ -60,11 +60,11 @@
                 <table class="w-full table-fixed text-left text-sm">
                     <thead class="bg-canvas-subtle text-xs text-foreground-muted">
                         <tr>
-                            <th class="px-4 py-2 font-medium">Site</th>
-                            <th class="w-28 px-4 py-2 font-medium">Branch</th>
-                            <th class="w-28 px-4 py-2 font-medium">Deployment</th>
-                            <th class="w-28 px-4 py-2 font-medium">Deployed commit</th>
-                            <th class="w-28 px-4 py-2 font-medium">Status</th>
+                            <th class="px-4 py-2 font-medium">{{ __('compass::repository.site') }}</th>
+                            <th class="w-28 px-4 py-2 font-medium">{{ __('compass::repository.branch') }}</th>
+                            <th class="w-28 px-4 py-2 font-medium">{{ __('compass::repository.deployment') }}</th>
+                            <th class="w-28 px-4 py-2 font-medium">{{ __('compass::repository.deployed_commit') }}</th>
+                            <th class="w-28 px-4 py-2 font-medium">{{ __('compass::repository.status') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-border">
@@ -87,7 +87,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-4 py-6 text-center text-foreground-muted">No Forge sites deploy this repository.</td>
+                                <td colspan="5" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::repository.no_forge_sites') }}</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -100,7 +100,7 @@
                 <x-slot:icon>
                     <x-compass::icons.git-pull-request />
                 </x-slot:icon>
-                Pull requests
+                {{ __('compass::navigation.pull_requests') }}
                 <span class="rounded-full bg-border/50 px-2 text-xs font-medium text-foreground-muted">{{ $repository->pullRequests->count() }}</span>
             </x-compass::section-heading>
 
@@ -118,7 +118,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="3" class="px-4 py-6 text-center text-foreground-muted">No open pull requests.</td>
+                                <td colspan="3" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::pull-request.no_open_pull_requests') }}</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -131,7 +131,7 @@
                 <x-slot:icon>
                     <x-compass::icons.issue-opened />
                 </x-slot:icon>
-                Issues
+                {{ __('compass::navigation.issues') }}
                 <span class="rounded-full bg-border/50 px-2 text-xs font-medium text-foreground-muted">{{ $repository->issues->count() }}</span>
             </x-compass::section-heading>
 
@@ -149,7 +149,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="3" class="px-4 py-6 text-center text-foreground-muted">No open issues.</td>
+                                <td colspan="3" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::issue.no_open_issues') }}</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -173,21 +173,21 @@
                     @if ($repository->composerJson->php_constraint)
                         <span class="text-foreground-muted">&middot; PHP {{ $repository->composerJson->php_constraint }}</span>
                     @endif
-                    <span class="text-foreground-muted">&middot; {{ $repository->composerJson->productionPackages->count() }} production</span>
-                    <span class="text-foreground-muted">&middot; {{ $repository->composerJson->developmentPackages->count() }} development</span>
+                    <span class="text-foreground-muted">&middot; {{ __('compass::composer.production_count', ['count' => $repository->composerJson->productionPackages->count()]) }}</span>
+                    <span class="text-foreground-muted">&middot; {{ __('compass::composer.development_count', ['count' => $repository->composerJson->developmentPackages->count()]) }}</span>
                 </summary>
 
                 <table class="w-full table-fixed border-t border-border text-left text-sm">
                     <thead class="bg-canvas-subtle text-xs text-foreground-muted">
                         <tr>
-                            <th class="px-4 py-2 font-medium">Package</th>
-                            <th class="w-40 px-4 py-2 font-medium">Constraint</th>
+                            <th class="px-4 py-2 font-medium">{{ __('compass::composer.package') }}</th>
+                            <th class="w-40 px-4 py-2 font-medium">{{ __('compass::composer.constraint') }}</th>
                         </tr>
                     </thead>
                     @if ($repository->composerJson->productionPackages->isNotEmpty())
                         <tbody class="divide-y divide-border">
                             <tr>
-                                <th colspan="2" class="bg-canvas-subtle px-4 py-2 text-xs font-medium text-foreground-muted">Production</th>
+                                <th colspan="2" class="bg-canvas-subtle px-4 py-2 text-xs font-medium text-foreground-muted">{{ __('compass::composer.production') }}</th>
                             </tr>
                             @foreach ($repository->composerJson->productionPackages as $package)
                                 <tr>
@@ -202,7 +202,7 @@
                     @if ($repository->composerJson->developmentPackages->isNotEmpty())
                         <tbody class="divide-y divide-border border-t border-border">
                             <tr>
-                                <th colspan="2" class="bg-canvas-subtle px-4 py-2 text-xs font-medium text-foreground-muted">Development</th>
+                                <th colspan="2" class="bg-canvas-subtle px-4 py-2 text-xs font-medium text-foreground-muted">{{ __('compass::composer.development') }}</th>
                             </tr>
                             @foreach ($repository->composerJson->developmentPackages as $package)
                                 <tr>
@@ -217,7 +217,7 @@
                 </table>
             </details>
         @else
-            <p class="text-sm text-foreground-muted">No composer.json collected.</p>
+            <p class="text-sm text-foreground-muted">{{ __('compass::composer.no_composer_json') }}</p>
         @endif
 
         @if ($repository->composerLock)
@@ -233,15 +233,15 @@
                     @if ($repository->composerLock->php_constraint)
                         <span class="text-foreground-muted">&middot; PHP {{ $repository->composerLock->php_constraint }}</span>
                     @endif
-                    <span class="text-foreground-muted">&middot; {{ $repository->composerLock->packages->count() }} packages</span>
+                    <span class="text-foreground-muted">&middot; {{ __('compass::composer.package_count', ['count' => $repository->composerLock->packages->count()]) }}</span>
                 </summary>
 
                 <table class="w-full table-fixed border-t border-border text-left text-sm">
                     <thead class="bg-canvas-subtle text-xs text-foreground-muted">
                         <tr>
-                            <th class="px-4 py-2 font-medium">Package</th>
-                            <th class="w-40 px-4 py-2 font-medium">Version</th>
-                            <th class="w-32 px-4 py-2 font-medium">Section</th>
+                            <th class="px-4 py-2 font-medium">{{ __('compass::composer.package') }}</th>
+                            <th class="w-40 px-4 py-2 font-medium">{{ __('compass::composer.version') }}</th>
+                            <th class="w-32 px-4 py-2 font-medium">{{ __('compass::composer.section') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-border">
@@ -258,7 +258,7 @@
                 </table>
             </details>
         @else
-            <p class="text-sm text-foreground-muted">No composer.lock collected.</p>
+            <p class="text-sm text-foreground-muted">{{ __('compass::composer.no_composer_lock') }}</p>
         @endif
     </main>
 </x-compass::layouts.app>

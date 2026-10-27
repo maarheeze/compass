@@ -9,19 +9,19 @@
                 <x-slot:icon>
                     <x-compass::icons.repo />
                 </x-slot:icon>
-                Projects
+                {{ __('compass::package.projects') }}
             </x-compass::section-heading>
 
             @if ($packageUsages->lockedPackages->isEmpty())
-                <p class="text-sm text-foreground-muted">No project has this package locked.</p>
+                <p class="text-sm text-foreground-muted">{{ __('compass::package.no_locking_project') }}</p>
             @else
                 <div class="overflow-hidden rounded-md border border-border bg-canvas">
                     <table class="w-full table-fixed text-left text-sm">
                         <thead class="bg-canvas-subtle text-xs text-foreground-muted">
                             <tr>
-                                <th class="px-4 py-2 font-medium">Repository</th>
-                                <th class="w-40 px-4 py-2 font-medium">Version</th>
-                                <th class="w-32 px-4 py-2 font-medium">Section</th>
+                                <th class="px-4 py-2 font-medium">{{ __('compass::repository.repository') }}</th>
+                                <th class="w-40 px-4 py-2 font-medium">{{ __('compass::composer.version') }}</th>
+                                <th class="w-32 px-4 py-2 font-medium">{{ __('compass::composer.section') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-border">
@@ -45,19 +45,19 @@
                 <x-slot:icon>
                     <x-compass::icons.package />
                 </x-slot:icon>
-                Libraries
+                {{ __('compass::package.libraries') }}
             </x-compass::section-heading>
 
             @if ($packageUsages->requiredPackages->isEmpty())
-                <p class="text-sm text-foreground-muted">No library requires this package.</p>
+                <p class="text-sm text-foreground-muted">{{ __('compass::package.no_requiring_library') }}</p>
             @else
                 <div class="overflow-hidden rounded-md border border-border bg-canvas">
                     <table class="w-full table-fixed text-left text-sm">
                         <thead class="bg-canvas-subtle text-xs text-foreground-muted">
                             <tr>
-                                <th class="px-4 py-2 font-medium">Repository</th>
-                                <th class="w-40 px-4 py-2 font-medium">Constraint</th>
-                                <th class="w-32 px-4 py-2 font-medium">Section</th>
+                                <th class="px-4 py-2 font-medium">{{ __('compass::repository.repository') }}</th>
+                                <th class="w-40 px-4 py-2 font-medium">{{ __('compass::composer.constraint') }}</th>
+                                <th class="w-32 px-4 py-2 font-medium">{{ __('compass::composer.section') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-border">

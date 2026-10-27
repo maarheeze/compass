@@ -11,11 +11,11 @@
     <div class="mt-3 grid grid-cols-2 gap-4">
         <a href="{{ route($assignedRouteName) }}" class="group">
             <p class="text-2xl font-semibold text-foreground group-hover:underline">{{ $assignedCount }}</p>
-            <p class="text-xs text-foreground-muted">Assigned to me</p>
+            <p class="text-xs text-foreground-muted">{{ __('compass::filter.assigned_to_me') }}</p>
         </a>
         <a href="{{ route($openRouteName) }}" class="group">
             <p class="text-2xl font-semibold text-foreground group-hover:underline">{{ $openCount }}</p>
-            <p class="text-xs text-foreground-muted">Open</p>
+            <p class="text-xs text-foreground-muted">{{ __('compass::filter.open') }}</p>
         </a>
     </div>
 </section>

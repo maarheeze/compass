@@ -6,7 +6,7 @@
         <x-compass::icons.alert />
     </x-slot:icon>
     <x-slot:text>
-        Environment not set to production
+        {{ __('compass::alert.non_production') }}
     </x-slot:text>
 
     <x-compass::forge.link :site="$alert->site" />

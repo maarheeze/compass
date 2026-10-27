@@ -13,9 +13,9 @@
             <table class="w-full text-left text-sm">
                 <thead class="bg-canvas-subtle text-xs text-foreground-muted">
                     <tr>
-                        <th class="px-4 py-2 font-medium">Checked at</th>
-                        <th class="px-4 py-2 font-medium">URL</th>
-                        <th class="px-4 py-2 font-medium">Status</th>
+                        <th class="px-4 py-2 font-medium">{{ __('compass::endpoint-check.checked_at') }}</th>
+                        <th class="px-4 py-2 font-medium">{{ __('compass::endpoint-check.url') }}</th>
+                        <th class="px-4 py-2 font-medium">{{ __('compass::endpoint-check.status') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border">
@@ -27,7 +27,7 @@
                             <td class="px-4 py-2 font-mono text-foreground-muted">{{ $siteEndpointCheck->url }}</td>
                             <td class="px-4 py-2 text-foreground">
                                 @if ($siteEndpointCheck->status_code === null)
-                                    Unreachable
+                                    {{ __('compass::endpoint-check.unreachable') }}
                                 @else
                                     {{ $siteEndpointCheck->status_code }}
                                 @endif
@@ -35,7 +35,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="px-4 py-6 text-center text-foreground-muted">No checks yet.</td>
+                            <td colspan="3" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::endpoint-check.no_checks') }}</td>
                         </tr>
                     @endforelse
                 </tbody>

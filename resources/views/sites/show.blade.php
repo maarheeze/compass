@@ -40,9 +40,9 @@
                     <span>&middot;</span>
                     <span>
                         @if ($site->auto_deploy)
-                            Auto-deploy on
+                            {{ __('compass::site.auto_deploy_on') }}
                         @else
-                            Auto-deploy off
+                            {{ __('compass::site.auto_deploy_off') }}
                         @endif
                     </span>
                 @endif
@@ -56,7 +56,7 @@
                 <span title="{{ $site->server_ip_address }}">{{ $site->server_name }}</span>
                 <span>&middot;</span>
                 <span>
-                    collected
+                    {{ __('compass::site.collected') }}
                     <x-compass::time :time="$site->collected_at" />
                 </span>
             </p>
@@ -67,7 +67,7 @@
                 <x-slot:icon>
                     <x-compass::icons.rocket />
                 </x-slot:icon>
-                Latest deployment
+                {{ __('compass::site.latest_deployment') }}
             </x-compass::section-heading>
 
             <div class="rounded-md border border-border bg-canvas px-4 py-3 text-sm">
@@ -80,19 +80,19 @@
                         @if ($site->deployment_ended_at)
                             <span>&middot;</span>
                             <span>
-                                finished
+                                {{ __('compass::site.finished') }}
                                 <x-compass::time :time="$site->deployment_ended_at" />
                             </span>
                         @elseif ($site->deployment_started_at)
                             <span>&middot;</span>
                             <span>
-                                started
+                                {{ __('compass::site.started') }}
                                 <x-compass::time :time="$site->deployment_started_at" />
                             </span>
                         @endif
                     </p>
                 @else
-                    <p class="text-foreground-muted">Never deployed.</p>
+                    <p class="text-foreground-muted">{{ __('compass::site.never_deployed') }}</p>
                 @endif
             </div>
         </section>
@@ -102,42 +102,42 @@
                 <x-slot:icon>
                     <x-compass::icons.file-code />
                 </x-slot:icon>
-                Client
+                {{ __('compass::site.client') }}
             </x-compass::section-heading>
 
             <div class="rounded-md border border-border bg-canvas px-4 py-3 text-sm">
                 <div class="flex items-start gap-4">
                     <dl class="grid flex-1 grid-cols-[max-content_1fr] gap-x-6 gap-y-2">
-                        <dt class="text-foreground-muted">Status</dt>
+                        <dt class="text-foreground-muted">{{ __('compass::client.status') }}</dt>
                         <dd class="flex items-center gap-2 text-foreground">
                             <x-compass::client.status-label :status="$site->client_status" />
                             @if ($site->client_collected_at)
                                 <span class="text-foreground-muted">
-                                    checked
+                                    {{ __('compass::client.checked') }}
                                     <x-compass::time :time="$site->client_collected_at" />
                                 </span>
                             @endif
                         </dd>
 
                         @if ($site->app_name)
-                            <dt class="text-foreground-muted">Application</dt>
+                            <dt class="text-foreground-muted">{{ __('compass::client.application') }}</dt>
                             <dd class="text-foreground">{{ $site->app_name }}</dd>
 
-                            <dt class="text-foreground-muted">Environment</dt>
+                            <dt class="text-foreground-muted">{{ __('compass::client.environment') }}</dt>
                             <dd class="text-foreground">{{ $site->app_env }}</dd>
 
-                            <dt class="text-foreground-muted">Debug</dt>
+                            <dt class="text-foreground-muted">{{ __('compass::client.debug') }}</dt>
                             <dd class="text-foreground">
                                 @if ($site->app_debug)
-                                    On
+                                    {{ __('compass::client.on') }}
                                 @else
-                                    Off
+                                    {{ __('compass::client.off') }}
                                 @endif
                             </dd>
                         @endif
 
                         @if ($site->endpoints->isNotEmpty())
-                            <dt class="text-foreground-muted">Endpoints</dt>
+                            <dt class="text-foreground-muted">{{ __('compass::client.endpoints') }}</dt>
                             <dd>
                                 <ul class="flex flex-wrap gap-2">
                                     @foreach ($site->endpoints as $endpoint)
@@ -147,28 +147,28 @@
                             </dd>
                         @endif
 
-                        <dt class="text-foreground-muted">Path</dt>
+                        <dt class="text-foreground-muted">{{ __('compass::client.path') }}</dt>
                         <dd class="font-mono text-foreground">
                             {{ $clientPath }}
                             @if ($site->client_path === null)
-                                <span class="font-sans text-foreground-muted">(default)</span>
+                                <span class="font-sans text-foreground-muted">{{ __('compass::client.default') }}</span>
                             @endif
                         </dd>
 
-                        <dt class="text-foreground-muted">Key</dt>
+                        <dt class="text-foreground-muted">{{ __('compass::client.key') }}</dt>
                         <dd class="break-all font-mono text-foreground">
                             @if ($clientKey)
                                 {{ $clientKey }}
                                 @if ($site->client_key === null)
-                                    <span class="font-sans text-foreground-muted">(default)</span>
+                                    <span class="font-sans text-foreground-muted">{{ __('compass::client.default') }}</span>
                                 @endif
                             @else
-                                <span class="font-sans text-foreground-muted">Not set</span>
+                                <span class="font-sans text-foreground-muted">{{ __('compass::client.not_set') }}</span>
                             @endif
                         </dd>
                     </dl>
 
-                    <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE_CLIENT_EDIT, $site) }}" class="rounded-md border border-border bg-canvas-subtle px-3 py-1.5 text-sm font-medium text-foreground hover:bg-border/30">Edit</a>
+                    <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE_CLIENT_EDIT, $site) }}" class="rounded-md border border-border bg-canvas-subtle px-3 py-1.5 text-sm font-medium text-foreground hover:bg-border/30">{{ __('compass::client.edit') }}</a>
                 </div>
             </div>
         </section>
@@ -178,16 +178,16 @@
                 <x-slot:icon>
                     <x-compass::icons.check-circle />
                 </x-slot:icon>
-                Endpoint history
+                {{ __('compass::site.endpoint_history') }}
             </x-compass::section-heading>
 
             <div class="overflow-hidden rounded-md border border-border bg-canvas">
                 <table class="w-full text-left text-sm">
                     <thead class="bg-canvas-subtle text-xs text-foreground-muted">
                         <tr>
-                            <th class="px-4 py-2 font-medium">Path</th>
-                            <th class="px-4 py-2 font-medium">Status</th>
-                            <th class="px-4 py-2 font-medium">Last checked</th>
+                            <th class="px-4 py-2 font-medium">{{ __('compass::site.path') }}</th>
+                            <th class="px-4 py-2 font-medium">{{ __('compass::site.status') }}</th>
+                            <th class="px-4 py-2 font-medium">{{ __('compass::site.last_checked') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-border">
@@ -205,7 +205,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="3" class="px-4 py-6 text-center text-foreground-muted">No endpoints checked yet.</td>
+                                <td colspan="3" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::site.no_endpoints_checked') }}</td>
                             </tr>
                         @endforelse
                     </tbody>

@@ -6,7 +6,7 @@
         <x-compass::icons.alert />
     </x-slot:icon>
     <x-slot:text>
-        Composer warning
+        {{ __('compass::alert.composer_warning') }}
     </x-slot:text>
 
     <x-compass::composer.warning-badge :repository="$alert->repository" />

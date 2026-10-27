@@ -2,12 +2,12 @@
 
 @switch ($type)
     @case (\Maarheeze\Compass\Collector\RunType::ENDPOINT_CHECK)
-        Endpoint check
+        {{ __('compass::run-type.ENDPOINT_CHECK') }}
         @break
     @case (\Maarheeze\Compass\Collector\RunType::FORGE_SYNC)
-        Forge sync
+        {{ __('compass::run-type.FORGE_SYNC') }}
         @break
     @case (\Maarheeze\Compass\Collector\RunType::GITHUB_SYNC)
-        GitHub sync
+        {{ __('compass::run-type.GITHUB_SYNC') }}
         @break
 @endswitch

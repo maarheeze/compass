@@ -1,4 +1,4 @@
-<x-compass::layouts.app :title="__('Pull requests')">
+<x-compass::layouts.app :title="__('compass::navigation.pull_requests')">
     <x-compass::navigation />
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
@@ -10,7 +10,7 @@
             <table class="w-full table-fixed text-left text-sm">
                 <thead class="bg-canvas-subtle text-xs text-foreground-muted">
                     <tr>
-                        <th class="w-48 px-4 py-2 font-medium">Repository</th>
+                        <th class="w-48 px-4 py-2 font-medium">{{ __('compass::repository.repository') }}</th>
                         <x-compass::pull-request-heading-cells />
                     </tr>
                 </thead>
@@ -24,7 +24,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-4 py-6 text-center text-foreground-muted">No open pull requests.</td>
+                            <td colspan="4" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::pull-request.no_open_pull_requests') }}</td>
                         </tr>
                     @endforelse
                 </tbody>

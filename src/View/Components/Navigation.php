@@ -55,13 +55,13 @@ class Navigation extends Component
         return new NavigationTabCollection([
             new NavigationTab(
                 $url->route(RouteName::DASHBOARD->value),
-                'Dashboard',
+                'compass::navigation.dashboard',
                 'compass::icons.home',
                 $request->routeIs(RouteName::DASHBOARD->value),
             ),
             new NavigationTab(
                 $url->route(RouteName::GITHUB_REPOSITORIES->value),
-                'Repositories',
+                'compass::navigation.repositories',
                 'compass::icons.repo',
                 $request->routeIs(
                     RouteName::GITHUB_REPOSITORIES->value,
@@ -71,7 +71,7 @@ class Navigation extends Component
             ),
             new NavigationTab(
                 $url->route(RouteName::GITHUB_ISSUES->value),
-                'Issues',
+                'compass::navigation.issues',
                 'compass::icons.issue-opened',
                 $request->routeIs(
                     RouteName::GITHUB_ISSUES->value,
@@ -80,7 +80,7 @@ class Navigation extends Component
             ),
             new NavigationTab(
                 $url->route(RouteName::GITHUB_PULL_REQUESTS->value),
-                'Pull requests',
+                'compass::navigation.pull_requests',
                 'compass::icons.git-pull-request',
                 $request->routeIs(
                     RouteName::GITHUB_PULL_REQUESTS->value,
@@ -89,7 +89,7 @@ class Navigation extends Component
             ),
             new NavigationTab(
                 $url->route(RouteName::FORGE_SITES->value),
-                'Sites',
+                'compass::navigation.sites',
                 'compass::icons.server',
                 $request->routeIs(
                     RouteName::FORGE_SITES->value,
@@ -100,7 +100,7 @@ class Navigation extends Component
             ),
             new NavigationTab(
                 $url->route(RouteName::RUNS->value),
-                'Runs',
+                'compass::navigation.runs',
                 'compass::icons.sync',
                 $request->routeIs(
                     RouteName::RUNS->value,

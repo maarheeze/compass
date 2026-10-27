@@ -12,7 +12,7 @@
 
                 <form method="POST" action="{{ $syncUrl }}">
                     @csrf
-                    <x-compass::button title="Sync" aria-label="Sync">
+                    <x-compass::button title="{{ __('compass::navigation.sync') }}" aria-label="{{ __('compass::navigation.sync') }}">
                         <x-compass::icons.sync class="text-foreground-muted" />
                     </x-compass::button>
                 </form>
@@ -40,7 +40,7 @@
 
                         <form method="POST" action="{{ $logoutUrl }}">
                             @csrf
-                            <button type="submit" class="w-full cursor-pointer px-4 py-2 text-left text-sm text-foreground hover:bg-canvas-subtle">Sign out</button>
+                            <button type="submit" class="w-full cursor-pointer px-4 py-2 text-left text-sm text-foreground hover:bg-canvas-subtle">{{ __('compass::authentication.sign_out') }}</button>
                         </form>
                     </div>
                 </details>
