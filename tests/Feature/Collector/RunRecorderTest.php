@@ -12,6 +12,7 @@ use Illuminate\Support\Testing\Fakes\PendingBatchFake;
 use Maarheeze\Compass\Collector\Client\Jobs\InspectSites;
 use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Collector\RunRecorder;
+use Maarheeze\Compass\Collector\RunStatus;
 use Maarheeze\Compass\Collector\RunType;
 use Maarheeze\Compass\Models\Run;
 use Monolog\Handler\TestHandler;
@@ -43,7 +44,7 @@ test('start keeps the batch going when one of its jobs fails', function (): void
     });
 });
 
-test('start records the run of the type with its batch when the batch is stored', function (): void {
+test('start records the running run of the type with its batch when the batch is stored', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $runId = RunId::generate();
@@ -57,7 +58,40 @@ test('start records the run of the type with its batch when the batch is stored'
     $this->assertDatabaseHas(Run::class, [
         'id' => $runId,
         'type' => $runType,
+        'status' => RunStatus::RUNNING,
         'batch_id' => $batchFake->id,
+    ]);
+});
+
+test('start records the run as failed when a job of the batch failed', function (): void {
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
+    $run = Run::factory()->create();
+    $batchFake = new BatchFake($run->batch_id, '', 1, 0, fake()->numberBetween(1, 10), [], [], CarbonImmutable::now());
+
+    $runRecorder = $this->app->make(RunRecorder::class);
+    $runRecorder->start($run->id, $run->type, new InspectSites());
+    $busFake->dispatchedBatches()[0]->finallyCallbacks()[0]($batchFake);
+
+    $this->assertDatabaseHas(Run::class, [
+        'id' => $run->id,
+        'status' => RunStatus::FAILED,
+    ]);
+});
+
+test('start records the run as succeeded when no job of the batch failed', function (): void {
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
+    $run = Run::factory()->create();
+    $batchFake = new BatchFake($run->batch_id, '', 1, 0, 0, [], [], CarbonImmutable::now());
+
+    $runRecorder = $this->app->make(RunRecorder::class);
+    $runRecorder->start($run->id, $run->type, new InspectSites());
+    $busFake->dispatchedBatches()[0]->finallyCallbacks()[0]($batchFake);
+
+    $this->assertDatabaseHas(Run::class, [
+        'id' => $run->id,
+        'status' => RunStatus::SUCCEEDED,
     ]);
 });
 

@@ -9,6 +9,7 @@ use Maarheeze\Compass\Http\Controllers\IssueController;
 use Maarheeze\Compass\Http\Controllers\PackageController;
 use Maarheeze\Compass\Http\Controllers\PullRequestController;
 use Maarheeze\Compass\Http\Controllers\RepositoryController;
+use Maarheeze\Compass\Http\Controllers\RunController;
 use Maarheeze\Compass\Http\Controllers\SiteClientController;
 use Maarheeze\Compass\Http\Controllers\SiteController;
 use Maarheeze\Compass\Http\Controllers\SiteEndpointCheckController;
@@ -59,6 +60,9 @@ Route::middleware('web')
                 ->name(RouteName::FORGE_SITE_CLIENT_EDIT);
             Route::patch('/forge/sites/{site}/client', [SiteClientController::class, 'update'])
                 ->name(RouteName::FORGE_SITE_CLIENT_UPDATE);
+
+            Route::get('/runs', [RunController::class, 'index'])->name(RouteName::RUNS);
+            Route::get('/runs/{runType}', [RunController::class, 'type'])->name(RouteName::RUNS_OF_TYPE);
 
             Route::post('/logout', [GitHubController::class, 'logout'])->name(RouteName::LOGOUT);
 

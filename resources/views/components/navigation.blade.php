@@ -68,6 +68,10 @@
                 <x-compass::icons.server class="text-foreground-muted" />
                 Sites
             </x-compass::tab>
+            <x-compass::tab :route-name="\Maarheeze\Compass\Http\RouteName::RUNS" :is-active="$section === \Maarheeze\Compass\View\NavigationSection::RUNS">
+                <x-compass::icons.sync class="text-foreground-muted" />
+                Runs
+            </x-compass::tab>
         </nav>
     </div>
 </header>

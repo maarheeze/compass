@@ -14,6 +14,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
 
             $table->string('type');
+            $table->string('status');
             $table->string('batch_id');
             $table->timestamp('finished_at')->nullable();
             $table->unsignedInteger('failed_job_count')->nullable();

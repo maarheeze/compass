@@ -29,6 +29,7 @@ readonly class RunRecorder
                 Run::query()->create([
                     'id' => $runId,
                     'type' => $runType,
+                    'status' => RunStatus::RUNNING,
                     'batch_id' => $batch->id,
                 ]);
             })
@@ -36,6 +37,7 @@ readonly class RunRecorder
                 Run::query()
                     ->whereKey($runId)
                     ->update([
+                        'status' => $batch->failedJobs > 0 ? RunStatus::FAILED : RunStatus::SUCCEEDED,
                         'finished_at' => CarbonImmutable::now(),
                         'failed_job_count' => $batch->failedJobs,
                     ]);

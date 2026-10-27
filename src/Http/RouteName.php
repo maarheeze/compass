@@ -27,5 +27,7 @@ enum RouteName: string
     case GITHUB_REPOSITORY_IGNORE = 'compass.github.repository.ignore';
     case LOGIN = 'compass.login';
     case LOGOUT = 'compass.logout';
+    case RUNS = 'compass.runs';
+    case RUNS_OF_TYPE = 'compass.runs.type';
     case SYNC = 'compass.sync';
 }

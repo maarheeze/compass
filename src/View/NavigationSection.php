@@ -10,5 +10,6 @@ enum NavigationSection
     case ISSUES;
     case PULL_REQUESTS;
     case REPOSITORIES;
+    case RUNS;
     case SITES;
 }

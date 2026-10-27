@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Maarheeze\Compass\Collections\RunCollection;
 use Maarheeze\Compass\Collector\RunId;
+use Maarheeze\Compass\Collector\RunStatus;
 use Maarheeze\Compass\Collector\RunType;
 use Maarheeze\Compass\Database\Factories\RunFactory;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
@@ -21,6 +22,7 @@ use function sprintf;
  * @property ?int $failed_job_count
  * @property ?CarbonImmutable $finished_at
  * @property RunId $id
+ * @property RunStatus $status
  * @property RunType $type
  * @property CarbonImmutable $updated_at
  */
@@ -41,6 +43,7 @@ class Run extends Model
             'failed_job_count',
             'finished_at',
             'id',
+            'status',
             'type',
         ];
     }
@@ -70,6 +73,7 @@ class Run extends Model
             'failed_job_count' => 'integer',
             'finished_at' => 'immutable_datetime',
             'id' => sprintf('%s:%s', UuidCast::class, RunId::class),
+            'status' => RunStatus::class,
             'type' => RunType::class,
             'updated_at' => 'immutable_datetime',
         ];
