@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Http\Client\Factory as HttpFactory;
+use Illuminate\Log\Context\Repository as Context;
 use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\Client\Jobs\InspectSite;
 use Maarheeze\Compass\Models\Site;
@@ -96,4 +97,15 @@ test('handle leaves a site without a key alone', function (): void {
     $this->app->call([$inspectSite, 'handle']);
 
     $http->assertNothingSent();
+});
+
+test('handle adds the site to the log context', function (): void {
+    $site = Site::factory()->create(['client_key' => null]);
+    $this->setConfiguration('compass.client.key', null);
+
+    $inspectSite = new InspectSite($site);
+    $this->app->call([$inspectSite, 'handle']);
+
+    expect($this->app->make(Context::class)->get('site'))
+        ->toBe($site->name);
 });

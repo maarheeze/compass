@@ -8,6 +8,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\Repository;
 
@@ -20,7 +21,7 @@ class CollectChangedComposerJsons implements ShouldQueue
     ) {
     }
 
-    public function handle(Dispatcher $dispatcher): void
+    public function handle(CollectorLogger $collectorLogger, Dispatcher $dispatcher): void
     {
         $repositoriesWithChangedComposerJson = Repository::query()
             ->where('run_id', $this->runId)
@@ -38,6 +39,8 @@ class CollectChangedComposerJsons implements ShouldQueue
 
         foreach ($repositoriesWithChangedComposerJson->merge($repositoriesWithRemovedComposerJson) as $repository) {
             $dispatcher->dispatch(new CollectComposerJson($repository));
+
+            $collectorLogger->debug('Composer json collection queued', ['repository' => $repository->name]);
         }
     }
 }

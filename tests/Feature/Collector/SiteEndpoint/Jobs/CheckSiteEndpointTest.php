@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Http\Client\Factory as HttpFactory;
+use Illuminate\Log\Context\Repository as Context;
 use Maarheeze\Compass\Collector\SiteEndpoint\Jobs\CheckSiteEndpoint;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
@@ -62,4 +63,18 @@ test('handle stores no status code for an endpoint that cannot be reached', func
         'site_id' => $siteEndpoint->site_id,
         'status_code' => null,
     ]);
+});
+
+test('handle adds the site and path of the endpoint to the log context', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $this->app->make(HttpFactory::class)->fake();
+
+    $checkSiteEndpoint = new CheckSiteEndpoint($siteEndpoint);
+    $this->app->call([$checkSiteEndpoint, 'handle']);
+
+    expect($this->app->make(Context::class)->only(['site', 'path']))
+        ->toBe([
+            'site' => $siteEndpoint->site->name,
+            'path' => $siteEndpoint->path,
+        ]);
 });

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
+use Illuminate\Log\Context\Repository as Context;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectComposerJson;
 use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\Repository;
@@ -69,4 +70,14 @@ test('handle removes the composer json when the repository no longer has one', f
     $this->app->call([$collectComposerJson, 'handle']);
 
     $this->assertDatabaseMissing(ComposerJson::class, ['id' => $composerJson->id]);
+});
+
+test('handle adds the repository to the log context', function (): void {
+    $repository = Repository::factory()->create(['composer_json_oid' => null]);
+
+    $collectComposerJson = new CollectComposerJson($repository);
+    $this->app->call([$collectComposerJson, 'handle']);
+
+    expect($this->app->make(Context::class)->get('repository'))
+        ->toBe($repository->name);
 });

@@ -18,6 +18,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Log channel
+    |--------------------------------------------------------------------------
+    |
+    | The log channel the collector writes what it did to: an info line when
+    | a collection starts and ends, a debug line per page, composer file,
+    | site and endpoint.
+    | Null writes to the default channel of the application.
+    |
+    */
+
+    'log_channel' => env('COMPASS_LOG_CHANNEL'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Client
     |--------------------------------------------------------------------------
     |

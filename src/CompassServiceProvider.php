@@ -7,6 +7,7 @@ namespace Maarheeze\Compass;
 use Carbon\FactoryImmutable;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Providers\AlertProvider;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 use Maarheeze\Compass\Providers\ClientProvider;
@@ -24,6 +25,11 @@ class CompassServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../config/compass.php', 'compass');
 
         $this->app->bindIf(ClockInterface::class, FactoryImmutable::class);
+
+        $this->app
+            ->when(CollectorLogger::class)
+            ->needs('$channel')
+            ->giveConfig('compass.log_channel');
 
         $this->app->register(AlertProvider::class);
         $this->app->register(AuthenticationProvider::class);

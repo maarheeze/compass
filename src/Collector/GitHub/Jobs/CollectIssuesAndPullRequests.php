@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Collector\GitHub\Jobs;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\GitHub\GitHubQueryFailed;
 use Maarheeze\Compass\Collector\GitHub\IssuesAndPullRequestsQuery;
 use Maarheeze\Compass\Collector\GitHub\IssueSynchronizer;
@@ -25,19 +26,29 @@ class CollectIssuesAndPullRequests implements ShouldQueue
      * @throws GitHubQueryFailed
      */
     public function handle(
+        CollectorLogger $collectorLogger,
         IssuesAndPullRequestsQuery $issuesAndPullRequestsQuery,
         IssueSynchronizer $issueSynchronizer,
         PullRequestSynchronizer $pullRequestSynchronizer,
     ): void {
+        $collectorLogger->info('Issues and pull requests collection started');
+
         foreach ($issuesAndPullRequestsQuery->pages() as $issuesAndPullRequestsQueryResult) {
             $issueSynchronizer->storeIssues($issuesAndPullRequestsQueryResult->gitHubIssues, $this->runId);
             $pullRequestSynchronizer->storePullRequests(
                 $issuesAndPullRequestsQueryResult->gitHubPullRequests,
                 $this->runId,
             );
+
+            $collectorLogger->debug('Issues and pull requests page collected', [
+                'issue_count' => $issuesAndPullRequestsQueryResult->gitHubIssues->count(),
+                'pull_request_count' => $issuesAndPullRequestsQueryResult->gitHubPullRequests->count(),
+            ]);
         }
 
         $issueSynchronizer->deleteUncollected($this->runId);
         $pullRequestSynchronizer->deleteUncollected($this->runId);
+
+        $collectorLogger->info('Issues and pull requests collection ended');
     }
 }
