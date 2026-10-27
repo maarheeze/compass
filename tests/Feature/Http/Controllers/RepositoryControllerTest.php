@@ -38,9 +38,12 @@ test('index contains the libraries', function (): void {
 
     $response = $this->get(route(RouteName::GITHUB_REPOSITORIES));
 
-    $response->assertViewHas('libraries', static function (RepositoryCollection $viewLibraries) use ($repository): bool {
-        return $viewLibraries->sole()->is($repository);
-    });
+    $response->assertViewHas(
+        'libraries',
+        static function (RepositoryCollection $viewLibraries) use ($repository): bool {
+            return $viewLibraries->sole()->is($repository);
+        },
+    );
 });
 
 test('index contains the other repositories', function (): void {
@@ -49,9 +52,12 @@ test('index contains the other repositories', function (): void {
 
     $response = $this->get(route(RouteName::GITHUB_REPOSITORIES));
 
-    $response->assertViewHas('otherRepositories', static function (RepositoryCollection $viewOtherRepositories) use ($repository): bool {
-        return $viewOtherRepositories->sole()->is($repository);
-    });
+    $response->assertViewHas(
+        'otherRepositories',
+        static function (RepositoryCollection $viewOtherRepositories) use ($repository): bool {
+            return $viewOtherRepositories->sole()->is($repository);
+        },
+    );
 });
 
 test('show contains the repository', function (): void {
@@ -92,10 +98,13 @@ test('show contains the issues of the repository newest first', function (): voi
 
     $response = $this->get(route(RouteName::GITHUB_REPOSITORY, $repository));
 
-    $response->assertViewHas('repository', static function (Repository $viewRepository) use ($newerIssue, $olderIssue): bool {
-        return $viewRepository->issues->first()->id->equals($newerIssue->id)
-            && $viewRepository->issues->last()->id->equals($olderIssue->id);
-    });
+    $response->assertViewHas(
+        'repository',
+        static function (Repository $viewRepository) use ($newerIssue, $olderIssue): bool {
+            return $viewRepository->issues->first()->id->equals($newerIssue->id)
+                && $viewRepository->issues->last()->id->equals($olderIssue->id);
+        },
+    );
 });
 
 test('show contains the pull requests of the repository newest first', function (): void {
@@ -112,10 +121,13 @@ test('show contains the pull requests of the repository newest first', function 
 
     $response = $this->get(route(RouteName::GITHUB_REPOSITORY, $repository));
 
-    $response->assertViewHas('repository', static function (Repository $viewRepository) use ($newerPullRequest, $olderPullRequest): bool {
-        return $viewRepository->pullRequests->first()->id->equals($newerPullRequest->id)
-            && $viewRepository->pullRequests->last()->id->equals($olderPullRequest->id);
-    });
+    $response->assertViewHas(
+        'repository',
+        static function (Repository $viewRepository) use ($newerPullRequest, $olderPullRequest): bool {
+            return $viewRepository->pullRequests->first()->id->equals($newerPullRequest->id)
+                && $viewRepository->pullRequests->last()->id->equals($olderPullRequest->id);
+        },
+    );
 });
 
 test('delete deletes a missing repository', function (): void {
