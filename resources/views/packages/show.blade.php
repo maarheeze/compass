@@ -1,5 +1,5 @@
 <x-compass::layouts.app :title="$packageName">
-    <x-compass::navigation :section="\Maarheeze\Compass\View\NavigationSection::REPOSITORIES" />
+    <x-compass::navigation />
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
         <h1 class="text-lg font-semibold text-foreground">{{ $packageName }}</h1>
@@ -28,7 +28,7 @@
                             @foreach ($packageUsages->lockedPackages as $lockedPackage)
                                 <tr>
                                     <td class="truncate px-4 py-2 text-foreground">
-                                        <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORY, $lockedPackage->composerLock->repository) }}" class="text-accent hover:underline">{{ $lockedPackage->composerLock->repository->name }}</a>
+                                        <x-compass::repository-link :repository="$lockedPackage->composerLock->repository" />
                                     </td>
                                     <td class="px-4 py-2 text-foreground-muted">{{ $lockedPackage->version }}</td>
                                     <td class="px-4 py-2 text-foreground-muted lowercase">{{ $lockedPackage->section->value }}</td>
@@ -64,7 +64,7 @@
                             @foreach ($packageUsages->requiredPackages as $requiredPackage)
                                 <tr>
                                     <td class="truncate px-4 py-2 text-foreground">
-                                        <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORY, $requiredPackage->composerJson->repository) }}" class="text-accent hover:underline">{{ $requiredPackage->composerJson->repository->name }}</a>
+                                        <x-compass::repository-link :repository="$requiredPackage->composerJson->repository" />
                                     </td>
                                     <td class="px-4 py-2 text-foreground-muted">{{ $requiredPackage->constraint }}</td>
                                     <td class="px-4 py-2 text-foreground-muted lowercase">{{ $requiredPackage->section->value }}</td>

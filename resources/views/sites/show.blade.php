@@ -1,5 +1,5 @@
 <x-compass::layouts.app :title="$site->name">
-    <x-compass::navigation :section="\Maarheeze\Compass\View\NavigationSection::SITES" />
+    <x-compass::navigation />
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
         @if ($site->missing_at)
@@ -22,7 +22,7 @@
                 @if ($site->repository)
                     <span>&middot;</span>
                     <span>
-                        <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORY, $site->repository) }}" class="text-accent hover:underline">{{ $site->repository->name }}</a>
+                        <x-compass::repository-link :repository="$site->repository" />
                         @if ($site->repository_branch)
                             &#64; {{ $site->repository_branch }}
                         @endif

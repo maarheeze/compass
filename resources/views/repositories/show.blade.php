@@ -1,5 +1,5 @@
 <x-compass::layouts.app :title="$repository->name">
-    <x-compass::navigation :section="\Maarheeze\Compass\View\NavigationSection::REPOSITORIES" />
+    <x-compass::navigation />
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
         @if ($repository->missing_at)

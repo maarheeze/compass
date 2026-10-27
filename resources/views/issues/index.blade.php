@@ -1,16 +1,9 @@
 <x-compass::layouts.app :title="__('Issues')">
-    <x-compass::navigation :section="\Maarheeze\Compass\View\NavigationSection::ISSUES" />
+    <x-compass::navigation />
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
         <nav class="flex items-center gap-6 border-b border-border text-sm font-medium">
-            <x-compass::tab :url="route(\Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES)" :is-active="$activeRouteName === \Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES">
-                <x-compass::icons.issue-opened class="text-foreground-muted" />
-                All open
-            </x-compass::tab>
-            <x-compass::tab :url="route(\Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES_ASSIGNED)" :is-active="$activeRouteName === \Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES_ASSIGNED">
-                <x-compass::icons.person class="text-foreground-muted" />
-                Assigned to me
-            </x-compass::tab>
+            <x-compass::issue-tabs />
         </nav>
 
         <div class="overflow-hidden rounded-md border border-border bg-canvas">
@@ -25,7 +18,7 @@
                     @forelse ($issues as $issue)
                         <tr>
                             <td class="truncate px-4 py-2 text-foreground-muted">
-                                <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORY, $issue->repository) }}" class="text-accent hover:underline">{{ $issue->repository->name }}</a>
+                                <x-compass::repository-link :repository="$issue->repository" />
                             </td>
                             <x-compass::issue-cells :issue="$issue" />
                         </tr>

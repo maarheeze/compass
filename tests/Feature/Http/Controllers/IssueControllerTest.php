@@ -36,19 +36,3 @@ test('assigned contains the issues assigned to the signed in user', function ():
         return $viewIssues->sole()->is($issue);
     });
 });
-
-test('index contains its route name as active route name', function (): void {
-    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
-
-    $response = $this->get(route(RouteName::GITHUB_ISSUES));
-
-    $response->assertViewHas('activeRouteName', RouteName::GITHUB_ISSUES);
-});
-
-test('assigned contains its route name as active route name', function (): void {
-    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
-
-    $response = $this->get(route(RouteName::GITHUB_ISSUES_ASSIGNED));
-
-    $response->assertViewHas('activeRouteName', RouteName::GITHUB_ISSUES_ASSIGNED);
-});

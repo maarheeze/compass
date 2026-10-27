@@ -42,19 +42,3 @@ test('assigned contains the pull requests assigned to the signed in user', funct
         },
     );
 });
-
-test('index contains its route name as active route name', function (): void {
-    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
-
-    $response = $this->get(route(RouteName::GITHUB_PULL_REQUESTS));
-
-    $response->assertViewHas('activeRouteName', RouteName::GITHUB_PULL_REQUESTS);
-});
-
-test('assigned contains its route name as active route name', function (): void {
-    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
-
-    $response = $this->get(route(RouteName::GITHUB_PULL_REQUESTS_ASSIGNED));
-
-    $response->assertViewHas('activeRouteName', RouteName::GITHUB_PULL_REQUESTS_ASSIGNED);
-});

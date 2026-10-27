@@ -8,7 +8,6 @@ use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Maarheeze\Compass\Analyzer\GitHub\IssueFinder;
 use Maarheeze\Compass\Authentication\AuthenticatedUser;
-use Maarheeze\Compass\Http\RouteName;
 
 readonly class IssueController
 {
@@ -22,7 +21,6 @@ readonly class IssueController
     public function assigned(): View
     {
         return $this->view->make('compass::issues.index', [
-            'activeRouteName' => RouteName::GITHUB_ISSUES_ASSIGNED,
             'issues' => $this->issueFinder->findIssuesAssignedTo($this->authenticatedUser->user()),
         ]);
     }
@@ -30,7 +28,6 @@ readonly class IssueController
     public function index(): View
     {
         return $this->view->make('compass::issues.index', [
-            'activeRouteName' => RouteName::GITHUB_ISSUES,
             'issues' => $this->issueFinder->findIssues(),
         ]);
     }

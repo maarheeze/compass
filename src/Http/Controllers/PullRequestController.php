@@ -8,7 +8,6 @@ use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Maarheeze\Compass\Analyzer\GitHub\PullRequestFinder;
 use Maarheeze\Compass\Authentication\AuthenticatedUser;
-use Maarheeze\Compass\Http\RouteName;
 
 readonly class PullRequestController
 {
@@ -22,7 +21,6 @@ readonly class PullRequestController
     public function assigned(): View
     {
         return $this->view->make('compass::pull-requests.index', [
-            'activeRouteName' => RouteName::GITHUB_PULL_REQUESTS_ASSIGNED,
             'pullRequests' => $this->pullRequestFinder->findPullRequestsAssignedTo($this->authenticatedUser->user()),
         ]);
     }
@@ -30,7 +28,6 @@ readonly class PullRequestController
     public function index(): View
     {
         return $this->view->make('compass::pull-requests.index', [
-            'activeRouteName' => RouteName::GITHUB_PULL_REQUESTS,
             'pullRequests' => $this->pullRequestFinder->findPullRequests(),
         ]);
     }

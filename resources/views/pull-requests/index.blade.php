@@ -1,16 +1,9 @@
 <x-compass::layouts.app :title="__('Pull requests')">
-    <x-compass::navigation :section="\Maarheeze\Compass\View\NavigationSection::PULL_REQUESTS" />
+    <x-compass::navigation />
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
         <nav class="flex items-center gap-6 border-b border-border text-sm font-medium">
-            <x-compass::tab :url="route(\Maarheeze\Compass\Http\RouteName::GITHUB_PULL_REQUESTS)" :is-active="$activeRouteName === \Maarheeze\Compass\Http\RouteName::GITHUB_PULL_REQUESTS">
-                <x-compass::icons.git-pull-request class="text-foreground-muted" />
-                All open
-            </x-compass::tab>
-            <x-compass::tab :url="route(\Maarheeze\Compass\Http\RouteName::GITHUB_PULL_REQUESTS_ASSIGNED)" :is-active="$activeRouteName === \Maarheeze\Compass\Http\RouteName::GITHUB_PULL_REQUESTS_ASSIGNED">
-                <x-compass::icons.person class="text-foreground-muted" />
-                Assigned to me
-            </x-compass::tab>
+            <x-compass::pull-request-tabs />
         </nav>
 
         <div class="overflow-hidden rounded-md border border-border bg-canvas">
@@ -25,7 +18,7 @@
                     @forelse ($pullRequests as $pullRequest)
                         <tr>
                             <td class="truncate px-4 py-2 text-foreground-muted">
-                                <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORY, $pullRequest->repository) }}" class="text-accent hover:underline">{{ $pullRequest->repository->name }}</a>
+                                <x-compass::repository-link :repository="$pullRequest->repository" />
                             </td>
                             <x-compass::pull-request-cells :pull-request="$pullRequest" />
                         </tr>

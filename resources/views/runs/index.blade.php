@@ -1,5 +1,5 @@
 <x-compass::layouts.app :title="__('Runs')">
-    <x-compass::navigation :section="\Maarheeze\Compass\View\NavigationSection::RUNS" />
+    <x-compass::navigation />
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
         <nav class="flex items-center gap-6 border-b border-border text-sm font-medium">

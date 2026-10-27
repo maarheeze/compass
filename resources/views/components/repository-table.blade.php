@@ -17,7 +17,7 @@
             @forelse ($repositories as $repository)
                 <tr>
                     <td class="truncate px-4 py-2 font-medium text-foreground">
-                        <a href="{{ route(\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORY, $repository) }}" class="text-accent hover:underline">{{ $repository->name }}</a>
+                        <x-compass::repository-link :repository="$repository" />
                     </td>
                     <td class="px-4 py-2 text-foreground-muted lowercase">{{ $repository->visibility->value }}</td>
                     <td class="truncate px-4 py-2 text-foreground-muted">{{ $repository->default_branch }}</td>

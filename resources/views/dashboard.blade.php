@@ -1,5 +1,5 @@
 <x-compass::layouts.app :title="__('Dashboard')">
-    <x-compass::navigation :section="\Maarheeze\Compass\View\NavigationSection::DASHBOARD" />
+    <x-compass::navigation />
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
         <div class="grid gap-4 sm:grid-cols-2">
