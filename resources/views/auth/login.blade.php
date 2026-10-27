@@ -2,7 +2,7 @@
     <main class="flex min-h-screen items-center justify-center p-6">
         <div class="w-full max-w-sm space-y-6 rounded-md border border-border bg-canvas p-8">
             <div class="space-y-1">
-                <h1 class="text-lg font-semibold text-foreground">{{ config('app.name') }}</h1>
+                <h1 class="text-lg font-semibold text-foreground"><x-compass::application-name /></h1>
                 <p class="text-sm text-foreground-muted">{{ __('compass::authentication.tagline') }}</p>
             </div>
 
@@ -13,7 +13,10 @@
             <x-compass::git-hub-sign-in-link />
 
             <p class="text-xs text-foreground-muted">
-                {!! __('compass::authentication.scopes') !!}
+                {!! __('compass::authentication.scopes', [
+                    'read_org' => '<code>read:org</code>',
+                    'user_email' => '<code>user:email</code>',
+                ]) !!}
             </p>
         </div>
     </main>

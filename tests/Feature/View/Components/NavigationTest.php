@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
-use Illuminate\Config\Repository as Config;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
@@ -32,17 +31,6 @@ test('last collected at is when the last collection was collected', function ():
 
     expect($navigation->lastCollectedAt?->getTimestamp())
         ->toBe($repositoryCollectedAt->getTimestamp());
-});
-
-test('application name is the configured application name', function (): void {
-    $applicationName = fake()->company();
-    $this->app->make(Config::class)->set('app.name', $applicationName);
-    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
-
-    $navigation = $this->app->make(Navigation::class);
-
-    expect($navigation->applicationName)
-        ->toBe($applicationName);
 });
 
 test('tabs mark the tab of the current page as the only active one', function (): void {

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\View\Components;
 
 use Carbon\CarbonImmutable;
-use Illuminate\Config\Repository;
 use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
@@ -20,7 +19,6 @@ use Maarheeze\Compass\View\NavigationTab;
 
 class Navigation extends Component
 {
-    public readonly string $applicationName;
     public readonly string $dashboardUrl;
     public readonly ?CarbonImmutable $lastCollectedAt;
     public readonly string $logoutUrl;
@@ -30,13 +28,11 @@ class Navigation extends Component
 
     public function __construct(
         AuthenticatedUser $authenticatedUser,
-        Repository $config,
         LastCollection $lastCollection,
         Request $request,
         UrlGenerator $url,
         private readonly ViewFactory $view,
     ) {
-        $this->applicationName = $config->string('app.name');
         $this->dashboardUrl = $url->route(RouteName::DASHBOARD->value);
         $this->lastCollectedAt = $lastCollection->collectedAt();
         $this->logoutUrl = $url->route(RouteName::LOGOUT->value);

@@ -41,15 +41,22 @@
     "scripts": {
         "phpcbf": "vendor/bin/phpcbf -n",
         "phpcs": "vendor/bin/phpcs -n",
-        "pest": "vendor/bin/pest --compact",
-        "pest-coverage": "vendor/bin/pest --compact --coverage --min=100",
+        "pest": [
+            "@view-clear",
+            "vendor/bin/pest --compact"
+        ],
+        "pest-coverage": [
+            "@view-clear",
+            "vendor/bin/pest --compact --coverage --min=100"
+        ],
         "phpstan": "php vendor/bin/phpstan --memory-limit=-1",
         "phpstan-baseline": "php vendor/bin/phpstan --memory-limit=-1 --generate-baseline",
         "qa": [
             "@phpcs",
             "@phpstan",
             "@pest-coverage"
-        ]
+        ],
+        "view-clear": "vendor/bin/testbench view:clear"
     },
     "extra": {
         "laravel": {
