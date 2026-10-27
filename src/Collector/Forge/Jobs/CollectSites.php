@@ -14,7 +14,7 @@ use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Forge\ForgeRequestFailed;
 use Maarheeze\Compass\Collector\Forge\SitesQuery;
 use Maarheeze\Compass\Collector\Forge\SiteSynchronizer;
-use Maarheeze\Compass\Collector\RunId;
+use Maarheeze\Uuid\Uuid;
 use Webmozart\Assert\Assert;
 
 class CollectSites implements ShouldQueue
@@ -24,7 +24,7 @@ class CollectSites implements ShouldQueue
     use Queueable;
 
     public function __construct(
-        private readonly RunId $runId,
+        private readonly Uuid $runId,
     ) {
     }
 

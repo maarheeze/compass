@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectChangedComposerJsons;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectComposerJson;
-use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\Repository;
+use Maarheeze\Uuid\Uuid;
 
 test('handle adds collect composer json when its oid differs from the collected one', function (): void {
-    $runId = RunId::generate();
+    $runId = Uuid::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
         'composer_json_oid' => fake()->unique()->sha1(),
@@ -23,18 +23,18 @@ test('handle adds collect composer json when its oid differs from the collected 
     $this->app->call([$collectChangedComposerJsons, 'handle']);
 
     $addedRepositoryIds = array_map(
-        static function (CollectComposerJson $collectComposerJson): int {
+        static function (CollectComposerJson $collectComposerJson): Uuid {
             return $collectComposerJson->repository->id;
         },
         $batchFake->added,
     );
 
     expect($addedRepositoryIds)
-        ->toBe([$repository->id]);
+        ->toEqual([$repository->id]);
 });
 
 test('handle adds collect composer json when the composer json is gone', function (): void {
-    $runId = RunId::generate();
+    $runId = Uuid::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
         'composer_json_oid' => null,
@@ -45,18 +45,18 @@ test('handle adds collect composer json when the composer json is gone', functio
     $this->app->call([$collectChangedComposerJsons, 'handle']);
 
     $addedRepositoryIds = array_map(
-        static function (CollectComposerJson $collectComposerJson): int {
+        static function (CollectComposerJson $collectComposerJson): Uuid {
             return $collectComposerJson->repository->id;
         },
         $batchFake->added,
     );
 
     expect($addedRepositoryIds)
-        ->toBe([$repository->id]);
+        ->toEqual([$repository->id]);
 });
 
 test('handle does not add collect composer json when its oid is the collected one', function (): void {
-    $runId = RunId::generate();
+    $runId = Uuid::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
         'composer_json_oid' => fake()->sha1(),
@@ -74,7 +74,7 @@ test('handle does not add collect composer json when its oid is the collected on
 });
 
 test('handle does not add collect composer json for a repository without one', function (): void {
-    $runId = RunId::generate();
+    $runId = Uuid::generate();
     Repository::factory()->create([
         'run_id' => $runId,
         'composer_json_oid' => null,
@@ -89,11 +89,11 @@ test('handle does not add collect composer json for a repository without one', f
 
 test('handle ignores repositories of another run', function (): void {
     Repository::factory()->create([
-        'run_id' => RunId::generate(),
+        'run_id' => Uuid::generate(),
         'composer_json_oid' => fake()->sha1(),
     ]);
 
-    [$collectChangedComposerJsons, $batchFake] = new CollectChangedComposerJsons(RunId::generate())->withFakeBatch();
+    [$collectChangedComposerJsons, $batchFake] = new CollectChangedComposerJsons(Uuid::generate())->withFakeBatch();
     $this->app->call([$collectChangedComposerJsons, 'handle']);
 
     expect($batchFake->added)

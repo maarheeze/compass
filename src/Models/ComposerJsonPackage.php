@@ -11,12 +11,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Maarheeze\Compass\Collections\ComposerJsonPackageCollection;
 use Maarheeze\Compass\Collector\Composer\PackageSection;
 use Maarheeze\Compass\Database\Factories\ComposerJsonPackageFactory;
+use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
+use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
+use Maarheeze\Uuid\Uuid;
 
 /**
- * @property int $composer_json_id
+ * @property Uuid $composer_json_id
  * @property string $constraint
  * @property CarbonImmutable $created_at
- * @property int $id
+ * @property Uuid $id
  * @property string $name
  * @property PackageSection $section
  * @property CarbonImmutable $updated_at
@@ -27,6 +30,7 @@ class ComposerJsonPackage extends Model
 {
     /** @use HasFactory<ComposerJsonPackageFactory> */
     use HasFactory;
+    use HasUuidAsId;
 
     protected static string $collectionClass = ComposerJsonPackageCollection::class;
 
@@ -62,6 +66,7 @@ class ComposerJsonPackage extends Model
     protected function casts(): array
     {
         return [
+            'composer_json_id' => UuidCast::class,
             'created_at' => 'immutable_datetime',
             'section' => PackageSection::class,
             'updated_at' => 'immutable_datetime',

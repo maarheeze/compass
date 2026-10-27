@@ -6,13 +6,13 @@ use Carbon\CarbonImmutable;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Maarheeze\Compass\Collector\Client\Jobs\InspectSites;
 use Maarheeze\Compass\Collector\Forge\Jobs\CollectSites;
-use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\Site;
+use Maarheeze\Uuid\Uuid;
 
 test('handle stores the sites of the page', function (): void {
     $forgeId = fake()->numerify('#######');
     $serverId = fake()->numerify('####');
-    $runId = RunId::generate();
+    $runId = Uuid::generate();
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             'data' => [
@@ -80,7 +80,7 @@ test('handle marks the sites of another run missing on the last page', function 
         ]),
     ]);
 
-    [$collectSites] = new CollectSites(RunId::generate())->withFakeBatch();
+    [$collectSites] = new CollectSites(Uuid::generate())->withFakeBatch();
     $this->app->call([$collectSites, 'handle']);
 
     expect($site->refresh()->missing_at)
@@ -97,7 +97,7 @@ test('handle adds the inspection of the sites to its batch', function (): void {
         ]),
     ]);
 
-    [$collectSites, $batchFake] = new CollectSites(RunId::generate())->withFakeBatch();
+    [$collectSites, $batchFake] = new CollectSites(Uuid::generate())->withFakeBatch();
     $this->app->call([$collectSites, 'handle']);
 
     expect(array_map(get_class(...), $batchFake->added))

@@ -11,9 +11,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('compass_composer_json_packages', static function (Blueprint $table): void {
-            $table->id();
+            $table->uuid('id')->primary();
 
-            $table->foreignId('composer_json_id')
+            $table->foreignUuid('composer_json_id')
                 ->constrained('compass_composer_jsons')
                 ->cascadeOnDelete();
 

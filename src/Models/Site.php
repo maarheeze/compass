@@ -15,11 +15,10 @@ use Maarheeze\Compass\Collections\SiteEndpointCollection;
 use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\Forge\DeploymentStatus;
 use Maarheeze\Compass\Collector\Forge\SiteStatus;
-use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Database\Factories\SiteFactory;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
-
-use function sprintf;
+use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
+use Maarheeze\Uuid\Uuid;
 
 /**
  * @property ?bool $app_debug
@@ -38,14 +37,14 @@ use function sprintf;
  * @property ?CarbonImmutable $deployment_started_at
  * @property ?DeploymentStatus $deployment_status
  * @property string $forge_id
- * @property int $id
+ * @property Uuid $id
  * @property ?CarbonImmutable $missing_at
  * @property ?CarbonImmutable $missing_ignored_at
  * @property string $name
  * @property ?string $php_version
  * @property ?string $repository_branch
  * @property ?string $repository_url
- * @property RunId $run_id
+ * @property Uuid $run_id
  * @property ?string $server_ip_address
  * @property string $server_name
  * @property string $server_slug
@@ -61,6 +60,7 @@ class Site extends Model
 {
     /** @use HasFactory<SiteFactory> */
     use HasFactory;
+    use HasUuidAsId;
 
     protected static string $collectionClass = SiteCollection::class;
 
@@ -146,7 +146,7 @@ class Site extends Model
             'deployment_status' => DeploymentStatus::class,
             'missing_at' => 'immutable_datetime',
             'missing_ignored_at' => 'immutable_datetime',
-            'run_id' => sprintf('%s:%s', UuidCast::class, RunId::class),
+            'run_id' => UuidCast::class,
             'status' => SiteStatus::class,
             'updated_at' => 'immutable_datetime',
         ];

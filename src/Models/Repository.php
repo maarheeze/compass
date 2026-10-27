@@ -14,11 +14,10 @@ use Maarheeze\Compass\Collections\PullRequestCollection;
 use Maarheeze\Compass\Collections\RepositoryCollection;
 use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
-use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Database\Factories\RepositoryFactory;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
-
-use function sprintf;
+use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
+use Maarheeze\Uuid\Uuid;
 
 /**
  * @property CarbonImmutable $collected_at
@@ -27,13 +26,13 @@ use function sprintf;
  * @property CarbonImmutable $created_at
  * @property string $default_branch
  * @property string $github_id
- * @property int $id
+ * @property Uuid $id
  * @property CarbonImmutable $last_commit_committed_at
  * @property string $last_commit_sha
  * @property ?CarbonImmutable $missing_at
  * @property ?CarbonImmutable $missing_ignored_at
  * @property string $name
- * @property RunId $run_id
+ * @property Uuid $run_id
  * @property CarbonImmutable $updated_at
  * @property string $url
  * @property RepositoryVisibility $visibility
@@ -48,6 +47,7 @@ class Repository extends Model
 {
     /** @use HasFactory<RepositoryFactory> */
     use HasFactory;
+    use HasUuidAsId;
 
     protected static string $collectionClass = RepositoryCollection::class;
 
@@ -129,7 +129,7 @@ class Repository extends Model
             'last_commit_committed_at' => 'immutable_datetime',
             'missing_at' => 'immutable_datetime',
             'missing_ignored_at' => 'immutable_datetime',
-            'run_id' => sprintf('%s:%s', UuidCast::class, RunId::class),
+            'run_id' => UuidCast::class,
             'updated_at' => 'immutable_datetime',
             'visibility' => RepositoryVisibility::class,
         ];

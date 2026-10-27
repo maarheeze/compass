@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\Forge\DeploymentStatus;
 use Maarheeze\Compass\Collector\Forge\SiteStatus;
-use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\Site;
+use Maarheeze\Uuid\Uuid;
 
 use function fake;
 use function sprintf;
@@ -51,7 +51,7 @@ class SiteFactory extends Factory
             'app_env' => fake()->optional()->word(),
             'app_name' => fake()->optional()->company(),
             'client_collected_at' => fake()->optional()->dateTime(),
-            'run_id' => RunId::generate(),
+            'run_id' => Uuid::generate(),
             'collected_at' => fake()->dateTime(),
         ];
     }

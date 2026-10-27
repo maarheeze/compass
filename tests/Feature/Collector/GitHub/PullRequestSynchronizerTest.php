@@ -5,11 +5,11 @@ declare(strict_types=1);
 use Maarheeze\Compass\Collections\GitHubPullRequestCollection;
 use Maarheeze\Compass\Collector\GitHub\GitHubPullRequest;
 use Maarheeze\Compass\Collector\GitHub\PullRequestSynchronizer;
-use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\PullRequest;
 use Maarheeze\Compass\Models\PullRequestAssignee;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Tests\Fixtures\GitHubPullRequestFactory;
+use Maarheeze\Uuid\Uuid;
 
 test('store pull requests stores a pull request in its repository', function (): void {
     $repository = Repository::factory()->create();
@@ -25,7 +25,7 @@ test('store pull requests stores a pull request in its repository', function ():
         $gitHubPullRequest->openedAt,
         $gitHubPullRequest->assigneeLogins,
     );
-    $runId = RunId::generate();
+    $runId = Uuid::generate();
 
     $pullRequestSynchronizer = $this->app->make(PullRequestSynchronizer::class);
     $pullRequestSynchronizer->storePullRequests(
@@ -51,7 +51,7 @@ test('store pull requests skips a pull request of an unknown repository', functi
     $pullRequestSynchronizer = $this->app->make(PullRequestSynchronizer::class);
     $pullRequestSynchronizer->storePullRequests(
         new GitHubPullRequestCollection([$gitHubPullRequest]),
-        RunId::generate(),
+        Uuid::generate(),
     );
 
     $this->assertDatabaseMissing(PullRequest::class, ['github_id' => $gitHubPullRequest->gitHubId]);
@@ -75,7 +75,7 @@ test('store pull requests stores the assignees of the pull requests', function (
     $pullRequestSynchronizer = $this->app->make(PullRequestSynchronizer::class);
     $pullRequestSynchronizer->storePullRequests(
         new GitHubPullRequestCollection([$gitHubPullRequestOfRepository]),
-        RunId::generate(),
+        Uuid::generate(),
     );
 
     $this->assertDatabaseHas(PullRequestAssignee::class, [
@@ -107,7 +107,7 @@ test('store pull requests removes the assignees collected before', function (): 
     $pullRequestSynchronizer = $this->app->make(PullRequestSynchronizer::class);
     $pullRequestSynchronizer->storePullRequests(
         new GitHubPullRequestCollection([$gitHubPullRequestOfRepository]),
-        RunId::generate(),
+        Uuid::generate(),
     );
 
     $this->assertModelMissing($assignee);
@@ -117,13 +117,13 @@ test('delete uncollected deletes a pull request of another run', function (): vo
     $pullRequest = PullRequest::factory()->create();
 
     $pullRequestSynchronizer = $this->app->make(PullRequestSynchronizer::class);
-    $pullRequestSynchronizer->deleteUncollected(RunId::generate());
+    $pullRequestSynchronizer->deleteUncollected(Uuid::generate());
 
     $this->assertModelMissing($pullRequest);
 });
 
 test('delete uncollected keeps a pull request of the run', function (): void {
-    $runId = RunId::generate();
+    $runId = Uuid::generate();
     $pullRequest = PullRequest::factory()->create(['run_id' => $runId]);
 
     $pullRequestSynchronizer = $this->app->make(PullRequestSynchronizer::class);

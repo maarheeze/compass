@@ -11,8 +11,8 @@ use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Maarheeze\Compass\Collector\CollectorLogger;
-use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\Repository;
+use Maarheeze\Uuid\Uuid;
 use Webmozart\Assert\Assert;
 
 class CollectChangedComposerLocks implements ShouldQueue
@@ -22,7 +22,7 @@ class CollectChangedComposerLocks implements ShouldQueue
     use Queueable;
 
     public function __construct(
-        private readonly RunId $runId,
+        private readonly Uuid $runId,
     ) {
     }
 

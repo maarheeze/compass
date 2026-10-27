@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\Repository;
+use Maarheeze\Uuid\Uuid;
 
 use function fake;
 
@@ -32,7 +32,7 @@ class IssueFactory extends Factory
             'url' => fake()->url(),
             'author_login' => fake()->optional()->userName(),
             'opened_at' => fake()->dateTime(),
-            'run_id' => RunId::generate(),
+            'run_id' => Uuid::generate(),
             'collected_at' => fake()->dateTime(),
         ];
     }

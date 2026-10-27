@@ -14,7 +14,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('compass_users', static function (Blueprint $table): void {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->string('github_id')->unique();
             $table->string('nickname');
             $table->string('name')->nullable();

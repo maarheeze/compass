@@ -13,13 +13,16 @@ use Maarheeze\Compass\Collections\ComposerJsonCollection;
 use Maarheeze\Compass\Collections\ComposerJsonPackageCollection;
 use Maarheeze\Compass\Collector\Composer\PackageSection;
 use Maarheeze\Compass\Database\Factories\ComposerJsonFactory;
+use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
+use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
+use Maarheeze\Uuid\Uuid;
 
 /**
  * @property CarbonImmutable $created_at
- * @property int $id
+ * @property Uuid $id
  * @property string $oid
  * @property ?string $php_constraint
- * @property int $repository_id
+ * @property Uuid $repository_id
  * @property ?string $type
  * @property CarbonImmutable $updated_at
  *
@@ -32,6 +35,7 @@ class ComposerJson extends Model
 {
     /** @use HasFactory<ComposerJsonFactory> */
     use HasFactory;
+    use HasUuidAsId;
 
     protected static string $collectionClass = ComposerJsonCollection::class;
 
@@ -92,6 +96,7 @@ class ComposerJson extends Model
     {
         return [
             'created_at' => 'immutable_datetime',
+            'repository_id' => UuidCast::class,
             'updated_at' => 'immutable_datetime',
         ];
     }

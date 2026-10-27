@@ -8,20 +8,18 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Maarheeze\Compass\Collections\RunCollection;
-use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Collector\RunStatus;
 use Maarheeze\Compass\Collector\RunType;
 use Maarheeze\Compass\Database\Factories\RunFactory;
-use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
-
-use function sprintf;
+use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
+use Maarheeze\Uuid\Uuid;
 
 /**
  * @property string $batch_id
  * @property CarbonImmutable $created_at
  * @property ?int $failed_job_count
  * @property ?CarbonImmutable $finished_at
- * @property RunId $id
+ * @property Uuid $id
  * @property RunStatus $status
  * @property RunType $type
  * @property CarbonImmutable $updated_at
@@ -30,6 +28,7 @@ class Run extends Model
 {
     /** @use HasFactory<RunFactory> */
     use HasFactory;
+    use HasUuidAsId;
 
     protected static string $collectionClass = RunCollection::class;
 
@@ -48,16 +47,6 @@ class Run extends Model
         ];
     }
 
-    public function getIncrementing(): bool
-    {
-        return false;
-    }
-
-    public function getKeyType(): string
-    {
-        return 'string';
-    }
-
     public function getTable(): string
     {
         return 'compass_runs';
@@ -72,7 +61,6 @@ class Run extends Model
             'created_at' => 'immutable_datetime',
             'failed_job_count' => 'integer',
             'finished_at' => 'immutable_datetime',
-            'id' => sprintf('%s:%s', UuidCast::class, RunId::class),
             'status' => RunStatus::class,
             'type' => RunType::class,
             'updated_at' => 'immutable_datetime',

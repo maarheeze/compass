@@ -6,9 +6,9 @@ namespace Maarheeze\Compass\Console;
 
 use Illuminate\Console\Command;
 use Maarheeze\Compass\Collector\Forge\Jobs\CollectSites;
-use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Collector\RunRecorder;
 use Maarheeze\Compass\Collector\RunType;
+use Maarheeze\Uuid\Uuid;
 
 class SyncForgeCommand extends Command
 {
@@ -16,7 +16,7 @@ class SyncForgeCommand extends Command
 
     public function handle(RunRecorder $runRecorder): void
     {
-        $runId = RunId::generate();
+        $runId = Uuid::generate();
 
         $runRecorder->start($runId, RunType::FORGE_SYNC, new CollectSites($runId));
     }

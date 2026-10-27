@@ -6,6 +6,7 @@ use Maarheeze\Compass\Collector\SiteEndpoint\Jobs\CheckSiteEndpoint;
 use Maarheeze\Compass\Collector\SiteEndpoint\Jobs\CheckSiteEndpoints;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
+use Maarheeze\Uuid\Uuid;
 
 test('handle adds the check of an endpoint of a collected site to its batch', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
@@ -14,14 +15,14 @@ test('handle adds the check of an endpoint of a collected site to its batch', fu
     $this->app->call([$checkSiteEndpoints, 'handle']);
 
     $addedSiteEndpointIds = array_map(
-        static function (CheckSiteEndpoint $checkSiteEndpoint): int {
+        static function (CheckSiteEndpoint $checkSiteEndpoint): Uuid {
             return $checkSiteEndpoint->siteEndpoint->id;
         },
         $batchFake->added,
     );
 
     expect($addedSiteEndpointIds)
-        ->toBe([$siteEndpoint->id]);
+        ->toEqual([$siteEndpoint->id]);
 });
 
 test('handle leaves out the endpoints of a missing site', function (): void {

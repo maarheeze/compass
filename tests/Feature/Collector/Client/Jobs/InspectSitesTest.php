@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Maarheeze\Compass\Collector\Client\Jobs\InspectSite;
 use Maarheeze\Compass\Collector\Client\Jobs\InspectSites;
 use Maarheeze\Compass\Models\Site;
+use Maarheeze\Uuid\Uuid;
 
 test('handle adds the inspection of a collected site to its batch', function (): void {
     $site = Site::factory()->create();
@@ -13,14 +14,14 @@ test('handle adds the inspection of a collected site to its batch', function ():
     $this->app->call([$inspectSites, 'handle']);
 
     $addedSiteIds = array_map(
-        static function (InspectSite $inspectSite): int {
+        static function (InspectSite $inspectSite): Uuid {
             return $inspectSite->site->id;
         },
         $batchFake->added,
     );
 
     expect($addedSiteIds)
-        ->toBe([$site->id]);
+        ->toEqual([$site->id]);
 });
 
 test('handle leaves out a missing site', function (): void {

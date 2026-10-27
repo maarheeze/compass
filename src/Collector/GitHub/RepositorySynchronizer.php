@@ -6,12 +6,12 @@ namespace Maarheeze\Compass\Collector\GitHub;
 
 use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\GitHubRepositoryCollection;
-use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\Repository;
+use Maarheeze\Uuid\Uuid;
 
 readonly class RepositorySynchronizer
 {
-    public function markUncollectedMissing(RunId $runId): void
+    public function markUncollectedMissing(Uuid $runId): void
     {
         Repository::query()
             ->whereNot('run_id', $runId)
@@ -21,7 +21,7 @@ readonly class RepositorySynchronizer
 
     public function storeRepositories(
         GitHubRepositoryCollection $gitHubRepositories,
-        RunId $runId,
+        Uuid $runId,
     ): void {
         $repositoryValues = [];
 

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectChangedComposerLocks;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectComposerLock;
-use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\ComposerLock;
 use Maarheeze\Compass\Models\Repository;
+use Maarheeze\Uuid\Uuid;
 
 test('handle adds collect composer lock when its oid differs from the collected one', function (): void {
-    $runId = RunId::generate();
+    $runId = Uuid::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
         'composer_lock_oid' => fake()->unique()->sha1(),
@@ -23,18 +23,18 @@ test('handle adds collect composer lock when its oid differs from the collected 
     $this->app->call([$collectChangedComposerLocks, 'handle']);
 
     $addedRepositoryIds = array_map(
-        static function (CollectComposerLock $collectComposerLock): int {
+        static function (CollectComposerLock $collectComposerLock): Uuid {
             return $collectComposerLock->repository->id;
         },
         $batchFake->added,
     );
 
     expect($addedRepositoryIds)
-        ->toBe([$repository->id]);
+        ->toEqual([$repository->id]);
 });
 
 test('handle adds collect composer lock when the composer lock is gone', function (): void {
-    $runId = RunId::generate();
+    $runId = Uuid::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
         'composer_lock_oid' => null,
@@ -45,18 +45,18 @@ test('handle adds collect composer lock when the composer lock is gone', functio
     $this->app->call([$collectChangedComposerLocks, 'handle']);
 
     $addedRepositoryIds = array_map(
-        static function (CollectComposerLock $collectComposerLock): int {
+        static function (CollectComposerLock $collectComposerLock): Uuid {
             return $collectComposerLock->repository->id;
         },
         $batchFake->added,
     );
 
     expect($addedRepositoryIds)
-        ->toBe([$repository->id]);
+        ->toEqual([$repository->id]);
 });
 
 test('handle does not add collect composer lock when its oid is the collected one', function (): void {
-    $runId = RunId::generate();
+    $runId = Uuid::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
         'composer_lock_oid' => fake()->sha1(),
@@ -74,7 +74,7 @@ test('handle does not add collect composer lock when its oid is the collected on
 });
 
 test('handle does not add collect composer lock for a repository without one', function (): void {
-    $runId = RunId::generate();
+    $runId = Uuid::generate();
     Repository::factory()->create([
         'run_id' => $runId,
         'composer_lock_oid' => null,
@@ -89,11 +89,11 @@ test('handle does not add collect composer lock for a repository without one', f
 
 test('handle ignores repositories of another run', function (): void {
     Repository::factory()->create([
-        'run_id' => RunId::generate(),
+        'run_id' => Uuid::generate(),
         'composer_lock_oid' => fake()->sha1(),
     ]);
 
-    [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks(RunId::generate())->withFakeBatch();
+    [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks(Uuid::generate())->withFakeBatch();
     $this->app->call([$collectChangedComposerLocks, 'handle']);
 
     expect($batchFake->added)

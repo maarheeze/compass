@@ -5,11 +5,11 @@ declare(strict_types=1);
 use Maarheeze\Compass\Collections\GitHubIssueCollection;
 use Maarheeze\Compass\Collector\GitHub\GitHubIssue;
 use Maarheeze\Compass\Collector\GitHub\IssueSynchronizer;
-use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\IssueAssignee;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Tests\Fixtures\GitHubIssueFactory;
+use Maarheeze\Uuid\Uuid;
 
 test('store issues stores an issue in its repository', function (): void {
     $repository = Repository::factory()->create();
@@ -24,7 +24,7 @@ test('store issues stores an issue in its repository', function (): void {
         $gitHubIssue->openedAt,
         $gitHubIssue->assigneeLogins,
     );
-    $runId = RunId::generate();
+    $runId = Uuid::generate();
 
     $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
     $issueSynchronizer->storeIssues(new GitHubIssueCollection([$gitHubIssueOfRepository]), $runId);
@@ -44,7 +44,7 @@ test('store issues skips an issue of an unknown repository', function (): void {
     $gitHubIssue = GitHubIssueFactory::make();
 
     $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
-    $issueSynchronizer->storeIssues(new GitHubIssueCollection([$gitHubIssue]), RunId::generate());
+    $issueSynchronizer->storeIssues(new GitHubIssueCollection([$gitHubIssue]), Uuid::generate());
 
     $this->assertDatabaseMissing(Issue::class, ['github_id' => $gitHubIssue->gitHubId]);
 });
@@ -64,7 +64,7 @@ test('store issues stores the assignees of the issues', function (): void {
     );
 
     $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
-    $issueSynchronizer->storeIssues(new GitHubIssueCollection([$gitHubIssueOfRepository]), RunId::generate());
+    $issueSynchronizer->storeIssues(new GitHubIssueCollection([$gitHubIssueOfRepository]), Uuid::generate());
 
     $this->assertDatabaseHas(IssueAssignee::class, [
         'issue_id' => Issue::query()->where('github_id', $gitHubIssue->gitHubId)->sole()->id,
@@ -92,7 +92,7 @@ test('store issues removes the assignees collected before', function (): void {
     $assignee = IssueAssignee::factory()->create(['issue_id' => $issue->id]);
 
     $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
-    $issueSynchronizer->storeIssues(new GitHubIssueCollection([$gitHubIssueOfRepository]), RunId::generate());
+    $issueSynchronizer->storeIssues(new GitHubIssueCollection([$gitHubIssueOfRepository]), Uuid::generate());
 
     $this->assertModelMissing($assignee);
 });
@@ -101,13 +101,13 @@ test('delete uncollected deletes an issue of another run', function (): void {
     $issue = Issue::factory()->create();
 
     $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
-    $issueSynchronizer->deleteUncollected(RunId::generate());
+    $issueSynchronizer->deleteUncollected(Uuid::generate());
 
     $this->assertModelMissing($issue);
 });
 
 test('delete uncollected keeps an issue of the run', function (): void {
-    $runId = RunId::generate();
+    $runId = Uuid::generate();
     $issue = Issue::factory()->create(['run_id' => $runId]);
 
     $issueSynchronizer = $this->app->make(IssueSynchronizer::class);

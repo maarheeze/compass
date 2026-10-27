@@ -19,7 +19,7 @@ test('latest per path leaves out an earlier check of the same path', function ()
         ->all();
 
     expect($latestSiteEndpointCheckIds)
-        ->toBe([$latestSiteEndpointCheck->id]);
+        ->toEqual([$latestSiteEndpointCheck->id]);
 });
 
 test('latest per path keeps the latest check of each path of a site', function (): void {

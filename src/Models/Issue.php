@@ -12,22 +12,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Maarheeze\Compass\Collections\IssueAssigneeCollection;
 use Maarheeze\Compass\Collections\IssueCollection;
-use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Database\Factories\IssueFactory;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
-
-use function sprintf;
+use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
+use Maarheeze\Uuid\Uuid;
 
 /**
  * @property ?string $author_login
  * @property CarbonImmutable $collected_at
  * @property CarbonImmutable $created_at
  * @property string $github_id
- * @property int $id
+ * @property Uuid $id
  * @property int $number
  * @property CarbonImmutable $opened_at
- * @property int $repository_id
- * @property RunId $run_id
+ * @property Uuid $repository_id
+ * @property Uuid $run_id
  * @property string $title
  * @property CarbonImmutable $updated_at
  * @property string $url
@@ -39,6 +38,7 @@ class Issue extends Model
 {
     /** @use HasFactory<IssueFactory> */
     use HasFactory;
+    use HasUuidAsId;
 
     protected static string $collectionClass = IssueCollection::class;
 
@@ -101,7 +101,8 @@ class Issue extends Model
             'created_at' => 'immutable_datetime',
             'number' => 'integer',
             'opened_at' => 'immutable_datetime',
-            'run_id' => sprintf('%s:%s', UuidCast::class, RunId::class),
+            'repository_id' => UuidCast::class,
+            'run_id' => UuidCast::class,
             'updated_at' => 'immutable_datetime',
         ];
     }

@@ -10,6 +10,7 @@ use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Log\Context\Repository as Context;
 use Maarheeze\Compass\Models\Run;
+use Maarheeze\Uuid\Uuid;
 
 readonly class RunRecorder
 {
@@ -20,7 +21,7 @@ readonly class RunRecorder
     ) {
     }
 
-    public function start(RunId $runId, RunType $runType, ShouldQueue $firstJob): void
+    public function start(Uuid $runId, RunType $runType, ShouldQueue $firstJob): void
     {
         $pendingBatch = $this->dispatcher
             ->batch([$firstJob])

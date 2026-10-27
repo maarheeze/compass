@@ -11,9 +11,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('compass_composer_locks', static function (Blueprint $table): void {
-            $table->id();
+            $table->uuid('id')->primary();
 
-            $table->foreignId('repository_id')
+            $table->foreignUuid('repository_id')
                 ->unique()
                 ->constrained('compass_repositories')
                 ->cascadeOnDelete();

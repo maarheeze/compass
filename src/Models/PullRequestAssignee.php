@@ -9,18 +9,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Maarheeze\Compass\Collections\PullRequestAssigneeCollection;
 use Maarheeze\Compass\Database\Factories\PullRequestAssigneeFactory;
+use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
+use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
+use Maarheeze\Uuid\Uuid;
 
 /**
  * @property CarbonImmutable $created_at
- * @property int $id
+ * @property Uuid $id
  * @property string $login
- * @property int $pull_request_id
+ * @property Uuid $pull_request_id
  * @property CarbonImmutable $updated_at
  */
 class PullRequestAssignee extends Model
 {
     /** @use HasFactory<PullRequestAssigneeFactory> */
     use HasFactory;
+    use HasUuidAsId;
 
     protected static string $collectionClass = PullRequestAssigneeCollection::class;
 
@@ -47,6 +51,7 @@ class PullRequestAssignee extends Model
     {
         return [
             'created_at' => 'immutable_datetime',
+            'pull_request_id' => UuidCast::class,
             'updated_at' => 'immutable_datetime',
         ];
     }

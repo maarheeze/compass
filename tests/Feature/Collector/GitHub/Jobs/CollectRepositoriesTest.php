@@ -9,8 +9,8 @@ use Maarheeze\Compass\Collector\GitHub\Jobs\CollectChangedComposerLocks;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectIssuesAndPullRequests;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectRepositories;
 use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
-use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\Repository;
+use Maarheeze\Uuid\Uuid;
 
 test('handle stores the repositories of the page', function (): void {
     $repositoryResponse = [
@@ -28,7 +28,7 @@ test('handle stores the repositories of the page', function (): void {
         'composerJson' => null,
         'composerLock' => null,
     ];
-    $runId = RunId::generate();
+    $runId = Uuid::generate();
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             'data' => [
@@ -72,7 +72,7 @@ test('handle marks the repositories of another run missing on the last page', fu
         ]),
     ]);
 
-    [$collectRepositories] = new CollectRepositories(RunId::generate())->withFakeBatch();
+    [$collectRepositories] = new CollectRepositories(Uuid::generate())->withFakeBatch();
     $this->app->call([$collectRepositories, 'handle']);
 
     expect($repository->refresh()->missing_at)
@@ -96,7 +96,7 @@ test('handle adds the collection of the issues, pull requests and composer files
         ]),
     ]);
 
-    [$collectRepositories, $batchFake] = new CollectRepositories(RunId::generate())->withFakeBatch();
+    [$collectRepositories, $batchFake] = new CollectRepositories(Uuid::generate())->withFakeBatch();
     $this->app->call([$collectRepositories, 'handle']);
 
     expect(array_map(get_class(...), $batchFake->added))

@@ -93,7 +93,8 @@ test('show contains the issues of the repository newest first', function (): voi
     $response = $this->get(route(RouteName::GITHUB_REPOSITORY, $repository));
 
     $response->assertViewHas('repository', static function (Repository $viewRepository) use ($newerIssue, $olderIssue): bool {
-        return $viewRepository->issues->modelKeys() === [$newerIssue->id, $olderIssue->id];
+        return $viewRepository->issues->first()->id->equals($newerIssue->id)
+            && $viewRepository->issues->last()->id->equals($olderIssue->id);
     });
 });
 
@@ -112,7 +113,8 @@ test('show contains the pull requests of the repository newest first', function 
     $response = $this->get(route(RouteName::GITHUB_REPOSITORY, $repository));
 
     $response->assertViewHas('repository', static function (Repository $viewRepository) use ($newerPullRequest, $olderPullRequest): bool {
-        return $viewRepository->pullRequests->modelKeys() === [$newerPullRequest->id, $olderPullRequest->id];
+        return $viewRepository->pullRequests->first()->id->equals($newerPullRequest->id)
+            && $viewRepository->pullRequests->last()->id->equals($olderPullRequest->id);
     });
 });
 

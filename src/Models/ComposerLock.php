@@ -12,13 +12,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Maarheeze\Compass\Collections\ComposerLockCollection;
 use Maarheeze\Compass\Collections\ComposerLockPackageCollection;
 use Maarheeze\Compass\Database\Factories\ComposerLockFactory;
+use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
+use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
+use Maarheeze\Uuid\Uuid;
 
 /**
  * @property CarbonImmutable $created_at
- * @property int $id
+ * @property Uuid $id
  * @property string $oid
  * @property ?string $php_constraint
- * @property int $repository_id
+ * @property Uuid $repository_id
  * @property CarbonImmutable $updated_at
  *
  * @property-read ComposerLockPackageCollection $packages
@@ -28,6 +31,7 @@ class ComposerLock extends Model
 {
     /** @use HasFactory<ComposerLockFactory> */
     use HasFactory;
+    use HasUuidAsId;
 
     protected static string $collectionClass = ComposerLockCollection::class;
 
@@ -71,6 +75,7 @@ class ComposerLock extends Model
     {
         return [
             'created_at' => 'immutable_datetime',
+            'repository_id' => UuidCast::class,
             'updated_at' => 'immutable_datetime',
         ];
     }

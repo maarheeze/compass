@@ -6,22 +6,21 @@ namespace Maarheeze\Compass\Collector\GitHub;
 
 use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\GitHubIssueCollection;
-use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\IssueAssignee;
 use Maarheeze\Compass\Models\Repository;
-use Webmozart\Assert\Assert;
+use Maarheeze\Uuid\Uuid;
 
 readonly class IssueSynchronizer
 {
-    public function deleteUncollected(RunId $runId): void
+    public function deleteUncollected(Uuid $runId): void
     {
         Issue::query()
             ->whereNot('run_id', $runId)
             ->delete();
     }
 
-    public function storeIssues(GitHubIssueCollection $gitHubIssues, RunId $runId): void
+    public function storeIssues(GitHubIssueCollection $gitHubIssues, Uuid $runId): void
     {
         $repositoryIds = Repository::query()
             ->whereIn('name', $gitHubIssues->pluck('repositoryName'))
@@ -35,7 +34,7 @@ readonly class IssueSynchronizer
 
         foreach ($gitHubIssuesOfKnownRepositories as $gitHubIssue) {
             $issueValues[] = [
-                'repository_id' => Assert::integer($repositoryIds->get($gitHubIssue->repositoryName)),
+                'repository_id' => $repositoryIds->get($gitHubIssue->repositoryName),
                 'github_id' => $gitHubIssue->gitHubId,
                 'number' => $gitHubIssue->number,
                 'title' => $gitHubIssue->title,
@@ -61,7 +60,8 @@ readonly class IssueSynchronizer
         foreach ($gitHubIssues as $gitHubIssue) {
             foreach ($gitHubIssue->assigneeLogins as $assigneeLogin) {
                 $assigneeValues[] = [
-                    'issue_id' => Assert::integer($issueIds->get($gitHubIssue->gitHubId)),
+                    'id' => Uuid::generate(),
+                    'issue_id' => $issueIds->get($gitHubIssue->gitHubId),
                     'login' => $assigneeLogin,
                     'created_at' => CarbonImmutable::now(),
                     'updated_at' => CarbonImmutable::now(),

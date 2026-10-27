@@ -10,11 +10,11 @@ use Illuminate\Support\Testing\Fakes\BatchFake;
 use Illuminate\Support\Testing\Fakes\BusFake;
 use Illuminate\Support\Testing\Fakes\PendingBatchFake;
 use Maarheeze\Compass\Collector\Client\Jobs\InspectSites;
-use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Collector\RunRecorder;
 use Maarheeze\Compass\Collector\RunStatus;
 use Maarheeze\Compass\Collector\RunType;
 use Maarheeze\Compass\Models\Run;
+use Maarheeze\Uuid\Uuid;
 use Monolog\Handler\TestHandler;
 use Monolog\LogRecord;
 use Psr\Log\LogLevel;
@@ -25,7 +25,7 @@ test('start dispatches the first job in a batch', function (): void {
     $firstJob = new InspectSites();
 
     $runRecorder = $this->app->make(RunRecorder::class);
-    $runRecorder->start(RunId::generate(), fake()->randomElement(RunType::cases()), $firstJob);
+    $runRecorder->start(Uuid::generate(), fake()->randomElement(RunType::cases()), $firstJob);
 
     $busFake->assertBatched(static function (PendingBatchFake $pendingBatch) use ($firstJob): bool {
         return $pendingBatch->jobs->all() === [$firstJob];
@@ -37,7 +37,7 @@ test('start keeps the batch going when one of its jobs fails', function (): void
     $this->app->instance(QueueingDispatcher::class, $busFake);
 
     $runRecorder = $this->app->make(RunRecorder::class);
-    $runRecorder->start(RunId::generate(), fake()->randomElement(RunType::cases()), new InspectSites());
+    $runRecorder->start(Uuid::generate(), fake()->randomElement(RunType::cases()), new InspectSites());
 
     $busFake->assertBatched(static function (PendingBatchFake $pendingBatch): bool {
         return $pendingBatch->allowsFailures();
@@ -47,7 +47,7 @@ test('start keeps the batch going when one of its jobs fails', function (): void
 test('start records the running run of the type with its batch when the batch is stored', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
-    $runId = RunId::generate();
+    $runId = Uuid::generate();
     $runType = fake()->randomElement(RunType::cases());
     $batchFake = new BatchFake(fake()->uuid(), '', 1, 1, 0, [], [], CarbonImmutable::now());
 
@@ -135,7 +135,7 @@ test('start logs the start of the run with its run id in the log context', funct
         'level' => LogLevel::DEBUG,
     ]);
     $this->setConfiguration('compass.log_channel', $channel);
-    $runId = RunId::generate();
+    $runId = Uuid::generate();
 
     $runRecorder = $this->app->make(RunRecorder::class);
     $runRecorder->start($runId, fake()->randomElement(RunType::cases()), new InspectSites());

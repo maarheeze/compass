@@ -7,13 +7,13 @@ use Maarheeze\Compass\Collections\ForgeSiteCollection;
 use Maarheeze\Compass\Collector\Forge\ForgeSite;
 use Maarheeze\Compass\Collector\Forge\SiteStatus;
 use Maarheeze\Compass\Collector\Forge\SiteSynchronizer;
-use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Tests\Fixtures\ForgeSiteFactory;
+use Maarheeze\Uuid\Uuid;
 
 test('store sites creates a site for a new forge site', function (): void {
     $forgeSite = ForgeSiteFactory::make();
-    $runId = RunId::generate();
+    $runId = Uuid::generate();
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
     $siteSynchronizer->storeSites(new ForgeSiteCollection([$forgeSite]), $runId);
@@ -38,7 +38,7 @@ test('store sites stores the latest deployment of a forge site', function (): vo
     $forgeSite = ForgeSiteFactory::make();
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->storeSites(new ForgeSiteCollection([$forgeSite]), RunId::generate());
+    $siteSynchronizer->storeSites(new ForgeSiteCollection([$forgeSite]), Uuid::generate());
 
     $this->assertDatabaseHas(Site::class, [
         'forge_id' => $forgeSite->forgeId,
@@ -54,7 +54,7 @@ test('store sites stores no deployment for a forge site that was never deployed'
     $forgeSite = ForgeSiteFactory::makeNeverDeployed();
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->storeSites(new ForgeSiteCollection([$forgeSite]), RunId::generate());
+    $siteSynchronizer->storeSites(new ForgeSiteCollection([$forgeSite]), Uuid::generate());
 
     $this->assertDatabaseHas(Site::class, [
         'forge_id' => $forgeSite->forgeId,
@@ -81,7 +81,7 @@ test('store sites updates the name of a known site', function (): void {
     );
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->storeSites(new ForgeSiteCollection([$renamedForgeSite]), RunId::generate());
+    $siteSynchronizer->storeSites(new ForgeSiteCollection([$renamedForgeSite]), Uuid::generate());
 
     $this->assertDatabaseHas(Site::class, [
         'id' => $site->id,
@@ -97,7 +97,7 @@ test('store sites clears the missing marks of a known site', function (): void {
     $forgeSite = ForgeSiteFactory::forSite($site);
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->storeSites(new ForgeSiteCollection([$forgeSite]), RunId::generate());
+    $siteSynchronizer->storeSites(new ForgeSiteCollection([$forgeSite]), Uuid::generate());
 
     $this->assertDatabaseHas(Site::class, [
         'id' => $site->id,
@@ -110,7 +110,7 @@ test('mark uncollected missing marks a site of another run missing', function ()
     $site = Site::factory()->create();
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->markUncollectedMissing(RunId::generate());
+    $siteSynchronizer->markUncollectedMissing(Uuid::generate());
 
     expect($site->refresh()->missing_at)
         ->toBeInstanceOf(CarbonImmutable::class);
@@ -121,7 +121,7 @@ test('mark uncollected missing keeps the moment a site went missing', function (
     $site = Site::factory()->create(['missing_at' => $missingAt]);
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->markUncollectedMissing(RunId::generate());
+    $siteSynchronizer->markUncollectedMissing(Uuid::generate());
 
     $this->assertDatabaseHas(Site::class, [
         'id' => $site->id,
@@ -130,7 +130,7 @@ test('mark uncollected missing keeps the moment a site went missing', function (
 });
 
 test('mark uncollected missing leaves a site of the run unmarked', function (): void {
-    $runId = RunId::generate();
+    $runId = Uuid::generate();
     $site = Site::factory()->create(['run_id' => $runId]);
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);

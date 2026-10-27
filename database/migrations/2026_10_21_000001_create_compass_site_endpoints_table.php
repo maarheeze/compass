@@ -11,9 +11,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('compass_site_endpoints', static function (Blueprint $table): void {
-            $table->id();
+            $table->uuid('id')->primary();
 
-            $table->foreignId('site_id')
+            $table->foreignUuid('site_id')
                 ->constrained('compass_sites')
                 ->cascadeOnDelete();
 

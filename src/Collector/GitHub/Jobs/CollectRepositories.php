@@ -13,7 +13,7 @@ use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\GitHub\GitHubQueryFailed;
 use Maarheeze\Compass\Collector\GitHub\RepositoriesQuery;
 use Maarheeze\Compass\Collector\GitHub\RepositorySynchronizer;
-use Maarheeze\Compass\Collector\RunId;
+use Maarheeze\Uuid\Uuid;
 use Webmozart\Assert\Assert;
 
 class CollectRepositories implements ShouldQueue
@@ -23,7 +23,7 @@ class CollectRepositories implements ShouldQueue
     use Queueable;
 
     public function __construct(
-        private readonly RunId $runId,
+        private readonly Uuid $runId,
     ) {
     }
 

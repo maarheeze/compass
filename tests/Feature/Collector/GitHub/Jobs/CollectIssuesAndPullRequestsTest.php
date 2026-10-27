@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectIssuesAndPullRequests;
-use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\PullRequest;
 use Maarheeze\Compass\Models\Repository;
+use Maarheeze\Uuid\Uuid;
 
 test('handle stores the issues of the page', function (): void {
     $repository = Repository::factory()->create();
@@ -23,7 +23,7 @@ test('handle stores the issues of the page', function (): void {
         'created_at' => fake()->iso8601(),
         'assignees' => [],
     ];
-    $runId = RunId::generate();
+    $runId = Uuid::generate();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([$issueResponse])]);
 
     $collectIssuesAndPullRequests = new CollectIssuesAndPullRequests($runId);
@@ -53,7 +53,7 @@ test('handle stores the pull requests of the page', function (): void {
             'url' => fake()->url(),
         ],
     ];
-    $runId = RunId::generate();
+    $runId = Uuid::generate();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([$pullRequestResponse])]);
 
     $collectIssuesAndPullRequests = new CollectIssuesAndPullRequests($runId);
@@ -69,7 +69,7 @@ test('handle deletes the issues of another run on the last page', function (): v
     $issue = Issue::factory()->create();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([])]);
 
-    $collectIssuesAndPullRequests = new CollectIssuesAndPullRequests(RunId::generate());
+    $collectIssuesAndPullRequests = new CollectIssuesAndPullRequests(Uuid::generate());
     $this->app->call([$collectIssuesAndPullRequests, 'handle']);
 
     $this->assertModelMissing($issue);
@@ -79,7 +79,7 @@ test('handle deletes the pull requests of another run on the last page', functio
     $pullRequest = PullRequest::factory()->create();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([])]);
 
-    $collectIssuesAndPullRequests = new CollectIssuesAndPullRequests(RunId::generate());
+    $collectIssuesAndPullRequests = new CollectIssuesAndPullRequests(Uuid::generate());
     $this->app->call([$collectIssuesAndPullRequests, 'handle']);
 
     $this->assertModelMissing($pullRequest);
@@ -107,7 +107,7 @@ test('handle keeps the issues collected on an earlier page', function (): void {
     $responseSequence->push([]);
     $http->fake(['*' => $responseSequence]);
 
-    $collectIssuesAndPullRequests = new CollectIssuesAndPullRequests(RunId::generate());
+    $collectIssuesAndPullRequests = new CollectIssuesAndPullRequests(Uuid::generate());
     $this->app->call([$collectIssuesAndPullRequests, 'handle']);
 
     $this->assertDatabaseHas(Issue::class, ['github_id' => $issueResponse['node_id']]);

@@ -11,9 +11,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('compass_pull_request_assignees', static function (Blueprint $table): void {
-            $table->id();
+            $table->uuid('id')->primary();
 
-            $table->foreignId('pull_request_id')
+            $table->foreignUuid('pull_request_id')
                 ->constrained('compass_pull_requests')
                 ->cascadeOnDelete();
 

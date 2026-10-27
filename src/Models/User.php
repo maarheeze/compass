@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Maarheeze\Compass\Database\Factories\UserFactory;
+use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
+use Maarheeze\Uuid\Uuid;
 
 /**
  * @property ?string $avatar_url
@@ -16,7 +18,7 @@ use Maarheeze\Compass\Database\Factories\UserFactory;
  * @property ?string $email
  * @property string $github_id
  * @property string $github_token
- * @property int $id
+ * @property Uuid $id
  * @property ?string $name
  * @property string $nickname
  * @property ?string $remember_token
@@ -26,7 +28,13 @@ class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory;
+    use HasUuidAsId;
     use Notifiable;
+
+    public function getAuthIdentifier(): string
+    {
+        return $this->getKey()->toString();
+    }
 
     /**
      * @return list<string>

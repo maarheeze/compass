@@ -13,7 +13,7 @@ use Maarheeze\Compass\Collector\GitHub\GitHubQueryFailed;
 use Maarheeze\Compass\Collector\GitHub\IssuesAndPullRequestsQuery;
 use Maarheeze\Compass\Collector\GitHub\IssueSynchronizer;
 use Maarheeze\Compass\Collector\GitHub\PullRequestSynchronizer;
-use Maarheeze\Compass\Collector\RunId;
+use Maarheeze\Uuid\Uuid;
 
 class CollectIssuesAndPullRequests implements ShouldQueue
 {
@@ -22,7 +22,7 @@ class CollectIssuesAndPullRequests implements ShouldQueue
     use Queueable;
 
     public function __construct(
-        private readonly RunId $runId,
+        private readonly Uuid $runId,
     ) {
     }
 

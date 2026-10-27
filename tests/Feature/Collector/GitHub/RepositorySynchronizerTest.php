@@ -7,13 +7,13 @@ use Maarheeze\Compass\Collections\GitHubRepositoryCollection;
 use Maarheeze\Compass\Collector\GitHub\GitHubRepository;
 use Maarheeze\Compass\Collector\GitHub\RepositorySynchronizer;
 use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
-use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Tests\Fixtures\GitHubRepositoryFactory;
+use Maarheeze\Uuid\Uuid;
 
 test('store repositories creates a repository for a new github repository', function (): void {
     $gitHubRepository = GitHubRepositoryFactory::make();
-    $runId = RunId::generate();
+    $runId = Uuid::generate();
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
     $repositorySynchronizer->storeRepositories(new GitHubRepositoryCollection([$gitHubRepository]), $runId);
@@ -37,7 +37,7 @@ test('store repositories updates the default branch of a known repository', func
     $gitHubRepository = GitHubRepositoryFactory::forRepository($repository);
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositorySynchronizer->storeRepositories(new GitHubRepositoryCollection([$gitHubRepository]), RunId::generate());
+    $repositorySynchronizer->storeRepositories(new GitHubRepositoryCollection([$gitHubRepository]), Uuid::generate());
 
     $this->assertDatabaseHas(Repository::class, [
         'id' => $repository->id,
@@ -50,7 +50,7 @@ test('store repositories updates the last commit sha of a known repository', fun
     $gitHubRepository = GitHubRepositoryFactory::forRepository($repository);
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositorySynchronizer->storeRepositories(new GitHubRepositoryCollection([$gitHubRepository]), RunId::generate());
+    $repositorySynchronizer->storeRepositories(new GitHubRepositoryCollection([$gitHubRepository]), Uuid::generate());
 
     $this->assertDatabaseHas(Repository::class, [
         'id' => $repository->id,
@@ -73,7 +73,7 @@ test('store repositories updates the name of a known repository', function (): v
     );
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositorySynchronizer->storeRepositories(new GitHubRepositoryCollection([$gitHubRepository]), RunId::generate());
+    $repositorySynchronizer->storeRepositories(new GitHubRepositoryCollection([$gitHubRepository]), Uuid::generate());
 
     $this->assertDatabaseHas(Repository::class, [
         'id' => $repository->id,
@@ -89,7 +89,7 @@ test('store repositories clears the missing marks of a known repository', functi
     $gitHubRepository = GitHubRepositoryFactory::forRepository($repository);
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositorySynchronizer->storeRepositories(new GitHubRepositoryCollection([$gitHubRepository]), RunId::generate());
+    $repositorySynchronizer->storeRepositories(new GitHubRepositoryCollection([$gitHubRepository]), Uuid::generate());
 
     $this->assertDatabaseHas(Repository::class, [
         'id' => $repository->id,
@@ -102,7 +102,7 @@ test('mark uncollected missing marks a repository of another run missing', funct
     $repository = Repository::factory()->create();
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositorySynchronizer->markUncollectedMissing(RunId::generate());
+    $repositorySynchronizer->markUncollectedMissing(Uuid::generate());
 
     expect($repository->refresh()->missing_at)
         ->toBeInstanceOf(CarbonImmutable::class);
@@ -113,7 +113,7 @@ test('mark uncollected missing keeps the moment a repository went missing', func
     $repository = Repository::factory()->create(['missing_at' => $missingAt]);
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositorySynchronizer->markUncollectedMissing(RunId::generate());
+    $repositorySynchronizer->markUncollectedMissing(Uuid::generate());
 
     $this->assertDatabaseHas(Repository::class, [
         'id' => $repository->id,
@@ -122,7 +122,7 @@ test('mark uncollected missing keeps the moment a repository went missing', func
 });
 
 test('mark uncollected missing leaves a repository of the run unmarked', function (): void {
-    $runId = RunId::generate();
+    $runId = Uuid::generate();
     $repository = Repository::factory()->create(['run_id' => $runId]);
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);

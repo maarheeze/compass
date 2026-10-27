@@ -6,15 +6,14 @@ namespace Maarheeze\Compass\Collector\GitHub;
 
 use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\GitHubPullRequestCollection;
-use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\PullRequest;
 use Maarheeze\Compass\Models\PullRequestAssignee;
 use Maarheeze\Compass\Models\Repository;
-use Webmozart\Assert\Assert;
+use Maarheeze\Uuid\Uuid;
 
 readonly class PullRequestSynchronizer
 {
-    public function deleteUncollected(RunId $runId): void
+    public function deleteUncollected(Uuid $runId): void
     {
         PullRequest::query()
             ->whereNot('run_id', $runId)
@@ -23,7 +22,7 @@ readonly class PullRequestSynchronizer
 
     public function storePullRequests(
         GitHubPullRequestCollection $gitHubPullRequests,
-        RunId $runId,
+        Uuid $runId,
     ): void {
         $repositoryIds = Repository::query()
             ->whereIn('name', $gitHubPullRequests->pluck('repositoryName'))
@@ -37,7 +36,7 @@ readonly class PullRequestSynchronizer
 
         foreach ($gitHubPullRequestsOfKnownRepositories as $gitHubPullRequest) {
             $pullRequestValues[] = [
-                'repository_id' => Assert::integer($repositoryIds->get($gitHubPullRequest->repositoryName)),
+                'repository_id' => $repositoryIds->get($gitHubPullRequest->repositoryName),
                 'github_id' => $gitHubPullRequest->gitHubId,
                 'number' => $gitHubPullRequest->number,
                 'title' => $gitHubPullRequest->title,
@@ -64,7 +63,8 @@ readonly class PullRequestSynchronizer
         foreach ($gitHubPullRequests as $gitHubPullRequest) {
             foreach ($gitHubPullRequest->assigneeLogins as $assigneeLogin) {
                 $assigneeValues[] = [
-                    'pull_request_id' => Assert::integer($pullRequestIds->get($gitHubPullRequest->gitHubId)),
+                    'id' => Uuid::generate(),
+                    'pull_request_id' => $pullRequestIds->get($gitHubPullRequest->gitHubId),
                     'login' => $assigneeLogin,
                     'created_at' => CarbonImmutable::now(),
                     'updated_at' => CarbonImmutable::now(),

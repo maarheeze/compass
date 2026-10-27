@@ -6,12 +6,12 @@ namespace Maarheeze\Compass\Collector\Forge;
 
 use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\ForgeSiteCollection;
-use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\Site;
+use Maarheeze\Uuid\Uuid;
 
 readonly class SiteSynchronizer
 {
-    public function markUncollectedMissing(RunId $runId): void
+    public function markUncollectedMissing(Uuid $runId): void
     {
         Site::query()
             ->whereNot('run_id', $runId)
@@ -19,7 +19,7 @@ readonly class SiteSynchronizer
             ->update(['missing_at' => CarbonImmutable::now()]);
     }
 
-    public function storeSites(ForgeSiteCollection $forgeSites, RunId $runId): void
+    public function storeSites(ForgeSiteCollection $forgeSites, Uuid $runId): void
     {
         $siteValues = [];
 

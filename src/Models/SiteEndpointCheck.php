@@ -13,13 +13,16 @@ use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
 use Maarheeze\Compass\Database\Factories\SiteEndpointCheckFactory;
 use Maarheeze\Compass\Http\EndpointPath;
 use Maarheeze\Compass\Models\Casts\EndpointPathCast;
+use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
+use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
+use Maarheeze\Uuid\Uuid;
 
 /**
  * @property CarbonImmutable $created_at
- * @property int $id
+ * @property Uuid $id
  * @property bool $is_successful
  * @property EndpointPath $path
- * @property int $site_id
+ * @property Uuid $site_id
  * @property ?int $status_code
  * @property CarbonImmutable $updated_at
  * @property string $url
@@ -30,6 +33,7 @@ class SiteEndpointCheck extends Model
 {
     /** @use HasFactory<SiteEndpointCheckFactory> */
     use HasFactory;
+    use HasUuidAsId;
 
     protected static string $collectionClass = SiteEndpointCheckCollection::class;
 
@@ -91,6 +95,7 @@ class SiteEndpointCheck extends Model
             'created_at' => 'immutable_datetime',
             'is_successful' => 'boolean',
             'path' => EndpointPathCast::class,
+            'site_id' => UuidCast::class,
             'status_code' => 'integer',
             'updated_at' => 'immutable_datetime',
         ];

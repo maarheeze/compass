@@ -10,12 +10,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Maarheeze\Compass\Collections\SiteEndpointCollection;
 use Maarheeze\Compass\Database\Factories\SiteEndpointFactory;
+use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
+use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
+use Maarheeze\Uuid\Uuid;
 
 /**
  * @property CarbonImmutable $created_at
- * @property int $id
+ * @property Uuid $id
  * @property string $path
- * @property int $site_id
+ * @property Uuid $site_id
  * @property CarbonImmutable $updated_at
  *
  * @property-read Site $site
@@ -24,6 +27,7 @@ class SiteEndpoint extends Model
 {
     /** @use HasFactory<SiteEndpointFactory> */
     use HasFactory;
+    use HasUuidAsId;
 
     protected static string $collectionClass = SiteEndpointCollection::class;
 
@@ -58,6 +62,7 @@ class SiteEndpoint extends Model
     {
         return [
             'created_at' => 'immutable_datetime',
+            'site_id' => UuidCast::class,
             'updated_at' => 'immutable_datetime',
         ];
     }

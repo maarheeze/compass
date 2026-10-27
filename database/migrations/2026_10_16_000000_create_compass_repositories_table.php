@@ -11,7 +11,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('compass_repositories', static function (Blueprint $table): void {
-            $table->id();
+            $table->uuid('id')->primary();
 
             $table->string('github_id')->unique();
             $table->string('name');
