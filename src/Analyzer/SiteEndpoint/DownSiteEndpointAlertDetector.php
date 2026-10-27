@@ -17,23 +17,18 @@ readonly class DownSiteEndpointAlertDetector implements AlertDetector
 {
     public function findAlerts(): AlertCollection
     {
-        $latestSiteEndpointCheckIds = SiteEndpoint::query()
-            ->whereHas('site', static function (Builder $siteQuery): void {
-                $siteQuery->whereNull('missing_at');
-            })
-            ->select([
-                'latest_site_endpoint_check_id' => SiteEndpointCheck::query()
-                    ->select('id')
-                    ->whereColumn('compass_site_endpoint_checks.site_id', 'compass_site_endpoints.site_id')
-                    ->whereColumn('compass_site_endpoint_checks.path', 'compass_site_endpoints.path')
-                    ->latest('id')
-                    ->limit(1),
-            ]);
+        $configuredSiteEndpointQuery = SiteEndpoint::query()
+            ->whereColumn('compass_site_endpoints.site_id', 'compass_site_endpoint_checks.site_id')
+            ->whereColumn('compass_site_endpoints.path', 'compass_site_endpoint_checks.path');
 
         $downSiteEndpointChecks = Assert::isInstanceOf(
             SiteEndpointCheck::query()
-                ->whereIn('id', $latestSiteEndpointCheckIds)
+                ->latestPerPath()
                 ->down()
+                ->whereExists($configuredSiteEndpointQuery)
+                ->whereHas('site', static function (Builder $siteQuery): void {
+                    $siteQuery->whereNull('missing_at');
+                })
                 ->with('site')
                 ->orderBy(Site::query()->select('name')->whereColumn('compass_sites.id', 'compass_site_endpoint_checks.site_id'))
                 ->orderBy('path')

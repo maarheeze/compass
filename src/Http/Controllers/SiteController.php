@@ -11,10 +11,8 @@ use Illuminate\Routing\Redirector;
 use Maarheeze\Compass\Collector\Client\ClientKey;
 use Maarheeze\Compass\Collector\Client\ClientUrlFactory;
 use Maarheeze\Compass\Collector\Forge\MissingSiteResolver;
-use Maarheeze\Compass\Http\EndpointPath;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Site;
-use Maarheeze\Compass\Models\SiteEndpointCheck;
 
 readonly class SiteController
 {
@@ -56,14 +54,13 @@ readonly class SiteController
         $site->load(['endpoints', 'repository']);
 
         return $this->view->make('compass::sites.show', [
-            'checkedEndpointPaths' => SiteEndpointCheck::query()
-                ->where('site_id', $site->id)
-                ->distinct()
-                ->orderBy('path')
-                ->pluck('path')
-                ->mapInto(EndpointPath::class),
             'clientKey' => $this->clientKey->find($site),
             'clientPath' => $this->clientUrlFactory->path($site),
+            'latestSiteEndpointChecks' => $site
+                ->endpointChecks()
+                ->latestPerPath()
+                ->orderBy('path')
+                ->get(),
             'site' => $site,
         ]);
     }

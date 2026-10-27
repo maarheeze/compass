@@ -78,3 +78,45 @@ test('handle adds the site and path of the endpoint to the log context', functio
             'path' => $siteEndpoint->path,
         ]);
 });
+
+test('handle records a check of an endpoint that responds with a 2xx status code as successful', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, fake()->numberBetween(200, 299))]);
+
+    $checkSiteEndpoint = new CheckSiteEndpoint($siteEndpoint);
+    $this->app->call([$checkSiteEndpoint, 'handle']);
+
+    $this->assertDatabaseHas(SiteEndpointCheck::class, [
+        'site_id' => $siteEndpoint->site_id,
+        'path' => $siteEndpoint->path,
+        'is_successful' => true,
+    ]);
+});
+
+test('handle records a check of an endpoint that responds with another status code as unsuccessful', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, fake()->numberBetween(300, 599))]);
+
+    $checkSiteEndpoint = new CheckSiteEndpoint($siteEndpoint);
+    $this->app->call([$checkSiteEndpoint, 'handle']);
+
+    $this->assertDatabaseHas(SiteEndpointCheck::class, [
+        'site_id' => $siteEndpoint->site_id,
+        'path' => $siteEndpoint->path,
+        'is_successful' => false,
+    ]);
+});
+
+test('handle records a check of an endpoint that cannot be reached as unsuccessful', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::failedConnection()]);
+
+    $checkSiteEndpoint = new CheckSiteEndpoint($siteEndpoint);
+    $this->app->call([$checkSiteEndpoint, 'handle']);
+
+    $this->assertDatabaseHas(SiteEndpointCheck::class, [
+        'site_id' => $siteEndpoint->site_id,
+        'path' => $siteEndpoint->path,
+        'is_successful' => false,
+    ]);
+});

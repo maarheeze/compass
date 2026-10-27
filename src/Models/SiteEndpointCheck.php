@@ -11,11 +11,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
 use Maarheeze\Compass\Database\Factories\SiteEndpointCheckFactory;
+use Maarheeze\Compass\Http\EndpointPath;
+use Maarheeze\Compass\Models\Casts\EndpointPathCast;
 
 /**
  * @property CarbonImmutable $created_at
  * @property int $id
- * @property string $path
+ * @property bool $is_successful
+ * @property EndpointPath $path
  * @property int $site_id
  * @property ?int $status_code
  * @property CarbonImmutable $updated_at
@@ -36,6 +39,7 @@ class SiteEndpointCheck extends Model
     public function getFillable(): array
     {
         return [
+            'is_successful',
             'path',
             'site_id',
             'status_code',
@@ -61,11 +65,21 @@ class SiteEndpointCheck extends Model
      */
     public function scopeDown(Builder $siteEndpointCheckQuery): void
     {
-        $siteEndpointCheckQuery->where(static function (Builder $statusCodeQuery): void {
-            $statusCodeQuery
-                ->whereNull('status_code')
-                ->orWhereNotBetween('status_code', [200, 299]);
-        });
+        $siteEndpointCheckQuery->where('is_successful', false);
+    }
+
+    /**
+     * @param Builder<self> $siteEndpointCheckQuery
+     */
+    public function scopeLatestPerPath(Builder $siteEndpointCheckQuery): void
+    {
+        $siteEndpointCheckQuery->whereNotExists(
+            self::query()
+                ->from('compass_site_endpoint_checks', 'newer_site_endpoint_checks')
+                ->whereColumn('newer_site_endpoint_checks.site_id', 'compass_site_endpoint_checks.site_id')
+                ->whereColumn('newer_site_endpoint_checks.path', 'compass_site_endpoint_checks.path')
+                ->whereColumn('newer_site_endpoint_checks.id', '>', 'compass_site_endpoint_checks.id'),
+        );
     }
 
     /**
@@ -75,6 +89,8 @@ class SiteEndpointCheck extends Model
     {
         return [
             'created_at' => 'immutable_datetime',
+            'is_successful' => 'boolean',
+            'path' => EndpointPathCast::class,
             'status_code' => 'integer',
             'updated_at' => 'immutable_datetime',
         ];

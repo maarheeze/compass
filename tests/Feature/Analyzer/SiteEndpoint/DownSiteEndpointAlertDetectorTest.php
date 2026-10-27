@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Maarheeze\Compass\Analyzer\SiteEndpoint\DownSiteEndpointAlertDetector;
+use Maarheeze\Compass\Http\EndpointPath;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
@@ -11,23 +12,8 @@ test('find alerts finds an endpoint whose latest check failed', function (): voi
     $siteEndpoint = SiteEndpoint::factory()->create();
     $siteEndpointCheck = SiteEndpointCheck::factory()->create([
         'site_id' => $siteEndpoint->site_id,
-        'path' => $siteEndpoint->path,
-        'status_code' => fake()->numberBetween(300, 599),
-    ]);
-
-    $downSiteEndpointAlertDetector = $this->app->make(DownSiteEndpointAlertDetector::class);
-    $alerts = $downSiteEndpointAlertDetector->findAlerts();
-
-    expect($alerts->sole()->siteEndpointCheck->is($siteEndpointCheck))
-        ->toBeTrue();
-});
-
-test('find alerts finds an endpoint that could not be reached', function (): void {
-    $siteEndpoint = SiteEndpoint::factory()->create();
-    $siteEndpointCheck = SiteEndpointCheck::factory()->create([
-        'site_id' => $siteEndpoint->site_id,
-        'path' => $siteEndpoint->path,
-        'status_code' => null,
+        'path' => new EndpointPath($siteEndpoint->path),
+        'is_successful' => false,
     ]);
 
     $downSiteEndpointAlertDetector = $this->app->make(DownSiteEndpointAlertDetector::class);
@@ -41,13 +27,13 @@ test('find alerts leaves out an endpoint whose latest check succeeded', function
     $siteEndpoint = SiteEndpoint::factory()->create();
     SiteEndpointCheck::factory()->create([
         'site_id' => $siteEndpoint->site_id,
-        'path' => $siteEndpoint->path,
-        'status_code' => fake()->numberBetween(300, 599),
+        'path' => new EndpointPath($siteEndpoint->path),
+        'is_successful' => false,
     ]);
     SiteEndpointCheck::factory()->create([
         'site_id' => $siteEndpoint->site_id,
-        'path' => $siteEndpoint->path,
-        'status_code' => fake()->numberBetween(200, 299),
+        'path' => new EndpointPath($siteEndpoint->path),
+        'is_successful' => true,
     ]);
 
     $downSiteEndpointAlertDetector = $this->app->make(DownSiteEndpointAlertDetector::class);
@@ -58,7 +44,7 @@ test('find alerts leaves out an endpoint whose latest check succeeded', function
 });
 
 test('find alerts leaves out an endpoint that is no longer reported', function (): void {
-    SiteEndpointCheck::factory()->create(['status_code' => fake()->numberBetween(300, 599)]);
+    SiteEndpointCheck::factory()->create(['is_successful' => false]);
 
     $downSiteEndpointAlertDetector = $this->app->make(DownSiteEndpointAlertDetector::class);
     $alerts = $downSiteEndpointAlertDetector->findAlerts();
@@ -73,8 +59,8 @@ test('find alerts leaves out the endpoints of a missing site', function (): void
         ->create();
     SiteEndpointCheck::factory()->create([
         'site_id' => $siteEndpoint->site_id,
-        'path' => $siteEndpoint->path,
-        'status_code' => fake()->numberBetween(300, 599),
+        'path' => new EndpointPath($siteEndpoint->path),
+        'is_successful' => false,
     ]);
 
     $downSiteEndpointAlertDetector = $this->app->make(DownSiteEndpointAlertDetector::class);

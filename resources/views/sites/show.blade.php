@@ -181,18 +181,35 @@
                 Endpoint history
             </x-compass::section-heading>
 
-            <div class="rounded-md border border-border bg-canvas px-4 py-3 text-sm">
-                @if ($checkedEndpointPaths->isNotEmpty())
-                    <ul class="flex flex-wrap gap-2">
-                        @foreach ($checkedEndpointPaths as $checkedEndpointPath)
-                            <li>
-                                <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE_ENDPOINT_CHECKS, [$site, $checkedEndpointPath->routeKey()]) }}" class="rounded-md bg-border/50 px-2 py-0.5 font-mono text-xs text-accent hover:underline">{{ $checkedEndpointPath->path }}</a>
-                            </li>
-                        @endforeach
-                    </ul>
-                @else
-                    <p class="text-foreground-muted">No endpoints checked yet.</p>
-                @endif
+            <div class="overflow-hidden rounded-md border border-border bg-canvas">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-canvas-subtle text-xs text-foreground-muted">
+                        <tr>
+                            <th class="px-4 py-2 font-medium">Path</th>
+                            <th class="px-4 py-2 font-medium">Status</th>
+                            <th class="px-4 py-2 font-medium">Last checked</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border">
+                        @forelse ($latestSiteEndpointChecks as $latestSiteEndpointCheck)
+                            <tr>
+                                <td class="px-4 py-2">
+                                    <a href="{{ route(\Maarheeze\Compass\Http\RouteName::FORGE_SITE_ENDPOINT_CHECKS, [$site, $latestSiteEndpointCheck->path->routeKey()]) }}" class="font-mono text-accent hover:underline">{{ $latestSiteEndpointCheck->path->path }}</a>
+                                </td>
+                                <td class="px-4 py-2">
+                                    <x-compass::site-endpoint-check.status-label :site-endpoint-check="$latestSiteEndpointCheck" />
+                                </td>
+                                <td class="px-4 py-2 text-foreground-muted">
+                                    <x-compass::time :time="$latestSiteEndpointCheck->created_at" />
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="px-4 py-6 text-center text-foreground-muted">No endpoints checked yet.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </section>
     </main>

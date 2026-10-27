@@ -3,7 +3,7 @@
         <x-compass::icons.alert />
     </x-slot:icon>
     <x-slot:text>
-        <span class="font-mono">{{ $alert->siteEndpointCheck->path }}</span>
+        <span class="font-mono">{{ $alert->siteEndpointCheck->path->path }}</span>
         @if ($alert->siteEndpointCheck->status_code === null)
             unreachable
         @else

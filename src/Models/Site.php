@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Maarheeze\Compass\Collections\SiteCollection;
+use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCollection;
 use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\Forge\DeploymentStatus;
@@ -52,6 +53,7 @@ use function sprintf;
  * @property CarbonImmutable $updated_at
  * @property string $url
  *
+ * @property-read SiteEndpointCheckCollection $endpointChecks
  * @property-read SiteEndpointCollection $endpoints
  * @property-read ?Repository $repository
  */
@@ -101,6 +103,14 @@ class Site extends Model
     public function getTable(): string
     {
         return 'compass_sites';
+    }
+
+    /**
+     * @return HasMany<SiteEndpointCheck, $this>
+     */
+    public function endpointChecks(): HasMany
+    {
+        return $this->hasMany(SiteEndpointCheck::class);
     }
 
     /**

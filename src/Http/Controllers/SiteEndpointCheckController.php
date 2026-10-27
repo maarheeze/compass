@@ -8,7 +8,6 @@ use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Maarheeze\Compass\Http\EndpointPath;
 use Maarheeze\Compass\Models\Site;
-use Maarheeze\Compass\Models\SiteEndpointCheck;
 
 readonly class SiteEndpointCheckController
 {
@@ -22,8 +21,8 @@ readonly class SiteEndpointCheckController
         $endpointPath = EndpointPath::fromRouteKey($endpointPathRouteKey);
 
         return $this->view->make('compass::sites.endpoint-checks.index', [
-            'siteEndpointChecks' => SiteEndpointCheck::query()
-                ->where('site_id', $site->id)
+            'siteEndpointChecks' => $site
+                ->endpointChecks()
                 ->where('path', $endpointPath->path)
                 ->latest('id')
                 ->paginate(50),

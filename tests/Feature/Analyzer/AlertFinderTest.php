@@ -14,6 +14,7 @@ use Maarheeze\Compass\Analyzer\Forge\SiteBehindAlert;
 use Maarheeze\Compass\Analyzer\GitHub\MissingRepositoryAlert;
 use Maarheeze\Compass\Analyzer\SiteEndpoint\DownSiteEndpointAlert;
 use Maarheeze\Compass\Collector\Client\ClientStatus;
+use Maarheeze\Compass\Http\EndpointPath;
 use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
@@ -142,8 +143,8 @@ test('find holds the endpoints that are down', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $siteEndpointCheck = SiteEndpointCheck::factory()->create([
         'site_id' => $siteEndpoint->site_id,
-        'path' => $siteEndpoint->path,
-        'status_code' => null,
+        'path' => new EndpointPath($siteEndpoint->path),
+        'is_successful' => false,
     ]);
 
     $alertFinder = $this->app->make(AlertFinder::class);

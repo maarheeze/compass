@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Collection;
 use Maarheeze\Compass\Collections\SiteCollection;
+use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
@@ -33,19 +33,20 @@ test('show contains the site', function (): void {
     });
 });
 
-test('show contains each checked endpoint path once', function (): void {
-    $siteEndpointCheck = SiteEndpointCheck::factory()->create();
-    SiteEndpointCheck::factory()->create([
-        'site_id' => $siteEndpointCheck->site_id,
-        'path' => $siteEndpointCheck->path,
-    ]);
+test('show contains the latest check of each checked endpoint path', function (): void {
+    $latestSiteEndpointCheck = SiteEndpointCheck::factory()->create();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::FORGE_SITE, $siteEndpointCheck->site));
+    $response = $this->get(route(RouteName::FORGE_SITE, $latestSiteEndpointCheck->site));
 
-    $response->assertViewHas('checkedEndpointPaths', static function (Collection $viewCheckedEndpointPaths) use ($siteEndpointCheck): bool {
-        return $viewCheckedEndpointPaths->sole()->path === $siteEndpointCheck->path;
-    });
+    $response->assertViewHas(
+        'latestSiteEndpointChecks',
+        static function (
+            SiteEndpointCheckCollection $viewLatestSiteEndpointChecks,
+        ) use ($latestSiteEndpointCheck): bool {
+            return $viewLatestSiteEndpointChecks->sole()->is($latestSiteEndpointCheck);
+        },
+    );
 });
 
 test('show contains the key of the site', function (): void {
