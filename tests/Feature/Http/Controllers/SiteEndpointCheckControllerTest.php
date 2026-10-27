@@ -52,3 +52,22 @@ test('index is not found for a path that is not encoded', function (): void {
 
     $response->assertNotFound();
 });
+
+test('index shows the configured number of checks per page', function (): void {
+    $itemsPerPage = fake()->numberBetween(1, 100);
+    $this->setConfiguration('compass.items_per_page', $itemsPerPage);
+    $siteEndpointCheck = SiteEndpointCheck::factory()->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::FORGE_SITE_ENDPOINT_CHECKS, [
+        $siteEndpointCheck->site,
+        $siteEndpointCheck->path->routeKey(),
+    ]));
+
+    $response->assertViewHas(
+        'siteEndpointChecks',
+        static function (LengthAwarePaginator $viewSiteEndpointChecks) use ($itemsPerPage): bool {
+            return $viewSiteEndpointChecks->perPage() === $itemsPerPage;
+        },
+    );
+});

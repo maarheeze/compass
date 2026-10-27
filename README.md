@@ -45,6 +45,8 @@ COMPASS_CLIENT_PATH=/_compass
 COMPASS_LOG_CHANNEL=
 
 COMPASS_DISPLAY_TIMEZONE=Europe/Amsterdam
+COMPASS_DISPLAY_DATE_TIME_FORMAT="Y-m-d H:i:s"
+COMPASS_ITEMS_PER_PAGE=25
 ```
 
 - `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` — a GitHub OAuth App of the organization, with `{APP_URL}/auth/github/callback` as callback URL (prefixed with `COMPASS_PATH` when set). Only active members of the organization are let in.
@@ -53,6 +55,8 @@ COMPASS_DISPLAY_TIMEZONE=Europe/Amsterdam
 - `COMPASS_CLIENT_KEY` and `COMPASS_CLIENT_PATH` — the default key and path for reading [the client](#client); a site can override both on its page.
 - `COMPASS_LOG_CHANNEL` — the log channel the collector writes to: an info line when a collection starts and ends, a debug line per page, composer file, site and endpoint, each with the repository, site or endpoint it is about. Empty writes to the application's default channel.
 - `COMPASS_DISPLAY_TIMEZONE` — the timezone dates and times are shown in on the dashboard. Stored times are not affected.
+- `COMPASS_DISPLAY_DATE_TIME_FORMAT` — the [PHP date format](https://www.php.net/manual/en/datetime.format.php) dates and times are shown in where an exact moment matters, such as the runs and the endpoint history.
+- `COMPASS_ITEMS_PER_PAGE` — the number of items a paginated list shows per page, such as the runs and the endpoint history.
 
 ## Usage
 

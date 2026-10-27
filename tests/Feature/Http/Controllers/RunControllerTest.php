@@ -45,3 +45,27 @@ test('type leaves out the runs of another type', function (): void {
         return $viewRuns->isEmpty();
     });
 });
+
+test('index shows the configured number of runs per page', function (): void {
+    $itemsPerPage = fake()->numberBetween(1, 100);
+    $this->setConfiguration('compass.items_per_page', $itemsPerPage);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::RUNS));
+
+    $response->assertViewHas('runs', static function (LengthAwarePaginator $viewRuns) use ($itemsPerPage): bool {
+        return $viewRuns->perPage() === $itemsPerPage;
+    });
+});
+
+test('type shows the configured number of runs per page', function (): void {
+    $itemsPerPage = fake()->numberBetween(1, 100);
+    $this->setConfiguration('compass.items_per_page', $itemsPerPage);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::RUNS_OF_TYPE, fake()->randomElement(RunType::cases())));
+
+    $response->assertViewHas('runs', static function (LengthAwarePaginator $viewRuns) use ($itemsPerPage): bool {
+        return $viewRuns->perPage() === $itemsPerPage;
+    });
+});

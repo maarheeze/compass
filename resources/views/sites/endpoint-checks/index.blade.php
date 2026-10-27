@@ -22,7 +22,7 @@
                     @forelse ($siteEndpointChecks as $siteEndpointCheck)
                         <tr>
                             <td class="px-4 py-2 text-foreground-muted">
-                                <x-compass::time :time="$siteEndpointCheck->created_at" />
+                                <x-compass::date-time :time="$siteEndpointCheck->created_at" />
                             </td>
                             <td class="px-4 py-2 font-mono text-foreground-muted">{{ $siteEndpointCheck->url }}</td>
                             <td class="px-4 py-2 text-foreground">

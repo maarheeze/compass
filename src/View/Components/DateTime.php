@@ -21,7 +21,7 @@ class DateTime extends Component
     ) {
         $this->displayDateTime = $time
             ->setTimezone($config->string('compass.display_timezone'))
-            ->toDateTimeString();
+            ->format($config->string('compass.display_date_time_format'));
     }
 
     public function render(): View

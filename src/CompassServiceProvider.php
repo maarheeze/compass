@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace Maarheeze\Compass;
 
 use Carbon\FactoryImmutable;
+use Illuminate\Config\Repository;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Livewire\LivewireManager;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Console\SyncCommand;
+use Maarheeze\Compass\Http\Controllers\RunController;
+use Maarheeze\Compass\Http\Controllers\SiteEndpointCheckController;
 use Maarheeze\Compass\Http\Middleware\Authenticate;
 use Maarheeze\Compass\Providers\AlertProvider;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
@@ -35,6 +39,13 @@ class CompassServiceProvider extends ServiceProvider
             ->when(CollectorLogger::class)
             ->needs('$channel')
             ->giveConfig('compass.log_channel');
+
+        $this->app
+            ->when([RunController::class, SiteEndpointCheckController::class])
+            ->needs('$itemsPerPage')
+            ->give(static function (Container $container): int {
+                return $container->make(Repository::class)->integer('compass.items_per_page');
+            });
 
         $this->app->register(AlertProvider::class);
         $this->app->register(AuthenticationProvider::class);

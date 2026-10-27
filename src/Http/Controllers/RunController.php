@@ -12,6 +12,7 @@ use Maarheeze\Compass\Models\Run;
 readonly class RunController
 {
     public function __construct(
+        private int $itemsPerPage,
         private ViewFactory $view,
     ) {
     }
@@ -19,7 +20,7 @@ readonly class RunController
     public function index(): View
     {
         return $this->view->make('compass::runs.index', [
-            'runs' => Run::query()->latest()->paginate(50),
+            'runs' => Run::query()->latest()->paginate($this->itemsPerPage),
         ]);
     }
 
@@ -29,7 +30,7 @@ readonly class RunController
             'runs' => Run::query()
                 ->where('type', $runType)
                 ->latest()
-                ->paginate(50),
+                ->paginate($this->itemsPerPage),
         ]);
     }
 }

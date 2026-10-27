@@ -12,6 +12,7 @@ use Maarheeze\Compass\Models\Site;
 readonly class SiteEndpointCheckController
 {
     public function __construct(
+        private int $itemsPerPage,
         private ViewFactory $view,
     ) {
     }
@@ -25,7 +26,7 @@ readonly class SiteEndpointCheckController
                 ->endpointChecks()
                 ->where('path', $endpointPath->path)
                 ->latest('id')
-                ->paginate(50),
+                ->paginate($this->itemsPerPage),
             'endpointPath' => $endpointPath,
             'site' => $site,
         ]);
