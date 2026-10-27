@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Collector\GitHub;
 
 use Carbon\CarbonImmutable;
+use Generator;
 use Illuminate\Http\Client\Response;
 use Maarheeze\Compass\Collections\GitHubIssueCollection;
 use Maarheeze\Compass\Collections\GitHubPullRequestCollection;
@@ -25,29 +26,23 @@ readonly class IssuesAndPullRequestsQuery
     }
 
     /**
+     * @return Generator<int, IssuesAndPullRequestsQueryResult>
+     *
      * @throws GitHubQueryFailed
      */
-    public function page(?string $pageUrl): IssuesAndPullRequestsQueryResult
+    public function pages(): Generator
     {
-        $response = $this->gitHubClient->get($this->getPageUrl($pageUrl));
-        $gitHubIssues = new GitHubIssueCollection();
-        $gitHubPullRequests = new GitHubPullRequestCollection();
+        $issuesAndPullRequestsQueryResult = $this->getIssuesAndPullRequestsQueryResult(null);
 
-        foreach (Assert::isList($response->json()) as $issueResponse) {
-            Assert::isArray($issueResponse);
+        yield $issuesAndPullRequestsQueryResult;
 
-            if (array_key_exists('pull_request', $issueResponse)) {
-                $gitHubPullRequests->push($this->getGitHubPullRequest($issueResponse));
-            } else {
-                $gitHubIssues->push($this->getGitHubIssue($issueResponse));
-            }
+        while ($issuesAndPullRequestsQueryResult->nextPageUrl !== null) {
+            $issuesAndPullRequestsQueryResult = $this->getIssuesAndPullRequestsQueryResult(
+                $issuesAndPullRequestsQueryResult->nextPageUrl,
+            );
+
+            yield $issuesAndPullRequestsQueryResult;
         }
-
-        return new IssuesAndPullRequestsQueryResult(
-            $gitHubIssues,
-            $gitHubPullRequests,
-            $this->getNextPageUrl($response),
-        );
     }
 
     /**
@@ -107,6 +102,32 @@ readonly class IssuesAndPullRequestsQuery
             Assert::boolean($issueResponse['draft']),
             CarbonImmutable::parse(Assert::string($issueResponse['created_at'])),
             $this->getAssigneeLogins($issueResponse),
+        );
+    }
+
+    /**
+     * @throws GitHubQueryFailed
+     */
+    private function getIssuesAndPullRequestsQueryResult(?string $pageUrl): IssuesAndPullRequestsQueryResult
+    {
+        $response = $this->gitHubClient->get($this->getPageUrl($pageUrl));
+        $gitHubIssues = new GitHubIssueCollection();
+        $gitHubPullRequests = new GitHubPullRequestCollection();
+
+        foreach (Assert::isList($response->json()) as $issueResponse) {
+            Assert::isArray($issueResponse);
+
+            if (array_key_exists('pull_request', $issueResponse)) {
+                $gitHubPullRequests->push($this->getGitHubPullRequest($issueResponse));
+            } else {
+                $gitHubIssues->push($this->getGitHubIssue($issueResponse));
+            }
+        }
+
+        return new IssuesAndPullRequestsQueryResult(
+            $gitHubIssues,
+            $gitHubPullRequests,
+            $this->getNextPageUrl($response),
         );
     }
 

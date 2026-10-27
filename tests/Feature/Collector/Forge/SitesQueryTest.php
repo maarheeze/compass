@@ -9,7 +9,7 @@ use Maarheeze\Compass\Collector\Forge\ForgeDeployment;
 use Maarheeze\Compass\Collector\Forge\SitesQuery;
 use Maarheeze\Compass\Tests\Fixtures\ForgeSiteFactory;
 
-test('page requests the sites of the forge organization', function (): void {
+test('pages request the sites of the forge organization', function (): void {
     $organization = fake()->slug();
     $this->setConfiguration('compass.forge.organization', $organization);
 
@@ -24,39 +24,45 @@ test('page requests the sites of the forge organization', function (): void {
     ]);
 
     $sitesQuery = $this->app->make(SitesQuery::class);
-    $sitesQuery->page(null);
+    $sitesQuery->pages()->current();
 
     $http->assertSent(static function (HttpRequest $request) use ($organization): bool {
         return str_starts_with($request->url(), sprintf('https://forge.laravel.com/api/orgs/%s/sites?', $organization));
     });
 });
 
-test('page requests the sites with their server and latest deployment from the cursor', function (): void {
-    $cursor = fake()->sha1();
+test('pages request the next page with their server and latest deployment from the cursor of the page before it', function (): void {
+    $nextCursor = fake()->sha1();
 
     $http = $this->app->make(HttpFactory::class);
-    $http->fake([
-        '*' => HttpFactory::response([
-            'data' => [],
-            'meta' => [
-                'next_cursor' => null,
-            ],
-        ]),
+    $responseSequence = $http->sequence();
+    $responseSequence->push([
+        'data' => [],
+        'meta' => [
+            'next_cursor' => $nextCursor,
+        ],
     ]);
+    $responseSequence->push([
+        'data' => [],
+        'meta' => [
+            'next_cursor' => null,
+        ],
+    ]);
+    $http->fake(['*' => $responseSequence]);
 
     $sitesQuery = $this->app->make(SitesQuery::class);
-    $sitesQuery->page($cursor);
+    iterator_to_array($sitesQuery->pages());
 
-    $http->assertSent(static function (HttpRequest $request) use ($cursor): bool {
+    $http->assertSent(static function (HttpRequest $request) use ($nextCursor): bool {
         return $request->data() === [
             'include' => 'server,latestDeployment',
             'page[size]' => 100,
-            'page[cursor]' => $cursor,
+            'page[cursor]' => $nextCursor,
         ];
     });
 });
 
-test('page holds the forge sites in the response', function (): void {
+test('pages hold the forge sites in the response', function (): void {
     $forgeSite = ForgeSiteFactory::make();
     $serverId = fake()->numerify('####');
     $deploymentId = fake()->numerify('####');
@@ -124,13 +130,13 @@ test('page holds the forge sites in the response', function (): void {
     ]);
 
     $sitesQuery = $this->app->make(SitesQuery::class);
-    $sitesQueryResult = $sitesQuery->page(null);
+    $sitesQueryResult = $sitesQuery->pages()->current();
 
     expect($sitesQueryResult->forgeSites)
         ->toEqual(new ForgeSiteCollection([$forgeSite]));
 });
 
-test('page holds no latest deployment for a site that was never deployed', function (): void {
+test('pages hold no latest deployment for a site that was never deployed', function (): void {
     $serverId = fake()->numerify('####');
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
@@ -180,13 +186,13 @@ test('page holds no latest deployment for a site that was never deployed', funct
     ]);
 
     $sitesQuery = $this->app->make(SitesQuery::class);
-    $sitesQueryResult = $sitesQuery->page(null);
+    $sitesQueryResult = $sitesQuery->pages()->current();
 
     expect($sitesQueryResult->forgeSites->sole()->latestDeployment)
         ->toBeNull();
 });
 
-test('page holds no end time for a deployment that has not ended', function (): void {
+test('pages hold no end time for a deployment that has not ended', function (): void {
     $serverId = fake()->numerify('####');
     $deploymentId = fake()->numerify('####');
     $this->app->make(HttpFactory::class)->fake([
@@ -253,14 +259,14 @@ test('page holds no end time for a deployment that has not ended', function (): 
     ]);
 
     $sitesQuery = $this->app->make(SitesQuery::class);
-    $sitesQueryResult = $sitesQuery->page(null);
+    $sitesQueryResult = $sitesQuery->pages()->current();
 
     expect($sitesQueryResult->forgeSites->sole()->latestDeployment)
         ->toBeInstanceOf(ForgeDeployment::class)
         ->endedAt->toBeNull();
 });
 
-test('page leaves out the sites of servers that do not match the server pattern', function (): void {
+test('pages leave out the sites of servers that do not match the server pattern', function (): void {
     $this->setConfiguration('compass.forge.server_pattern', sprintf('/^%s$/', fake()->unique()->sha1()));
     $serverId = fake()->numerify('####');
     $this->app->make(HttpFactory::class)->fake([
@@ -311,32 +317,15 @@ test('page leaves out the sites of servers that do not match the server pattern'
     ]);
 
     $sitesQuery = $this->app->make(SitesQuery::class);
-    $sitesQueryResult = $sitesQuery->page(null);
+    $sitesQueryResult = $sitesQuery->pages()->current();
 
     expect($sitesQueryResult->forgeSites)
         ->toBeEmpty();
 });
 
-test('page holds the next cursor of the response', function (): void {
-    $nextCursor = fake()->sha1();
-    $this->app->make(HttpFactory::class)->fake([
-        '*' => HttpFactory::response([
-            'data' => [],
-            'meta' => [
-                'next_cursor' => $nextCursor,
-            ],
-        ]),
-    ]);
-
-    $sitesQuery = $this->app->make(SitesQuery::class);
-    $sitesQueryResult = $sitesQuery->page(null);
-
-    expect($sitesQueryResult->nextCursor)
-        ->toBe($nextCursor);
-});
-
-test('page holds no next cursor on the last page', function (): void {
-    $this->app->make(HttpFactory::class)->fake([
+test('pages end with the page without a next cursor', function (): void {
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake([
         '*' => HttpFactory::response([
             'data' => [],
             'meta' => [
@@ -346,8 +335,7 @@ test('page holds no next cursor on the last page', function (): void {
     ]);
 
     $sitesQuery = $this->app->make(SitesQuery::class);
-    $sitesQueryResult = $sitesQuery->page(null);
+    iterator_to_array($sitesQuery->pages());
 
-    expect($sitesQueryResult->nextCursor)
-        ->toBeNull();
+    $http->assertSentCount(1);
 });

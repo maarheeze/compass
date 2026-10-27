@@ -4,31 +4,9 @@ declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Client\Factory as HttpFactory;
-use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collector\Forge\Jobs\CollectSites;
 use Maarheeze\Compass\Collector\RunId;
 use Maarheeze\Compass\Models\Site;
-
-test('handle queries the page of its cursor', function (): void {
-    $cursor = fake()->sha1();
-
-    $http = $this->app->make(HttpFactory::class);
-    $http->fake([
-        '*' => HttpFactory::response([
-            'data' => [],
-            'meta' => [
-                'next_cursor' => null,
-            ],
-        ]),
-    ]);
-
-    $collectSites = new CollectSites(RunId::generate(), $cursor);
-    $this->app->call([$collectSites, 'handle']);
-
-    $http->assertSent(static function (HttpRequest $request) use ($cursor): bool {
-        return $request['page[cursor]'] === $cursor;
-    });
-});
 
 test('handle stores the sites of the page', function (): void {
     $forgeId = fake()->numerify('#######');
@@ -81,31 +59,13 @@ test('handle stores the sites of the page', function (): void {
         ]),
     ]);
 
-    $collectSites = new CollectSites($runId, null);
+    $collectSites = new CollectSites($runId);
     $this->app->call([$collectSites, 'handle']);
 
     $this->assertDatabaseHas(Site::class, [
         'forge_id' => $forgeId,
         'run_id' => $runId,
     ]);
-});
-
-test('handle chains the next page when there is one', function (): void {
-    $nextCursor = fake()->sha1();
-    $runId = RunId::generate();
-    $this->app->make(HttpFactory::class)->fake([
-        '*' => HttpFactory::response([
-            'data' => [],
-            'meta' => [
-                'next_cursor' => $nextCursor,
-            ],
-        ]),
-    ]);
-
-    $collectSites = new CollectSites($runId, null);
-    $this->app->call([$collectSites, 'handle']);
-
-    $collectSites->assertHasChain([new CollectSites($runId, $nextCursor)]);
 });
 
 test('handle marks the sites of another run missing on the last page', function (): void {
@@ -119,7 +79,7 @@ test('handle marks the sites of another run missing on the last page', function 
         ]),
     ]);
 
-    $collectSites = new CollectSites(RunId::generate(), null);
+    $collectSites = new CollectSites(RunId::generate());
     $this->app->call([$collectSites, 'handle']);
 
     expect($site->refresh()->missing_at)

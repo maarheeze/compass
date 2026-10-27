@@ -16,7 +16,7 @@ class SyncForgeCommand extends Command
 
     public function handle(Dispatcher $dispatcher): void
     {
-        $collectSites = new CollectSites(RunId::generate(), null);
+        $collectSites = new CollectSites(RunId::generate());
         $collectSites->chain([
             new InspectSites(),
         ]);

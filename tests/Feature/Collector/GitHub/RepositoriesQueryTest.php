@@ -10,7 +10,7 @@ use Maarheeze\Compass\Collector\GitHub\RepositoriesQuery;
 use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
 use Maarheeze\Compass\Tests\Fixtures\GitHubRepositoryFactory;
 
-test('page is queried at the github graphql api', function (): void {
+test('pages are queried at the github graphql api', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake([
         '*' => HttpFactory::response([
@@ -29,7 +29,7 @@ test('page is queried at the github graphql api', function (): void {
     ]);
 
     $repositoriesQuery = $this->app->make(RepositoriesQuery::class);
-    $repositoriesQuery->page(fake()->sha1());
+    $repositoriesQuery->pages()->current();
 
     $http->assertSent(static function (HttpRequest $request): bool {
         if ($request->method() !== 'POST') {
@@ -40,10 +40,9 @@ test('page is queried at the github graphql api', function (): void {
     });
 });
 
-test('page is queried for the organization from the cursor', function (): void {
+test('pages query the first page for the organization without a cursor', function (): void {
     $organization = fake()->slug();
     $this->setConfiguration('compass.github.organization', $organization);
-    $cursor = fake()->sha1();
 
     $http = $this->app->make(HttpFactory::class);
     $http->fake([
@@ -63,17 +62,58 @@ test('page is queried for the organization from the cursor', function (): void {
     ]);
 
     $repositoriesQuery = $this->app->make(RepositoriesQuery::class);
-    $repositoriesQuery->page($cursor);
+    $repositoriesQuery->pages()->current();
 
-    $http->assertSent(static function (HttpRequest $request) use ($organization, $cursor): bool {
+    $http->assertSent(static function (HttpRequest $request) use ($organization): bool {
         return $request['variables'] === [
             'organization' => $organization,
-            'cursor' => $cursor,
+            'cursor' => null,
         ];
     });
 });
 
-test('page holds the github repositories in the response', function (): void {
+test('pages query the next page from the end cursor of the page before it', function (): void {
+    $endCursor = fake()->sha1();
+
+    $http = $this->app->make(HttpFactory::class);
+    $responseSequence = $http->sequence();
+    $responseSequence->push([
+        'data' => [
+            'organization' => [
+                'repositories' => [
+                    'pageInfo' => [
+                        'hasNextPage' => true,
+                        'endCursor' => $endCursor,
+                    ],
+                    'nodes' => [],
+                ],
+            ],
+        ],
+    ]);
+    $responseSequence->push([
+        'data' => [
+            'organization' => [
+                'repositories' => [
+                    'pageInfo' => [
+                        'hasNextPage' => false,
+                        'endCursor' => null,
+                    ],
+                    'nodes' => [],
+                ],
+            ],
+        ],
+    ]);
+    $http->fake(['*' => $responseSequence]);
+
+    $repositoriesQuery = $this->app->make(RepositoriesQuery::class);
+    iterator_to_array($repositoriesQuery->pages());
+
+    $http->assertSent(static function (HttpRequest $request) use ($endCursor): bool {
+        return $request['variables']['cursor'] === $endCursor;
+    });
+});
+
+test('pages hold the github repositories in the response', function (): void {
     $gitHubRepository = GitHubRepositoryFactory::make();
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
@@ -112,13 +152,13 @@ test('page holds the github repositories in the response', function (): void {
     ]);
 
     $repositoriesQuery = $this->app->make(RepositoriesQuery::class);
-    $repositoriesQueryResult = $repositoriesQuery->page(null);
+    $repositoriesQueryResult = $repositoriesQuery->pages()->current();
 
     expect($repositoriesQueryResult->gitHubRepositories)
         ->toEqual(new GitHubRepositoryCollection([$gitHubRepository]));
 });
 
-test('page skips repositories without a default branch', function (): void {
+test('pages skip repositories without a default branch', function (): void {
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             'data' => [
@@ -145,39 +185,15 @@ test('page skips repositories without a default branch', function (): void {
     ]);
 
     $repositoriesQuery = $this->app->make(RepositoriesQuery::class);
-    $repositoriesQueryResult = $repositoriesQuery->page(null);
+    $repositoriesQueryResult = $repositoriesQuery->pages()->current();
 
     expect($repositoriesQueryResult->gitHubRepositories)
         ->toBeEmpty();
 });
 
-test('page holds the end cursor as next cursor when there is a next page', function (): void {
-    $endCursor = fake()->sha1();
-    $this->app->make(HttpFactory::class)->fake([
-        '*' => HttpFactory::response([
-            'data' => [
-                'organization' => [
-                    'repositories' => [
-                        'pageInfo' => [
-                            'hasNextPage' => true,
-                            'endCursor' => $endCursor,
-                        ],
-                        'nodes' => [],
-                    ],
-                ],
-            ],
-        ]),
-    ]);
-
-    $repositoriesQuery = $this->app->make(RepositoriesQuery::class);
-    $repositoriesQueryResult = $repositoriesQuery->page(null);
-
-    expect($repositoriesQueryResult->nextCursor)
-        ->toBe($endCursor);
-});
-
-test('page holds no next cursor on the last page', function (): void {
-    $this->app->make(HttpFactory::class)->fake([
+test('pages end with the page without a next page', function (): void {
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake([
         '*' => HttpFactory::response([
             'data' => [
                 'organization' => [
@@ -194,13 +210,12 @@ test('page holds no next cursor on the last page', function (): void {
     ]);
 
     $repositoriesQuery = $this->app->make(RepositoriesQuery::class);
-    $repositoriesQueryResult = $repositoriesQuery->page(null);
+    iterator_to_array($repositoriesQuery->pages());
 
-    expect($repositoriesQueryResult->nextCursor)
-        ->toBeNull();
+    $http->assertSentCount(1);
 });
 
-test('page throws when github answers with errors', function (): void {
+test('pages throw when github answers with errors', function (): void {
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             'data' => [
@@ -215,12 +230,12 @@ test('page throws when github answers with errors', function (): void {
     ]);
 
     $repositoriesQuery = $this->app->make(RepositoriesQuery::class);
-    $repositoriesQuery->page(null);
+    $repositoriesQuery->pages()->current();
 })->throws(GitHubQueryFailed::class);
 
-test('page throws when github refuses the request', function (): void {
+test('pages throw when github refuses the request', function (): void {
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, 401)]);
 
     $repositoriesQuery = $this->app->make(RepositoriesQuery::class);
-    $repositoriesQuery->page(null);
+    $repositoriesQuery->pages()->current();
 })->throws(GitHubQueryFailed::class);

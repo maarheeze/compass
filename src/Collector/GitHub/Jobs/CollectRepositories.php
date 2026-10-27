@@ -17,7 +17,6 @@ class CollectRepositories implements ShouldQueue
 
     public function __construct(
         private readonly RunId $runId,
-        private readonly ?string $cursor,
     ) {
     }
 
@@ -26,17 +25,11 @@ class CollectRepositories implements ShouldQueue
      */
     public function handle(RepositoriesQuery $repositoriesQuery, RepositorySynchronizer $repositorySynchronizer): void
     {
-        $repositoriesQueryResult = $repositoriesQuery->page($this->cursor);
-
-        $repositorySynchronizer->storeRepositories(
-            $repositoriesQueryResult->gitHubRepositories,
-            $this->runId,
-        );
-
-        if ($repositoriesQueryResult->nextCursor !== null) {
-            $this->prependToChain(new self($this->runId, $repositoriesQueryResult->nextCursor));
-
-            return;
+        foreach ($repositoriesQuery->pages() as $repositoriesQueryResult) {
+            $repositorySynchronizer->storeRepositories(
+                $repositoriesQueryResult->gitHubRepositories,
+                $this->runId,
+            );
         }
 
         $repositorySynchronizer->markUncollectedMissing($this->runId);

@@ -17,7 +17,6 @@ class CollectSites implements ShouldQueue
 
     public function __construct(
         private readonly RunId $runId,
-        private readonly ?string $cursor,
     ) {
     }
 
@@ -28,17 +27,11 @@ class CollectSites implements ShouldQueue
         SitesQuery $sitesQuery,
         SiteSynchronizer $siteSynchronizer,
     ): void {
-        $sitesQueryResult = $sitesQuery->page($this->cursor);
-
-        $siteSynchronizer->storeSites(
-            $sitesQueryResult->forgeSites,
-            $this->runId,
-        );
-
-        if ($sitesQueryResult->nextCursor !== null) {
-            $this->prependToChain(new self($this->runId, $sitesQueryResult->nextCursor));
-
-            return;
+        foreach ($sitesQuery->pages() as $sitesQueryResult) {
+            $siteSynchronizer->storeSites(
+                $sitesQueryResult->forgeSites,
+                $this->runId,
+            );
         }
 
         $siteSynchronizer->markUncollectedMissing($this->runId);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Collector\Forge;
 
 use Carbon\CarbonImmutable;
+use Generator;
 use Maarheeze\Compass\Collections\ForgeSiteCollection;
 use Webmozart\Assert\Assert;
 
@@ -21,9 +22,27 @@ readonly class SitesQuery
     }
 
     /**
+     * @return Generator<int, SitesQueryResult>
+     *
      * @throws ForgeRequestFailed
      */
-    public function page(?string $cursor): SitesQueryResult
+    public function pages(): Generator
+    {
+        $sitesQueryResult = $this->getSitesQueryResult(null);
+
+        yield $sitesQueryResult;
+
+        while ($sitesQueryResult->nextCursor !== null) {
+            $sitesQueryResult = $this->getSitesQueryResult($sitesQueryResult->nextCursor);
+
+            yield $sitesQueryResult;
+        }
+    }
+
+    /**
+     * @throws ForgeRequestFailed
+     */
+    private function getSitesQueryResult(?string $cursor): SitesQueryResult
     {
         $response = $this->forgeClient->get(sprintf('orgs/%s/sites', $this->organization), [
             'include' => 'server,latestDeployment',
@@ -37,79 +56,6 @@ readonly class SitesQuery
             $this->getMatchingForgeSites(Assert::isList($sitesResponse['data']), $includedResources),
             $this->getNextCursor(Assert::isArray($sitesResponse['meta'])),
         );
-    }
-
-    private function getEndedAt(mixed $endedAtResponse): ?CarbonImmutable
-    {
-        if ($endedAtResponse === null) {
-            return null;
-        }
-
-        return CarbonImmutable::parse(Assert::string($endedAtResponse));
-    }
-
-    /**
-     * @param array<string, array<mixed>> $includedResources
-     */
-    private function getForgeDeployment(mixed $deploymentIdentifier, array $includedResources): ?ForgeDeployment
-    {
-        if ($deploymentIdentifier === null) {
-            return null;
-        }
-
-        $deploymentAttributes = $this->getIncludedAttributes($deploymentIdentifier, $includedResources);
-        $commitAttributes = Assert::isArray($deploymentAttributes['commit']);
-
-        return new ForgeDeployment(
-            DeploymentStatus::from(Assert::string($deploymentAttributes['status'])),
-            Assert::nullOrString($commitAttributes['hash']),
-            Assert::nullOrString($commitAttributes['message']),
-            CarbonImmutable::parse(Assert::string($deploymentAttributes['started_at'])),
-            $this->getEndedAt($deploymentAttributes['ended_at']),
-        );
-    }
-
-    /**
-     * @param array<mixed> $siteResource
-     * @param array<string, array<mixed>> $includedResources
-     */
-    private function getForgeSite(array $siteResource, array $includedResources): ForgeSite
-    {
-        $siteAttributes = Assert::isArray($siteResource['attributes']);
-        $repositoryAttributes = Assert::isArray($siteAttributes['repository']);
-        $relationships = Assert::isArray($siteResource['relationships']);
-        $serverAttributes = $this->getIncludedAttributes(
-            Assert::isArray($relationships['server'])['data'],
-            $includedResources,
-        );
-
-        return new ForgeSite(
-            Assert::string($siteResource['id']),
-            Assert::string($siteAttributes['name']),
-            Assert::string($siteAttributes['url']),
-            SiteStatus::from(Assert::string($siteAttributes['status'])),
-            Assert::nullOrString($siteAttributes['php_version']),
-            Assert::nullOrString($repositoryAttributes['url']),
-            Assert::nullOrString($repositoryAttributes['branch']),
-            Assert::nullOrBoolean($siteAttributes['quick_deploy']),
-            Assert::string($serverAttributes['name']),
-            Assert::string($serverAttributes['slug']),
-            Assert::nullOrString($serverAttributes['ip_address']),
-            $this->getForgeDeployment(Assert::isArray($relationships['latestDeployment'])['data'], $includedResources),
-        );
-    }
-
-    /**
-     * @param array<string, array<mixed>> $includedResources
-     *
-     * @return array<mixed>
-     */
-    private function getIncludedAttributes(mixed $resourceIdentifier, array $includedResources): array
-    {
-        $resourceKey = $this->getResourceKey(Assert::isArray($resourceIdentifier));
-        Assert::keyExists($includedResources, $resourceKey);
-
-        return Assert::isArray($includedResources[$resourceKey]['attributes']);
     }
 
     /**
@@ -160,6 +106,79 @@ readonly class SitesQuery
     private function getNextCursor(array $metaResponse): ?string
     {
         return Assert::nullOrString($metaResponse['next_cursor']);
+    }
+
+    private function getEndedAt(mixed $endedAtResponse): ?CarbonImmutable
+    {
+        if ($endedAtResponse === null) {
+            return null;
+        }
+
+        return CarbonImmutable::parse(Assert::string($endedAtResponse));
+    }
+
+    /**
+     * @param array<mixed> $siteResource
+     * @param array<string, array<mixed>> $includedResources
+     */
+    private function getForgeSite(array $siteResource, array $includedResources): ForgeSite
+    {
+        $siteAttributes = Assert::isArray($siteResource['attributes']);
+        $repositoryAttributes = Assert::isArray($siteAttributes['repository']);
+        $relationships = Assert::isArray($siteResource['relationships']);
+        $serverAttributes = $this->getIncludedAttributes(
+            Assert::isArray($relationships['server'])['data'],
+            $includedResources,
+        );
+
+        return new ForgeSite(
+            Assert::string($siteResource['id']),
+            Assert::string($siteAttributes['name']),
+            Assert::string($siteAttributes['url']),
+            SiteStatus::from(Assert::string($siteAttributes['status'])),
+            Assert::nullOrString($siteAttributes['php_version']),
+            Assert::nullOrString($repositoryAttributes['url']),
+            Assert::nullOrString($repositoryAttributes['branch']),
+            Assert::nullOrBoolean($siteAttributes['quick_deploy']),
+            Assert::string($serverAttributes['name']),
+            Assert::string($serverAttributes['slug']),
+            Assert::nullOrString($serverAttributes['ip_address']),
+            $this->getForgeDeployment(Assert::isArray($relationships['latestDeployment'])['data'], $includedResources),
+        );
+    }
+
+    /**
+     * @param array<string, array<mixed>> $includedResources
+     */
+    private function getForgeDeployment(mixed $deploymentIdentifier, array $includedResources): ?ForgeDeployment
+    {
+        if ($deploymentIdentifier === null) {
+            return null;
+        }
+
+        $deploymentAttributes = $this->getIncludedAttributes($deploymentIdentifier, $includedResources);
+        $commitAttributes = Assert::isArray($deploymentAttributes['commit']);
+
+        return new ForgeDeployment(
+            DeploymentStatus::from(Assert::string($deploymentAttributes['status'])),
+            Assert::nullOrString($commitAttributes['hash']),
+            Assert::nullOrString($commitAttributes['message']),
+            CarbonImmutable::parse(Assert::string($deploymentAttributes['started_at'])),
+            $this->getEndedAt($deploymentAttributes['ended_at']),
+        );
+    }
+
+    /**
+     * @param array<string, array<mixed>> $includedResources
+     *
+     * @return array<mixed>
+     */
+    private function getIncludedAttributes(mixed $resourceIdentifier, array $includedResources): array
+    {
+        $resourceKey = $this->getResourceKey(Assert::isArray($resourceIdentifier));
+        Assert::keyExists($includedResources, $resourceKey);
+
+        return Assert::isArray($includedResources[$resourceKey]['attributes']);
     }
 
     /**

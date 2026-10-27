@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Collector\GitHub;
 
 use Carbon\CarbonImmutable;
+use Generator;
 use Maarheeze\Compass\Collections\GitHubRepositoryCollection;
 use Webmozart\Assert\Assert;
 
@@ -17,20 +18,21 @@ readonly class RepositoriesQuery
     }
 
     /**
+     * @return Generator<int, RepositoriesQueryResult>
+     *
      * @throws GitHubQueryFailed
      */
-    public function page(?string $cursor): RepositoriesQueryResult
+    public function pages(): Generator
     {
-        $response = $this->gitHubClient->query($this->getQuery(), [
-            'organization' => $this->organization,
-            'cursor' => $cursor,
-        ]);
-        $repositoriesResponse = Assert::isArray($response->json('data.organization.repositories'));
+        $repositoriesQueryResult = $this->getRepositoriesQueryResult(null);
 
-        return new RepositoriesQueryResult(
-            $this->buildGitHubRepositoriesCollection(Assert::isList($repositoriesResponse['nodes'])),
-            $this->getNextCursor(Assert::isArray($repositoriesResponse['pageInfo'])),
-        );
+        yield $repositoriesQueryResult;
+
+        while ($repositoriesQueryResult->nextCursor !== null) {
+            $repositoriesQueryResult = $this->getRepositoriesQueryResult($repositoriesQueryResult->nextCursor);
+
+            yield $repositoriesQueryResult;
+        }
     }
 
     /**
@@ -109,5 +111,22 @@ readonly class RepositoriesQuery
               }
             }
             GRAPHQL;
+    }
+
+    /**
+     * @throws GitHubQueryFailed
+     */
+    private function getRepositoriesQueryResult(?string $cursor): RepositoriesQueryResult
+    {
+        $response = $this->gitHubClient->query($this->getQuery(), [
+            'organization' => $this->organization,
+            'cursor' => $cursor,
+        ]);
+        $repositoriesResponse = Assert::isArray($response->json('data.organization.repositories'));
+
+        return new RepositoriesQueryResult(
+            $this->buildGitHubRepositoriesCollection(Assert::isList($repositoriesResponse['nodes'])),
+            $this->getNextCursor(Assert::isArray($repositoriesResponse['pageInfo'])),
+        );
     }
 }

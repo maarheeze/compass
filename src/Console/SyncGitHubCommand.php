@@ -20,9 +20,9 @@ class SyncGitHubCommand extends Command
     {
         $runId = RunId::generate();
 
-        $collectRepositories = new CollectRepositories($runId, null);
+        $collectRepositories = new CollectRepositories($runId);
         $collectRepositories->chain([
-            new CollectIssuesAndPullRequests($runId, null),
+            new CollectIssuesAndPullRequests($runId),
             new CollectChangedComposerJsons($runId),
             new CollectChangedComposerLocks($runId),
         ]);

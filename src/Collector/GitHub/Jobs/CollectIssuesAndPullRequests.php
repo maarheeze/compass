@@ -18,7 +18,6 @@ class CollectIssuesAndPullRequests implements ShouldQueue
 
     public function __construct(
         private readonly RunId $runId,
-        private readonly ?string $pageUrl,
     ) {
     }
 
@@ -30,18 +29,12 @@ class CollectIssuesAndPullRequests implements ShouldQueue
         IssueSynchronizer $issueSynchronizer,
         PullRequestSynchronizer $pullRequestSynchronizer,
     ): void {
-        $issuesAndPullRequestsQueryResult = $issuesAndPullRequestsQuery->page($this->pageUrl);
-
-        $issueSynchronizer->storeIssues($issuesAndPullRequestsQueryResult->gitHubIssues, $this->runId);
-        $pullRequestSynchronizer->storePullRequests(
-            $issuesAndPullRequestsQueryResult->gitHubPullRequests,
-            $this->runId,
-        );
-
-        if ($issuesAndPullRequestsQueryResult->nextPageUrl !== null) {
-            $this->prependToChain(new self($this->runId, $issuesAndPullRequestsQueryResult->nextPageUrl));
-
-            return;
+        foreach ($issuesAndPullRequestsQuery->pages() as $issuesAndPullRequestsQueryResult) {
+            $issueSynchronizer->storeIssues($issuesAndPullRequestsQueryResult->gitHubIssues, $this->runId);
+            $pullRequestSynchronizer->storePullRequests(
+                $issuesAndPullRequestsQueryResult->gitHubPullRequests,
+                $this->runId,
+            );
         }
 
         $issueSynchronizer->deleteUncollected($this->runId);
