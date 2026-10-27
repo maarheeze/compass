@@ -5,14 +5,15 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Models;
 
 use Carbon\CarbonImmutable;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Maarheeze\Compass\Collections\PullRequestAssigneeCollection;
 use Maarheeze\Compass\Collections\PullRequestCollection;
 use Maarheeze\Compass\Database\Factories\PullRequestFactory;
+use Maarheeze\Compass\Models\Builders\PullRequestBuilder;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
@@ -68,6 +69,16 @@ class PullRequest extends Model
     }
 
     /**
+     * @param QueryBuilder $query
+     *
+     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+     */
+    public function newEloquentBuilder($query): PullRequestBuilder
+    {
+        return new PullRequestBuilder($query);
+    }
+
+    /**
      * @return HasMany<PullRequestAssignee, $this>
      */
     public function assignees(): HasMany
@@ -81,16 +92,6 @@ class PullRequest extends Model
     public function repository(): BelongsTo
     {
         return $this->belongsTo(Repository::class);
-    }
-
-    /**
-     * @param Builder<self> $pullRequestQuery
-     */
-    public function scopeAssignedTo(Builder $pullRequestQuery, User $user): void
-    {
-        $pullRequestQuery->whereHas('assignees', static function (Builder $assigneeQuery) use ($user): void {
-            $assigneeQuery->where('login', $user->nickname);
-        });
     }
 
     /**

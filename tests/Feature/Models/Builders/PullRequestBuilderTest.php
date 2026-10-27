@@ -1,0 +1,35 @@
+<?php
+
+declare(strict_types=1);
+
+use Maarheeze\Compass\Models\PullRequest;
+use Maarheeze\Compass\Models\PullRequestAssignee;
+use Maarheeze\Compass\Models\User;
+
+test('assigned to keeps a pull request assigned to the user', function (): void {
+    $user = User::factory()->create();
+    $pullRequest = PullRequest::factory()->create();
+    PullRequestAssignee::factory()->create([
+        'pull_request_id' => $pullRequest->id,
+        'login' => $user->nickname,
+    ]);
+
+    $pullRequestsAssignedToUser = PullRequest::query()
+        ->assignedTo($user)
+        ->get();
+
+    expect($pullRequestsAssignedToUser->sole()->is($pullRequest))
+        ->toBeTrue();
+});
+
+test('assigned to leaves out a pull request assigned to someone else', function (): void {
+    $user = User::factory()->create(['nickname' => fake()->unique()->userName()]);
+    PullRequestAssignee::factory()->create(['login' => fake()->unique()->userName()]);
+
+    $pullRequestsAssignedToUser = PullRequest::query()
+        ->assignedTo($user)
+        ->get();
+
+    expect($pullRequestsAssignedToUser)
+        ->toBeEmpty();
+});

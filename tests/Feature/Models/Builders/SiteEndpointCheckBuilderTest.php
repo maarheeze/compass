@@ -6,6 +6,28 @@ use Maarheeze\Compass\Http\EndpointPath;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
 
+test('down keeps an unsuccessful check', function (): void {
+    $unsuccessfulSiteEndpointCheck = SiteEndpointCheck::factory()->create(['is_successful' => false]);
+
+    $downSiteEndpointChecks = SiteEndpointCheck::query()
+        ->down()
+        ->get();
+
+    expect($downSiteEndpointChecks->sole()->is($unsuccessfulSiteEndpointCheck))
+        ->toBeTrue();
+});
+
+test('down leaves out a successful check', function (): void {
+    SiteEndpointCheck::factory()->create(['is_successful' => true]);
+
+    $downSiteEndpointChecks = SiteEndpointCheck::query()
+        ->down()
+        ->get();
+
+    expect($downSiteEndpointChecks)
+        ->toBeEmpty();
+});
+
 test('latest per path leaves out an earlier check of the same path', function (): void {
     $earlierSiteEndpointCheck = SiteEndpointCheck::factory()->create();
     $latestSiteEndpointCheck = SiteEndpointCheck::factory()->create([

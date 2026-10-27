@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Models;
 
 use Carbon\CarbonImmutable;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
 use Maarheeze\Compass\Database\Factories\SiteEndpointCheckFactory;
 use Maarheeze\Compass\Http\EndpointPath;
+use Maarheeze\Compass\Models\Builders\SiteEndpointCheckBuilder;
 use Maarheeze\Compass\Models\Casts\EndpointPathCast;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
@@ -57,33 +58,21 @@ class SiteEndpointCheck extends Model
     }
 
     /**
+     * @param QueryBuilder $query
+     *
+     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+     */
+    public function newEloquentBuilder($query): SiteEndpointCheckBuilder
+    {
+        return new SiteEndpointCheckBuilder($query);
+    }
+
+    /**
      * @return BelongsTo<Site, $this>
      */
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
-    }
-
-    /**
-     * @param Builder<self> $siteEndpointCheckQuery
-     */
-    public function scopeDown(Builder $siteEndpointCheckQuery): void
-    {
-        $siteEndpointCheckQuery->where('is_successful', false);
-    }
-
-    /**
-     * @param Builder<self> $siteEndpointCheckQuery
-     */
-    public function scopeLatestPerPath(Builder $siteEndpointCheckQuery): void
-    {
-        $siteEndpointCheckQuery->whereNotExists(
-            self::query()
-                ->from('compass_site_endpoint_checks', 'newer_site_endpoint_checks')
-                ->whereColumn('newer_site_endpoint_checks.site_id', 'compass_site_endpoint_checks.site_id')
-                ->whereColumn('newer_site_endpoint_checks.path', 'compass_site_endpoint_checks.path')
-                ->whereColumn('newer_site_endpoint_checks.id', '>', 'compass_site_endpoint_checks.id'),
-        );
     }
 
     /**

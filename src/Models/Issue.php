@@ -5,14 +5,15 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Models;
 
 use Carbon\CarbonImmutable;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Maarheeze\Compass\Collections\IssueAssigneeCollection;
 use Maarheeze\Compass\Collections\IssueCollection;
 use Maarheeze\Compass\Database\Factories\IssueFactory;
+use Maarheeze\Compass\Models\Builders\IssueBuilder;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
@@ -66,6 +67,16 @@ class Issue extends Model
     }
 
     /**
+     * @param QueryBuilder $query
+     *
+     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+     */
+    public function newEloquentBuilder($query): IssueBuilder
+    {
+        return new IssueBuilder($query);
+    }
+
+    /**
      * @return HasMany<IssueAssignee, $this>
      */
     public function assignees(): HasMany
@@ -79,16 +90,6 @@ class Issue extends Model
     public function repository(): BelongsTo
     {
         return $this->belongsTo(Repository::class);
-    }
-
-    /**
-     * @param Builder<self> $issueQuery
-     */
-    public function scopeAssignedTo(Builder $issueQuery, User $user): void
-    {
-        $issueQuery->whereHas('assignees', static function (Builder $assigneeQuery) use ($user): void {
-            $assigneeQuery->where('login', $user->nickname);
-        });
     }
 
     /**
