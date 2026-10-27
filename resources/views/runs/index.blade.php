@@ -48,11 +48,11 @@
                                 <x-compass::run.status-label :status="$run->status" />
                             </td>
                             <td class="px-4 py-2 text-foreground-muted">
-                                <x-compass::time :time="$run->created_at" />
+                                <x-compass::date-time :time="$run->created_at" />
                             </td>
                             <td class="px-4 py-2 text-foreground-muted">
                                 @if ($run->finished_at !== null)
-                                    <x-compass::time :time="$run->finished_at" />
+                                    <x-compass::date-time :time="$run->finished_at" />
                                 @endif
                             </td>
                             <td class="px-4 py-2 text-foreground-muted">{{ $run->failed_job_count }}</td>
