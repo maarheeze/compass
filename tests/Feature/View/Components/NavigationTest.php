@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
 use Illuminate\Config\Repository as Config;
+use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
@@ -40,4 +41,40 @@ test('application name is the configured application name', function (): void {
 
     expect($navigation->applicationName)
         ->toBe($applicationName);
+});
+
+test('tabs mark the tab of the section as the only active one', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $navigation = $this->app->make(Navigation::class, ['section' => NavigationSection::SITES]);
+
+    expect($navigation->tabs->where('isActive', true)->sole()->url)
+        ->toBe(route(RouteName::FORGE_SITES));
+});
+
+test('dashboard url is the url of the dashboard', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $navigation = $this->app->make(Navigation::class, ['section' => fake()->randomElement(NavigationSection::cases())]);
+
+    expect($navigation->dashboardUrl)
+        ->toBe(route(RouteName::DASHBOARD));
+});
+
+test('sync url is the url of the sync', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $navigation = $this->app->make(Navigation::class, ['section' => fake()->randomElement(NavigationSection::cases())]);
+
+    expect($navigation->syncUrl)
+        ->toBe(route(RouteName::SYNC));
+});
+
+test('logout url is the url of the logout', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $navigation = $this->app->make(Navigation::class, ['section' => fake()->randomElement(NavigationSection::cases())]);
+
+    expect($navigation->logoutUrl)
+        ->toBe(route(RouteName::LOGOUT));
 });

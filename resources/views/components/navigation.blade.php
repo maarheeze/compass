@@ -1,7 +1,7 @@
 <header class="border-b border-border bg-canvas-inset">
     <div class="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
         <div class="flex items-center justify-between py-4">
-            <a href="{{ route(\Maarheeze\Compass\Http\RouteName::DASHBOARD) }}" class="text-base font-semibold text-foreground">{{ $applicationName }}</a>
+            <a href="{{ $dashboardUrl }}" class="text-base font-semibold text-foreground">{{ $applicationName }}</a>
 
             <div class="flex items-center gap-2">
                 @if ($lastCollectedAt !== null)
@@ -10,7 +10,7 @@
                     </span>
                 @endif
 
-                <form method="POST" action="{{ route(\Maarheeze\Compass\Http\RouteName::SYNC) }}">
+                <form method="POST" action="{{ $syncUrl }}">
                     @csrf
                     <x-compass::button title="Sync" aria-label="Sync">
                         <x-compass::icons.sync class="text-foreground-muted" />
@@ -38,7 +38,7 @@
                             <p class="text-xs text-foreground-muted">&#64;{{ $user->nickname }}</p>
                         </div>
 
-                        <form method="POST" action="{{ route(\Maarheeze\Compass\Http\RouteName::LOGOUT) }}">
+                        <form method="POST" action="{{ $logoutUrl }}">
                             @csrf
                             <button type="submit" class="w-full cursor-pointer px-4 py-2 text-left text-sm text-foreground hover:bg-canvas-subtle">Sign out</button>
                         </form>
@@ -48,30 +48,12 @@
         </div>
 
         <nav class="flex items-center gap-4 text-sm">
-            <x-compass::tab :route-name="\Maarheeze\Compass\Http\RouteName::DASHBOARD" :is-active="$section === \Maarheeze\Compass\View\NavigationSection::DASHBOARD">
-                <x-compass::icons.home class="text-foreground-muted" />
-                Dashboard
-            </x-compass::tab>
-            <x-compass::tab :route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_REPOSITORIES" :is-active="$section === \Maarheeze\Compass\View\NavigationSection::REPOSITORIES">
-                <x-compass::icons.repo class="text-foreground-muted" />
-                Repositories
-            </x-compass::tab>
-            <x-compass::tab :route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_ISSUES" :is-active="$section === \Maarheeze\Compass\View\NavigationSection::ISSUES">
-                <x-compass::icons.issue-opened class="text-foreground-muted" />
-                Issues
-            </x-compass::tab>
-            <x-compass::tab :route-name="\Maarheeze\Compass\Http\RouteName::GITHUB_PULL_REQUESTS" :is-active="$section === \Maarheeze\Compass\View\NavigationSection::PULL_REQUESTS">
-                <x-compass::icons.git-pull-request class="text-foreground-muted" />
-                Pull requests
-            </x-compass::tab>
-            <x-compass::tab :route-name="\Maarheeze\Compass\Http\RouteName::FORGE_SITES" :is-active="$section === \Maarheeze\Compass\View\NavigationSection::SITES">
-                <x-compass::icons.server class="text-foreground-muted" />
-                Sites
-            </x-compass::tab>
-            <x-compass::tab :route-name="\Maarheeze\Compass\Http\RouteName::RUNS" :is-active="$section === \Maarheeze\Compass\View\NavigationSection::RUNS">
-                <x-compass::icons.sync class="text-foreground-muted" />
-                Runs
-            </x-compass::tab>
+            @foreach ($tabs as $tab)
+                <x-compass::tab :url="$tab->url" :is-active="$tab->isActive">
+                    <x-dynamic-component :component="$tab->icon" class="text-foreground-muted" />
+                    {{ $tab->label }}
+                </x-compass::tab>
+            @endforeach
         </nav>
     </div>
 </header>

@@ -1,7 +1,7 @@
-@props(['isActive', 'routeName', 'routeParameters' => []])
+@props(['isActive', 'url'])
 
 <a
-    href="{{ route($routeName, $routeParameters) }}"
+    href="{{ $url }}"
     @class([
         '-mb-px inline-flex items-center gap-2 border-b-2 px-2 pb-2',
         'border-orange-400 font-semibold text-foreground' => $isActive,
