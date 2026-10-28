@@ -19,5 +19,4 @@ return [
     'site' => 'Site',
     'status' => 'Status',
     'visibility' => 'Visibility',
-    'warning' => 'Warning',
 ];
