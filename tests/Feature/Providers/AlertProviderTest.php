@@ -106,3 +106,9 @@ test('evaluate overdue deployments listens to forge run succeeded', function ():
 
     $eventFake->assertListening(ForgeRunSucceeded::class, EvaluateOverdueDeployments::class);
 });
+
+test('evaluate down site endpoint listens to forge run succeeded', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+
+    $eventFake->assertListening(ForgeRunSucceeded::class, EvaluateDownSiteEndpoint::class);
+});
