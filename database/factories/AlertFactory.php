@@ -39,6 +39,7 @@ class AlertFactory extends Factory
         return match ($type) {
             AlertType::DEBUG_ENABLED => $alertFactoryWithCondition->debugEnabled(),
             AlertType::DOWN_SITE_ENDPOINT => $alertFactoryWithCondition->downSiteEndpoint(),
+            AlertType::NON_PRODUCTION => $alertFactoryWithCondition->nonProduction(),
         };
     }
 
@@ -68,6 +69,11 @@ class AlertFactory extends Factory
             'condition' => AlertCondition::GONE,
             'gone_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
         ]);
+    }
+
+    public function nonProduction(): static
+    {
+        return $this->state(['type' => AlertType::NON_PRODUCTION])->for(Site::factory(), 'subject');
     }
 
     public function present(): static
