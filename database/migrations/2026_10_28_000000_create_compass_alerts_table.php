@@ -17,7 +17,6 @@ return new class extends Migration
 
             $table->string('type');
             $table->string('condition');
-            $table->timestamp('last_observed_at');
             $table->timestamp('gone_at')->nullable();
             $table->string('status');
 

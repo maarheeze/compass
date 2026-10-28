@@ -23,7 +23,6 @@ use Maarheeze\Uuid\Uuid;
  * @property CarbonImmutable $created_at
  * @property ?CarbonImmutable $gone_at
  * @property Uuid $id
- * @property CarbonImmutable $last_observed_at
  * @property AlertStatus $status
  * @property Uuid $subject_id
  * @property string $subject_type
@@ -48,7 +47,6 @@ class Alert extends Model
         return [
             'condition',
             'gone_at',
-            'last_observed_at',
             'status',
             'subject_id',
             'subject_type',
@@ -78,7 +76,6 @@ class Alert extends Model
             'condition' => AlertCondition::class,
             'created_at' => 'immutable_datetime',
             'gone_at' => 'immutable_datetime',
-            'last_observed_at' => 'immutable_datetime',
             'status' => AlertStatus::class,
             'subject_id' => UuidCast::class,
             'type' => AlertType::class,

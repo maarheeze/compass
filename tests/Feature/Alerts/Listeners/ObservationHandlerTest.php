@@ -18,14 +18,13 @@ use Maarheeze\Compass\Models\SiteEndpoint;
 
 test('handle opens an alert for a present condition without an alert', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
-    $observedAt = CarbonImmutable::instance(fake()->dateTime());
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObserved(
         AlertType::DOWN_SITE_ENDPOINT,
         $siteEndpoint,
         AlertCondition::PRESENT,
-        $observedAt,
+        CarbonImmutable::now(),
     ));
 
     $this->assertDatabaseHas(Alert::class, [
@@ -33,7 +32,6 @@ test('handle opens an alert for a present condition without an alert', function 
         'subject_id' => $siteEndpoint->id,
         'type' => AlertType::DOWN_SITE_ENDPOINT,
         'condition' => AlertCondition::PRESENT,
-        'last_observed_at' => $observedAt,
         'status' => AlertStatus::OPEN,
     ]);
 });

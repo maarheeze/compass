@@ -46,7 +46,6 @@ class AlertFactory extends Factory
     public function definition(): array
     {
         return [
-            'last_observed_at' => fake()->dateTimeBetween('-1 month'),
             'status' => AlertStatus::OPEN,
         ];
     }

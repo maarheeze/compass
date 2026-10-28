@@ -59,7 +59,6 @@ readonly class ObservationHandler implements ShouldQueue
             ->create([
                 'type' => $conditionObserved->alertType,
                 'condition' => AlertCondition::PRESENT,
-                'last_observed_at' => $conditionObserved->observedAt,
                 'status' => AlertStatus::OPEN,
             ]);
 
