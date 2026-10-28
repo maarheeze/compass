@@ -130,3 +130,9 @@ test('evaluate unauthorized client listens to forge run succeeded', function ():
 
     $eventFake->assertListening(ForgeRunSucceeded::class, EvaluateUnauthorizedClient::class);
 });
+
+test('evaluate incompatible client listens to forge run succeeded', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+
+    $eventFake->assertListening(ForgeRunSucceeded::class, EvaluateIncompatibleClient::class);
+});

@@ -10,8 +10,10 @@ use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateIncompatibleClient;
 use Maarheeze\Compass\Collector\Client\ClientStatus;
+use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Models\Site;
+use Maarheeze\Uuid\Uuid;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
@@ -77,4 +79,34 @@ test('handle observes incompatible client gone for a missing site with an outdat
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved): bool {
         return $conditionObserved->condition === AlertCondition::GONE;
     });
+});
+
+test('handle observes incompatible client gone now for a missing site after a forge run', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+    $this->app->instance(Dispatcher::class, $eventFake);
+    $now = CarbonImmutable::parse(fake()->iso8601());
+    $this->app->instance(ClockInterface::class, new MockClock($now));
+    $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
+
+    $evaluateIncompatibleClient = $this->app->make(EvaluateIncompatibleClient::class);
+    $evaluateIncompatibleClient->handle(new ForgeRunSucceeded(Uuid::generate()));
+
+    $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
+        return $conditionObserved->alertType === AlertType::INCOMPATIBLE_CLIENT
+            && $conditionObserved->subject instanceof Site
+            && $conditionObserved->subject->is($site)
+            && $conditionObserved->condition === AlertCondition::GONE
+            && $conditionObserved->observedAt->equalTo($now);
+    });
+});
+
+test('handle observes nothing for a collected site after a forge run', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+    $this->app->instance(Dispatcher::class, $eventFake);
+    Site::factory()->create(['missing_at' => null]);
+
+    $evaluateIncompatibleClient = $this->app->make(EvaluateIncompatibleClient::class);
+    $evaluateIncompatibleClient->handle(new ForgeRunSucceeded(Uuid::generate()));
+
+    $eventFake->assertNothingDispatched();
 });
