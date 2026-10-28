@@ -30,8 +30,8 @@ readonly class EvaluateComposerWarning implements ShouldQueue
 
         foreach (Repository::query()->with('composerJson')->get() as $repository) {
             $observedCondition = match ($this->composerWarningDetector->detect($repository) !== null) {
-                true => ConditionState::PRESENT,
-                false => ConditionState::GONE,
+                true => ConditionState::ACTIVE,
+                false => ConditionState::RESOLVED,
             };
 
             $this->events->dispatch(new ConditionObserved(

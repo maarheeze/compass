@@ -33,7 +33,7 @@ test('handle observes a missing, not ignored repository missing now', function (
         return $conditionObserved->alertType === AlertType::MISSING_REPOSITORY
             && $conditionObserved->subject instanceof Repository
             && $conditionObserved->subject->is($repository)
-            && $conditionObserved->condition === ConditionState::PRESENT
+            && $conditionObserved->condition === ConditionState::ACTIVE
             && $conditionObserved->observedAt->equalTo($now);
     });
 });
@@ -55,7 +55,7 @@ test('handle observes a collected repository no longer missing now', function ()
         return $conditionObserved->alertType === AlertType::MISSING_REPOSITORY
             && $conditionObserved->subject instanceof Repository
             && $conditionObserved->subject->is($repository)
-            && $conditionObserved->condition === ConditionState::GONE
+            && $conditionObserved->condition === ConditionState::RESOLVED
             && $conditionObserved->observedAt->equalTo($now);
     });
 });
@@ -74,7 +74,7 @@ test('handle observes a missing, ignored repository no longer missing', function
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($repository): bool {
         return $conditionObserved->subject instanceof Repository
             && $conditionObserved->subject->is($repository)
-            && $conditionObserved->condition === ConditionState::GONE;
+            && $conditionObserved->condition === ConditionState::RESOLVED;
     });
 });
 
@@ -94,7 +94,7 @@ test('handle observes an ignored repository no longer missing now', function ():
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
         return $conditionObserved->alertType === AlertType::MISSING_REPOSITORY
             && $conditionObserved->subject === $repository
-            && $conditionObserved->condition === ConditionState::GONE
+            && $conditionObserved->condition === ConditionState::RESOLVED
             && $conditionObserved->observedAt->equalTo($now);
     });
 });

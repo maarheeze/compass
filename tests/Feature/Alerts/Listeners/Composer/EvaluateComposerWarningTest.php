@@ -37,7 +37,7 @@ test('handle observes a composer warning now for a repository with a composer wa
         return $conditionObserved->alertType === AlertType::COMPOSER_WARNING
             && $conditionObserved->subject instanceof Repository
             && $conditionObserved->subject->is($repository)
-            && $conditionObserved->condition === ConditionState::PRESENT
+            && $conditionObserved->condition === ConditionState::ACTIVE
             && $conditionObserved->observedAt->equalTo($now);
     });
 });
@@ -56,7 +56,7 @@ test('handle observes no composer warning now for a repository without a compose
         return $conditionObserved->alertType === AlertType::COMPOSER_WARNING
             && $conditionObserved->subject instanceof Repository
             && $conditionObserved->subject->is($repository)
-            && $conditionObserved->condition === ConditionState::GONE
+            && $conditionObserved->condition === ConditionState::RESOLVED
             && $conditionObserved->observedAt->equalTo($now);
     });
 });

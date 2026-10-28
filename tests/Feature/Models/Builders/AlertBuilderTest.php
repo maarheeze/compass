@@ -6,7 +6,7 @@ use Maarheeze\Compass\Models\Alert;
 
 test('not done keeps an open alert', function (): void {
     $openAlert = Alert::factory()
-        ->present()
+        ->active()
         ->create();
 
     $notDoneAlerts = Alert::query()

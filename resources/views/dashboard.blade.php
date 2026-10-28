@@ -50,14 +50,14 @@
                             <th class="w-48 px-4 py-2 font-medium">{{ __('compass::alert.alert') }}</th>
                             <th class="px-4 py-2 font-medium">{{ __('compass::alert.description') }}</th>
                             <th class="w-44 px-4 py-2 font-medium">{{ __('compass::alert.open_since') }}</th>
-                            <th class="w-44 px-4 py-2 font-medium">{{ __('compass::alert.gone_since') }}</th>
+                            <th class="w-44 px-4 py-2 font-medium">{{ __('compass::alert.resolved_since') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-border">
                         @forelse ($resolvedAlerts as $resolvedAlert)
                             <x-compass::alert-row :alert="$resolvedAlert">
                                 <td class="px-4 py-2 text-foreground-muted">
-                                    <x-compass::date-time :time="$resolvedAlert->gone_at" />
+                                    <x-compass::date-time :time="$resolvedAlert->resolved_at" />
                                 </td>
                             </x-compass::alert-row>
                         @empty

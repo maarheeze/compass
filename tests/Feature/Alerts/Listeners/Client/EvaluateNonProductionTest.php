@@ -32,12 +32,12 @@ test('handle observes non production now for a site in another environment', fun
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
         return $conditionObserved->alertType === AlertType::NON_PRODUCTION
             && $conditionObserved->subject === $site
-            && $conditionObserved->condition === ConditionState::PRESENT
+            && $conditionObserved->condition === ConditionState::ACTIVE
             && $conditionObserved->observedAt->equalTo($now);
     });
 });
 
-test('handle observes non production gone now for a site in production or without an environment', function (?string $appEnv): void {
+test('handle observes non production resolved now for a site in production or without an environment', function (?string $appEnv): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
@@ -53,12 +53,12 @@ test('handle observes non production gone now for a site in production or withou
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
         return $conditionObserved->alertType === AlertType::NON_PRODUCTION
             && $conditionObserved->subject === $site
-            && $conditionObserved->condition === ConditionState::GONE
+            && $conditionObserved->condition === ConditionState::RESOLVED
             && $conditionObserved->observedAt->equalTo($now);
     });
 })->with(['production', null]);
 
-test('handle observes non production gone for a missing site in another environment', function (): void {
+test('handle observes non production resolved for a missing site in another environment', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
     $site = Site::factory()->create([
@@ -70,11 +70,11 @@ test('handle observes non production gone for a missing site in another environm
     $evaluateNonProduction->handle(new SiteInspected($site));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved): bool {
-        return $conditionObserved->condition === ConditionState::GONE;
+        return $conditionObserved->condition === ConditionState::RESOLVED;
     });
 });
 
-test('handle observes non production gone now for a missing site after a forge run', function (): void {
+test('handle observes non production resolved now for a missing site after a forge run', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
@@ -88,7 +88,7 @@ test('handle observes non production gone now for a missing site after a forge r
         return $conditionObserved->alertType === AlertType::NON_PRODUCTION
             && $conditionObserved->subject instanceof Site
             && $conditionObserved->subject->is($site)
-            && $conditionObserved->condition === ConditionState::GONE
+            && $conditionObserved->condition === ConditionState::RESOLVED
             && $conditionObserved->observedAt->equalTo($now);
     });
 });

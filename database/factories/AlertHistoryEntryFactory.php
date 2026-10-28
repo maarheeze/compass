@@ -21,24 +21,16 @@ class AlertHistoryEntryFactory extends Factory
     /** @var class-string<AlertHistoryEntry> */
     protected $model = AlertHistoryEntry::class;
 
-    public function cleared(): static
-    {
-        return $this->state([
-            'type' => AlertHistoryEntryType::CLEARED,
-            'user_id' => null,
-        ]);
-    }
-
     public function configure(): static
     {
         $type = fake()->randomElement(AlertHistoryEntryType::cases());
         Assert::isInstanceOf($type, AlertHistoryEntryType::class);
 
         return match ($type) {
-            AlertHistoryEntryType::CLEARED => $this->cleared(),
             AlertHistoryEntryType::MARKED_DONE => $this->markedDone(),
             AlertHistoryEntryType::OPENED => $this->opened(),
             AlertHistoryEntryType::RECURRED => $this->recurred(),
+            AlertHistoryEntryType::RESOLVED => $this->resolved(),
         };
     }
 
@@ -73,6 +65,14 @@ class AlertHistoryEntryFactory extends Factory
     {
         return $this->state([
             'type' => AlertHistoryEntryType::RECURRED,
+            'user_id' => null,
+        ]);
+    }
+
+    public function resolved(): static
+    {
+        return $this->state([
+            'type' => AlertHistoryEntryType::RESOLVED,
             'user_id' => null,
         ]);
     }

@@ -6,6 +6,6 @@ namespace Maarheeze\Compass\Alerts;
 
 enum ConditionState: string
 {
-    case GONE = 'gone';
-    case PRESENT = 'present';
+    case ACTIVE = 'active';
+    case RESOLVED = 'resolved';
 }

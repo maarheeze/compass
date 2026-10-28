@@ -28,7 +28,7 @@ readonly class DashboardController
         return $this->view->make('compass::dashboard', [
             'activeAlerts' => Alert::query()
                 ->notDone()
-                ->where('condition', ConditionState::PRESENT)
+                ->where('condition', ConditionState::ACTIVE)
                 ->latest()
                 ->get()
                 ->loadMorph('subject', [SiteEndpoint::class => ['site']]),
@@ -36,7 +36,7 @@ readonly class DashboardController
             'pullRequestCounts' => $this->pullRequestCounter->count($this->authenticatedUser->user()),
             'resolvedAlerts' => Alert::query()
                 ->notDone()
-                ->where('condition', ConditionState::GONE)
+                ->where('condition', ConditionState::RESOLVED)
                 ->latest()
                 ->get()
                 ->loadMorph('subject', [SiteEndpoint::class => ['site']]),

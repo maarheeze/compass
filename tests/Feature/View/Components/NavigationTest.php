@@ -49,7 +49,7 @@ test('dashboard url is the url of the dashboard', function (): void {
 test('has alerts is true with an alert that is not done', function (): void {
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
     Alert::factory()
-        ->present()
+        ->active()
         ->create();
 
     $navigation = $this->app->make(Navigation::class);

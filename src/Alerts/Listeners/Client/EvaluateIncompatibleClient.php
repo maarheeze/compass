@@ -40,7 +40,7 @@ readonly class EvaluateIncompatibleClient implements ShouldQueue
             $this->events->dispatch(new ConditionObserved(
                 AlertType::INCOMPATIBLE_CLIENT,
                 $missingSite,
-                ConditionState::GONE,
+                ConditionState::RESOLVED,
                 $observedAt,
             ));
         }
@@ -50,8 +50,8 @@ readonly class EvaluateIncompatibleClient implements ShouldQueue
     {
         $site = $siteInspected->site;
         $observedCondition = match ($site->missing_at === null && $site->client_status === ClientStatus::INCOMPATIBLE) {
-            true => ConditionState::PRESENT,
-            false => ConditionState::GONE,
+            true => ConditionState::ACTIVE,
+            false => ConditionState::RESOLVED,
         };
 
         $this->events->dispatch(new ConditionObserved(

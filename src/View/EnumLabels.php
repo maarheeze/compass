@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\View;
 
 use InvalidArgumentException;
+use Maarheeze\Compass\Alerts\AlertHistoryEntryType;
+use Maarheeze\Compass\Alerts\AlertStatus;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Analyzer\Composer\ComposerWarning;
 use Maarheeze\Compass\Analyzer\Composer\RepositoryKind;
 use Maarheeze\Compass\Analyzer\Forge\DeploymentState;
@@ -25,9 +28,12 @@ readonly class EnumLabels
     public function labelKey(UnitEnum $value): string
     {
         $translationFile = match ($value::class) {
+            AlertHistoryEntryType::class => 'alert-history-entry-type',
+            AlertStatus::class => 'alert-status',
             AlertType::class => 'alert-type',
             ClientStatus::class => 'client-status',
             ComposerWarning::class => 'composer-warning',
+            ConditionState::class => 'condition-state',
             DeploymentState::class => 'deployment-state',
             DeploymentStatus::class => 'deployment-status',
             PackageSection::class => 'package-section',

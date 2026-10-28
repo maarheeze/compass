@@ -39,7 +39,7 @@ readonly class EvaluateNonProduction implements ShouldQueue
             $this->events->dispatch(new ConditionObserved(
                 AlertType::NON_PRODUCTION,
                 $missingSite,
-                ConditionState::GONE,
+                ConditionState::RESOLVED,
                 $observedAt,
             ));
         }
@@ -50,8 +50,8 @@ readonly class EvaluateNonProduction implements ShouldQueue
         $site = $siteInspected->site;
         $isInAnotherEnvironment = $site->app_env !== null && $site->app_env !== 'production';
         $observedCondition = match ($site->missing_at === null && $isInAnotherEnvironment) {
-            true => ConditionState::PRESENT,
-            false => ConditionState::GONE,
+            true => ConditionState::ACTIVE,
+            false => ConditionState::RESOLVED,
         };
 
         $this->events->dispatch(new ConditionObserved(

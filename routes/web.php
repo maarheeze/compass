@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Maarheeze\Compass\Http\Controllers\AlertController;
 use Maarheeze\Compass\Http\Controllers\DashboardController;
 use Maarheeze\Compass\Http\Controllers\GitHubController;
 use Maarheeze\Compass\Http\Controllers\IssueController;
@@ -30,6 +31,8 @@ Route::middleware('web')
 
         Route::middleware(Authenticate::class)->group(static function (): void {
             Route::get('/', [DashboardController::class, 'show'])->name(RouteName::DASHBOARD);
+
+            Route::get('/alerts/{alert}', [AlertController::class, 'show'])->name(RouteName::ALERT);
 
             Route::get('/github/repositories', [RepositoryController::class, 'index'])->name(RouteName::GITHUB_REPOSITORIES);
             Route::get('/github/repositories/{repository}', [RepositoryController::class, 'show'])

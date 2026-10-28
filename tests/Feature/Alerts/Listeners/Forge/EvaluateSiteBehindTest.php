@@ -37,7 +37,7 @@ test('handle observes a site behind now', function (GitHubRunSucceeded|ForgeRunS
         return $conditionObserved->alertType === AlertType::SITE_BEHIND
             && $conditionObserved->subject instanceof Site
             && $conditionObserved->subject->is($site)
-            && $conditionObserved->condition === ConditionState::PRESENT
+            && $conditionObserved->condition === ConditionState::ACTIVE
             && $conditionObserved->observedAt->equalTo($now);
     });
 })->with([
@@ -64,7 +64,7 @@ test('handle observes an up-to-date site no longer behind now', function (GitHub
         return $conditionObserved->alertType === AlertType::SITE_BEHIND
             && $conditionObserved->subject instanceof Site
             && $conditionObserved->subject->is($site)
-            && $conditionObserved->condition === ConditionState::GONE
+            && $conditionObserved->condition === ConditionState::RESOLVED
             && $conditionObserved->observedAt->equalTo($now);
     });
 })->with([

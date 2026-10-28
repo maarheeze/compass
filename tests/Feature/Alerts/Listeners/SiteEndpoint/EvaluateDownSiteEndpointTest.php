@@ -30,7 +30,7 @@ test('handle observes the endpoint down at the check for a failed check', functi
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($siteEndpoint, $siteEndpointCheck): bool {
         return $conditionObserved->alertType === AlertType::DOWN_SITE_ENDPOINT
             && $conditionObserved->subject === $siteEndpoint
-            && $conditionObserved->condition === ConditionState::PRESENT
+            && $conditionObserved->condition === ConditionState::ACTIVE
             && $conditionObserved->observedAt->equalTo($siteEndpointCheck->created_at);
     });
 });
@@ -47,7 +47,7 @@ test('handle observes the endpoint no longer down at the check for a successful 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($siteEndpoint, $siteEndpointCheck): bool {
         return $conditionObserved->alertType === AlertType::DOWN_SITE_ENDPOINT
             && $conditionObserved->subject === $siteEndpoint
-            && $conditionObserved->condition === ConditionState::GONE
+            && $conditionObserved->condition === ConditionState::RESOLVED
             && $conditionObserved->observedAt->equalTo($siteEndpointCheck->created_at);
     });
 });
@@ -68,7 +68,7 @@ test('handle observes the endpoint of a missing site no longer down now', functi
         return $conditionObserved->alertType === AlertType::DOWN_SITE_ENDPOINT
             && $conditionObserved->subject instanceof SiteEndpoint
             && $conditionObserved->subject->is($siteEndpoint)
-            && $conditionObserved->condition === ConditionState::GONE
+            && $conditionObserved->condition === ConditionState::RESOLVED
             && $conditionObserved->observedAt->equalTo($now);
     });
 });

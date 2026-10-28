@@ -53,8 +53,8 @@ readonly class EvaluateMissingRepository implements ShouldQueue
     private function observe(Repository $repository, CarbonImmutable $observedAt): void
     {
         $observedCondition = match ($repository->missing_at !== null && $repository->missing_ignored_at === null) {
-            true => ConditionState::PRESENT,
-            false => ConditionState::GONE,
+            true => ConditionState::ACTIVE,
+            false => ConditionState::RESOLVED,
         };
 
         $this->events->dispatch(new ConditionObserved(

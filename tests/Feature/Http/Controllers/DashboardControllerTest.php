@@ -12,12 +12,12 @@ use Maarheeze\Compass\Models\PullRequestAssignee;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 
-test('show contains the present alerts as active alerts, newest first', function (): void {
+test('show contains the active alerts, newest first', function (): void {
     $earlierAlert = Alert::factory()
-        ->present()
+        ->active()
         ->create(['created_at' => fake()->dateTimeBetween('-2 months', '-1 month')]);
     $laterAlert = Alert::factory()
-        ->present()
+        ->active()
         ->create(['created_at' => fake()->dateTimeBetween('-1 month')]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
@@ -30,9 +30,9 @@ test('show contains the present alerts as active alerts, newest first', function
     });
 });
 
-test('show leaves gone alerts out of the active alerts', function (): void {
+test('show leaves resolved alerts out of the active alerts', function (): void {
     Alert::factory()
-        ->gone()
+        ->resolved()
         ->create();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
@@ -43,12 +43,12 @@ test('show leaves gone alerts out of the active alerts', function (): void {
     });
 });
 
-test('show contains the gone alerts as resolved alerts, newest first', function (): void {
+test('show contains the resolved alerts, newest first', function (): void {
     $earlierAlert = Alert::factory()
-        ->gone()
+        ->resolved()
         ->create(['created_at' => fake()->dateTimeBetween('-2 months', '-1 month')]);
     $laterAlert = Alert::factory()
-        ->gone()
+        ->resolved()
         ->create(['created_at' => fake()->dateTimeBetween('-1 month')]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
@@ -74,9 +74,9 @@ test('show leaves done alerts out of the resolved alerts', function (): void {
     });
 });
 
-test('show leaves present alerts out of the resolved alerts', function (): void {
+test('show leaves active alerts out of the resolved alerts', function (): void {
     Alert::factory()
-        ->present()
+        ->active()
         ->create();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 

@@ -33,7 +33,7 @@ test('handle observes a missing, not ignored site missing now', function (): voi
         return $conditionObserved->alertType === AlertType::MISSING_SITE
             && $conditionObserved->subject instanceof Site
             && $conditionObserved->subject->is($site)
-            && $conditionObserved->condition === ConditionState::PRESENT
+            && $conditionObserved->condition === ConditionState::ACTIVE
             && $conditionObserved->observedAt->equalTo($now);
     });
 });
@@ -55,7 +55,7 @@ test('handle observes a collected site no longer missing now', function (): void
         return $conditionObserved->alertType === AlertType::MISSING_SITE
             && $conditionObserved->subject instanceof Site
             && $conditionObserved->subject->is($site)
-            && $conditionObserved->condition === ConditionState::GONE
+            && $conditionObserved->condition === ConditionState::RESOLVED
             && $conditionObserved->observedAt->equalTo($now);
     });
 });
@@ -74,7 +74,7 @@ test('handle observes a missing, ignored site no longer missing', function (): v
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($site): bool {
         return $conditionObserved->subject instanceof Site
             && $conditionObserved->subject->is($site)
-            && $conditionObserved->condition === ConditionState::GONE;
+            && $conditionObserved->condition === ConditionState::RESOLVED;
     });
 });
 
@@ -94,7 +94,7 @@ test('handle observes an ignored site no longer missing now', function (): void 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
         return $conditionObserved->alertType === AlertType::MISSING_SITE
             && $conditionObserved->subject === $site
-            && $conditionObserved->condition === ConditionState::GONE
+            && $conditionObserved->condition === ConditionState::RESOLVED
             && $conditionObserved->observedAt->equalTo($now);
     });
 });

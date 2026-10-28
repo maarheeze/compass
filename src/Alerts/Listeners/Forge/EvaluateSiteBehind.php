@@ -32,8 +32,8 @@ readonly class EvaluateSiteBehind implements ShouldQueue
 
         foreach (Site::query()->with('repository')->get() as $site) {
             $observedCondition = match ($this->deploymentStateClassifier->classify($site)) {
-                DeploymentState::BEHIND => ConditionState::PRESENT,
-                default => ConditionState::GONE,
+                DeploymentState::BEHIND => ConditionState::ACTIVE,
+                default => ConditionState::RESOLVED,
             };
 
             $this->events->dispatch(new ConditionObserved(

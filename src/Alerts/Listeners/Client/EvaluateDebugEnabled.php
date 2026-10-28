@@ -39,7 +39,7 @@ readonly class EvaluateDebugEnabled implements ShouldQueue
             $this->events->dispatch(new ConditionObserved(
                 AlertType::DEBUG_ENABLED,
                 $missingSite,
-                ConditionState::GONE,
+                ConditionState::RESOLVED,
                 $observedAt,
             ));
         }
@@ -49,8 +49,8 @@ readonly class EvaluateDebugEnabled implements ShouldQueue
     {
         $site = $siteInspected->site;
         $observedCondition = match ($site->missing_at === null && $site->app_debug === true) {
-            true => ConditionState::PRESENT,
-            false => ConditionState::GONE,
+            true => ConditionState::ACTIVE,
+            false => ConditionState::RESOLVED,
         };
 
         $this->events->dispatch(new ConditionObserved(

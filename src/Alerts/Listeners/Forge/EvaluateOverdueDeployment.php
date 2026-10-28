@@ -31,8 +31,8 @@ readonly class EvaluateOverdueDeployment implements ShouldQueue
 
         foreach (Site::query()->with('repository')->get() as $site) {
             $observedCondition = match ($this->deploymentStateClassifier->classify($site)) {
-                DeploymentState::DEPLOYMENT_OVERDUE => ConditionState::PRESENT,
-                default => ConditionState::GONE,
+                DeploymentState::DEPLOYMENT_OVERDUE => ConditionState::ACTIVE,
+                default => ConditionState::RESOLVED,
             };
 
             $this->events->dispatch(new ConditionObserved(

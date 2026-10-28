@@ -8,7 +8,7 @@ use Illuminate\Contracts\Events\ShouldDispatchAfterCommit;
 use Illuminate\Queue\SerializesModels;
 use Maarheeze\Compass\Models\Alert;
 
-readonly class AlertCleared implements ShouldDispatchAfterCommit
+readonly class AlertResolved implements ShouldDispatchAfterCommit
 {
     use SerializesModels;
 

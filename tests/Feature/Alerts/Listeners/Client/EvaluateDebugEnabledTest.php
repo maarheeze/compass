@@ -32,12 +32,12 @@ test('handle observes debug enabled now for a site in debug mode', function (): 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
         return $conditionObserved->alertType === AlertType::DEBUG_ENABLED
             && $conditionObserved->subject === $site
-            && $conditionObserved->condition === ConditionState::PRESENT
+            && $conditionObserved->condition === ConditionState::ACTIVE
             && $conditionObserved->observedAt->equalTo($now);
     });
 });
 
-test('handle observes debug enabled gone now for a site out of debug mode', function (?bool $appDebug): void {
+test('handle observes debug enabled resolved now for a site out of debug mode', function (?bool $appDebug): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
@@ -53,12 +53,12 @@ test('handle observes debug enabled gone now for a site out of debug mode', func
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
         return $conditionObserved->alertType === AlertType::DEBUG_ENABLED
             && $conditionObserved->subject === $site
-            && $conditionObserved->condition === ConditionState::GONE
+            && $conditionObserved->condition === ConditionState::RESOLVED
             && $conditionObserved->observedAt->equalTo($now);
     });
 })->with([false, null]);
 
-test('handle observes debug enabled gone for a missing site in debug mode', function (): void {
+test('handle observes debug enabled resolved for a missing site in debug mode', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
     $site = Site::factory()->create([
@@ -70,11 +70,11 @@ test('handle observes debug enabled gone for a missing site in debug mode', func
     $evaluateDebugEnabled->handle(new SiteInspected($site));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved): bool {
-        return $conditionObserved->condition === ConditionState::GONE;
+        return $conditionObserved->condition === ConditionState::RESOLVED;
     });
 });
 
-test('handle observes debug enabled gone now for a missing site after a forge run', function (): void {
+test('handle observes debug enabled resolved now for a missing site after a forge run', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
@@ -88,7 +88,7 @@ test('handle observes debug enabled gone now for a missing site after a forge ru
         return $conditionObserved->alertType === AlertType::DEBUG_ENABLED
             && $conditionObserved->subject instanceof Site
             && $conditionObserved->subject->is($site)
-            && $conditionObserved->condition === ConditionState::GONE
+            && $conditionObserved->condition === ConditionState::RESOLVED
             && $conditionObserved->observedAt->equalTo($now);
     });
 });

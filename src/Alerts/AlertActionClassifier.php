@@ -12,8 +12,8 @@ readonly class AlertActionClassifier
     {
         if ($storedAlert === null) {
             return match ($observedCondition) {
-                ConditionState::PRESENT => AlertAction::OPEN,
-                ConditionState::GONE => null,
+                ConditionState::ACTIVE => AlertAction::OPEN,
+                ConditionState::RESOLVED => null,
             };
         }
 
@@ -22,8 +22,8 @@ readonly class AlertActionClassifier
         }
 
         return match ($observedCondition) {
-            ConditionState::PRESENT => AlertAction::RECUR,
-            ConditionState::GONE => AlertAction::CLEAR,
+            ConditionState::ACTIVE => AlertAction::RECUR,
+            ConditionState::RESOLVED => AlertAction::RESOLVE,
         };
     }
 }

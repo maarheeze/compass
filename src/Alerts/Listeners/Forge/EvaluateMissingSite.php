@@ -51,8 +51,8 @@ readonly class EvaluateMissingSite implements ShouldQueue
     private function observe(Site $site, CarbonImmutable $observedAt): void
     {
         $observedCondition = match ($site->missing_at !== null && $site->missing_ignored_at === null) {
-            true => ConditionState::PRESENT,
-            false => ConditionState::GONE,
+            true => ConditionState::ACTIVE,
+            false => ConditionState::RESOLVED,
         };
 
         $this->events->dispatch(new ConditionObserved(

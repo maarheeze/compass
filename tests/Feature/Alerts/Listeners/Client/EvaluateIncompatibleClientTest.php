@@ -33,12 +33,12 @@ test('handle observes incompatible client now for a site with an outdated client
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
         return $conditionObserved->alertType === AlertType::INCOMPATIBLE_CLIENT
             && $conditionObserved->subject === $site
-            && $conditionObserved->condition === ConditionState::PRESENT
+            && $conditionObserved->condition === ConditionState::ACTIVE
             && $conditionObserved->observedAt->equalTo($now);
     });
 });
 
-test('handle observes incompatible client gone now for a site with any other client status', function (?ClientStatus $clientStatus): void {
+test('handle observes incompatible client resolved now for a site with any other client status', function (?ClientStatus $clientStatus): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
@@ -54,7 +54,7 @@ test('handle observes incompatible client gone now for a site with any other cli
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
         return $conditionObserved->alertType === AlertType::INCOMPATIBLE_CLIENT
             && $conditionObserved->subject === $site
-            && $conditionObserved->condition === ConditionState::GONE
+            && $conditionObserved->condition === ConditionState::RESOLVED
             && $conditionObserved->observedAt->equalTo($now);
     });
 })->with([
@@ -65,7 +65,7 @@ test('handle observes incompatible client gone now for a site with any other cli
     null,
 ]);
 
-test('handle observes incompatible client gone for a missing site with an outdated client', function (): void {
+test('handle observes incompatible client resolved for a missing site with an outdated client', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
     $site = Site::factory()->create([
@@ -77,11 +77,11 @@ test('handle observes incompatible client gone for a missing site with an outdat
     $evaluateIncompatibleClient->handle(new SiteInspected($site));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved): bool {
-        return $conditionObserved->condition === ConditionState::GONE;
+        return $conditionObserved->condition === ConditionState::RESOLVED;
     });
 });
 
-test('handle observes incompatible client gone now for a missing site after a forge run', function (): void {
+test('handle observes incompatible client resolved now for a missing site after a forge run', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
@@ -95,7 +95,7 @@ test('handle observes incompatible client gone now for a missing site after a fo
         return $conditionObserved->alertType === AlertType::INCOMPATIBLE_CLIENT
             && $conditionObserved->subject instanceof Site
             && $conditionObserved->subject->is($site)
-            && $conditionObserved->condition === ConditionState::GONE
+            && $conditionObserved->condition === ConditionState::RESOLVED
             && $conditionObserved->observedAt->equalTo($now);
     });
 });

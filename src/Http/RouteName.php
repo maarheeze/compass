@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Http;
 
 enum RouteName: string
 {
+    case ALERT = 'compass.alert';
     case DASHBOARD = 'compass.dashboard';
     case FORGE_SITE = 'compass.forge.site';
     case FORGE_SITE_CLIENT_EDIT = 'compass.forge.site.client.edit';

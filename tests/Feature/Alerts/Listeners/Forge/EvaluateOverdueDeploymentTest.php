@@ -41,7 +41,7 @@ test('handle observes an overdue deployment now', function (): void {
         return $conditionObserved->alertType === AlertType::OVERDUE_DEPLOYMENT
             && $conditionObserved->subject instanceof Site
             && $conditionObserved->subject->is($site)
-            && $conditionObserved->condition === ConditionState::PRESENT
+            && $conditionObserved->condition === ConditionState::ACTIVE
             && $conditionObserved->observedAt->equalTo($now);
     });
 });
@@ -65,7 +65,7 @@ test('handle observes an up-to-date site without an overdue deployment now', fun
         return $conditionObserved->alertType === AlertType::OVERDUE_DEPLOYMENT
             && $conditionObserved->subject instanceof Site
             && $conditionObserved->subject->is($site)
-            && $conditionObserved->condition === ConditionState::GONE
+            && $conditionObserved->condition === ConditionState::RESOLVED
             && $conditionObserved->observedAt->equalTo($now);
     });
 });

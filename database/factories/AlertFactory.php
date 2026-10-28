@@ -34,8 +34,8 @@ class AlertFactory extends Factory
         $alertFactoryWithState = match ($status) {
             AlertStatus::DONE => $this->done(),
             AlertStatus::OPEN => match ($condition) {
-                ConditionState::GONE => $this->gone(),
-                ConditionState::PRESENT => $this->present(),
+                ConditionState::ACTIVE => $this->active(),
+                ConditionState::RESOLVED => $this->resolved(),
             },
         };
 
@@ -54,6 +54,16 @@ class AlertFactory extends Factory
             AlertType::SITE_BEHIND => $alertFactoryWithState->siteBehind(),
             AlertType::UNAUTHORIZED_CLIENT => $alertFactoryWithState->unauthorizedClient(),
         };
+    }
+
+    public function active(): static
+    {
+        return $this->state([
+            'condition' => ConditionState::ACTIVE,
+            'resolved_at' => null,
+            'status' => AlertStatus::OPEN,
+            'done_at' => null,
+        ]);
     }
 
     public function composerWarning(): static
@@ -77,8 +87,8 @@ class AlertFactory extends Factory
     public function done(): static
     {
         return $this->state([
-            'condition' => ConditionState::GONE,
-            'gone_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
+            'condition' => ConditionState::RESOLVED,
+            'resolved_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
             'status' => AlertStatus::DONE,
             'done_at' => fake()->dateTimeBetween('-1 month'),
         ]);
@@ -87,16 +97,6 @@ class AlertFactory extends Factory
     public function downSiteEndpoint(): static
     {
         return $this->state(['type' => AlertType::DOWN_SITE_ENDPOINT])->for(SiteEndpoint::factory(), 'subject');
-    }
-
-    public function gone(): static
-    {
-        return $this->state([
-            'condition' => ConditionState::GONE,
-            'gone_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
-            'status' => AlertStatus::OPEN,
-            'done_at' => null,
-        ]);
     }
 
     public function incompatibleClient(): static
@@ -124,11 +124,11 @@ class AlertFactory extends Factory
         return $this->state(['type' => AlertType::OVERDUE_DEPLOYMENT])->for(Site::factory(), 'subject');
     }
 
-    public function present(): static
+    public function resolved(): static
     {
         return $this->state([
-            'condition' => ConditionState::PRESENT,
-            'gone_at' => null,
+            'condition' => ConditionState::RESOLVED,
+            'resolved_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
             'status' => AlertStatus::OPEN,
             'done_at' => null,
         ]);

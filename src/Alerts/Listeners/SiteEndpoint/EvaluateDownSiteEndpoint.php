@@ -44,7 +44,7 @@ readonly class EvaluateDownSiteEndpoint implements ShouldQueue
                 $this->events->dispatch(new ConditionObserved(
                     AlertType::DOWN_SITE_ENDPOINT,
                     $siteEndpoint,
-                    ConditionState::GONE,
+                    ConditionState::RESOLVED,
                     $observedAt,
                 ));
             }
@@ -55,8 +55,8 @@ readonly class EvaluateDownSiteEndpoint implements ShouldQueue
     {
         $siteEndpointCheck = $siteEndpointChecked->siteEndpointCheck;
         $observedCondition = match ($siteEndpointCheck->is_successful) {
-            true => ConditionState::GONE,
-            false => ConditionState::PRESENT,
+            true => ConditionState::RESOLVED,
+            false => ConditionState::ACTIVE,
         };
 
         $this->events->dispatch(new ConditionObserved(

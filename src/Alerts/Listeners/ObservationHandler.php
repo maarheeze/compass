@@ -14,9 +14,9 @@ use Maarheeze\Compass\Alerts\AlertActionClassifier;
 use Maarheeze\Compass\Alerts\AlertHistoryEntryType;
 use Maarheeze\Compass\Alerts\AlertStatus;
 use Maarheeze\Compass\Alerts\ConditionState;
-use Maarheeze\Compass\Alerts\Events\AlertCleared;
 use Maarheeze\Compass\Alerts\Events\AlertOpened;
 use Maarheeze\Compass\Alerts\Events\AlertRecurred;
+use Maarheeze\Compass\Alerts\Events\AlertResolved;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Uuid\UuidInterface;
@@ -44,9 +44,9 @@ readonly class ObservationHandler implements ShouldQueue
         $alertAction = $this->alertActionClassifier->classify($conditionObserved->condition, $storedAlert);
 
         match ($alertAction) {
-            AlertAction::CLEAR => $this->clear($conditionObserved, $storedAlert),
             AlertAction::OPEN => $this->open($conditionObserved),
             AlertAction::RECUR => $this->recur($conditionObserved, $storedAlert),
+            AlertAction::RESOLVE => $this->resolve($conditionObserved, $storedAlert),
             null => null,
         };
     }
@@ -73,23 +73,6 @@ readonly class ObservationHandler implements ShouldQueue
         ];
     }
 
-    private function clear(ConditionObserved $conditionObserved, ?Alert $storedAlert): void
-    {
-        Assert::isInstanceOf($storedAlert, Alert::class);
-        $this->connection->transaction(function () use ($conditionObserved, $storedAlert): void {
-            $storedAlert->update([
-                'condition' => ConditionState::GONE,
-                'gone_at' => $conditionObserved->observedAt,
-            ]);
-            $storedAlert->historyEntries()->create([
-                'type' => AlertHistoryEntryType::CLEARED,
-                'occurred_at' => $conditionObserved->observedAt,
-            ]);
-
-            $this->events->dispatch(new AlertCleared($storedAlert));
-        });
-    }
-
     private function open(ConditionObserved $conditionObserved): void
     {
         $this->connection->transaction(function () use ($conditionObserved): void {
@@ -97,7 +80,7 @@ readonly class ObservationHandler implements ShouldQueue
                 ->alerts()
                 ->create([
                     'type' => $conditionObserved->alertType,
-                    'condition' => ConditionState::PRESENT,
+                    'condition' => ConditionState::ACTIVE,
                     'status' => AlertStatus::OPEN,
                 ]);
             $alert->historyEntries()->create([
@@ -114,8 +97,8 @@ readonly class ObservationHandler implements ShouldQueue
         Assert::isInstanceOf($storedAlert, Alert::class);
         $this->connection->transaction(function () use ($conditionObserved, $storedAlert): void {
             $storedAlert->update([
-                'condition' => ConditionState::PRESENT,
-                'gone_at' => null,
+                'condition' => ConditionState::ACTIVE,
+                'resolved_at' => null,
             ]);
             $storedAlert->historyEntries()->create([
                 'type' => AlertHistoryEntryType::RECURRED,
@@ -123,6 +106,23 @@ readonly class ObservationHandler implements ShouldQueue
             ]);
 
             $this->events->dispatch(new AlertRecurred($storedAlert));
+        });
+    }
+
+    private function resolve(ConditionObserved $conditionObserved, ?Alert $storedAlert): void
+    {
+        Assert::isInstanceOf($storedAlert, Alert::class);
+        $this->connection->transaction(function () use ($conditionObserved, $storedAlert): void {
+            $storedAlert->update([
+                'condition' => ConditionState::RESOLVED,
+                'resolved_at' => $conditionObserved->observedAt,
+            ]);
+            $storedAlert->historyEntries()->create([
+                'type' => AlertHistoryEntryType::RESOLVED,
+                'occurred_at' => $conditionObserved->observedAt,
+            ]);
+
+            $this->events->dispatch(new AlertResolved($storedAlert));
         });
     }
 }

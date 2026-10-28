@@ -7,65 +7,65 @@ use Maarheeze\Compass\Alerts\AlertActionClassifier;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Models\Alert;
 
-test('classify is open for a present condition without a stored alert', function (): void {
+test('classify is open for an active condition without a stored alert', function (): void {
     $alertActionClassifier = $this->app->make(AlertActionClassifier::class);
-    $alertAction = $alertActionClassifier->classify(ConditionState::PRESENT, null);
+    $alertAction = $alertActionClassifier->classify(ConditionState::ACTIVE, null);
 
     expect($alertAction)
         ->toBe(AlertAction::OPEN);
 });
 
-test('classify is nothing for a present condition with a present alert', function (): void {
+test('classify is nothing for an active condition with an active alert', function (): void {
     $storedAlert = Alert::factory()
-        ->present()
+        ->active()
         ->make();
 
     $alertActionClassifier = $this->app->make(AlertActionClassifier::class);
-    $alertAction = $alertActionClassifier->classify(ConditionState::PRESENT, $storedAlert);
+    $alertAction = $alertActionClassifier->classify(ConditionState::ACTIVE, $storedAlert);
 
     expect($alertAction)
         ->toBeNull();
 });
 
-test('classify is clear for a gone condition with a present alert', function (): void {
+test('classify is resolve for a resolved condition with an active alert', function (): void {
     $storedAlert = Alert::factory()
-        ->present()
+        ->active()
         ->make();
 
     $alertActionClassifier = $this->app->make(AlertActionClassifier::class);
-    $alertAction = $alertActionClassifier->classify(ConditionState::GONE, $storedAlert);
+    $alertAction = $alertActionClassifier->classify(ConditionState::RESOLVED, $storedAlert);
 
     expect($alertAction)
-        ->toBe(AlertAction::CLEAR);
+        ->toBe(AlertAction::RESOLVE);
 });
 
-test('classify is nothing for a gone condition without a stored alert', function (): void {
+test('classify is nothing for a resolved condition without a stored alert', function (): void {
     $alertActionClassifier = $this->app->make(AlertActionClassifier::class);
-    $alertAction = $alertActionClassifier->classify(ConditionState::GONE, null);
-
-    expect($alertAction)
-        ->toBeNull();
-});
-
-test('classify is nothing for a gone condition with a gone alert', function (): void {
-    $storedAlert = Alert::factory()
-        ->gone()
-        ->make();
-
-    $alertActionClassifier = $this->app->make(AlertActionClassifier::class);
-    $alertAction = $alertActionClassifier->classify(ConditionState::GONE, $storedAlert);
+    $alertAction = $alertActionClassifier->classify(ConditionState::RESOLVED, null);
 
     expect($alertAction)
         ->toBeNull();
 });
 
-test('classify is recur for a present condition with a gone alert', function (): void {
+test('classify is nothing for a resolved condition with a resolved alert', function (): void {
     $storedAlert = Alert::factory()
-        ->gone()
+        ->resolved()
         ->make();
 
     $alertActionClassifier = $this->app->make(AlertActionClassifier::class);
-    $alertAction = $alertActionClassifier->classify(ConditionState::PRESENT, $storedAlert);
+    $alertAction = $alertActionClassifier->classify(ConditionState::RESOLVED, $storedAlert);
+
+    expect($alertAction)
+        ->toBeNull();
+});
+
+test('classify is recur for an active condition with a resolved alert', function (): void {
+    $storedAlert = Alert::factory()
+        ->resolved()
+        ->make();
+
+    $alertActionClassifier = $this->app->make(AlertActionClassifier::class);
+    $alertAction = $alertActionClassifier->classify(ConditionState::ACTIVE, $storedAlert);
 
     expect($alertAction)
         ->toBe(AlertAction::RECUR);

@@ -40,7 +40,7 @@ readonly class EvaluateUnauthorizedClient implements ShouldQueue
             $this->events->dispatch(new ConditionObserved(
                 AlertType::UNAUTHORIZED_CLIENT,
                 $missingSite,
-                ConditionState::GONE,
+                ConditionState::RESOLVED,
                 $observedAt,
             ));
         }
@@ -50,8 +50,8 @@ readonly class EvaluateUnauthorizedClient implements ShouldQueue
     {
         $site = $siteInspected->site;
         $observedCondition = match ($site->missing_at === null && $site->client_status === ClientStatus::UNAUTHORIZED) {
-            true => ConditionState::PRESENT,
-            false => ConditionState::GONE,
+            true => ConditionState::ACTIVE,
+            false => ConditionState::RESOLVED,
         };
 
         $this->events->dispatch(new ConditionObserved(
