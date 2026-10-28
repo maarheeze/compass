@@ -47,3 +47,47 @@ test('handle raises alert opened with the opened alert', function (): void {
         return $alertOpened->alert->is($openedAlert);
     });
 });
+
+test('handle opens an alert for a present condition when another subject has an alert of the type', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    Alert::factory()
+        ->downSiteEndpoint()
+        ->create();
+
+    $alertRecorder = $this->app->make(AlertRecorder::class);
+    $alertRecorder->handle(new ConditionPresent(AlertType::DOWN_SITE_ENDPOINT, $siteEndpoint, CarbonImmutable::now()));
+
+    expect($siteEndpoint->alerts()->count())
+        ->toBe(1);
+});
+
+test('handle opens no second alert for a present condition with a present alert', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    Alert::factory()
+        ->downSiteEndpoint()
+        ->present()
+        ->for($siteEndpoint, 'subject')
+        ->create();
+
+    $alertRecorder = $this->app->make(AlertRecorder::class);
+    $alertRecorder->handle(new ConditionPresent(AlertType::DOWN_SITE_ENDPOINT, $siteEndpoint, CarbonImmutable::now()));
+
+    expect($siteEndpoint->alerts()->count())
+        ->toBe(1);
+});
+
+test('handle raises nothing for a present condition with a present alert', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+    $this->app->instance(Dispatcher::class, $eventFake);
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    Alert::factory()
+        ->downSiteEndpoint()
+        ->present()
+        ->for($siteEndpoint, 'subject')
+        ->create();
+
+    $alertRecorder = $this->app->make(AlertRecorder::class);
+    $alertRecorder->handle(new ConditionPresent(AlertType::DOWN_SITE_ENDPOINT, $siteEndpoint, CarbonImmutable::now()));
+
+    $eventFake->assertNothingDispatched();
+});

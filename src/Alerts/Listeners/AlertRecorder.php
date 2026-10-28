@@ -20,6 +20,15 @@ readonly class AlertRecorder implements ShouldQueue
 
     public function handle(ConditionPresent $conditionPresent): void
     {
+        $storedAlert = $conditionPresent->subject
+            ->alerts()
+            ->where('type', $conditionPresent->alertType)
+            ->first();
+
+        if ($storedAlert !== null) {
+            return;
+        }
+
         $alert = $conditionPresent->subject
             ->alerts()
             ->create([
