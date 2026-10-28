@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Alerts\Events;
 
+use Illuminate\Contracts\Events\ShouldDispatchAfterCommit;
 use Illuminate\Queue\SerializesModels;
 use Maarheeze\Compass\Models\Alert;
 
-readonly class AlertOpened
+readonly class AlertOpened implements ShouldDispatchAfterCommit
 {
     use SerializesModels;
 
