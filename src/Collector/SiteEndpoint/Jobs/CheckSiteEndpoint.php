@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Collector\SiteEndpoint\Jobs;
 
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory as HttpFactory;
@@ -14,6 +15,7 @@ use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Maarheeze\Compass\Collector\CollectorLogger;
+use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
 use Maarheeze\Compass\Http\EndpointPath;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
@@ -36,8 +38,12 @@ class CheckSiteEndpoint implements ShouldQueue
     ) {
     }
 
-    public function handle(CollectorLogger $collectorLogger, Context $context, HttpFactory $http): void
-    {
+    public function handle(
+        CollectorLogger $collectorLogger,
+        Context $context,
+        Dispatcher $events,
+        HttpFactory $http,
+    ): void {
         $site = $this->siteEndpoint->site;
         $url = sprintf('%s/%s', rtrim($site->url, '/'), ltrim($this->siteEndpoint->path, '/'));
 
@@ -58,6 +64,8 @@ class CheckSiteEndpoint implements ShouldQueue
             'status_code' => $siteEndpointCheck->status_code,
             'is_successful' => $siteEndpointCheck->is_successful,
         ]);
+
+        $events->dispatch(new SiteEndpointChecked($this->siteEndpoint, $siteEndpointCheck));
     }
 
     private function getResponse(HttpFactory $http, string $url): ?Response

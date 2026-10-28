@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Log\Context\Repository as Context;
+use Illuminate\Support\Testing\Fakes\EventFake;
+use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
 use Maarheeze\Compass\Collector\SiteEndpoint\Jobs\CheckSiteEndpoint;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
@@ -119,4 +122,23 @@ test('handle records a check of an endpoint that cannot be reached as unsuccessf
         'path' => $siteEndpoint->path,
         'is_successful' => false,
     ]);
+});
+
+test('handle raises site endpoint checked with the endpoint and the stored check', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+    $this->app->instance(Dispatcher::class, $eventFake);
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $this->app->make(HttpFactory::class)->fake();
+
+    $checkSiteEndpoint = new CheckSiteEndpoint($siteEndpoint);
+    $this->app->call([$checkSiteEndpoint, 'handle']);
+
+    $siteEndpointCheck = SiteEndpointCheck::query()
+        ->where('site_id', $siteEndpoint->site_id)
+        ->where('path', $siteEndpoint->path)
+        ->sole();
+    $eventFake->assertDispatched(SiteEndpointChecked::class, static function (SiteEndpointChecked $siteEndpointChecked) use ($siteEndpoint, $siteEndpointCheck): bool {
+        return $siteEndpointChecked->siteEndpoint->is($siteEndpoint)
+            && $siteEndpointChecked->siteEndpointCheck->is($siteEndpointCheck);
+    });
 });
