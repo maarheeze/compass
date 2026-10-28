@@ -1,0 +1,15 @@
+<?php
+
+declare(strict_types=1);
+
+use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\AlertTypeDefinitions;
+use Maarheeze\Compass\Alerts\Types\DownSiteEndpointAlert;
+
+test('definition of a down site endpoint is the down site endpoint alert', function (): void {
+    $alertTypeDefinitions = $this->app->make(AlertTypeDefinitions::class);
+    $alertTypeDefinition = $alertTypeDefinitions->definition(AlertType::DOWN_SITE_ENDPOINT);
+
+    expect($alertTypeDefinition)
+        ->toBeInstanceOf(DownSiteEndpointAlert::class);
+});

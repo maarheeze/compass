@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Contracts\Translation\Translator;
+use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Analyzer\Composer\ComposerWarning;
 use Maarheeze\Compass\Analyzer\Composer\RepositoryKind;
 use Maarheeze\Compass\Analyzer\Forge\DeploymentState;
@@ -43,6 +44,7 @@ test('label key has a translation', function (UnitEnum $value): void {
     expect($hasTranslation)
         ->toBeTrue();
 })->with(array_merge(
+    AlertType::cases(),
     ClientStatus::cases(),
     ComposerWarning::cases(),
     DeploymentStatus::cases(),
