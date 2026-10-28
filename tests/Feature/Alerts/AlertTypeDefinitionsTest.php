@@ -9,6 +9,7 @@ use Maarheeze\Compass\Alerts\Types\DebugEnabledAlert;
 use Maarheeze\Compass\Alerts\Types\DownSiteEndpointAlert;
 use Maarheeze\Compass\Alerts\Types\IncompatibleClientAlert;
 use Maarheeze\Compass\Alerts\Types\MissingRepositoryAlert;
+use Maarheeze\Compass\Alerts\Types\MissingSiteAlert;
 use Maarheeze\Compass\Alerts\Types\NonProductionAlert;
 use Maarheeze\Compass\Alerts\Types\UnauthorizedClientAlert;
 
@@ -66,4 +67,12 @@ test('definition of a composer warning is the composer warning alert', function 
 
     expect($alertTypeDefinition)
         ->toBeInstanceOf(ComposerWarningAlert::class);
+});
+
+test('definition of a missing site is the missing site alert', function (): void {
+    $alertTypeDefinitions = $this->app->make(AlertTypeDefinitions::class);
+    $alertTypeDefinition = $alertTypeDefinitions->definition(AlertType::MISSING_SITE);
+
+    expect($alertTypeDefinition)
+        ->toBeInstanceOf(MissingSiteAlert::class);
 });

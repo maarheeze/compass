@@ -10,9 +10,11 @@ use Maarheeze\Compass\Alerts\Listeners\EvaluateDebugEnabled;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateDownSiteEndpoint;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateIncompatibleClient;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateMissingRepositories;
+use Maarheeze\Compass\Alerts\Listeners\EvaluateMissingSites;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateNonProduction;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateUnauthorizedClient;
 use Maarheeze\Compass\Alerts\Listeners\ObservationHandler;
+use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
 use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
 use Maarheeze\Compass\Collector\Events\RepositoryMissingIgnored;
 use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
@@ -70,4 +72,10 @@ test('evaluate composer warnings listens to github run succeeded', function (): 
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
     $eventFake->assertListening(GitHubRunSucceeded::class, EvaluateComposerWarnings::class);
+});
+
+test('evaluate missing sites listens to forge run succeeded', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+
+    $eventFake->assertListening(ForgeRunSucceeded::class, EvaluateMissingSites::class);
 });

@@ -12,9 +12,11 @@ use Maarheeze\Compass\Alerts\Listeners\EvaluateDebugEnabled;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateDownSiteEndpoint;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateIncompatibleClient;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateMissingRepositories;
+use Maarheeze\Compass\Alerts\Listeners\EvaluateMissingSites;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateNonProduction;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateUnauthorizedClient;
 use Maarheeze\Compass\Alerts\Listeners\ObservationHandler;
+use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
 use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
 use Maarheeze\Compass\Collector\Events\RepositoryMissingIgnored;
 use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
@@ -33,5 +35,6 @@ class AlertProvider extends ServiceProvider
         $events->listen(GitHubRunSucceeded::class, EvaluateMissingRepositories::class);
         $events->listen(RepositoryMissingIgnored::class, EvaluateMissingRepositories::class);
         $events->listen(GitHubRunSucceeded::class, EvaluateComposerWarnings::class);
+        $events->listen(ForgeRunSucceeded::class, EvaluateMissingSites::class);
     }
 }

@@ -43,6 +43,7 @@ class AlertFactory extends Factory
             AlertType::DOWN_SITE_ENDPOINT => $alertFactoryWithCondition->downSiteEndpoint(),
             AlertType::INCOMPATIBLE_CLIENT => $alertFactoryWithCondition->incompatibleClient(),
             AlertType::MISSING_REPOSITORY => $alertFactoryWithCondition->missingRepository(),
+            AlertType::MISSING_SITE => $alertFactoryWithCondition->missingSite(),
             AlertType::NON_PRODUCTION => $alertFactoryWithCondition->nonProduction(),
             AlertType::UNAUTHORIZED_CLIENT => $alertFactoryWithCondition->unauthorizedClient(),
         };
@@ -89,6 +90,11 @@ class AlertFactory extends Factory
     public function missingRepository(): static
     {
         return $this->state(['type' => AlertType::MISSING_REPOSITORY])->for(Repository::factory(), 'subject');
+    }
+
+    public function missingSite(): static
+    {
+        return $this->state(['type' => AlertType::MISSING_SITE])->for(Site::factory(), 'subject');
     }
 
     public function nonProduction(): static

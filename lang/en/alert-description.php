@@ -8,6 +8,7 @@ return [
     'DOWN_SITE_ENDPOINT' => ':path on :site',
     'INCOMPATIBLE_CLIENT' => ':site',
     'MISSING_REPOSITORY' => ':repository',
+    'MISSING_SITE' => ':site',
     'NON_PRODUCTION' => ':site',
     'UNAUTHORIZED_CLIENT' => ':site',
 ];
