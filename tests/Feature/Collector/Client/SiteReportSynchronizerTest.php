@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\Client\SiteReport;
 use Maarheeze\Compass\Collector\Client\SiteReportSynchronizer;
+use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
 
@@ -58,6 +59,34 @@ test('store report deletes the endpoints that are no longer reported', function 
     $this->assertModelMissing($siteEndpoint);
 });
 
+test('store report deletes the alerts of the endpoints that are no longer reported', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $alert = Alert::factory()
+        ->downSiteEndpoint()
+        ->for($siteEndpoint, 'subject')
+        ->create();
+    $siteReport = new SiteReport(fake()->boolean(), fake()->word(), fake()->company(), []);
+
+    $siteReportSynchronizer = $this->app->make(SiteReportSynchronizer::class);
+    $siteReportSynchronizer->storeReport($siteEndpoint->site, $siteReport);
+
+    $this->assertModelMissing($alert);
+});
+
+test('store report keeps the alerts of the endpoints that are still reported', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $alert = Alert::factory()
+        ->downSiteEndpoint()
+        ->for($siteEndpoint, 'subject')
+        ->create();
+    $siteReport = new SiteReport(fake()->boolean(), fake()->word(), fake()->company(), [$siteEndpoint->path]);
+
+    $siteReportSynchronizer = $this->app->make(SiteReportSynchronizer::class);
+    $siteReportSynchronizer->storeReport($siteEndpoint->site, $siteReport);
+
+    $this->assertModelExists($alert);
+});
+
 test('clear report marks the client not installed', function (): void {
     $site = Site::factory()->create();
 
@@ -80,6 +109,19 @@ test('clear report deletes the endpoints', function (): void {
     $siteReportSynchronizer->clearReport($siteEndpoint->site);
 
     $this->assertModelMissing($siteEndpoint);
+});
+
+test('clear report deletes the alerts of the endpoints', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $alert = Alert::factory()
+        ->downSiteEndpoint()
+        ->for($siteEndpoint, 'subject')
+        ->create();
+
+    $siteReportSynchronizer = $this->app->make(SiteReportSynchronizer::class);
+    $siteReportSynchronizer->clearReport($siteEndpoint->site);
+
+    $this->assertModelMissing($alert);
 });
 
 test('mark incompatible marks the client incompatible', function (): void {

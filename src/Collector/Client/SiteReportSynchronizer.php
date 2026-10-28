@@ -30,7 +30,10 @@ readonly class SiteReportSynchronizer
                 'client_collected_at' => CarbonImmutable::now(),
             ]);
 
-            $site->endpoints()->delete();
+            foreach ($site->endpoints()->get() as $siteEndpoint) {
+                $siteEndpoint->alerts()->delete();
+                $siteEndpoint->delete();
+            }
         });
     }
 
@@ -72,9 +75,14 @@ readonly class SiteReportSynchronizer
                 'client_collected_at' => CarbonImmutable::now(),
             ]);
 
-            $site->endpoints()
+            $droppedSiteEndpoints = $site->endpoints()
                 ->whereNotIn('path', $siteReport->endpoints)
-                ->delete();
+                ->get();
+
+            foreach ($droppedSiteEndpoints as $droppedSiteEndpoint) {
+                $droppedSiteEndpoint->alerts()->delete();
+                $droppedSiteEndpoint->delete();
+            }
 
             foreach ($siteReport->endpoints as $endpoint) {
                 $site->endpoints()->firstOrCreate(['path' => $endpoint]);
