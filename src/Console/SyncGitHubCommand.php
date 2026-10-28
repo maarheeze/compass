@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Console;
 
 use Illuminate\Console\Command;
+use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectRepositories;
 use Maarheeze\Compass\Collector\RunRecorder;
 use Maarheeze\Compass\Collector\RunType;
@@ -18,7 +19,12 @@ class SyncGitHubCommand extends Command
     {
         $runId = Uuid::generate();
 
-        $runRecorder->start($runId, RunType::GITHUB_SYNC, new CollectRepositories($runId));
+        $runRecorder->start(
+            $runId,
+            RunType::GITHUB_SYNC,
+            new CollectRepositories($runId),
+            new GitHubRunSucceeded($runId),
+        );
     }
 
     protected function configure(): void

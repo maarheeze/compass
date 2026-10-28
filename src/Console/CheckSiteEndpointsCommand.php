@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Console;
 
 use Illuminate\Console\Command;
+use Maarheeze\Compass\Collector\Events\EndpointCheckRunSucceeded;
 use Maarheeze\Compass\Collector\RunRecorder;
 use Maarheeze\Compass\Collector\RunType;
 use Maarheeze\Compass\Collector\SiteEndpoint\Jobs\CheckSiteEndpoints;
@@ -16,7 +17,14 @@ class CheckSiteEndpointsCommand extends Command
 
     public function handle(RunRecorder $runRecorder): void
     {
-        $runRecorder->start(Uuid::generate(), RunType::ENDPOINT_CHECK, new CheckSiteEndpoints());
+        $runId = Uuid::generate();
+
+        $runRecorder->start(
+            $runId,
+            RunType::ENDPOINT_CHECK,
+            new CheckSiteEndpoints(),
+            new EndpointCheckRunSucceeded($runId),
+        );
     }
 
     protected function configure(): void

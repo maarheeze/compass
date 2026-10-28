@@ -3,12 +3,13 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
+use Illuminate\Bus\PendingBatch;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Support\Testing\Fakes\BusFake;
-use Illuminate\Support\Testing\Fakes\PendingBatchFake;
 use Livewire\LivewireManager;
 use Maarheeze\Compass\Collector\Forge\Jobs\CollectSites;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectRepositories;
+use Maarheeze\Compass\Collector\Jobs\FinishRun;
 use Maarheeze\Compass\Collector\RunStatus;
 use Maarheeze\Compass\Collector\RunType;
 use Maarheeze\Compass\Collector\SiteEndpoint\Jobs\CheckSiteEndpoints;
@@ -26,9 +27,12 @@ test('sync starts a collection of the repositories', function (): void {
         ->test(SyncButton::class)
         ->call('sync');
 
-    $busFake->assertBatched(static function (PendingBatchFake $pendingBatch): bool {
-        return $pendingBatch->hasJobs([CollectRepositories::class]);
-    });
+    $busFake->assertChained([
+        $busFake->chainedBatch(static function (PendingBatch $pendingBatch): bool {
+            return $pendingBatch->jobs->sole() instanceof CollectRepositories;
+        }),
+        FinishRun::class,
+    ]);
 });
 
 test('sync starts a collection of the sites', function (): void {
@@ -40,9 +44,12 @@ test('sync starts a collection of the sites', function (): void {
         ->test(SyncButton::class)
         ->call('sync');
 
-    $busFake->assertBatched(static function (PendingBatchFake $pendingBatch): bool {
-        return $pendingBatch->hasJobs([CollectSites::class]);
-    });
+    $busFake->assertChained([
+        $busFake->chainedBatch(static function (PendingBatch $pendingBatch): bool {
+            return $pendingBatch->jobs->sole() instanceof CollectSites;
+        }),
+        FinishRun::class,
+    ]);
 });
 
 test('sync starts a check of the site endpoints', function (): void {
@@ -54,9 +61,12 @@ test('sync starts a check of the site endpoints', function (): void {
         ->test(SyncButton::class)
         ->call('sync');
 
-    $busFake->assertBatched(static function (PendingBatchFake $pendingBatch): bool {
-        return $pendingBatch->hasJobs([CheckSiteEndpoints::class]);
-    });
+    $busFake->assertChained([
+        $busFake->chainedBatch(static function (PendingBatch $pendingBatch): bool {
+            return $pendingBatch->jobs->sole() instanceof CheckSiteEndpoints;
+        }),
+        FinishRun::class,
+    ]);
 });
 
 test('render tells the view whether a sync is running', function (): void {
