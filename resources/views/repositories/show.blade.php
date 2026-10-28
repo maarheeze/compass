@@ -44,10 +44,69 @@
         <section class="space-y-3">
             <x-compass::section-heading>
                 <x-slot:icon>
+                    <x-compass::icons.issue-opened />
+                </x-slot:icon>
+                {{ __('compass::navigation.issues') }}
+            </x-compass::section-heading>
+
+            <div class="overflow-hidden rounded-md border border-border bg-canvas">
+                <table class="w-full table-fixed text-left text-sm">
+                    <thead class="bg-canvas-subtle text-xs text-foreground-muted">
+                        <tr>
+                            <x-compass::issue-heading-cells />
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border">
+                        @forelse ($repository->issues as $issue)
+                            <tr>
+                                <x-compass::issue-cells :issue="$issue" />
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::issue.no_open_issues') }}</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="space-y-3">
+            <x-compass::section-heading>
+                <x-slot:icon>
+                    <x-compass::icons.git-pull-request />
+                </x-slot:icon>
+                {{ __('compass::navigation.pull_requests') }}
+            </x-compass::section-heading>
+
+            <div class="overflow-hidden rounded-md border border-border bg-canvas">
+                <table class="w-full table-fixed text-left text-sm">
+                    <thead class="bg-canvas-subtle text-xs text-foreground-muted">
+                        <tr>
+                            <x-compass::pull-request-heading-cells />
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border">
+                        @forelse ($repository->pullRequests as $pullRequest)
+                            <tr>
+                                <x-compass::pull-request-cells :pull-request="$pullRequest" />
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::pull-request.no_open_pull_requests') }}</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="space-y-3">
+            <x-compass::section-heading>
+                <x-slot:icon>
                     <x-compass::icons.server />
                 </x-slot:icon>
-                {{ __('compass::repository.forge_sites') }}
-                <span class="rounded-full bg-border/50 px-2 text-xs font-medium text-foreground-muted">{{ $repository->sites->count() }}</span>
+                {{ __('compass::repository.sites') }}
             </x-compass::section-heading>
 
             <div class="overflow-hidden rounded-md border border-border bg-canvas">
@@ -85,69 +144,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::repository.no_forge_sites') }}</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <section class="space-y-3">
-            <x-compass::section-heading>
-                <x-slot:icon>
-                    <x-compass::icons.git-pull-request />
-                </x-slot:icon>
-                {{ __('compass::navigation.pull_requests') }}
-                <span class="rounded-full bg-border/50 px-2 text-xs font-medium text-foreground-muted">{{ $repository->pullRequests->count() }}</span>
-            </x-compass::section-heading>
-
-            <div class="overflow-hidden rounded-md border border-border bg-canvas">
-                <table class="w-full table-fixed text-left text-sm">
-                    <thead class="bg-canvas-subtle text-xs text-foreground-muted">
-                        <tr>
-                            <x-compass::pull-request-heading-cells />
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-border">
-                        @forelse ($repository->pullRequests as $pullRequest)
-                            <tr>
-                                <x-compass::pull-request-cells :pull-request="$pullRequest" />
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="3" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::pull-request.no_open_pull_requests') }}</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <section class="space-y-3">
-            <x-compass::section-heading>
-                <x-slot:icon>
-                    <x-compass::icons.issue-opened />
-                </x-slot:icon>
-                {{ __('compass::navigation.issues') }}
-                <span class="rounded-full bg-border/50 px-2 text-xs font-medium text-foreground-muted">{{ $repository->issues->count() }}</span>
-            </x-compass::section-heading>
-
-            <div class="overflow-hidden rounded-md border border-border bg-canvas">
-                <table class="w-full table-fixed text-left text-sm">
-                    <thead class="bg-canvas-subtle text-xs text-foreground-muted">
-                        <tr>
-                            <x-compass::issue-heading-cells />
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-border">
-                        @forelse ($repository->issues as $issue)
-                            <tr>
-                                <x-compass::issue-cells :issue="$issue" />
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="3" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::issue.no_open_issues') }}</td>
+                                <td colspan="5" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::repository.no_sites') }}</td>
                             </tr>
                         @endforelse
                     </tbody>
