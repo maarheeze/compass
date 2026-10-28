@@ -19,6 +19,7 @@ use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
 use Maarheeze\Compass\Collector\Events\RepositoryMissingIgnored;
 use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
+use Maarheeze\Compass\Collector\Events\SiteMissingIgnored;
 
 test('observation handler listens to condition observed', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
@@ -78,4 +79,10 @@ test('evaluate missing sites listens to forge run succeeded', function (): void 
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
     $eventFake->assertListening(ForgeRunSucceeded::class, EvaluateMissingSites::class);
+});
+
+test('evaluate missing sites listens to site missing ignored', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+
+    $eventFake->assertListening(SiteMissingIgnored::class, EvaluateMissingSites::class);
 });

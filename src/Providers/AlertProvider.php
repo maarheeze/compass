@@ -21,6 +21,7 @@ use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
 use Maarheeze\Compass\Collector\Events\RepositoryMissingIgnored;
 use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
+use Maarheeze\Compass\Collector\Events\SiteMissingIgnored;
 
 class AlertProvider extends ServiceProvider
 {
@@ -36,5 +37,6 @@ class AlertProvider extends ServiceProvider
         $events->listen(RepositoryMissingIgnored::class, EvaluateMissingRepositories::class);
         $events->listen(GitHubRunSucceeded::class, EvaluateComposerWarnings::class);
         $events->listen(ForgeRunSucceeded::class, EvaluateMissingSites::class);
+        $events->listen(SiteMissingIgnored::class, EvaluateMissingSites::class);
     }
 }
