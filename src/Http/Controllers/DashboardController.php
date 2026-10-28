@@ -9,6 +9,8 @@ use Illuminate\Contracts\View\View;
 use Maarheeze\Compass\Analyzer\GitHub\IssueCounter;
 use Maarheeze\Compass\Analyzer\GitHub\PullRequestCounter;
 use Maarheeze\Compass\Authentication\AuthenticatedUser;
+use Maarheeze\Compass\Models\Alert;
+use Maarheeze\Compass\Models\SiteEndpoint;
 
 readonly class DashboardController
 {
@@ -23,6 +25,10 @@ readonly class DashboardController
     public function show(): View
     {
         return $this->view->make('compass::dashboard', [
+            'alerts' => Alert::query()
+                ->latest()
+                ->get()
+                ->loadMorph('subject', [SiteEndpoint::class => ['site']]),
             'issueCounts' => $this->issueCounter->count($this->authenticatedUser->user()),
             'pullRequestCounts' => $this->pullRequestCounter->count($this->authenticatedUser->user()),
         ]);

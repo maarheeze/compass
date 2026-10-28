@@ -4,11 +4,25 @@ declare(strict_types=1);
 
 use Maarheeze\Compass\Analyzer\GitHub\IssueCounts;
 use Maarheeze\Compass\Analyzer\GitHub\PullRequestCounts;
+use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Http\RouteName;
+use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\IssueAssignee;
 use Maarheeze\Compass\Models\PullRequestAssignee;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
+
+test('show contains the alerts, newest first', function (): void {
+    $earlierAlert = Alert::factory()->create(['created_at' => fake()->dateTimeBetween('-2 months', '-1 month')]);
+    $laterAlert = Alert::factory()->create(['created_at' => fake()->dateTimeBetween('-1 month')]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::DASHBOARD));
+
+    $response->assertViewHas('alerts', static function (AlertCollection $viewAlerts) use ($earlierAlert, $laterAlert): bool {
+        return $viewAlerts->first()->id->equals($laterAlert->id) && $viewAlerts->last()->id->equals($earlierAlert->id);
+    });
+});
 
 test('show contains the issue counts of the signed in user', function (): void {
     $user = User::factory()->create(['nickname' => fake()->unique()->userName()]);
