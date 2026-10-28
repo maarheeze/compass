@@ -45,5 +45,6 @@ class AlertProvider extends ServiceProvider
         $events->listen(ForgeRunSucceeded::class, EvaluateOverdueDeployments::class);
         $events->listen(ForgeRunSucceeded::class, EvaluateDownSiteEndpoint::class);
         $events->listen(ForgeRunSucceeded::class, EvaluateDebugEnabled::class);
+        $events->listen(ForgeRunSucceeded::class, EvaluateNonProduction::class);
     }
 }

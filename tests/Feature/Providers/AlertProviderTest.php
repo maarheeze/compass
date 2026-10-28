@@ -118,3 +118,9 @@ test('evaluate debug enabled listens to forge run succeeded', function (): void 
 
     $eventFake->assertListening(ForgeRunSucceeded::class, EvaluateDebugEnabled::class);
 });
+
+test('evaluate non production listens to forge run succeeded', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+
+    $eventFake->assertListening(ForgeRunSucceeded::class, EvaluateNonProduction::class);
+});
