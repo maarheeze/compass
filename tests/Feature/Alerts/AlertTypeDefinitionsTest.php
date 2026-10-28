@@ -7,6 +7,7 @@ use Maarheeze\Compass\Alerts\AlertTypeDefinitions;
 use Maarheeze\Compass\Alerts\Types\DebugEnabledAlert;
 use Maarheeze\Compass\Alerts\Types\DownSiteEndpointAlert;
 use Maarheeze\Compass\Alerts\Types\NonProductionAlert;
+use Maarheeze\Compass\Alerts\Types\UnauthorizedClientAlert;
 
 test('definition of debug enabled is the debug enabled alert', function (): void {
     $alertTypeDefinitions = $this->app->make(AlertTypeDefinitions::class);
@@ -30,4 +31,12 @@ test('definition of non production is the non production alert', function (): vo
 
     expect($alertTypeDefinition)
         ->toBeInstanceOf(NonProductionAlert::class);
+});
+
+test('definition of unauthorized client is the unauthorized client alert', function (): void {
+    $alertTypeDefinitions = $this->app->make(AlertTypeDefinitions::class);
+    $alertTypeDefinition = $alertTypeDefinitions->definition(AlertType::UNAUTHORIZED_CLIENT);
+
+    expect($alertTypeDefinition)
+        ->toBeInstanceOf(UnauthorizedClientAlert::class);
 });

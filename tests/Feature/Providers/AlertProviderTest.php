@@ -8,6 +8,7 @@ use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateDebugEnabled;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateDownSiteEndpoint;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateNonProduction;
+use Maarheeze\Compass\Alerts\Listeners\EvaluateUnauthorizedClient;
 use Maarheeze\Compass\Alerts\Listeners\ObservationHandler;
 use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
@@ -34,4 +35,10 @@ test('evaluate non production listens to site inspected', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
     $eventFake->assertListening(SiteInspected::class, EvaluateNonProduction::class);
+});
+
+test('evaluate unauthorized client listens to site inspected', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+
+    $eventFake->assertListening(SiteInspected::class, EvaluateUnauthorizedClient::class);
 });

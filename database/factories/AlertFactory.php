@@ -40,6 +40,7 @@ class AlertFactory extends Factory
             AlertType::DEBUG_ENABLED => $alertFactoryWithCondition->debugEnabled(),
             AlertType::DOWN_SITE_ENDPOINT => $alertFactoryWithCondition->downSiteEndpoint(),
             AlertType::NON_PRODUCTION => $alertFactoryWithCondition->nonProduction(),
+            AlertType::UNAUTHORIZED_CLIENT => $alertFactoryWithCondition->unauthorizedClient(),
         };
     }
 
@@ -82,5 +83,10 @@ class AlertFactory extends Factory
             'condition' => AlertCondition::PRESENT,
             'gone_at' => null,
         ]);
+    }
+
+    public function unauthorizedClient(): static
+    {
+        return $this->state(['type' => AlertType::UNAUTHORIZED_CLIENT])->for(Site::factory(), 'subject');
     }
 }

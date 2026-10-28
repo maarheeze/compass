@@ -8,6 +8,7 @@ use Illuminate\Contracts\Container\Container;
 use Maarheeze\Compass\Alerts\Types\DebugEnabledAlert;
 use Maarheeze\Compass\Alerts\Types\DownSiteEndpointAlert;
 use Maarheeze\Compass\Alerts\Types\NonProductionAlert;
+use Maarheeze\Compass\Alerts\Types\UnauthorizedClientAlert;
 
 readonly class AlertTypeDefinitions
 {
@@ -22,6 +23,7 @@ readonly class AlertTypeDefinitions
             AlertType::DEBUG_ENABLED => DebugEnabledAlert::class,
             AlertType::DOWN_SITE_ENDPOINT => DownSiteEndpointAlert::class,
             AlertType::NON_PRODUCTION => NonProductionAlert::class,
+            AlertType::UNAUTHORIZED_CLIENT => UnauthorizedClientAlert::class,
         };
 
         return $this->container->make($definitionClass);
