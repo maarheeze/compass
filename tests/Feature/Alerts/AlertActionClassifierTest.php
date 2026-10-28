@@ -26,3 +26,47 @@ test('classify is nothing for a present condition with a present alert', functio
     expect($alertAction)
         ->toBeNull();
 });
+
+test('classify is clear for a gone condition with a present alert', function (): void {
+    $storedAlert = Alert::factory()
+        ->present()
+        ->make();
+
+    $alertActionClassifier = $this->app->make(AlertActionClassifier::class);
+    $alertAction = $alertActionClassifier->classify(AlertCondition::GONE, $storedAlert);
+
+    expect($alertAction)
+        ->toBe(AlertAction::CLEAR);
+});
+
+test('classify is nothing for a gone condition without a stored alert', function (): void {
+    $alertActionClassifier = $this->app->make(AlertActionClassifier::class);
+    $alertAction = $alertActionClassifier->classify(AlertCondition::GONE, null);
+
+    expect($alertAction)
+        ->toBeNull();
+});
+
+test('classify is nothing for a gone condition with a gone alert', function (): void {
+    $storedAlert = Alert::factory()
+        ->gone()
+        ->make();
+
+    $alertActionClassifier = $this->app->make(AlertActionClassifier::class);
+    $alertAction = $alertActionClassifier->classify(AlertCondition::GONE, $storedAlert);
+
+    expect($alertAction)
+        ->toBeNull();
+});
+
+test('classify is nothing for a present condition with a gone alert', function (): void {
+    $storedAlert = Alert::factory()
+        ->gone()
+        ->make();
+
+    $alertActionClassifier = $this->app->make(AlertActionClassifier::class);
+    $alertAction = $alertActionClassifier->classify(AlertCondition::PRESENT, $storedAlert);
+
+    expect($alertAction)
+        ->toBeNull();
+});

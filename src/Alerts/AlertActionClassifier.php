@@ -10,10 +10,20 @@ readonly class AlertActionClassifier
 {
     public function classify(AlertCondition $observedCondition, ?Alert $storedAlert): ?AlertAction
     {
-        if ($observedCondition === AlertCondition::PRESENT && $storedAlert === null) {
-            return AlertAction::OPEN;
+        if ($storedAlert === null) {
+            return match ($observedCondition) {
+                AlertCondition::PRESENT => AlertAction::OPEN,
+                AlertCondition::GONE => null,
+            };
         }
 
-        return null;
+        if ($observedCondition === $storedAlert->condition) {
+            return null;
+        }
+
+        return match ($observedCondition) {
+            AlertCondition::PRESENT => null,
+            AlertCondition::GONE => AlertAction::CLEAR,
+        };
     }
 }
