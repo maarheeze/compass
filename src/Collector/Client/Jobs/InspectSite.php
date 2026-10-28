@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Collector\Client\Jobs;
 
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Queue\InteractsWithQueue;
@@ -18,6 +19,7 @@ use Maarheeze\Compass\Collector\Client\ClientUnreachable;
 use Maarheeze\Compass\Collector\Client\SiteQuery;
 use Maarheeze\Compass\Collector\Client\SiteReportSynchronizer;
 use Maarheeze\Compass\Collector\CollectorLogger;
+use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Models\Site;
 use Throwable;
 
@@ -40,6 +42,7 @@ class InspectSite implements ShouldQueue
         ClientKey $clientKey,
         CollectorLogger $collectorLogger,
         Context $context,
+        Dispatcher $events,
         SiteQuery $siteQuery,
         SiteReportSynchronizer $siteReportSynchronizer,
     ): void {
@@ -54,6 +57,8 @@ class InspectSite implements ShouldQueue
         $this->inspect($siteQuery, $siteReportSynchronizer);
 
         $collectorLogger->debug('Site inspected', ['client_status' => $this->site->client_status?->value]);
+
+        $events->dispatch(new SiteInspected($this->site));
     }
 
     /**

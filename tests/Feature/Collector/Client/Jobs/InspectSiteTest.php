@@ -2,10 +2,13 @@
 
 declare(strict_types=1);
 
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Log\Context\Repository as Context;
+use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\Client\Jobs\InspectSite;
+use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Models\Site;
 
 test('handle stores the report of a site with the client installed', function (): void {
@@ -108,4 +111,18 @@ test('handle adds the site to the log context', function (): void {
 
     expect($this->app->make(Context::class)->get('site'))
         ->toBe($site->name);
+});
+
+test('handle raises site inspected with the site', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+    $this->app->instance(Dispatcher::class, $eventFake);
+    $site = Site::factory()->create();
+    $this->app->make(HttpFactory::class)->fake();
+
+    $inspectSite = new InspectSite($site);
+    $this->app->call([$inspectSite, 'handle']);
+
+    $eventFake->assertDispatched(SiteInspected::class, static function (SiteInspected $siteInspected) use ($site): bool {
+        return $siteInspected->site->is($site);
+    });
 });
