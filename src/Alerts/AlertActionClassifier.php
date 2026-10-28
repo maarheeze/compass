@@ -22,7 +22,7 @@ readonly class AlertActionClassifier
         }
 
         return match ($observedCondition) {
-            AlertCondition::PRESENT => null,
+            AlertCondition::PRESENT => AlertAction::RECUR,
             AlertCondition::GONE => AlertAction::CLEAR,
         };
     }

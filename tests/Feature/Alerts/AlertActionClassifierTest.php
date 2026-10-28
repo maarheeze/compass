@@ -59,7 +59,7 @@ test('classify is nothing for a gone condition with a gone alert', function (): 
         ->toBeNull();
 });
 
-test('classify is nothing for a present condition with a gone alert', function (): void {
+test('classify is recur for a present condition with a gone alert', function (): void {
     $storedAlert = Alert::factory()
         ->gone()
         ->make();
@@ -68,5 +68,5 @@ test('classify is nothing for a present condition with a gone alert', function (
     $alertAction = $alertActionClassifier->classify(AlertCondition::PRESENT, $storedAlert);
 
     expect($alertAction)
-        ->toBeNull();
+        ->toBe(AlertAction::RECUR);
 });

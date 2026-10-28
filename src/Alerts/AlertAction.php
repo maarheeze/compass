@@ -8,4 +8,5 @@ enum AlertAction: string
 {
     case CLEAR = 'clear';
     case OPEN = 'open';
+    case RECUR = 'recur';
 }

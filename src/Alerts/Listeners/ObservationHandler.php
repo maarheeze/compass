@@ -12,6 +12,7 @@ use Maarheeze\Compass\Alerts\AlertCondition;
 use Maarheeze\Compass\Alerts\AlertStatus;
 use Maarheeze\Compass\Alerts\Events\AlertCleared;
 use Maarheeze\Compass\Alerts\Events\AlertOpened;
+use Maarheeze\Compass\Alerts\Events\AlertRecurred;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Models\Alert;
 use Webmozart\Assert\Assert;
@@ -35,6 +36,7 @@ readonly class ObservationHandler implements ShouldQueue
         match ($alertAction) {
             AlertAction::CLEAR => $this->clear($conditionObserved, $storedAlert),
             AlertAction::OPEN => $this->open($conditionObserved),
+            AlertAction::RECUR => $this->recur($storedAlert),
             null => null,
         };
     }
@@ -62,5 +64,16 @@ readonly class ObservationHandler implements ShouldQueue
             ]);
 
         $this->events->dispatch(new AlertOpened($alert));
+    }
+
+    private function recur(?Alert $storedAlert): void
+    {
+        Assert::isInstanceOf($storedAlert, Alert::class);
+        $storedAlert->update([
+            'condition' => AlertCondition::PRESENT,
+            'gone_at' => null,
+        ]);
+
+        $this->events->dispatch(new AlertRecurred($storedAlert));
     }
 }

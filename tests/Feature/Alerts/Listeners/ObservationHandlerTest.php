@@ -10,6 +10,7 @@ use Maarheeze\Compass\Alerts\AlertStatus;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\Events\AlertCleared;
 use Maarheeze\Compass\Alerts\Events\AlertOpened;
+use Maarheeze\Compass\Alerts\Events\AlertRecurred;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Listeners\ObservationHandler;
 use Maarheeze\Compass\Models\Alert;
@@ -179,4 +180,50 @@ test('handle raises nothing for a gone condition without an alert', function ():
     ));
 
     $eventFake->assertNothingDispatched();
+});
+
+test('handle recurs a gone alert for a present condition', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $storedAlert = Alert::factory()
+        ->downSiteEndpoint()
+        ->gone()
+        ->for($siteEndpoint, 'subject')
+        ->create();
+
+    $observationHandler = $this->app->make(ObservationHandler::class);
+    $observationHandler->handle(new ConditionObserved(
+        AlertType::DOWN_SITE_ENDPOINT,
+        $siteEndpoint,
+        AlertCondition::PRESENT,
+        CarbonImmutable::now(),
+    ));
+
+    $this->assertDatabaseHas(Alert::class, [
+        'id' => $storedAlert->id,
+        'condition' => AlertCondition::PRESENT,
+        'gone_at' => null,
+    ]);
+});
+
+test('handle raises alert recurred with the recurred alert', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+    $this->app->instance(Dispatcher::class, $eventFake);
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $storedAlert = Alert::factory()
+        ->downSiteEndpoint()
+        ->gone()
+        ->for($siteEndpoint, 'subject')
+        ->create();
+
+    $observationHandler = $this->app->make(ObservationHandler::class);
+    $observationHandler->handle(new ConditionObserved(
+        AlertType::DOWN_SITE_ENDPOINT,
+        $siteEndpoint,
+        AlertCondition::PRESENT,
+        CarbonImmutable::now(),
+    ));
+
+    $eventFake->assertDispatched(AlertRecurred::class, static function (AlertRecurred $alertRecurred) use ($storedAlert): bool {
+        return $alertRecurred->alert->is($storedAlert);
+    });
 });
