@@ -6,7 +6,6 @@ return [
     'branch' => 'Branch',
     'collected' => 'collected',
     'collected_at' => 'Collected at',
-    'compare' => 'Compare',
     'deployed_commit' => 'Deployed commit',
     'deployment' => 'Deployment',
     'forge_sites' => 'Forge sites',

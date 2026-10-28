@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Maarheeze\Compass;
 
 use Carbon\FactoryImmutable;
-use Illuminate\Config\Repository;
+use Illuminate\Config\Repository as ConfigurationRepository;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Livewire\LivewireManager;
@@ -15,6 +16,9 @@ use Maarheeze\Compass\Console\SyncCommand;
 use Maarheeze\Compass\Http\Controllers\RunController;
 use Maarheeze\Compass\Http\Controllers\SiteEndpointCheckController;
 use Maarheeze\Compass\Http\Middleware\Authenticate;
+use Maarheeze\Compass\Models\Repository;
+use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 use Maarheeze\Compass\Providers\ClientProvider;
 use Maarheeze\Compass\Providers\ForgeProvider;
@@ -43,7 +47,7 @@ class CompassServiceProvider extends ServiceProvider
             ->when([RunController::class, SiteEndpointCheckController::class])
             ->needs('$itemsPerPage')
             ->give(static function (Container $container): int {
-                return $container->make(Repository::class)->integer('compass.items_per_page');
+                return $container->make(ConfigurationRepository::class)->integer('compass.items_per_page');
             });
 
         $this->app->register(AuthenticationProvider::class);
@@ -59,6 +63,12 @@ class CompassServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'compass');
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
+        Relation::morphMap([
+            'repository' => Repository::class,
+            'site' => Site::class,
+            'site-endpoint' => SiteEndpoint::class,
+        ]);
 
         Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components', 'compass');
         Blade::componentNamespace('Maarheeze\\Compass\\View\\Components', 'compass');

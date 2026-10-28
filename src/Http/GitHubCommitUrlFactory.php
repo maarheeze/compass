@@ -14,9 +14,4 @@ readonly class GitHubCommitUrlFactory
     {
         return sprintf('%s/commit/%s', $repository->url, $commitHash);
     }
-
-    public function createComparison(Repository $repository, string $baseCommitHash): string
-    {
-        return sprintf('%s/compare/%s...%s', $repository->url, $baseCommitHash, $repository->last_commit_sha);
-    }
 }
