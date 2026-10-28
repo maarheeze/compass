@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
 use Maarheeze\Compass\Http\RouteName;
+use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 use Maarheeze\Compass\View\Components\Navigation;
@@ -43,6 +44,25 @@ test('dashboard url is the url of the dashboard', function (): void {
 
     expect($navigation->dashboardUrl)
         ->toBe(route(RouteName::DASHBOARD));
+});
+
+test('has alerts is true with an alert', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+    Alert::factory()->create();
+
+    $navigation = $this->app->make(Navigation::class);
+
+    expect($navigation->hasAlerts)
+        ->toBeTrue();
+});
+
+test('has alerts is false without an alert', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $navigation = $this->app->make(Navigation::class);
+
+    expect($navigation->hasAlerts)
+        ->toBeFalse();
 });
 
 test('logout url is the url of the logout', function (): void {

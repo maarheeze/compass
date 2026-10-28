@@ -12,12 +12,14 @@ use Illuminate\View\Component;
 use Maarheeze\Compass\Authentication\AuthenticatedUser;
 use Maarheeze\Compass\Collections\NavigationTabCollection;
 use Maarheeze\Compass\Http\RouteName;
+use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\View\NavigationTab;
 
 class Navigation extends Component
 {
     public readonly string $dashboardUrl;
+    public readonly bool $hasAlerts;
     public readonly string $logoutUrl;
     public readonly NavigationTabCollection $tabs;
     public readonly User $user;
@@ -29,6 +31,7 @@ class Navigation extends Component
         private readonly ViewFactory $view,
     ) {
         $this->dashboardUrl = $url->route(RouteName::DASHBOARD->value);
+        $this->hasAlerts = Alert::query()->exists();
         $this->logoutUrl = $url->route(RouteName::LOGOUT->value);
         $this->tabs = $this->navigationTabs($request, $url);
         $this->user = $authenticatedUser->user();

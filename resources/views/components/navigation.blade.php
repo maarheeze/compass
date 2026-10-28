@@ -4,6 +4,12 @@
             <a href="{{ $dashboardUrl }}" class="text-base font-semibold text-foreground"><x-compass::application-name /></a>
 
             <div class="flex items-center gap-2">
+                @if ($hasAlerts)
+                    <a href="{{ $dashboardUrl }}" title="{{ __('compass::alert.alerts') }}" class="flex text-amber-700 dark:text-amber-400">
+                        <x-compass::icons.alert />
+                    </a>
+                @endif
+
                 <livewire:compass::sync-button />
 
                 <details x-data class="relative ml-2" @click.outside="$el.removeAttribute('open')">
