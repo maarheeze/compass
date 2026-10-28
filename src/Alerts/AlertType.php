@@ -6,5 +6,6 @@ namespace Maarheeze\Compass\Alerts;
 
 enum AlertType: string
 {
+    case DEBUG_ENABLED = 'debug-enabled';
     case DOWN_SITE_ENDPOINT = 'down-site-endpoint';
 }

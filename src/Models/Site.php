@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Maarheeze\Compass\Alerts\AlertSubject;
+use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCollection;
@@ -52,11 +55,12 @@ use Maarheeze\Uuid\Uuid;
  * @property CarbonImmutable $updated_at
  * @property string $url
  *
+ * @property-read AlertCollection $alerts
  * @property-read SiteEndpointCheckCollection $endpointChecks
  * @property-read SiteEndpointCollection $endpoints
  * @property-read ?Repository $repository
  */
-class Site extends Model
+class Site extends Model implements AlertSubject
 {
     /** @use HasFactory<SiteFactory> */
     use HasFactory;
@@ -103,6 +107,14 @@ class Site extends Model
     public function getTable(): string
     {
         return 'compass_sites';
+    }
+
+    /**
+     * @return MorphMany<Alert, $this>
+     */
+    public function alerts(): MorphMany
+    {
+        return $this->morphMany(Alert::class, 'subject');
     }
 
     /**

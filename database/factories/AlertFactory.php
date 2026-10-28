@@ -9,6 +9,7 @@ use Maarheeze\Compass\Alerts\AlertCondition;
 use Maarheeze\Compass\Alerts\AlertStatus;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Models\Alert;
+use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Webmozart\Assert\Assert;
 
@@ -36,8 +37,14 @@ class AlertFactory extends Factory
         Assert::isInstanceOf($type, AlertType::class);
 
         return match ($type) {
+            AlertType::DEBUG_ENABLED => $alertFactoryWithCondition->debugEnabled(),
             AlertType::DOWN_SITE_ENDPOINT => $alertFactoryWithCondition->downSiteEndpoint(),
         };
+    }
+
+    public function debugEnabled(): static
+    {
+        return $this->state(['type' => AlertType::DEBUG_ENABLED])->for(Site::factory(), 'subject');
     }
 
     /**

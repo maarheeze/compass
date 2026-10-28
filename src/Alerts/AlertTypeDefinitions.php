@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Alerts;
 
 use Illuminate\Contracts\Container\Container;
+use Maarheeze\Compass\Alerts\Types\DebugEnabledAlert;
 use Maarheeze\Compass\Alerts\Types\DownSiteEndpointAlert;
 
 readonly class AlertTypeDefinitions
@@ -17,6 +18,7 @@ readonly class AlertTypeDefinitions
     public function definition(AlertType $alertType): AlertTypeDefinition
     {
         $definitionClass = match ($alertType) {
+            AlertType::DEBUG_ENABLED => DebugEnabledAlert::class,
             AlertType::DOWN_SITE_ENDPOINT => DownSiteEndpointAlert::class,
         };
 
