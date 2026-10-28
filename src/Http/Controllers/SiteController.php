@@ -13,6 +13,7 @@ use Maarheeze\Compass\Collector\Client\ClientUrlFactory;
 use Maarheeze\Compass\Collector\Forge\MissingSiteResolver;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Site;
+use Throwable;
 
 readonly class SiteController
 {
@@ -25,6 +26,9 @@ readonly class SiteController
     ) {
     }
 
+    /**
+     * @throws Throwable
+     */
     public function delete(Site $site): RedirectResponse
     {
         $this->missingSiteResolver->delete($site);

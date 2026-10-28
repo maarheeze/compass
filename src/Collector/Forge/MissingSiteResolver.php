@@ -6,23 +6,38 @@ namespace Maarheeze\Compass\Collector\Forge;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\ConnectionInterface;
 use Maarheeze\Compass\Collector\Events\SiteMissingIgnored;
 use Maarheeze\Compass\Models\Site;
+use Throwable;
 
 readonly class MissingSiteResolver
 {
     public function __construct(
+        private ConnectionInterface $connection,
         private Dispatcher $events,
     ) {
     }
 
+    /**
+     * @throws Throwable
+     */
     public function delete(Site $site): void
     {
-        Site::query()
+        $missingSite = Site::query()
             ->whereKey($site->id)
             ->whereNotNull('missing_at')
-            ->firstOrFail()
-            ->delete();
+            ->with('endpoints')
+            ->firstOrFail();
+
+        $this->connection->transaction(static function () use ($missingSite): void {
+            foreach ($missingSite->endpoints as $siteEndpoint) {
+                $siteEndpoint->alerts()->delete();
+            }
+
+            $missingSite->alerts()->delete();
+            $missingSite->delete();
+        });
     }
 
     public function ignore(Site $site): void

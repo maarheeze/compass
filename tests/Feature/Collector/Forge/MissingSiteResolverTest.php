@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Collector\Events\SiteMissingIgnored;
 use Maarheeze\Compass\Collector\Forge\MissingSiteResolver;
+use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteEndpoint;
 
 test('delete deletes a missing site', function (): void {
     $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
@@ -17,6 +19,47 @@ test('delete deletes a missing site', function (): void {
     $missingSiteResolver->delete($site);
 
     $this->assertModelMissing($site);
+});
+
+test('delete deletes the alerts of the missing site', function (): void {
+    $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
+    $alert = Alert::factory()
+        ->missingSite()
+        ->for($site, 'subject')
+        ->create();
+
+    $missingSiteResolver = $this->app->make(MissingSiteResolver::class);
+    $missingSiteResolver->delete($site);
+
+    $this->assertModelMissing($alert);
+});
+
+test('delete deletes the alerts of the endpoints of the missing site', function (): void {
+    $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
+    $siteEndpoint = SiteEndpoint::factory()
+        ->for($site)
+        ->create();
+    $alert = Alert::factory()
+        ->downSiteEndpoint()
+        ->for($siteEndpoint, 'subject')
+        ->create();
+
+    $missingSiteResolver = $this->app->make(MissingSiteResolver::class);
+    $missingSiteResolver->delete($site);
+
+    $this->assertModelMissing($alert);
+});
+
+test('delete keeps the alerts of another site', function (): void {
+    $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
+    $otherAlert = Alert::factory()
+        ->missingSite()
+        ->create();
+
+    $missingSiteResolver = $this->app->make(MissingSiteResolver::class);
+    $missingSiteResolver->delete($site);
+
+    $this->assertModelExists($otherAlert);
 });
 
 test('delete refuses a collected site', function (): void {
