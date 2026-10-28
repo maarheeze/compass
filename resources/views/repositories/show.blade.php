@@ -34,6 +34,16 @@
         <section class="space-y-3">
             <x-compass::section-heading>
                 <x-slot:icon>
+                    <x-compass::icons.alert />
+                </x-slot:icon>
+                {{ __('compass::alert.alerts') }}
+            </x-compass::section-heading>
+            <x-compass::alert-table :alerts="$repository->alerts" />
+        </section>
+
+        <section class="space-y-3">
+            <x-compass::section-heading>
+                <x-slot:icon>
                     <x-compass::icons.server />
                 </x-slot:icon>
                 {{ __('compass::repository.forge_sites') }}

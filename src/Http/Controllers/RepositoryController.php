@@ -68,6 +68,10 @@ readonly class RepositoryController
             $packageQuery->orderBy('name');
         };
         $repository->load([
+            'alerts' => static function (Builder $alertQuery): void {
+                $alertQuery->latest();
+            },
+            'alerts.subject',
             'composerJson.developmentPackages' => $orderPackagesByName,
             'composerJson.productionPackages' => $orderPackagesByName,
             'composerLock.packages' => $orderPackagesByName,

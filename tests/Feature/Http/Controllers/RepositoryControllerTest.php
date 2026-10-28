@@ -6,6 +6,7 @@ use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Analyzer\Composer\RepositoryKind;
 use Maarheeze\Compass\Collections\RepositoryCollection;
 use Maarheeze\Compass\Http\RouteName;
+use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\PullRequest;
@@ -82,6 +83,35 @@ test('show contains the kind of the repository', function (): void {
     $response = $this->get(route(RouteName::GITHUB_REPOSITORY, $repository));
 
     $response->assertViewHas('kind', RepositoryKind::LIBRARY);
+});
+
+test('show contains the alerts of the repository newest first', function (): void {
+    $repository = Repository::factory()->create();
+    $earlierAlert = Alert::factory()
+        ->done()
+        ->projectWithoutLock()
+        ->for($repository, 'subject')
+        ->create(['created_at' => fake()->dateTimeBetween('-2 months', '-1 month')]);
+    $laterAlert = Alert::factory()
+        ->active()
+        ->projectWithoutLock()
+        ->for($repository, 'subject')
+        ->create(['created_at' => fake()->dateTimeBetween('-1 month')]);
+    Alert::factory()
+        ->projectWithoutLock()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::GITHUB_REPOSITORY, $repository));
+
+    $response->assertViewHas(
+        'repository',
+        static function (Repository $viewRepository) use ($earlierAlert, $laterAlert): bool {
+            return $viewRepository->alerts->count() === 2
+                && $viewRepository->alerts->first()->id->equals($laterAlert->id)
+                && $viewRepository->alerts->last()->id->equals($earlierAlert->id);
+        },
+    );
 });
 
 test('show contains the issues of the repository newest first', function (): void {
