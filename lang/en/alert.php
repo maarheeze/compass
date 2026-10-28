@@ -6,6 +6,7 @@ return [
     'alert' => 'Alert',
     'alerts' => 'Alerts',
     'condition' => 'Condition',
+    'has_alerts' => 'Has alerts',
     'history' => 'History',
     'mark_done' => 'Mark done',
     'no_alerts' => 'No alerts.',

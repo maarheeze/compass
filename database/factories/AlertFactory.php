@@ -43,16 +43,19 @@ class AlertFactory extends Factory
         Assert::isInstanceOf($type, AlertType::class);
 
         return match ($type) {
-            AlertType::COMPOSER_WARNING => $alertFactoryWithState->composerWarning(),
             AlertType::DEBUG_ENABLED => $alertFactoryWithState->debugEnabled(),
             AlertType::DOWN_SITE_ENDPOINT => $alertFactoryWithState->downSiteEndpoint(),
             AlertType::INCOMPATIBLE_CLIENT => $alertFactoryWithState->incompatibleClient(),
+            AlertType::LIBRARY_WITH_LOCK => $alertFactoryWithState->libraryWithLock(),
+            AlertType::MISSING_COMPOSER_TYPE => $alertFactoryWithState->missingComposerType(),
             AlertType::MISSING_REPOSITORY => $alertFactoryWithState->missingRepository(),
             AlertType::MISSING_SITE => $alertFactoryWithState->missingSite(),
             AlertType::NON_PRODUCTION => $alertFactoryWithState->nonProduction(),
             AlertType::OVERDUE_DEPLOYMENT => $alertFactoryWithState->overdueDeployment(),
+            AlertType::PROJECT_WITHOUT_LOCK => $alertFactoryWithState->projectWithoutLock(),
             AlertType::SITE_BEHIND => $alertFactoryWithState->siteBehind(),
             AlertType::UNAUTHORIZED_CLIENT => $alertFactoryWithState->unauthorizedClient(),
+            AlertType::UNKNOWN_COMPOSER_TYPE => $alertFactoryWithState->unknownComposerType(),
         };
     }
 
@@ -64,11 +67,6 @@ class AlertFactory extends Factory
             'status' => AlertStatus::OPEN,
             'done_at' => null,
         ]);
-    }
-
-    public function composerWarning(): static
-    {
-        return $this->state(['type' => AlertType::COMPOSER_WARNING])->for(Repository::factory(), 'subject');
     }
 
     public function debugEnabled(): static
@@ -104,6 +102,16 @@ class AlertFactory extends Factory
         return $this->state(['type' => AlertType::INCOMPATIBLE_CLIENT])->for(Site::factory(), 'subject');
     }
 
+    public function libraryWithLock(): static
+    {
+        return $this->state(['type' => AlertType::LIBRARY_WITH_LOCK])->for(Repository::factory(), 'subject');
+    }
+
+    public function missingComposerType(): static
+    {
+        return $this->state(['type' => AlertType::MISSING_COMPOSER_TYPE])->for(Repository::factory(), 'subject');
+    }
+
     public function missingRepository(): static
     {
         return $this->state(['type' => AlertType::MISSING_REPOSITORY])->for(Repository::factory(), 'subject');
@@ -124,6 +132,11 @@ class AlertFactory extends Factory
         return $this->state(['type' => AlertType::OVERDUE_DEPLOYMENT])->for(Site::factory(), 'subject');
     }
 
+    public function projectWithoutLock(): static
+    {
+        return $this->state(['type' => AlertType::PROJECT_WITHOUT_LOCK])->for(Repository::factory(), 'subject');
+    }
+
     public function resolved(): static
     {
         return $this->state([
@@ -142,5 +155,10 @@ class AlertFactory extends Factory
     public function unauthorizedClient(): static
     {
         return $this->state(['type' => AlertType::UNAUTHORIZED_CLIENT])->for(Site::factory(), 'subject');
+    }
+
+    public function unknownComposerType(): static
+    {
+        return $this->state(['type' => AlertType::UNKNOWN_COMPOSER_TYPE])->for(Repository::factory(), 'subject');
     }
 }

@@ -8,7 +8,7 @@
             <div class="flex items-center gap-3">
                 <h1 class="text-lg font-semibold text-foreground">{{ $repository->name }}</h1>
                 <x-compass::missing-label :missing-at="$repository->missing_at" :missing-ignored-at="$repository->missing_ignored_at" />
-                <x-compass::composer.warning-badge :repository="$repository" />
+                <x-compass::alert-icon :subject="$repository" />
                 <a href="{{ $repository->url }}" target="_blank" rel="noopener" class="ml-auto text-sm text-foreground-muted hover:underline">GitHub &nearr;</a>
             </div>
             <p class="flex flex-wrap items-center gap-x-2 text-sm text-foreground-muted">

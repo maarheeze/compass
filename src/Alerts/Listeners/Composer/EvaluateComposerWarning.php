@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
+use Maarheeze\Compass\Analyzer\Composer\ComposerWarning;
 use Maarheeze\Compass\Analyzer\Composer\ComposerWarningDetector;
 use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
 use Maarheeze\Compass\Models\Repository;
@@ -29,17 +30,31 @@ readonly class EvaluateComposerWarning implements ShouldQueue
         $observedAt = CarbonImmutable::instance($this->clock->now());
 
         foreach (Repository::query()->with('composerJson')->get() as $repository) {
-            $observedCondition = match ($this->composerWarningDetector->detect($repository) !== null) {
-                true => ConditionState::ACTIVE,
-                false => ConditionState::RESOLVED,
-            };
+            $detectedComposerWarning = $this->composerWarningDetector->detect($repository);
 
-            $this->events->dispatch(new ConditionObserved(
-                AlertType::COMPOSER_WARNING,
-                $repository,
-                $observedCondition,
-                $observedAt,
-            ));
+            foreach (ComposerWarning::cases() as $composerWarning) {
+                $observedCondition = match ($composerWarning === $detectedComposerWarning) {
+                    true => ConditionState::ACTIVE,
+                    false => ConditionState::RESOLVED,
+                };
+
+                $this->events->dispatch(new ConditionObserved(
+                    $this->alertType($composerWarning),
+                    $repository,
+                    $observedCondition,
+                    $observedAt,
+                ));
+            }
         }
+    }
+
+    private function alertType(ComposerWarning $composerWarning): AlertType
+    {
+        return match ($composerWarning) {
+            ComposerWarning::LIBRARY_WITH_LOCK => AlertType::LIBRARY_WITH_LOCK,
+            ComposerWarning::MISSING_TYPE => AlertType::MISSING_COMPOSER_TYPE,
+            ComposerWarning::PROJECT_WITHOUT_LOCK => AlertType::PROJECT_WITHOUT_LOCK,
+            ComposerWarning::UNKNOWN_TYPE => AlertType::UNKNOWN_COMPOSER_TYPE,
+        };
     }
 }

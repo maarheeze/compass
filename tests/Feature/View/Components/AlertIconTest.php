@@ -1,0 +1,42 @@
+<?php
+
+declare(strict_types=1);
+
+use Maarheeze\Compass\Models\Alert;
+use Maarheeze\Compass\Models\Repository;
+use Maarheeze\Compass\View\Components\AlertIcon;
+
+test('should render for a subject with an alert that is not done', function (): void {
+    $repository = Repository::factory()->create();
+    Alert::factory()
+        ->projectWithoutLock()
+        ->active()
+        ->for($repository, 'subject')
+        ->create();
+
+    $alertIcon = $this->app->make(AlertIcon::class, ['subject' => $repository]);
+
+    expect($alertIcon->shouldRender())
+        ->toBeTrue();
+});
+
+test('should not render for a subject with only done alerts', function (): void {
+    $repository = Repository::factory()->create();
+    Alert::factory()
+        ->projectWithoutLock()
+        ->done()
+        ->for($repository, 'subject')
+        ->create();
+
+    $alertIcon = $this->app->make(AlertIcon::class, ['subject' => $repository]);
+
+    expect($alertIcon->shouldRender())
+        ->toBeFalse();
+});
+
+test('render renders the alert icon view', function (): void {
+    $alertIcon = $this->app->make(AlertIcon::class, ['subject' => Repository::factory()->create()]);
+
+    expect($alertIcon->render()->name())
+        ->toBe('compass::components.alert-icon');
+});

@@ -7,7 +7,6 @@ use Maarheeze\Compass\Alerts\AlertHistoryEntryType;
 use Maarheeze\Compass\Alerts\AlertStatus;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
-use Maarheeze\Compass\Analyzer\Composer\ComposerWarning;
 use Maarheeze\Compass\Analyzer\Composer\RepositoryKind;
 use Maarheeze\Compass\Analyzer\Forge\DeploymentState;
 use Maarheeze\Compass\Collector\Client\ClientStatus;
@@ -51,7 +50,6 @@ test('label key has a translation', function (UnitEnum $value): void {
     AlertStatus::cases(),
     AlertType::cases(),
     ClientStatus::cases(),
-    ComposerWarning::cases(),
     ConditionState::cases(),
     DeploymentStatus::cases(),
     PackageSection::cases(),

@@ -9,7 +9,6 @@ use Maarheeze\Compass\Alerts\AlertHistoryEntryType;
 use Maarheeze\Compass\Alerts\AlertStatus;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
-use Maarheeze\Compass\Analyzer\Composer\ComposerWarning;
 use Maarheeze\Compass\Analyzer\Composer\RepositoryKind;
 use Maarheeze\Compass\Analyzer\Forge\DeploymentState;
 use Maarheeze\Compass\Collector\Client\ClientStatus;
@@ -32,7 +31,6 @@ readonly class EnumLabels
             AlertStatus::class => 'alert-status',
             AlertType::class => 'alert-type',
             ClientStatus::class => 'client-status',
-            ComposerWarning::class => 'composer-warning',
             ConditionState::class => 'condition-state',
             DeploymentState::class => 'deployment-state',
             DeploymentStatus::class => 'deployment-status',

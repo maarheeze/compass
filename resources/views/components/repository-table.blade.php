@@ -30,7 +30,7 @@
                     <td class="px-4 py-2">
                         <div class="flex items-center gap-2">
                             <x-compass::missing-label :missing-at="$repository->missing_at" :missing-ignored-at="$repository->missing_ignored_at" />
-                            <x-compass::composer.warning-badge :repository="$repository" />
+                            <x-compass::alert-icon :subject="$repository" />
                         </div>
                     </td>
                     <td class="px-4 py-2 text-foreground-muted">
