@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Maarheeze\Compass\Alerts\AlertCondition;
 use Maarheeze\Compass\Alerts\AlertStatus;
+use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Database\Factories\AlertFactory;
@@ -29,7 +30,7 @@ use Maarheeze\Uuid\Uuid;
  * @property AlertType $type
  * @property CarbonImmutable $updated_at
  *
- * @property-read Model $subject
+ * @property-read AlertSubject $subject
  */
 class Alert extends Model
 {

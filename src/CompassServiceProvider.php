@@ -19,6 +19,7 @@ use Maarheeze\Compass\Http\Middleware\Authenticate;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
+use Maarheeze\Compass\Providers\AlertProvider;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 use Maarheeze\Compass\Providers\ClientProvider;
 use Maarheeze\Compass\Providers\ForgeProvider;
@@ -50,6 +51,7 @@ class CompassServiceProvider extends ServiceProvider
                 return $container->make(ConfigurationRepository::class)->integer('compass.items_per_page');
             });
 
+        $this->app->register(AlertProvider::class);
         $this->app->register(AuthenticationProvider::class);
         $this->app->register(ClientProvider::class);
         $this->app->register(ForgeProvider::class);
