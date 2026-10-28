@@ -7,6 +7,7 @@ use Maarheeze\Compass\Alerts\AlertTypeDefinitions;
 use Maarheeze\Compass\Alerts\Types\DebugEnabledAlert;
 use Maarheeze\Compass\Alerts\Types\DownSiteEndpointAlert;
 use Maarheeze\Compass\Alerts\Types\IncompatibleClientAlert;
+use Maarheeze\Compass\Alerts\Types\MissingRepositoryAlert;
 use Maarheeze\Compass\Alerts\Types\NonProductionAlert;
 use Maarheeze\Compass\Alerts\Types\UnauthorizedClientAlert;
 
@@ -48,4 +49,12 @@ test('definition of incompatible client is the incompatible client alert', funct
 
     expect($alertTypeDefinition)
         ->toBeInstanceOf(IncompatibleClientAlert::class);
+});
+
+test('definition of a missing repository is the missing repository alert', function (): void {
+    $alertTypeDefinitions = $this->app->make(AlertTypeDefinitions::class);
+    $alertTypeDefinition = $alertTypeDefinitions->definition(AlertType::MISSING_REPOSITORY);
+
+    expect($alertTypeDefinition)
+        ->toBeInstanceOf(MissingRepositoryAlert::class);
 });

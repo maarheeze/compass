@@ -9,6 +9,7 @@ use Maarheeze\Compass\Alerts\AlertCondition;
 use Maarheeze\Compass\Alerts\AlertStatus;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Models\Alert;
+use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Webmozart\Assert\Assert;
@@ -40,6 +41,7 @@ class AlertFactory extends Factory
             AlertType::DEBUG_ENABLED => $alertFactoryWithCondition->debugEnabled(),
             AlertType::DOWN_SITE_ENDPOINT => $alertFactoryWithCondition->downSiteEndpoint(),
             AlertType::INCOMPATIBLE_CLIENT => $alertFactoryWithCondition->incompatibleClient(),
+            AlertType::MISSING_REPOSITORY => $alertFactoryWithCondition->missingRepository(),
             AlertType::NON_PRODUCTION => $alertFactoryWithCondition->nonProduction(),
             AlertType::UNAUTHORIZED_CLIENT => $alertFactoryWithCondition->unauthorizedClient(),
         };
@@ -76,6 +78,11 @@ class AlertFactory extends Factory
     public function incompatibleClient(): static
     {
         return $this->state(['type' => AlertType::INCOMPATIBLE_CLIENT])->for(Site::factory(), 'subject');
+    }
+
+    public function missingRepository(): static
+    {
+        return $this->state(['type' => AlertType::MISSING_REPOSITORY])->for(Repository::factory(), 'subject');
     }
 
     public function nonProduction(): static

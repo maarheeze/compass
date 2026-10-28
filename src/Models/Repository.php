@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Maarheeze\Compass\Alerts\AlertSubject;
+use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\IssueCollection;
 use Maarheeze\Compass\Collections\PullRequestCollection;
 use Maarheeze\Compass\Collections\RepositoryCollection;
@@ -37,13 +40,14 @@ use Maarheeze\Uuid\Uuid;
  * @property string $url
  * @property RepositoryVisibility $visibility
  *
+ * @property-read AlertCollection $alerts
  * @property-read ?ComposerJson $composerJson
  * @property-read ?ComposerLock $composerLock
  * @property-read IssueCollection $issues
  * @property-read PullRequestCollection $pullRequests
  * @property-read SiteCollection $sites
  */
-class Repository extends Model
+class Repository extends Model implements AlertSubject
 {
     /** @use HasFactory<RepositoryFactory> */
     use HasFactory;
@@ -71,6 +75,14 @@ class Repository extends Model
             'url',
             'visibility',
         ];
+    }
+
+    /**
+     * @return MorphMany<Alert, $this>
+     */
+    public function alerts(): MorphMany
+    {
+        return $this->morphMany(Alert::class, 'subject');
     }
 
     /**
