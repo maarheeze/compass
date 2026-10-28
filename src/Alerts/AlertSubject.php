@@ -14,4 +14,6 @@ interface AlertSubject
      * @return MorphMany<Alert, covariant Model>
      */
     public function alerts(): MorphMany;
+
+    public function displayName(): string;
 }

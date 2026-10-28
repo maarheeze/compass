@@ -141,6 +141,11 @@ class Site extends Model implements AlertSubject
         return $this->belongsTo(Repository::class, 'repository_url', 'url');
     }
 
+    public function displayName(): string
+    {
+        return $this->name;
+    }
+
     /**
      * @return array<string, string>
      */

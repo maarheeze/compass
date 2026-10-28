@@ -125,6 +125,11 @@ class Repository extends Model implements AlertSubject
         return $this->hasMany(Site::class, 'repository_url', 'url');
     }
 
+    public function displayName(): string
+    {
+        return $this->name;
+    }
+
     public function getTable(): string
     {
         return 'compass_repositories';

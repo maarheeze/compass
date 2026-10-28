@@ -3,17 +3,16 @@
 declare(strict_types=1);
 
 return [
-    'active_alerts' => 'Active alerts',
     'alert' => 'Alert',
+    'alerts' => 'Alerts',
     'condition' => 'Condition',
-    'description' => 'Description',
     'history' => 'History',
     'mark_done' => 'Mark done',
-    'no_active_alerts' => 'No active alerts.',
-    'no_resolved_alerts' => 'No resolved alerts.',
+    'no_alerts' => 'No alerts.',
     'occurred_at' => 'Occurred at',
     'open_since' => 'Open since',
-    'resolved_alerts' => 'Resolved alerts',
     'resolved_since' => 'Resolved since',
+    'state' => 'State',
     'status' => 'Status',
+    'subject' => 'Subject',
 ];

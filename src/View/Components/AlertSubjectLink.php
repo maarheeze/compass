@@ -14,8 +14,6 @@ use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
 
-use function sprintf;
-
 class AlertSubjectLink extends Component
 {
     public readonly string $name;
@@ -26,11 +24,7 @@ class AlertSubjectLink extends Component
         UrlGenerator $url,
         private readonly ViewFactory $view,
     ) {
-        $this->name = match (true) {
-            $subject instanceof Repository => $subject->name,
-            $subject instanceof Site => $subject->name,
-            $subject instanceof SiteEndpoint => sprintf('%s%s', $subject->site->name, $subject->path),
-        };
+        $this->name = $subject->displayName();
         $this->url = match (true) {
             $subject instanceof Repository => $url->route(RouteName::GITHUB_REPOSITORY->value, $subject),
             $subject instanceof Site => $url->route(RouteName::FORGE_SITE->value, $subject),

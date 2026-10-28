@@ -1,4 +1,4 @@
-<x-compass::layouts.app :title="$description">
+<x-compass::layouts.app :title="$alert->subject->displayName()">
     <x-compass::navigation />
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">

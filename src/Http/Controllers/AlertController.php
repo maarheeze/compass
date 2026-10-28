@@ -9,7 +9,6 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Maarheeze\Compass\Alerts\AlertDoneMarker;
-use Maarheeze\Compass\Alerts\AlertTypeDefinitions;
 use Maarheeze\Compass\Authentication\AuthenticatedUser;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
@@ -20,7 +19,6 @@ readonly class AlertController
 {
     public function __construct(
         private AlertDoneMarker $alertDoneMarker,
-        private AlertTypeDefinitions $alertTypeDefinitions,
         private AuthenticatedUser $authenticatedUser,
         private Redirector $redirector,
         private ViewFactory $view,
@@ -43,7 +41,6 @@ readonly class AlertController
 
         return $this->view->make('compass::alerts.show', [
             'alert' => $alert,
-            'description' => $this->alertTypeDefinitions->definition($alert->type)->description($alert),
             'historyEntries' => $alert
                 ->historyEntries()
                 ->latest('occurred_at')

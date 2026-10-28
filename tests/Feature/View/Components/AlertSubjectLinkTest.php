@@ -9,15 +9,6 @@ use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\View\Components\AlertSubjectLink;
 
-test('name is the name of a repository subject', function (): void {
-    $repository = Repository::factory()->create();
-
-    $alertSubjectLink = $this->app->make(AlertSubjectLink::class, ['subject' => $repository]);
-
-    expect($alertSubjectLink->name)
-        ->toBe($repository->name);
-});
-
 test('url is the compass page of a repository subject', function (): void {
     $repository = Repository::factory()->create();
 
@@ -25,15 +16,6 @@ test('url is the compass page of a repository subject', function (): void {
 
     expect($alertSubjectLink->url)
         ->toBe(route(RouteName::GITHUB_REPOSITORY, $repository));
-});
-
-test('name is the name of a site subject', function (): void {
-    $site = Site::factory()->create();
-
-    $alertSubjectLink = $this->app->make(AlertSubjectLink::class, ['subject' => $site]);
-
-    expect($alertSubjectLink->name)
-        ->toBe($site->name);
 });
 
 test('url is the compass page of a site subject', function (): void {
@@ -45,13 +27,13 @@ test('url is the compass page of a site subject', function (): void {
         ->toBe(route(RouteName::FORGE_SITE, $site));
 });
 
-test('name is the site name and path of a site endpoint subject', function (): void {
+test('name is the display name of the subject', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
 
     $alertSubjectLink = $this->app->make(AlertSubjectLink::class, ['subject' => $siteEndpoint]);
 
     expect($alertSubjectLink->name)
-        ->toBe(sprintf('%s%s', $siteEndpoint->site->name, $siteEndpoint->path));
+        ->toBe($siteEndpoint->displayName());
 });
 
 test('url is the check history of a site endpoint subject', function (): void {
