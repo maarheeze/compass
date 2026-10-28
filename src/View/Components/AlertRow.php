@@ -10,15 +10,12 @@ use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\AlertTypeDefinitions;
-use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Models\Alert;
 
 class AlertRow extends Component
 {
     public readonly CarbonImmutable $createdAt;
     public readonly string $description;
-    public readonly ?CarbonImmutable $goneAt;
-    public readonly bool $isConditionPresent;
     public readonly AlertType $type;
 
     public function __construct(
@@ -28,8 +25,6 @@ class AlertRow extends Component
     ) {
         $this->createdAt = $alert->created_at;
         $this->description = $alertTypeDefinitions->definition($alert->type)->description($alert);
-        $this->goneAt = $alert->gone_at;
-        $this->isConditionPresent = $alert->condition === ConditionState::PRESENT;
         $this->type = $alert->type;
     }
 

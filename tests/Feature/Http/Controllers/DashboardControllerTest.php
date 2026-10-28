@@ -12,15 +12,65 @@ use Maarheeze\Compass\Models\PullRequestAssignee;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 
-test('show contains the alerts, newest first', function (): void {
-    $earlierAlert = Alert::factory()->create(['created_at' => fake()->dateTimeBetween('-2 months', '-1 month')]);
-    $laterAlert = Alert::factory()->create(['created_at' => fake()->dateTimeBetween('-1 month')]);
+test('show contains the present alerts as active alerts, newest first', function (): void {
+    $earlierAlert = Alert::factory()
+        ->present()
+        ->create(['created_at' => fake()->dateTimeBetween('-2 months', '-1 month')]);
+    $laterAlert = Alert::factory()
+        ->present()
+        ->create(['created_at' => fake()->dateTimeBetween('-1 month')]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
     $response = $this->get(route(RouteName::DASHBOARD));
 
-    $response->assertViewHas('alerts', static function (AlertCollection $viewAlerts) use ($earlierAlert, $laterAlert): bool {
-        return $viewAlerts->first()->id->equals($laterAlert->id) && $viewAlerts->last()->id->equals($earlierAlert->id);
+    $response->assertViewHas('activeAlerts', static function (AlertCollection $activeAlerts) use ($earlierAlert, $laterAlert): bool {
+        return $activeAlerts->count() === 2
+            && $activeAlerts->first()->id->equals($laterAlert->id)
+            && $activeAlerts->last()->id->equals($earlierAlert->id);
+    });
+});
+
+test('show leaves gone alerts out of the active alerts', function (): void {
+    Alert::factory()
+        ->gone()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::DASHBOARD));
+
+    $response->assertViewHas('activeAlerts', static function (AlertCollection $activeAlerts): bool {
+        return $activeAlerts->isEmpty();
+    });
+});
+
+test('show contains the gone alerts as resolved alerts, newest first', function (): void {
+    $earlierAlert = Alert::factory()
+        ->gone()
+        ->create(['created_at' => fake()->dateTimeBetween('-2 months', '-1 month')]);
+    $laterAlert = Alert::factory()
+        ->gone()
+        ->create(['created_at' => fake()->dateTimeBetween('-1 month')]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::DASHBOARD));
+
+    $response->assertViewHas('resolvedAlerts', static function (AlertCollection $resolvedAlerts) use ($earlierAlert, $laterAlert): bool {
+        return $resolvedAlerts->count() === 2
+            && $resolvedAlerts->first()->id->equals($laterAlert->id)
+            && $resolvedAlerts->last()->id->equals($earlierAlert->id);
+    });
+});
+
+test('show leaves present alerts out of the resolved alerts', function (): void {
+    Alert::factory()
+        ->present()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::DASHBOARD));
+
+    $response->assertViewHas('resolvedAlerts', static function (AlertCollection $resolvedAlerts): bool {
+        return $resolvedAlerts->isEmpty();
     });
 });
 

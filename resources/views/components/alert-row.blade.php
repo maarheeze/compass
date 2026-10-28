@@ -6,12 +6,5 @@
     <td class="px-4 py-2 text-foreground-muted">
         <x-compass::date-time :time="$createdAt" />
     </td>
-    <td class="px-4 py-2 text-foreground-muted">
-        @if ($isConditionPresent)
-            {{ __('compass::alert.present') }}
-        @else
-            {{ __('compass::alert.gone_since') }}
-            <x-compass::date-time :time="$goneAt" />
-        @endif
-    </td>
+    {{ $slot }}
 </tr>

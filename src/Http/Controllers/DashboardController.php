@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Http\Controllers;
 
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
+use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Analyzer\GitHub\IssueCounter;
 use Maarheeze\Compass\Analyzer\GitHub\PullRequestCounter;
 use Maarheeze\Compass\Authentication\AuthenticatedUser;
@@ -25,12 +26,18 @@ readonly class DashboardController
     public function show(): View
     {
         return $this->view->make('compass::dashboard', [
-            'alerts' => Alert::query()
+            'activeAlerts' => Alert::query()
+                ->where('condition', ConditionState::PRESENT)
                 ->latest()
                 ->get()
                 ->loadMorph('subject', [SiteEndpoint::class => ['site']]),
             'issueCounts' => $this->issueCounter->count($this->authenticatedUser->user()),
             'pullRequestCounts' => $this->pullRequestCounter->count($this->authenticatedUser->user()),
+            'resolvedAlerts' => Alert::query()
+                ->where('condition', ConditionState::GONE)
+                ->latest()
+                ->get()
+                ->loadMorph('subject', [SiteEndpoint::class => ['site']]),
         ]);
     }
 }
