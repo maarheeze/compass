@@ -15,6 +15,7 @@ use Maarheeze\Compass\Collections\RepositoryCollection;
 use Maarheeze\Compass\Collector\GitHub\MissingRepositoryResolver;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Repository;
+use Throwable;
 use Webmozart\Assert\Assert;
 
 readonly class RepositoryController
@@ -27,6 +28,9 @@ readonly class RepositoryController
     ) {
     }
 
+    /**
+     * @throws Throwable
+     */
     public function delete(Repository $repository): RedirectResponse
     {
         $this->missingRepositoryResolver->delete($repository);

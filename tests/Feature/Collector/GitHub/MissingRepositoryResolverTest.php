@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Collector\Events\RepositoryMissingIgnored;
 use Maarheeze\Compass\Collector\GitHub\MissingRepositoryResolver;
+use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Repository;
 
 test('delete deletes a missing repository', function (): void {
@@ -17,6 +18,31 @@ test('delete deletes a missing repository', function (): void {
     $missingRepositoryResolver->delete($repository);
 
     $this->assertModelMissing($repository);
+});
+
+test('delete deletes the alerts of the missing repository', function (): void {
+    $repository = Repository::factory()->create(['missing_at' => fake()->dateTime()]);
+    $alert = Alert::factory()
+        ->missingRepository()
+        ->for($repository, 'subject')
+        ->create();
+
+    $missingRepositoryResolver = $this->app->make(MissingRepositoryResolver::class);
+    $missingRepositoryResolver->delete($repository);
+
+    $this->assertModelMissing($alert);
+});
+
+test('delete keeps the alerts of another repository', function (): void {
+    $repository = Repository::factory()->create(['missing_at' => fake()->dateTime()]);
+    $otherAlert = Alert::factory()
+        ->missingRepository()
+        ->create();
+
+    $missingRepositoryResolver = $this->app->make(MissingRepositoryResolver::class);
+    $missingRepositoryResolver->delete($repository);
+
+    $this->assertModelExists($otherAlert);
 });
 
 test('delete refuses a collected repository', function (): void {
