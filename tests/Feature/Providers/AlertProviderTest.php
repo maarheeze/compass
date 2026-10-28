@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
+use Maarheeze\Compass\Alerts\Listeners\EvaluateComposerWarnings;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateDebugEnabled;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateDownSiteEndpoint;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateIncompatibleClient;
@@ -63,4 +64,10 @@ test('evaluate missing repositories listens to repository missing ignored', func
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
     $eventFake->assertListening(RepositoryMissingIgnored::class, EvaluateMissingRepositories::class);
+});
+
+test('evaluate composer warnings listens to github run succeeded', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+
+    $eventFake->assertListening(GitHubRunSucceeded::class, EvaluateComposerWarnings::class);
 });

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\AlertTypeDefinitions;
+use Maarheeze\Compass\Alerts\Types\ComposerWarningAlert;
 use Maarheeze\Compass\Alerts\Types\DebugEnabledAlert;
 use Maarheeze\Compass\Alerts\Types\DownSiteEndpointAlert;
 use Maarheeze\Compass\Alerts\Types\IncompatibleClientAlert;
@@ -57,4 +58,12 @@ test('definition of a missing repository is the missing repository alert', funct
 
     expect($alertTypeDefinition)
         ->toBeInstanceOf(MissingRepositoryAlert::class);
+});
+
+test('definition of a composer warning is the composer warning alert', function (): void {
+    $alertTypeDefinitions = $this->app->make(AlertTypeDefinitions::class);
+    $alertTypeDefinition = $alertTypeDefinitions->definition(AlertType::COMPOSER_WARNING);
+
+    expect($alertTypeDefinition)
+        ->toBeInstanceOf(ComposerWarningAlert::class);
 });

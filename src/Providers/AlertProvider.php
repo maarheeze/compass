@@ -7,6 +7,7 @@ namespace Maarheeze\Compass\Providers;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\ServiceProvider;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
+use Maarheeze\Compass\Alerts\Listeners\EvaluateComposerWarnings;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateDebugEnabled;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateDownSiteEndpoint;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateIncompatibleClient;
@@ -31,5 +32,6 @@ class AlertProvider extends ServiceProvider
         $events->listen(SiteInspected::class, EvaluateIncompatibleClient::class);
         $events->listen(GitHubRunSucceeded::class, EvaluateMissingRepositories::class);
         $events->listen(RepositoryMissingIgnored::class, EvaluateMissingRepositories::class);
+        $events->listen(GitHubRunSucceeded::class, EvaluateComposerWarnings::class);
     }
 }

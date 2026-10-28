@@ -38,6 +38,7 @@ class AlertFactory extends Factory
         Assert::isInstanceOf($type, AlertType::class);
 
         return match ($type) {
+            AlertType::COMPOSER_WARNING => $alertFactoryWithCondition->composerWarning(),
             AlertType::DEBUG_ENABLED => $alertFactoryWithCondition->debugEnabled(),
             AlertType::DOWN_SITE_ENDPOINT => $alertFactoryWithCondition->downSiteEndpoint(),
             AlertType::INCOMPATIBLE_CLIENT => $alertFactoryWithCondition->incompatibleClient(),
@@ -45,6 +46,11 @@ class AlertFactory extends Factory
             AlertType::NON_PRODUCTION => $alertFactoryWithCondition->nonProduction(),
             AlertType::UNAUTHORIZED_CLIENT => $alertFactoryWithCondition->unauthorizedClient(),
         };
+    }
+
+    public function composerWarning(): static
+    {
+        return $this->state(['type' => AlertType::COMPOSER_WARNING])->for(Repository::factory(), 'subject');
     }
 
     public function debugEnabled(): static
