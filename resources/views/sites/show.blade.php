@@ -6,8 +6,9 @@
 
         <div class="space-y-1">
             <div class="flex items-center gap-3">
-                <h1 class="text-lg font-semibold text-foreground">{{ $site->name }}</h1>
-                <x-compass::missing-label :missing-at="$site->missing_at" :missing-ignored-at="$site->missing_ignored_at" />
+                <x-compass::subject-name :subject="$site">
+                    <h1 class="text-lg font-semibold text-foreground">{{ $site->name }}</h1>
+                </x-compass::subject-name>
                 <x-compass::forge.deployment-state-badge :site="$site" />
                 <x-compass::forge.link :site="$site" class="ml-auto" />
             </div>
@@ -57,6 +58,16 @@
                 </span>
             </p>
         </div>
+
+        <section class="space-y-3">
+            <x-compass::section-heading>
+                <x-slot:icon>
+                    <x-compass::icons.alert />
+                </x-slot:icon>
+                {{ __('compass::alert.alerts') }}
+            </x-compass::section-heading>
+            <x-compass::alert-table :alerts="$alerts" />
+        </section>
 
         <section class="space-y-3">
             <x-compass::section-heading>

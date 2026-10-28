@@ -3,10 +3,13 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
+use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
 use Maarheeze\Compass\Http\RouteName;
+use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
@@ -30,6 +33,28 @@ test('show contains the site', function (): void {
 
     $response->assertViewHas('site', static function (Site $viewSite) use ($site): bool {
         return $viewSite->is($site);
+    });
+});
+
+test('show contains the alerts of the site and its endpoints, newest first', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $earlierAlert = Alert::factory()
+        ->debugEnabled()
+        ->done()
+        ->for($siteEndpoint->site, 'subject')
+        ->create(['created_at' => fake()->dateTimeBetween('-2 months', '-1 month')]);
+    $laterAlert = Alert::factory()
+        ->downSiteEndpoint()
+        ->for($siteEndpoint, 'subject')
+        ->create(['created_at' => fake()->dateTimeBetween('-1 month')]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::FORGE_SITE, $siteEndpoint->site));
+
+    $response->assertViewHas('alerts', static function (AlertCollection $alerts) use ($earlierAlert, $laterAlert): bool {
+        return $alerts->count() === 2
+            && $alerts->first()->id->equals($laterAlert->id)
+            && $alerts->last()->id->equals($earlierAlert->id);
     });
 });
 

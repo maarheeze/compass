@@ -16,11 +16,9 @@
             @forelse ($repositories as $repository)
                 <tr>
                     <td class="px-4 py-2 font-medium text-foreground">
-                        <div class="flex items-center gap-2">
+                        <x-compass::subject-name :subject="$repository">
                             <x-compass::repository-link :repository="$repository" class="truncate" />
-                            <x-compass::missing-label :missing-at="$repository->missing_at" :missing-ignored-at="$repository->missing_ignored_at" />
-                            <x-compass::alert-icon :subject="$repository" />
-                        </div>
+                        </x-compass::subject-name>
                     </td>
                     <td class="px-4 py-2 text-foreground-muted lowercase">
                         <x-compass::enum-label :value="$repository->visibility" />

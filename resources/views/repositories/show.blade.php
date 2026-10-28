@@ -6,9 +6,9 @@
 
         <div class="space-y-1">
             <div class="flex items-center gap-3">
-                <h1 class="text-lg font-semibold text-foreground">{{ $repository->name }}</h1>
-                <x-compass::missing-label :missing-at="$repository->missing_at" :missing-ignored-at="$repository->missing_ignored_at" />
-                <x-compass::alert-icon :subject="$repository" />
+                <x-compass::subject-name :subject="$repository">
+                    <h1 class="text-lg font-semibold text-foreground">{{ $repository->name }}</h1>
+                </x-compass::subject-name>
                 <a href="{{ $repository->url }}" target="_blank" rel="noopener" class="ml-auto text-sm text-foreground-muted hover:underline">GitHub &nearr;</a>
             </div>
             <p class="flex flex-wrap items-center gap-x-2 text-sm text-foreground-muted">

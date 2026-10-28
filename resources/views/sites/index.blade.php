@@ -18,14 +18,13 @@
                     @forelse ($sites as $site)
                         <tr>
                             <td class="px-4 py-2 font-medium text-foreground">
-                                <x-compass::site-link :site="$site" />
+                                <x-compass::subject-name :subject="$site">
+                                    <x-compass::site-link :site="$site" />
+                                </x-compass::subject-name>
                             </td>
                             <td class="px-4 py-2 text-foreground-muted">{{ $site->server_name }}</td>
                             <td class="px-4 py-2">
-                                <div class="flex items-center gap-2">
-                                    <x-compass::missing-label :missing-at="$site->missing_at" :missing-ignored-at="$site->missing_ignored_at" />
-                                    <x-compass::forge.deployment-state-badge :site="$site" />
-                                </div>
+                                <x-compass::forge.deployment-state-badge :site="$site" />
                             </td>
                             <td class="px-4 py-2">
                                 <x-compass::client-status-badge :status="$site->client_status" />

@@ -12,7 +12,9 @@ use Maarheeze\Compass\Collector\Client\ClientKey;
 use Maarheeze\Compass\Collector\Client\ClientUrlFactory;
 use Maarheeze\Compass\Collector\Forge\MissingSiteResolver;
 use Maarheeze\Compass\Http\RouteName;
+use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteEndpoint;
 use Throwable;
 
 readonly class SiteController
@@ -58,6 +60,11 @@ readonly class SiteController
         $site->load(['endpoints', 'repository']);
 
         return $this->view->make('compass::sites.show', [
+            'alerts' => Alert::query()
+                ->ofSite($site)
+                ->latest()
+                ->get()
+                ->loadMorph('subject', [SiteEndpoint::class => ['site']]),
             'clientKey' => $this->clientKey->find($site),
             'clientPath' => $this->clientUrlFactory->path($site),
             'latestSiteEndpointChecks' => $site
