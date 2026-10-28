@@ -33,6 +33,8 @@ Route::middleware('web')
             Route::get('/', [DashboardController::class, 'show'])->name(RouteName::DASHBOARD);
 
             Route::get('/alerts/{alert}', [AlertController::class, 'show'])->name(RouteName::ALERT);
+            Route::post('/alerts/{alert}/mark-done', [AlertController::class, 'markDone'])
+                ->name(RouteName::ALERT_MARK_DONE);
 
             Route::get('/github/repositories', [RepositoryController::class, 'index'])->name(RouteName::GITHUB_REPOSITORIES);
             Route::get('/github/repositories/{repository}', [RepositoryController::class, 'show'])

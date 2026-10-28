@@ -8,6 +8,7 @@ return [
     'condition' => 'Condition',
     'description' => 'Description',
     'history' => 'History',
+    'mark_done' => 'Mark done',
     'no_active_alerts' => 'No active alerts.',
     'no_resolved_alerts' => 'No resolved alerts.',
     'occurred_at' => 'Occurred at',

@@ -6,16 +6,35 @@ namespace Maarheeze\Compass\Http\Controllers;
 
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Redirector;
+use Maarheeze\Compass\Alerts\AlertDoneMarker;
 use Maarheeze\Compass\Alerts\AlertTypeDefinitions;
+use Maarheeze\Compass\Authentication\AuthenticatedUser;
+use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\SiteEndpoint;
+use Throwable;
 
 readonly class AlertController
 {
     public function __construct(
+        private AlertDoneMarker $alertDoneMarker,
         private AlertTypeDefinitions $alertTypeDefinitions,
+        private AuthenticatedUser $authenticatedUser,
+        private Redirector $redirector,
         private ViewFactory $view,
     ) {
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function markDone(Alert $alert): RedirectResponse
+    {
+        $this->alertDoneMarker->markDone($alert, $this->authenticatedUser->user());
+
+        return $this->redirector->route(RouteName::DASHBOARD);
     }
 
     public function show(Alert $alert): View

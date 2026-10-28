@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Maarheeze\Compass\Alerts\AlertHistoryEntryType;
 use Maarheeze\Compass\Collections\AlertHistoryEntryCollection;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
@@ -48,4 +49,31 @@ test('show contains the history entries of the alert, newest first', function ()
                 && $historyEntries->last()->id->equals($earlierAlertHistoryEntry->id);
         },
     );
+});
+
+test('mark done marks the alert done by the signed in user', function (): void {
+    $alert = Alert::factory()
+        ->resolved()
+        ->create();
+    $user = User::factory()->create();
+    $this->actingAs($user, AuthenticationProvider::GUARD);
+
+    $this->post(route(RouteName::ALERT_MARK_DONE, $alert));
+
+    $this->assertDatabaseHas(AlertHistoryEntry::class, [
+        'alert_id' => $alert->id,
+        'type' => AlertHistoryEntryType::MARKED_DONE,
+        'user_id' => $user->id,
+    ]);
+});
+
+test('mark done sends the user back to the dashboard', function (): void {
+    $alert = Alert::factory()
+        ->resolved()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->post(route(RouteName::ALERT_MARK_DONE, $alert));
+
+    $response->assertRedirect(route(RouteName::DASHBOARD));
 });
