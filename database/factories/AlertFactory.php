@@ -45,6 +45,7 @@ class AlertFactory extends Factory
             AlertType::MISSING_REPOSITORY => $alertFactoryWithCondition->missingRepository(),
             AlertType::MISSING_SITE => $alertFactoryWithCondition->missingSite(),
             AlertType::NON_PRODUCTION => $alertFactoryWithCondition->nonProduction(),
+            AlertType::OVERDUE_DEPLOYMENT => $alertFactoryWithCondition->overdueDeployment(),
             AlertType::SITE_BEHIND => $alertFactoryWithCondition->siteBehind(),
             AlertType::UNAUTHORIZED_CLIENT => $alertFactoryWithCondition->unauthorizedClient(),
         };
@@ -101,6 +102,11 @@ class AlertFactory extends Factory
     public function nonProduction(): static
     {
         return $this->state(['type' => AlertType::NON_PRODUCTION])->for(Site::factory(), 'subject');
+    }
+
+    public function overdueDeployment(): static
+    {
+        return $this->state(['type' => AlertType::OVERDUE_DEPLOYMENT])->for(Site::factory(), 'subject');
     }
 
     public function present(): static

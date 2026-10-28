@@ -13,6 +13,7 @@ enum AlertType: string
     case MISSING_REPOSITORY = 'missing-repository';
     case MISSING_SITE = 'missing-site';
     case NON_PRODUCTION = 'non-production';
+    case OVERDUE_DEPLOYMENT = 'overdue-deployment';
     case SITE_BEHIND = 'site-behind';
     case UNAUTHORIZED_CLIENT = 'unauthorized-client';
 }

@@ -12,6 +12,7 @@ use Maarheeze\Compass\Alerts\Listeners\EvaluateIncompatibleClient;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateMissingRepositories;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateMissingSites;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateNonProduction;
+use Maarheeze\Compass\Alerts\Listeners\EvaluateOverdueDeployments;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateSitesBehind;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateUnauthorizedClient;
 use Maarheeze\Compass\Alerts\Listeners\ObservationHandler;
@@ -98,4 +99,10 @@ test('evaluate sites behind listens to forge run succeeded', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
     $eventFake->assertListening(ForgeRunSucceeded::class, EvaluateSitesBehind::class);
+});
+
+test('evaluate overdue deployments listens to forge run succeeded', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+
+    $eventFake->assertListening(ForgeRunSucceeded::class, EvaluateOverdueDeployments::class);
 });

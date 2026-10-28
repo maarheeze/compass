@@ -14,6 +14,7 @@ use Maarheeze\Compass\Alerts\Listeners\EvaluateIncompatibleClient;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateMissingRepositories;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateMissingSites;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateNonProduction;
+use Maarheeze\Compass\Alerts\Listeners\EvaluateOverdueDeployments;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateSitesBehind;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateUnauthorizedClient;
 use Maarheeze\Compass\Alerts\Listeners\ObservationHandler;
@@ -41,5 +42,6 @@ class AlertProvider extends ServiceProvider
         $events->listen(SiteMissingIgnored::class, EvaluateMissingSites::class);
         $events->listen(GitHubRunSucceeded::class, EvaluateSitesBehind::class);
         $events->listen(ForgeRunSucceeded::class, EvaluateSitesBehind::class);
+        $events->listen(ForgeRunSucceeded::class, EvaluateOverdueDeployments::class);
     }
 }

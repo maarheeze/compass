@@ -10,6 +10,7 @@ return [
     'MISSING_REPOSITORY' => 'Repository missing',
     'MISSING_SITE' => 'Site missing',
     'NON_PRODUCTION' => 'Not in production',
+    'OVERDUE_DEPLOYMENT' => 'Deployment overdue',
     'SITE_BEHIND' => 'Site behind',
     'UNAUTHORIZED_CLIENT' => 'Client key refused',
 ];

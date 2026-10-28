@@ -12,6 +12,7 @@ use Maarheeze\Compass\Alerts\Types\IncompatibleClientAlert;
 use Maarheeze\Compass\Alerts\Types\MissingRepositoryAlert;
 use Maarheeze\Compass\Alerts\Types\MissingSiteAlert;
 use Maarheeze\Compass\Alerts\Types\NonProductionAlert;
+use Maarheeze\Compass\Alerts\Types\OverdueDeploymentAlert;
 use Maarheeze\Compass\Alerts\Types\SiteBehindAlert;
 use Maarheeze\Compass\Alerts\Types\UnauthorizedClientAlert;
 
@@ -32,6 +33,7 @@ readonly class AlertTypeDefinitions
             AlertType::MISSING_REPOSITORY => MissingRepositoryAlert::class,
             AlertType::MISSING_SITE => MissingSiteAlert::class,
             AlertType::NON_PRODUCTION => NonProductionAlert::class,
+            AlertType::OVERDUE_DEPLOYMENT => OverdueDeploymentAlert::class,
             AlertType::SITE_BEHIND => SiteBehindAlert::class,
             AlertType::UNAUTHORIZED_CLIENT => UnauthorizedClientAlert::class,
         };

@@ -11,6 +11,7 @@ use Maarheeze\Compass\Alerts\Types\IncompatibleClientAlert;
 use Maarheeze\Compass\Alerts\Types\MissingRepositoryAlert;
 use Maarheeze\Compass\Alerts\Types\MissingSiteAlert;
 use Maarheeze\Compass\Alerts\Types\NonProductionAlert;
+use Maarheeze\Compass\Alerts\Types\OverdueDeploymentAlert;
 use Maarheeze\Compass\Alerts\Types\SiteBehindAlert;
 use Maarheeze\Compass\Alerts\Types\UnauthorizedClientAlert;
 
@@ -84,4 +85,12 @@ test('definition of a site behind is the site behind alert', function (): void {
 
     expect($alertTypeDefinition)
         ->toBeInstanceOf(SiteBehindAlert::class);
+});
+
+test('definition of an overdue deployment is the overdue deployment alert', function (): void {
+    $alertTypeDefinitions = $this->app->make(AlertTypeDefinitions::class);
+    $alertTypeDefinition = $alertTypeDefinitions->definition(AlertType::OVERDUE_DEPLOYMENT);
+
+    expect($alertTypeDefinition)
+        ->toBeInstanceOf(OverdueDeploymentAlert::class);
 });
