@@ -26,28 +26,33 @@ class AlertFactory extends Factory
 
     public function configure(): static
     {
+        $status = fake()->randomElement(AlertStatus::cases());
+        Assert::isInstanceOf($status, AlertStatus::class);
         $condition = fake()->randomElement(ConditionState::cases());
         Assert::isInstanceOf($condition, ConditionState::class);
 
-        $alertFactoryWithCondition = match ($condition) {
-            ConditionState::GONE => $this->gone(),
-            ConditionState::PRESENT => $this->present(),
+        $alertFactoryWithState = match ($status) {
+            AlertStatus::DONE => $this->done(),
+            AlertStatus::OPEN => match ($condition) {
+                ConditionState::GONE => $this->gone(),
+                ConditionState::PRESENT => $this->present(),
+            },
         };
 
         $type = fake()->randomElement(AlertType::cases());
         Assert::isInstanceOf($type, AlertType::class);
 
         return match ($type) {
-            AlertType::COMPOSER_WARNING => $alertFactoryWithCondition->composerWarning(),
-            AlertType::DEBUG_ENABLED => $alertFactoryWithCondition->debugEnabled(),
-            AlertType::DOWN_SITE_ENDPOINT => $alertFactoryWithCondition->downSiteEndpoint(),
-            AlertType::INCOMPATIBLE_CLIENT => $alertFactoryWithCondition->incompatibleClient(),
-            AlertType::MISSING_REPOSITORY => $alertFactoryWithCondition->missingRepository(),
-            AlertType::MISSING_SITE => $alertFactoryWithCondition->missingSite(),
-            AlertType::NON_PRODUCTION => $alertFactoryWithCondition->nonProduction(),
-            AlertType::OVERDUE_DEPLOYMENT => $alertFactoryWithCondition->overdueDeployment(),
-            AlertType::SITE_BEHIND => $alertFactoryWithCondition->siteBehind(),
-            AlertType::UNAUTHORIZED_CLIENT => $alertFactoryWithCondition->unauthorizedClient(),
+            AlertType::COMPOSER_WARNING => $alertFactoryWithState->composerWarning(),
+            AlertType::DEBUG_ENABLED => $alertFactoryWithState->debugEnabled(),
+            AlertType::DOWN_SITE_ENDPOINT => $alertFactoryWithState->downSiteEndpoint(),
+            AlertType::INCOMPATIBLE_CLIENT => $alertFactoryWithState->incompatibleClient(),
+            AlertType::MISSING_REPOSITORY => $alertFactoryWithState->missingRepository(),
+            AlertType::MISSING_SITE => $alertFactoryWithState->missingSite(),
+            AlertType::NON_PRODUCTION => $alertFactoryWithState->nonProduction(),
+            AlertType::OVERDUE_DEPLOYMENT => $alertFactoryWithState->overdueDeployment(),
+            AlertType::SITE_BEHIND => $alertFactoryWithState->siteBehind(),
+            AlertType::UNAUTHORIZED_CLIENT => $alertFactoryWithState->unauthorizedClient(),
         };
     }
 
@@ -66,9 +71,17 @@ class AlertFactory extends Factory
      */
     public function definition(): array
     {
-        return [
-            'status' => AlertStatus::OPEN,
-        ];
+        return [];
+    }
+
+    public function done(): static
+    {
+        return $this->state([
+            'condition' => ConditionState::GONE,
+            'gone_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
+            'status' => AlertStatus::DONE,
+            'done_at' => fake()->dateTimeBetween('-1 month'),
+        ]);
     }
 
     public function downSiteEndpoint(): static
@@ -81,6 +94,8 @@ class AlertFactory extends Factory
         return $this->state([
             'condition' => ConditionState::GONE,
             'gone_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
+            'status' => AlertStatus::OPEN,
+            'done_at' => null,
         ]);
     }
 
@@ -114,6 +129,8 @@ class AlertFactory extends Factory
         return $this->state([
             'condition' => ConditionState::PRESENT,
             'gone_at' => null,
+            'status' => AlertStatus::OPEN,
+            'done_at' => null,
         ]);
     }
 

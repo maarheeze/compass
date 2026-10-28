@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('condition');
             $table->timestamp('gone_at')->nullable();
             $table->string('status');
+            $table->timestamp('done_at')->nullable();
 
             $table->timestamps();
         });

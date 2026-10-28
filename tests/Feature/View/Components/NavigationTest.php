@@ -46,14 +46,28 @@ test('dashboard url is the url of the dashboard', function (): void {
         ->toBe(route(RouteName::DASHBOARD));
 });
 
-test('has alerts is true with an alert', function (): void {
+test('has alerts is true with an alert that is not done', function (): void {
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
-    Alert::factory()->create();
+    Alert::factory()
+        ->present()
+        ->create();
 
     $navigation = $this->app->make(Navigation::class);
 
     expect($navigation->hasAlerts)
         ->toBeTrue();
+});
+
+test('has alerts is false with only a done alert', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+    Alert::factory()
+        ->done()
+        ->create();
+
+    $navigation = $this->app->make(Navigation::class);
+
+    expect($navigation->hasAlerts)
+        ->toBeFalse();
 });
 
 test('has alerts is false without an alert', function (): void {

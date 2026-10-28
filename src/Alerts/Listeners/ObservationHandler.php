@@ -35,6 +35,7 @@ readonly class ObservationHandler implements ShouldQueue
     {
         $storedAlert = $conditionObserved->subject
             ->alerts()
+            ->notDone()
             ->where('type', $conditionObserved->alertType)
             ->first();
         $alertAction = $this->alertActionClassifier->classify($conditionObserved->condition, $storedAlert);

@@ -31,7 +31,7 @@ class Navigation extends Component
         private readonly ViewFactory $view,
     ) {
         $this->dashboardUrl = $url->route(RouteName::DASHBOARD->value);
-        $this->hasAlerts = Alert::query()->exists();
+        $this->hasAlerts = Alert::query()->notDone()->exists();
         $this->logoutUrl = $url->route(RouteName::LOGOUT->value);
         $this->tabs = $this->navigationTabs($request, $url);
         $this->user = $authenticatedUser->user();

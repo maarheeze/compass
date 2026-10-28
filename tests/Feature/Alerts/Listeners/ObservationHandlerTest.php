@@ -96,6 +96,30 @@ test('handle opens no second alert for a present condition with a present alert'
         ->toBe(1);
 });
 
+test('handle opens a new alert for a present condition with only a done alert', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $doneAlert = Alert::factory()
+        ->downSiteEndpoint()
+        ->done()
+        ->for($siteEndpoint, 'subject')
+        ->create();
+
+    $observationHandler = $this->app->make(ObservationHandler::class);
+    $observationHandler->handle(new ConditionObserved(
+        AlertType::DOWN_SITE_ENDPOINT,
+        $siteEndpoint,
+        ConditionState::PRESENT,
+        CarbonImmutable::now(),
+    ));
+
+    $openedAlert = Alert::query()
+        ->whereMorphedTo('subject', $siteEndpoint)
+        ->notDone()
+        ->sole();
+    expect($openedAlert->is($doneAlert))
+        ->toBeFalse();
+});
+
 test('handle raises nothing for a present condition with a present alert', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);

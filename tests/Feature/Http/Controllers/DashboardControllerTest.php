@@ -61,6 +61,19 @@ test('show contains the gone alerts as resolved alerts, newest first', function 
     });
 });
 
+test('show leaves done alerts out of the resolved alerts', function (): void {
+    Alert::factory()
+        ->done()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::DASHBOARD));
+
+    $response->assertViewHas('resolvedAlerts', static function (AlertCollection $resolvedAlerts): bool {
+        return $resolvedAlerts->isEmpty();
+    });
+});
+
 test('show leaves present alerts out of the resolved alerts', function (): void {
     Alert::factory()
         ->present()
