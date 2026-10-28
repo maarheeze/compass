@@ -15,6 +15,7 @@ use Maarheeze\Compass\Alerts\Listeners\EvaluateNonProduction;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateUnauthorizedClient;
 use Maarheeze\Compass\Alerts\Listeners\ObservationHandler;
 use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
+use Maarheeze\Compass\Collector\Events\RepositoryMissingIgnored;
 use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 
@@ -29,5 +30,6 @@ class AlertProvider extends ServiceProvider
         $events->listen(SiteInspected::class, EvaluateUnauthorizedClient::class);
         $events->listen(SiteInspected::class, EvaluateIncompatibleClient::class);
         $events->listen(GitHubRunSucceeded::class, EvaluateMissingRepositories::class);
+        $events->listen(RepositoryMissingIgnored::class, EvaluateMissingRepositories::class);
     }
 }

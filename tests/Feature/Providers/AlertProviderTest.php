@@ -13,6 +13,7 @@ use Maarheeze\Compass\Alerts\Listeners\EvaluateNonProduction;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateUnauthorizedClient;
 use Maarheeze\Compass\Alerts\Listeners\ObservationHandler;
 use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
+use Maarheeze\Compass\Collector\Events\RepositoryMissingIgnored;
 use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 
@@ -56,4 +57,10 @@ test('evaluate missing repositories listens to github run succeeded', function (
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
     $eventFake->assertListening(GitHubRunSucceeded::class, EvaluateMissingRepositories::class);
+});
+
+test('evaluate missing repositories listens to repository missing ignored', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+
+    $eventFake->assertListening(RepositoryMissingIgnored::class, EvaluateMissingRepositories::class);
 });

@@ -10,6 +10,7 @@ use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateMissingRepositories;
 use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
+use Maarheeze\Compass\Collector\Events\RepositoryMissingIgnored;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 use Psr\Clock\ClockInterface;
@@ -74,5 +75,26 @@ test('handle observes a missing, ignored repository no longer missing', function
         return $conditionObserved->subject instanceof Repository
             && $conditionObserved->subject->is($repository)
             && $conditionObserved->condition === AlertCondition::GONE;
+    });
+});
+
+test('handle observes an ignored repository no longer missing now', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+    $this->app->instance(Dispatcher::class, $eventFake);
+    $now = CarbonImmutable::parse(fake()->iso8601());
+    $this->app->instance(ClockInterface::class, new MockClock($now));
+    $repository = Repository::factory()->create([
+        'missing_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
+        'missing_ignored_at' => fake()->dateTimeBetween('-1 month'),
+    ]);
+
+    $evaluateMissingRepositories = $this->app->make(EvaluateMissingRepositories::class);
+    $evaluateMissingRepositories->handle(new RepositoryMissingIgnored($repository));
+
+    $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
+        return $conditionObserved->alertType === AlertType::MISSING_REPOSITORY
+            && $conditionObserved->subject === $repository
+            && $conditionObserved->condition === AlertCondition::GONE
+            && $conditionObserved->observedAt->equalTo($now);
     });
 });
