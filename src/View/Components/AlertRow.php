@@ -8,9 +8,9 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
-use Maarheeze\Compass\Alerts\AlertCondition;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\AlertTypeDefinitions;
+use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Models\Alert;
 
 class AlertRow extends Component
@@ -29,7 +29,7 @@ class AlertRow extends Component
         $this->createdAt = $alert->created_at;
         $this->description = $alertTypeDefinitions->definition($alert->type)->description($alert);
         $this->goneAt = $alert->gone_at;
-        $this->isConditionPresent = $alert->condition === AlertCondition::PRESENT;
+        $this->isConditionPresent = $alert->condition === ConditionState::PRESENT;
         $this->type = $alert->type;
     }
 

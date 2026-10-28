@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Maarheeze\Compass\Alerts\AlertCondition;
 use Maarheeze\Compass\Alerts\AlertStatus;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
@@ -26,12 +26,12 @@ class AlertFactory extends Factory
 
     public function configure(): static
     {
-        $condition = fake()->randomElement(AlertCondition::cases());
-        Assert::isInstanceOf($condition, AlertCondition::class);
+        $condition = fake()->randomElement(ConditionState::cases());
+        Assert::isInstanceOf($condition, ConditionState::class);
 
         $alertFactoryWithCondition = match ($condition) {
-            AlertCondition::GONE => $this->gone(),
-            AlertCondition::PRESENT => $this->present(),
+            ConditionState::GONE => $this->gone(),
+            ConditionState::PRESENT => $this->present(),
         };
 
         $type = fake()->randomElement(AlertType::cases());
@@ -79,7 +79,7 @@ class AlertFactory extends Factory
     public function gone(): static
     {
         return $this->state([
-            'condition' => AlertCondition::GONE,
+            'condition' => ConditionState::GONE,
             'gone_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
         ]);
     }
@@ -112,7 +112,7 @@ class AlertFactory extends Factory
     public function present(): static
     {
         return $this->state([
-            'condition' => AlertCondition::PRESENT,
+            'condition' => ConditionState::PRESENT,
             'gone_at' => null,
         ]);
     }

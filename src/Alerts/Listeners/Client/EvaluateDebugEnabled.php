@@ -2,21 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Maarheeze\Compass\Alerts\Listeners;
+namespace Maarheeze\Compass\Alerts\Listeners\Client;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Maarheeze\Compass\Alerts\AlertCondition;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
-use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 
-readonly class EvaluateUnauthorizedClient implements ShouldQueue
+readonly class EvaluateDebugEnabled implements ShouldQueue
 {
     public function __construct(
         private ClockInterface $clock,
@@ -38,9 +37,9 @@ readonly class EvaluateUnauthorizedClient implements ShouldQueue
     {
         foreach (Site::query()->whereNotNull('missing_at')->get() as $missingSite) {
             $this->events->dispatch(new ConditionObserved(
-                AlertType::UNAUTHORIZED_CLIENT,
+                AlertType::DEBUG_ENABLED,
                 $missingSite,
-                AlertCondition::GONE,
+                ConditionState::GONE,
                 $observedAt,
             ));
         }
@@ -49,13 +48,13 @@ readonly class EvaluateUnauthorizedClient implements ShouldQueue
     private function handleSiteInspected(SiteInspected $siteInspected, CarbonImmutable $observedAt): void
     {
         $site = $siteInspected->site;
-        $observedCondition = match ($site->missing_at === null && $site->client_status === ClientStatus::UNAUTHORIZED) {
-            true => AlertCondition::PRESENT,
-            false => AlertCondition::GONE,
+        $observedCondition = match ($site->missing_at === null && $site->app_debug === true) {
+            true => ConditionState::PRESENT,
+            false => ConditionState::GONE,
         };
 
         $this->events->dispatch(new ConditionObserved(
-            AlertType::UNAUTHORIZED_CLIENT,
+            AlertType::DEBUG_ENABLED,
             $site,
             $observedCondition,
             $observedAt,

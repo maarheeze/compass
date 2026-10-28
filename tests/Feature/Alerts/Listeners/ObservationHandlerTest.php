@@ -5,9 +5,9 @@ declare(strict_types=1);
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Testing\Fakes\EventFake;
-use Maarheeze\Compass\Alerts\AlertCondition;
 use Maarheeze\Compass\Alerts\AlertStatus;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\AlertCleared;
 use Maarheeze\Compass\Alerts\Events\AlertOpened;
 use Maarheeze\Compass\Alerts\Events\AlertRecurred;
@@ -23,7 +23,7 @@ test('handle opens an alert for a present condition without an alert', function 
     $observationHandler->handle(new ConditionObserved(
         AlertType::DOWN_SITE_ENDPOINT,
         $siteEndpoint,
-        AlertCondition::PRESENT,
+        ConditionState::PRESENT,
         CarbonImmutable::now(),
     ));
 
@@ -31,7 +31,7 @@ test('handle opens an alert for a present condition without an alert', function 
         'subject_type' => $siteEndpoint->getMorphClass(),
         'subject_id' => $siteEndpoint->id,
         'type' => AlertType::DOWN_SITE_ENDPOINT,
-        'condition' => AlertCondition::PRESENT,
+        'condition' => ConditionState::PRESENT,
         'status' => AlertStatus::OPEN,
     ]);
 });
@@ -45,7 +45,7 @@ test('handle raises alert opened with the opened alert', function (): void {
     $observationHandler->handle(new ConditionObserved(
         AlertType::DOWN_SITE_ENDPOINT,
         $siteEndpoint,
-        AlertCondition::PRESENT,
+        ConditionState::PRESENT,
         CarbonImmutable::now(),
     ));
 
@@ -68,7 +68,7 @@ test('handle opens an alert for a present condition when another subject has an 
     $observationHandler->handle(new ConditionObserved(
         AlertType::DOWN_SITE_ENDPOINT,
         $siteEndpoint,
-        AlertCondition::PRESENT,
+        ConditionState::PRESENT,
         CarbonImmutable::now(),
     ));
 
@@ -88,7 +88,7 @@ test('handle opens no second alert for a present condition with a present alert'
     $observationHandler->handle(new ConditionObserved(
         AlertType::DOWN_SITE_ENDPOINT,
         $siteEndpoint,
-        AlertCondition::PRESENT,
+        ConditionState::PRESENT,
         CarbonImmutable::now(),
     ));
 
@@ -110,7 +110,7 @@ test('handle raises nothing for a present condition with a present alert', funct
     $observationHandler->handle(new ConditionObserved(
         AlertType::DOWN_SITE_ENDPOINT,
         $siteEndpoint,
-        AlertCondition::PRESENT,
+        ConditionState::PRESENT,
         CarbonImmutable::now(),
     ));
 
@@ -130,13 +130,13 @@ test('handle clears a present alert for a gone condition', function (): void {
     $observationHandler->handle(new ConditionObserved(
         AlertType::DOWN_SITE_ENDPOINT,
         $siteEndpoint,
-        AlertCondition::GONE,
+        ConditionState::GONE,
         $observedAt,
     ));
 
     $this->assertDatabaseHas(Alert::class, [
         'id' => $storedAlert->id,
-        'condition' => AlertCondition::GONE,
+        'condition' => ConditionState::GONE,
         'gone_at' => $observedAt,
     ]);
 });
@@ -155,7 +155,7 @@ test('handle raises alert cleared with the cleared alert', function (): void {
     $observationHandler->handle(new ConditionObserved(
         AlertType::DOWN_SITE_ENDPOINT,
         $siteEndpoint,
-        AlertCondition::GONE,
+        ConditionState::GONE,
         CarbonImmutable::now(),
     ));
 
@@ -173,7 +173,7 @@ test('handle raises nothing for a gone condition without an alert', function ():
     $observationHandler->handle(new ConditionObserved(
         AlertType::DOWN_SITE_ENDPOINT,
         $siteEndpoint,
-        AlertCondition::GONE,
+        ConditionState::GONE,
         CarbonImmutable::now(),
     ));
 
@@ -192,13 +192,13 @@ test('handle recurs a gone alert for a present condition', function (): void {
     $observationHandler->handle(new ConditionObserved(
         AlertType::DOWN_SITE_ENDPOINT,
         $siteEndpoint,
-        AlertCondition::PRESENT,
+        ConditionState::PRESENT,
         CarbonImmutable::now(),
     ));
 
     $this->assertDatabaseHas(Alert::class, [
         'id' => $storedAlert->id,
-        'condition' => AlertCondition::PRESENT,
+        'condition' => ConditionState::PRESENT,
         'gone_at' => null,
     ]);
 });
@@ -217,7 +217,7 @@ test('handle raises alert recurred with the recurred alert', function (): void {
     $observationHandler->handle(new ConditionObserved(
         AlertType::DOWN_SITE_ENDPOINT,
         $siteEndpoint,
-        AlertCondition::PRESENT,
+        ConditionState::PRESENT,
         CarbonImmutable::now(),
     ));
 
@@ -233,13 +233,13 @@ test('middleware locks observations of one alert under the same key', function (
     $firstMiddleware = $observationHandler->middleware(new ConditionObserved(
         AlertType::DOWN_SITE_ENDPOINT,
         $siteEndpoint,
-        fake()->randomElement(AlertCondition::cases()),
+        fake()->randomElement(ConditionState::cases()),
         CarbonImmutable::now(),
     ));
     $secondMiddleware = $observationHandler->middleware(new ConditionObserved(
         AlertType::DOWN_SITE_ENDPOINT,
         $siteEndpoint,
-        fake()->randomElement(AlertCondition::cases()),
+        fake()->randomElement(ConditionState::cases()),
         CarbonImmutable::now(),
     ));
 
@@ -252,13 +252,13 @@ test('middleware locks observations of different subjects under different keys',
     $firstMiddleware = $observationHandler->middleware(new ConditionObserved(
         AlertType::DOWN_SITE_ENDPOINT,
         SiteEndpoint::factory()->create(),
-        fake()->randomElement(AlertCondition::cases()),
+        fake()->randomElement(ConditionState::cases()),
         CarbonImmutable::now(),
     ));
     $secondMiddleware = $observationHandler->middleware(new ConditionObserved(
         AlertType::DOWN_SITE_ENDPOINT,
         SiteEndpoint::factory()->create(),
-        fake()->randomElement(AlertCondition::cases()),
+        fake()->randomElement(ConditionState::cases()),
         CarbonImmutable::now(),
     ));
 

@@ -10,8 +10,8 @@ use Illuminate\Queue\Attributes\Tries;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Maarheeze\Compass\Alerts\AlertAction;
 use Maarheeze\Compass\Alerts\AlertActionClassifier;
-use Maarheeze\Compass\Alerts\AlertCondition;
 use Maarheeze\Compass\Alerts\AlertStatus;
+use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\AlertCleared;
 use Maarheeze\Compass\Alerts\Events\AlertOpened;
 use Maarheeze\Compass\Alerts\Events\AlertRecurred;
@@ -73,7 +73,7 @@ readonly class ObservationHandler implements ShouldQueue
     {
         Assert::isInstanceOf($storedAlert, Alert::class);
         $storedAlert->update([
-            'condition' => AlertCondition::GONE,
+            'condition' => ConditionState::GONE,
             'gone_at' => $conditionObserved->observedAt,
         ]);
 
@@ -86,7 +86,7 @@ readonly class ObservationHandler implements ShouldQueue
             ->alerts()
             ->create([
                 'type' => $conditionObserved->alertType,
-                'condition' => AlertCondition::PRESENT,
+                'condition' => ConditionState::PRESENT,
                 'status' => AlertStatus::OPEN,
             ]);
 
@@ -97,7 +97,7 @@ readonly class ObservationHandler implements ShouldQueue
     {
         Assert::isInstanceOf($storedAlert, Alert::class);
         $storedAlert->update([
-            'condition' => AlertCondition::PRESENT,
+            'condition' => ConditionState::PRESENT,
             'gone_at' => null,
         ]);
 

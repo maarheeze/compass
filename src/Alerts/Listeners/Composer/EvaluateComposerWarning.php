@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Maarheeze\Compass\Alerts\Listeners;
+namespace Maarheeze\Compass\Alerts\Listeners\Composer;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Maarheeze\Compass\Alerts\AlertCondition;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Analyzer\Composer\ComposerWarningDetector;
 use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
 use Maarheeze\Compass\Models\Repository;
 use Psr\Clock\ClockInterface;
 
-readonly class EvaluateComposerWarnings implements ShouldQueue
+readonly class EvaluateComposerWarning implements ShouldQueue
 {
     public function __construct(
         private ClockInterface $clock,
@@ -30,8 +30,8 @@ readonly class EvaluateComposerWarnings implements ShouldQueue
 
         foreach (Repository::query()->with('composerJson')->get() as $repository) {
             $observedCondition = match ($this->composerWarningDetector->detect($repository) !== null) {
-                true => AlertCondition::PRESENT,
-                false => AlertCondition::GONE,
+                true => ConditionState::PRESENT,
+                false => ConditionState::GONE,
             };
 
             $this->events->dispatch(new ConditionObserved(

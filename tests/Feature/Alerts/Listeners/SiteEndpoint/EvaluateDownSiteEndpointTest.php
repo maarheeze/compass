@@ -5,10 +5,10 @@ declare(strict_types=1);
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Testing\Fakes\EventFake;
-use Maarheeze\Compass\Alerts\AlertCondition;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
-use Maarheeze\Compass\Alerts\Listeners\EvaluateDownSiteEndpoint;
+use Maarheeze\Compass\Alerts\Listeners\SiteEndpoint\EvaluateDownSiteEndpoint;
 use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
 use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
 use Maarheeze\Compass\Models\Site;
@@ -30,7 +30,7 @@ test('handle observes the endpoint down at the check for a failed check', functi
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($siteEndpoint, $siteEndpointCheck): bool {
         return $conditionObserved->alertType === AlertType::DOWN_SITE_ENDPOINT
             && $conditionObserved->subject === $siteEndpoint
-            && $conditionObserved->condition === AlertCondition::PRESENT
+            && $conditionObserved->condition === ConditionState::PRESENT
             && $conditionObserved->observedAt->equalTo($siteEndpointCheck->created_at);
     });
 });
@@ -47,7 +47,7 @@ test('handle observes the endpoint no longer down at the check for a successful 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($siteEndpoint, $siteEndpointCheck): bool {
         return $conditionObserved->alertType === AlertType::DOWN_SITE_ENDPOINT
             && $conditionObserved->subject === $siteEndpoint
-            && $conditionObserved->condition === AlertCondition::GONE
+            && $conditionObserved->condition === ConditionState::GONE
             && $conditionObserved->observedAt->equalTo($siteEndpointCheck->created_at);
     });
 });
@@ -68,7 +68,7 @@ test('handle observes the endpoint of a missing site no longer down now', functi
         return $conditionObserved->alertType === AlertType::DOWN_SITE_ENDPOINT
             && $conditionObserved->subject instanceof SiteEndpoint
             && $conditionObserved->subject->is($siteEndpoint)
-            && $conditionObserved->condition === AlertCondition::GONE
+            && $conditionObserved->condition === ConditionState::GONE
             && $conditionObserved->observedAt->equalTo($now);
     });
 });

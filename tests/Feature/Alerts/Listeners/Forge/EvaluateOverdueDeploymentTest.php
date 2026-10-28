@@ -5,10 +5,10 @@ declare(strict_types=1);
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Testing\Fakes\EventFake;
-use Maarheeze\Compass\Alerts\AlertCondition;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
-use Maarheeze\Compass\Alerts\Listeners\EvaluateOverdueDeployments;
+use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateOverdueDeployment;
 use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
@@ -34,14 +34,14 @@ test('handle observes an overdue deployment now', function (): void {
         'auto_deploy' => true,
     ]);
 
-    $evaluateOverdueDeployments = $this->app->make(EvaluateOverdueDeployments::class);
-    $evaluateOverdueDeployments->handle(new ForgeRunSucceeded(Uuid::generate()));
+    $evaluateOverdueDeployment = $this->app->make(EvaluateOverdueDeployment::class);
+    $evaluateOverdueDeployment->handle(new ForgeRunSucceeded(Uuid::generate()));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
         return $conditionObserved->alertType === AlertType::OVERDUE_DEPLOYMENT
             && $conditionObserved->subject instanceof Site
             && $conditionObserved->subject->is($site)
-            && $conditionObserved->condition === AlertCondition::PRESENT
+            && $conditionObserved->condition === ConditionState::PRESENT
             && $conditionObserved->observedAt->equalTo($now);
     });
 });
@@ -58,14 +58,14 @@ test('handle observes an up-to-date site without an overdue deployment now', fun
         'deployed_commit_hash' => $repository->last_commit_sha,
     ]);
 
-    $evaluateOverdueDeployments = $this->app->make(EvaluateOverdueDeployments::class);
-    $evaluateOverdueDeployments->handle(new ForgeRunSucceeded(Uuid::generate()));
+    $evaluateOverdueDeployment = $this->app->make(EvaluateOverdueDeployment::class);
+    $evaluateOverdueDeployment->handle(new ForgeRunSucceeded(Uuid::generate()));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
         return $conditionObserved->alertType === AlertType::OVERDUE_DEPLOYMENT
             && $conditionObserved->subject instanceof Site
             && $conditionObserved->subject->is($site)
-            && $conditionObserved->condition === AlertCondition::GONE
+            && $conditionObserved->condition === ConditionState::GONE
             && $conditionObserved->observedAt->equalTo($now);
     });
 });

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Maarheeze\Compass\Alerts\Listeners;
+namespace Maarheeze\Compass\Alerts\Listeners\SiteEndpoint;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Maarheeze\Compass\Alerts\AlertCondition;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
 use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
@@ -44,7 +44,7 @@ readonly class EvaluateDownSiteEndpoint implements ShouldQueue
                 $this->events->dispatch(new ConditionObserved(
                     AlertType::DOWN_SITE_ENDPOINT,
                     $siteEndpoint,
-                    AlertCondition::GONE,
+                    ConditionState::GONE,
                     $observedAt,
                 ));
             }
@@ -55,8 +55,8 @@ readonly class EvaluateDownSiteEndpoint implements ShouldQueue
     {
         $siteEndpointCheck = $siteEndpointChecked->siteEndpointCheck;
         $observedCondition = match ($siteEndpointCheck->is_successful) {
-            true => AlertCondition::GONE,
-            false => AlertCondition::PRESENT,
+            true => ConditionState::GONE,
+            false => ConditionState::PRESENT,
         };
 
         $this->events->dispatch(new ConditionObserved(

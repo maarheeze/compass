@@ -8,10 +8,10 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Maarheeze\Compass\Alerts\AlertCondition;
 use Maarheeze\Compass\Alerts\AlertStatus;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Database\Factories\AlertFactory;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
@@ -19,7 +19,7 @@ use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
 
 /**
- * @property AlertCondition $condition
+ * @property ConditionState $condition
  * @property CarbonImmutable $created_at
  * @property ?CarbonImmutable $gone_at
  * @property Uuid $id
@@ -73,7 +73,7 @@ class Alert extends Model
     protected function casts(): array
     {
         return [
-            'condition' => AlertCondition::class,
+            'condition' => ConditionState::class,
             'created_at' => 'immutable_datetime',
             'gone_at' => 'immutable_datetime',
             'status' => AlertStatus::class,

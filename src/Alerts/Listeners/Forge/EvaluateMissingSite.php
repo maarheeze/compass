@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Maarheeze\Compass\Alerts\Listeners;
+namespace Maarheeze\Compass\Alerts\Listeners\Forge;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Maarheeze\Compass\Alerts\AlertCondition;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
 use Maarheeze\Compass\Collector\Events\SiteMissingIgnored;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 
-readonly class EvaluateMissingSites implements ShouldQueue
+readonly class EvaluateMissingSite implements ShouldQueue
 {
     public function __construct(
         private ClockInterface $clock,
@@ -51,8 +51,8 @@ readonly class EvaluateMissingSites implements ShouldQueue
     private function observe(Site $site, CarbonImmutable $observedAt): void
     {
         $observedCondition = match ($site->missing_at !== null && $site->missing_ignored_at === null) {
-            true => AlertCondition::PRESENT,
-            false => AlertCondition::GONE,
+            true => ConditionState::PRESENT,
+            false => ConditionState::GONE,
         };
 
         $this->events->dispatch(new ConditionObserved(

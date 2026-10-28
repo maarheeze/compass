@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Maarheeze\Compass\Alerts\Listeners;
+namespace Maarheeze\Compass\Alerts\Listeners\Forge;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Maarheeze\Compass\Alerts\AlertCondition;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Analyzer\Forge\DeploymentState;
 use Maarheeze\Compass\Analyzer\Forge\DeploymentStateClassifier;
@@ -17,7 +17,7 @@ use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 
-readonly class EvaluateSitesBehind implements ShouldQueue
+readonly class EvaluateSiteBehind implements ShouldQueue
 {
     public function __construct(
         private ClockInterface $clock,
@@ -32,8 +32,8 @@ readonly class EvaluateSitesBehind implements ShouldQueue
 
         foreach (Site::query()->with('repository')->get() as $site) {
             $observedCondition = match ($this->deploymentStateClassifier->classify($site)) {
-                DeploymentState::BEHIND => AlertCondition::PRESENT,
-                default => AlertCondition::GONE,
+                DeploymentState::BEHIND => ConditionState::PRESENT,
+                default => ConditionState::GONE,
             };
 
             $this->events->dispatch(new ConditionObserved(

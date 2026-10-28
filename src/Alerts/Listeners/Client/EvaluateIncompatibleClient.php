@@ -2,20 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Maarheeze\Compass\Alerts\Listeners;
+namespace Maarheeze\Compass\Alerts\Listeners\Client;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Maarheeze\Compass\Alerts\AlertCondition;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
+use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 
-readonly class EvaluateNonProduction implements ShouldQueue
+readonly class EvaluateIncompatibleClient implements ShouldQueue
 {
     public function __construct(
         private ClockInterface $clock,
@@ -37,9 +38,9 @@ readonly class EvaluateNonProduction implements ShouldQueue
     {
         foreach (Site::query()->whereNotNull('missing_at')->get() as $missingSite) {
             $this->events->dispatch(new ConditionObserved(
-                AlertType::NON_PRODUCTION,
+                AlertType::INCOMPATIBLE_CLIENT,
                 $missingSite,
-                AlertCondition::GONE,
+                ConditionState::GONE,
                 $observedAt,
             ));
         }
@@ -48,14 +49,13 @@ readonly class EvaluateNonProduction implements ShouldQueue
     private function handleSiteInspected(SiteInspected $siteInspected, CarbonImmutable $observedAt): void
     {
         $site = $siteInspected->site;
-        $isInAnotherEnvironment = $site->app_env !== null && $site->app_env !== 'production';
-        $observedCondition = match ($site->missing_at === null && $isInAnotherEnvironment) {
-            true => AlertCondition::PRESENT,
-            false => AlertCondition::GONE,
+        $observedCondition = match ($site->missing_at === null && $site->client_status === ClientStatus::INCOMPATIBLE) {
+            true => ConditionState::PRESENT,
+            false => ConditionState::GONE,
         };
 
         $this->events->dispatch(new ConditionObserved(
-            AlertType::NON_PRODUCTION,
+            AlertType::INCOMPATIBLE_CLIENT,
             $site,
             $observedCondition,
             $observedAt,

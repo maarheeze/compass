@@ -5,10 +5,10 @@ declare(strict_types=1);
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Testing\Fakes\EventFake;
-use Maarheeze\Compass\Alerts\AlertCondition;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
-use Maarheeze\Compass\Alerts\Listeners\EvaluateComposerWarnings;
+use Maarheeze\Compass\Alerts\Listeners\Composer\EvaluateComposerWarning;
 use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
 use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\Repository;
@@ -30,14 +30,14 @@ test('handle observes a composer warning now for a repository with a composer wa
         'type' => 'project',
     ]);
 
-    $evaluateComposerWarnings = $this->app->make(EvaluateComposerWarnings::class);
-    $evaluateComposerWarnings->handle(new GitHubRunSucceeded(Uuid::generate()));
+    $evaluateComposerWarning = $this->app->make(EvaluateComposerWarning::class);
+    $evaluateComposerWarning->handle(new GitHubRunSucceeded(Uuid::generate()));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
         return $conditionObserved->alertType === AlertType::COMPOSER_WARNING
             && $conditionObserved->subject instanceof Repository
             && $conditionObserved->subject->is($repository)
-            && $conditionObserved->condition === AlertCondition::PRESENT
+            && $conditionObserved->condition === ConditionState::PRESENT
             && $conditionObserved->observedAt->equalTo($now);
     });
 });
@@ -49,14 +49,14 @@ test('handle observes no composer warning now for a repository without a compose
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $repository = Repository::factory()->create(['composer_json_oid' => null]);
 
-    $evaluateComposerWarnings = $this->app->make(EvaluateComposerWarnings::class);
-    $evaluateComposerWarnings->handle(new GitHubRunSucceeded(Uuid::generate()));
+    $evaluateComposerWarning = $this->app->make(EvaluateComposerWarning::class);
+    $evaluateComposerWarning->handle(new GitHubRunSucceeded(Uuid::generate()));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
         return $conditionObserved->alertType === AlertType::COMPOSER_WARNING
             && $conditionObserved->subject instanceof Repository
             && $conditionObserved->subject->is($repository)
-            && $conditionObserved->condition === AlertCondition::GONE
+            && $conditionObserved->condition === ConditionState::GONE
             && $conditionObserved->observedAt->equalTo($now);
     });
 });

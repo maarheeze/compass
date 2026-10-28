@@ -6,9 +6,9 @@ namespace Maarheeze\Compass\Alerts\Events;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Queue\SerializesModels;
-use Maarheeze\Compass\Alerts\AlertCondition;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionState;
 
 readonly class ConditionObserved
 {
@@ -17,7 +17,7 @@ readonly class ConditionObserved
     public function __construct(
         public AlertType $alertType,
         public AlertSubject $subject,
-        public AlertCondition $condition,
+        public ConditionState $condition,
         public CarbonImmutable $observedAt,
     ) {
     }

@@ -5,10 +5,10 @@ declare(strict_types=1);
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Testing\Fakes\EventFake;
-use Maarheeze\Compass\Alerts\AlertCondition;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
-use Maarheeze\Compass\Alerts\Listeners\EvaluateIncompatibleClient;
+use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateIncompatibleClient;
 use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
@@ -33,7 +33,7 @@ test('handle observes incompatible client now for a site with an outdated client
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
         return $conditionObserved->alertType === AlertType::INCOMPATIBLE_CLIENT
             && $conditionObserved->subject === $site
-            && $conditionObserved->condition === AlertCondition::PRESENT
+            && $conditionObserved->condition === ConditionState::PRESENT
             && $conditionObserved->observedAt->equalTo($now);
     });
 });
@@ -54,7 +54,7 @@ test('handle observes incompatible client gone now for a site with any other cli
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
         return $conditionObserved->alertType === AlertType::INCOMPATIBLE_CLIENT
             && $conditionObserved->subject === $site
-            && $conditionObserved->condition === AlertCondition::GONE
+            && $conditionObserved->condition === ConditionState::GONE
             && $conditionObserved->observedAt->equalTo($now);
     });
 })->with([
@@ -77,7 +77,7 @@ test('handle observes incompatible client gone for a missing site with an outdat
     $evaluateIncompatibleClient->handle(new SiteInspected($site));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved): bool {
-        return $conditionObserved->condition === AlertCondition::GONE;
+        return $conditionObserved->condition === ConditionState::GONE;
     });
 });
 
@@ -95,7 +95,7 @@ test('handle observes incompatible client gone now for a missing site after a fo
         return $conditionObserved->alertType === AlertType::INCOMPATIBLE_CLIENT
             && $conditionObserved->subject instanceof Site
             && $conditionObserved->subject->is($site)
-            && $conditionObserved->condition === AlertCondition::GONE
+            && $conditionObserved->condition === ConditionState::GONE
             && $conditionObserved->observedAt->equalTo($now);
     });
 });

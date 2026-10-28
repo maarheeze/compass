@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Alerts;
 
-enum AlertCondition: string
+enum ConditionState: string
 {
     case GONE = 'gone';
     case PRESENT = 'present';

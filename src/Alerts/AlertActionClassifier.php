@@ -8,12 +8,12 @@ use Maarheeze\Compass\Models\Alert;
 
 readonly class AlertActionClassifier
 {
-    public function classify(AlertCondition $observedCondition, ?Alert $storedAlert): ?AlertAction
+    public function classify(ConditionState $observedCondition, ?Alert $storedAlert): ?AlertAction
     {
         if ($storedAlert === null) {
             return match ($observedCondition) {
-                AlertCondition::PRESENT => AlertAction::OPEN,
-                AlertCondition::GONE => null,
+                ConditionState::PRESENT => AlertAction::OPEN,
+                ConditionState::GONE => null,
             };
         }
 
@@ -22,8 +22,8 @@ readonly class AlertActionClassifier
         }
 
         return match ($observedCondition) {
-            AlertCondition::PRESENT => AlertAction::RECUR,
-            AlertCondition::GONE => AlertAction::CLEAR,
+            ConditionState::PRESENT => AlertAction::RECUR,
+            ConditionState::GONE => AlertAction::CLEAR,
         };
     }
 }
