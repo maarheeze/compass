@@ -112,3 +112,9 @@ test('evaluate down site endpoint listens to forge run succeeded', function (): 
 
     $eventFake->assertListening(ForgeRunSucceeded::class, EvaluateDownSiteEndpoint::class);
 });
+
+test('evaluate debug enabled listens to forge run succeeded', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+
+    $eventFake->assertListening(ForgeRunSucceeded::class, EvaluateDebugEnabled::class);
+});
