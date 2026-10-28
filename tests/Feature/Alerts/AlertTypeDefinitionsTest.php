@@ -6,6 +6,7 @@ use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\AlertTypeDefinitions;
 use Maarheeze\Compass\Alerts\Types\DebugEnabledAlert;
 use Maarheeze\Compass\Alerts\Types\DownSiteEndpointAlert;
+use Maarheeze\Compass\Alerts\Types\IncompatibleClientAlert;
 use Maarheeze\Compass\Alerts\Types\NonProductionAlert;
 use Maarheeze\Compass\Alerts\Types\UnauthorizedClientAlert;
 
@@ -39,4 +40,12 @@ test('definition of unauthorized client is the unauthorized client alert', funct
 
     expect($alertTypeDefinition)
         ->toBeInstanceOf(UnauthorizedClientAlert::class);
+});
+
+test('definition of incompatible client is the incompatible client alert', function (): void {
+    $alertTypeDefinitions = $this->app->make(AlertTypeDefinitions::class);
+    $alertTypeDefinition = $alertTypeDefinitions->definition(AlertType::INCOMPATIBLE_CLIENT);
+
+    expect($alertTypeDefinition)
+        ->toBeInstanceOf(IncompatibleClientAlert::class);
 });

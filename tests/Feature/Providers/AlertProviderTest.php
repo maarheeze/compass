@@ -7,6 +7,7 @@ use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateDebugEnabled;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateDownSiteEndpoint;
+use Maarheeze\Compass\Alerts\Listeners\EvaluateIncompatibleClient;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateNonProduction;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateUnauthorizedClient;
 use Maarheeze\Compass\Alerts\Listeners\ObservationHandler;
@@ -41,4 +42,10 @@ test('evaluate unauthorized client listens to site inspected', function (): void
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
     $eventFake->assertListening(SiteInspected::class, EvaluateUnauthorizedClient::class);
+});
+
+test('evaluate incompatible client listens to site inspected', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+
+    $eventFake->assertListening(SiteInspected::class, EvaluateIncompatibleClient::class);
 });

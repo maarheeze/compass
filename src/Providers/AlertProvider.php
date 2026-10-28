@@ -9,6 +9,7 @@ use Illuminate\Support\ServiceProvider;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateDebugEnabled;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateDownSiteEndpoint;
+use Maarheeze\Compass\Alerts\Listeners\EvaluateIncompatibleClient;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateNonProduction;
 use Maarheeze\Compass\Alerts\Listeners\EvaluateUnauthorizedClient;
 use Maarheeze\Compass\Alerts\Listeners\ObservationHandler;
@@ -24,5 +25,6 @@ class AlertProvider extends ServiceProvider
         $events->listen(SiteInspected::class, EvaluateDebugEnabled::class);
         $events->listen(SiteInspected::class, EvaluateNonProduction::class);
         $events->listen(SiteInspected::class, EvaluateUnauthorizedClient::class);
+        $events->listen(SiteInspected::class, EvaluateIncompatibleClient::class);
     }
 }

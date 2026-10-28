@@ -39,6 +39,7 @@ class AlertFactory extends Factory
         return match ($type) {
             AlertType::DEBUG_ENABLED => $alertFactoryWithCondition->debugEnabled(),
             AlertType::DOWN_SITE_ENDPOINT => $alertFactoryWithCondition->downSiteEndpoint(),
+            AlertType::INCOMPATIBLE_CLIENT => $alertFactoryWithCondition->incompatibleClient(),
             AlertType::NON_PRODUCTION => $alertFactoryWithCondition->nonProduction(),
             AlertType::UNAUTHORIZED_CLIENT => $alertFactoryWithCondition->unauthorizedClient(),
         };
@@ -70,6 +71,11 @@ class AlertFactory extends Factory
             'condition' => AlertCondition::GONE,
             'gone_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
         ]);
+    }
+
+    public function incompatibleClient(): static
+    {
+        return $this->state(['type' => AlertType::INCOMPATIBLE_CLIENT])->for(Site::factory(), 'subject');
     }
 
     public function nonProduction(): static
