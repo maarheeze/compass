@@ -7,7 +7,9 @@
                 <h1 class="text-lg font-semibold text-foreground">
                     <x-compass::enum-label :value="$alert->type" />
                 </h1>
-                <p class="text-sm text-foreground-muted">{{ $description }}</p>
+                <p class="text-sm">
+                    <x-compass::alert-subject-link :subject="$alert->subject" />
+                </p>
             </div>
             <x-compass::alert-mark-done-button :alert="$alert" class="ml-auto" />
         </div>
