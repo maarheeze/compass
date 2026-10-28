@@ -45,6 +45,7 @@ class AlertFactory extends Factory
             AlertType::MISSING_REPOSITORY => $alertFactoryWithCondition->missingRepository(),
             AlertType::MISSING_SITE => $alertFactoryWithCondition->missingSite(),
             AlertType::NON_PRODUCTION => $alertFactoryWithCondition->nonProduction(),
+            AlertType::SITE_BEHIND => $alertFactoryWithCondition->siteBehind(),
             AlertType::UNAUTHORIZED_CLIENT => $alertFactoryWithCondition->unauthorizedClient(),
         };
     }
@@ -108,6 +109,11 @@ class AlertFactory extends Factory
             'condition' => AlertCondition::PRESENT,
             'gone_at' => null,
         ]);
+    }
+
+    public function siteBehind(): static
+    {
+        return $this->state(['type' => AlertType::SITE_BEHIND])->for(Site::factory(), 'subject');
     }
 
     public function unauthorizedClient(): static

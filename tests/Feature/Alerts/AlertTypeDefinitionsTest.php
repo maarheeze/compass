@@ -11,6 +11,7 @@ use Maarheeze\Compass\Alerts\Types\IncompatibleClientAlert;
 use Maarheeze\Compass\Alerts\Types\MissingRepositoryAlert;
 use Maarheeze\Compass\Alerts\Types\MissingSiteAlert;
 use Maarheeze\Compass\Alerts\Types\NonProductionAlert;
+use Maarheeze\Compass\Alerts\Types\SiteBehindAlert;
 use Maarheeze\Compass\Alerts\Types\UnauthorizedClientAlert;
 
 test('definition of debug enabled is the debug enabled alert', function (): void {
@@ -75,4 +76,12 @@ test('definition of a missing site is the missing site alert', function (): void
 
     expect($alertTypeDefinition)
         ->toBeInstanceOf(MissingSiteAlert::class);
+});
+
+test('definition of a site behind is the site behind alert', function (): void {
+    $alertTypeDefinitions = $this->app->make(AlertTypeDefinitions::class);
+    $alertTypeDefinition = $alertTypeDefinitions->definition(AlertType::SITE_BEHIND);
+
+    expect($alertTypeDefinition)
+        ->toBeInstanceOf(SiteBehindAlert::class);
 });

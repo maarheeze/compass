@@ -10,5 +10,6 @@ return [
     'MISSING_REPOSITORY' => ':repository',
     'MISSING_SITE' => ':site',
     'NON_PRODUCTION' => ':site',
+    'SITE_BEHIND' => ':site',
     'UNAUTHORIZED_CLIENT' => ':site',
 ];

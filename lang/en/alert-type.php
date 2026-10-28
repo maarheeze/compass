@@ -10,5 +10,6 @@ return [
     'MISSING_REPOSITORY' => 'Repository missing',
     'MISSING_SITE' => 'Site missing',
     'NON_PRODUCTION' => 'Not in production',
+    'SITE_BEHIND' => 'Site behind',
     'UNAUTHORIZED_CLIENT' => 'Client key refused',
 ];
