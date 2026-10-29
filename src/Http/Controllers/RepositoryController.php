@@ -71,6 +71,7 @@ readonly class RepositoryController
             'alerts' => static function (Builder $alertQuery): void {
                 $alertQuery->latest();
             },
+            'alerts.assignee',
             'alerts.subject',
             'composerJson.developmentPackages' => $orderPackagesByName,
             'composerJson.productionPackages' => $orderPackagesByName,

@@ -48,13 +48,16 @@ readonly class GitHubAuthentication
             throw new NotAnOrganizationMember();
         }
 
+        $avatarUrl = $oauthUser->getAvatar();
+        Assert::string($avatarUrl);
+
         $user = User::updateOrCreate(
             ['github_id' => $oauthUser->getId()],
             [
                 'nickname' => $oauthUser->getNickname(),
                 'name' => $oauthUser->getName(),
                 'email' => $oauthUser->getEmail(),
-                'avatar_url' => $oauthUser->getAvatar(),
+                'avatar_url' => $avatarUrl,
                 'github_token' => $oauthUser->token,
             ],
         );

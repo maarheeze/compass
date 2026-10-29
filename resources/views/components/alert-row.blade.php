@@ -1,30 +1,35 @@
 <tr>
-    <td class="px-4 py-2 font-medium">
-        <a href="{{ $url }}" class="text-accent hover:underline">
+    <td class="px-4 py-3">
+        <a href="{{ $url }}" class="font-medium text-accent hover:underline">
             <x-compass::enum-label :value="$alert->type" />
         </a>
+        <div class="mt-0.5 text-xs text-foreground-muted">
+            <x-compass::alert-subject-link :subject="$alert->subject" />
+            ·
+            {{ __('compass::alert.open_since') }}
+            <x-compass::date-time :time="$alert->created_at" />
+            @if ($alert->resolved_at)
+                ·
+                {{ __('compass::alert.resolved_since') }}
+                <x-compass::date-time :time="$alert->resolved_at" />
+            @endif
+        </div>
     </td>
-    <td class="px-4 py-2">
-        <x-compass::alert-subject-link :subject="$alert->subject" />
-    </td>
-    <td class="px-4 py-2">
+    <td class="w-28 px-4 py-3">
         <x-compass::alert-state-badge :alert="$alert" />
     </td>
-    <td class="px-4 py-2 text-foreground-muted">
-        <x-compass::date-time :time="$alert->created_at" />
-    </td>
-    <td class="px-4 py-2 text-foreground-muted">
-        @if ($alert->resolved_at)
-            <x-compass::date-time :time="$alert->resolved_at" />
+    <td class="w-10 py-3 pl-4 pr-0">
+        @if ($alert->assignee)
+            <x-compass::user-avatar :user="$alert->assignee" class="size-6" />
         @endif
     </td>
-    <td class="px-4 py-2">
+    <td class="w-11 py-3 pl-2 pr-4">
         @if ($alert->is_muted)
             <span
                 title="{{ __('compass::alert.muted') }}"
                 aria-label="{{ __('compass::alert.muted') }}"
                 class="flex text-foreground-muted">
-                <x-compass::icons.bell-slash />
+                <x-compass::icons.bell-slash class="size-5" />
             </span>
         @endif
     </td>

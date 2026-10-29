@@ -22,9 +22,7 @@ return [
     'open_since' => 'Open since',
     'reopen' => 'Reopen',
     'resolved_since' => 'Resolved since',
-    'state' => 'State',
     'status' => 'Status',
-    'subject' => 'Subject',
     'unassign' => 'Unassign',
     'unmute' => 'Unmute',
 ];

@@ -62,6 +62,7 @@ readonly class SiteController
         return $this->view->make('compass::sites.show', [
             'alerts' => Alert::query()
                 ->ofSite($site)
+                ->with('assignee')
                 ->latest()
                 ->get()
                 ->loadMorph('subject', [SiteEndpoint::class => ['site']]),

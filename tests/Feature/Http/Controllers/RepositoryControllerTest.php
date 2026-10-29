@@ -114,6 +114,19 @@ test('show contains the alerts of the repository newest first', function (): voi
     );
 });
 
+test('show loads the assignee of the alerts of the repository', function (): void {
+    $alert = Alert::factory()
+        ->projectWithoutLock()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::GITHUB_REPOSITORY, $alert->subject_id));
+
+    $response->assertViewHas('repository', static function (Repository $viewRepository): bool {
+        return $viewRepository->alerts->sole()->relationLoaded('assignee');
+    });
+});
+
 test('show contains the issues of the repository newest first', function (): void {
     $repository = Repository::factory()->create();
     $olderIssue = Issue::factory()->create([

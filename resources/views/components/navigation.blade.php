@@ -26,11 +26,7 @@
 
                 <details x-data class="relative ml-2" @click.outside="$el.removeAttribute('open')">
                     <summary class="flex cursor-pointer list-none items-center">
-                        @if ($user->avatar_url)
-                            <img src="{{ $user->avatar_url }}" alt="{{ $user->nickname }}" class="size-8 rounded-full border border-border">
-                        @else
-                            <span class="text-sm font-medium text-foreground">{{ $user->nickname }}</span>
-                        @endif
+                        <x-compass::user-avatar :user="$user" class="size-8" />
                     </summary>
 
                     <div class="absolute right-0 z-10 mt-2 w-56 rounded-md border border-border bg-canvas py-1 shadow-lg">

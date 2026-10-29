@@ -13,7 +13,7 @@ use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
 
 /**
- * @property ?string $avatar_url
+ * @property string $avatar_url
  * @property CarbonImmutable $created_at
  * @property ?string $email
  * @property string $github_id

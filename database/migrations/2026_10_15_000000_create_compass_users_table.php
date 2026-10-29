@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('nickname');
             $table->string('name')->nullable();
             $table->string('email')->nullable();
-            $table->string('avatar_url')->nullable();
+            $table->string('avatar_url');
             $table->text('github_token');
             $table->rememberToken();
             $table->timestamps();

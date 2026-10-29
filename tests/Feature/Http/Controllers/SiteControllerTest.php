@@ -58,6 +58,19 @@ test('show contains the alerts of the site and its endpoints, newest first', fun
     });
 });
 
+test('show loads the assignee of the alerts', function (): void {
+    $alert = Alert::factory()
+        ->debugEnabled()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::FORGE_SITE, $alert->subject_id));
+
+    $response->assertViewHas('alerts', static function (AlertCollection $alerts): bool {
+        return $alerts->sole()->relationLoaded('assignee');
+    });
+});
+
 test('show contains the latest check of each checked endpoint path', function (): void {
     $latestSiteEndpointCheck = SiteEndpointCheck::factory()->create();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);

@@ -43,6 +43,19 @@ test('show leaves done alerts out of the alerts', function (): void {
     });
 });
 
+test('show loads the assignee of the alerts', function (): void {
+    Alert::factory()
+        ->active()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::DASHBOARD));
+
+    $response->assertViewHas('alerts', static function (AlertCollection $alerts): bool {
+        return $alerts->sole()->relationLoaded('assignee');
+    });
+});
+
 test('show contains the issue counts of the signed in user', function (): void {
     $user = User::factory()->create(['nickname' => fake()->unique()->userName()]);
     IssueAssignee::factory()->create(['login' => $user->nickname]);
