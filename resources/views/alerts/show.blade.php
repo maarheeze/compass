@@ -12,6 +12,8 @@
                 </p>
             </div>
             <div class="ml-auto flex gap-2">
+                <x-compass::alert-assign-button :alert="$alert" />
+                <x-compass::alert-unassign-button :alert="$alert" />
                 <x-compass::alert-mute-button :alert="$alert" />
                 <x-compass::alert-unmute-button :alert="$alert" />
                 <x-compass::alert-mark-done-button :alert="$alert" />
@@ -41,6 +43,13 @@
                 <dt class="text-foreground-muted">{{ __('compass::alert.status') }}</dt>
                 <dd class="text-foreground">
                     <x-compass::enum-label :value="$alert->status" />
+                </dd>
+
+                <dt class="text-foreground-muted">{{ __('compass::alert.assigned_to') }}</dt>
+                <dd class="text-foreground">
+                    @if ($alert->assignee)
+                        <x-compass::user-label :user="$alert->assignee" />
+                    @endif
                 </dd>
             </dl>
         </div>

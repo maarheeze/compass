@@ -33,12 +33,16 @@ Route::middleware('web')
             Route::get('/', [DashboardController::class, 'show'])->name(RouteName::DASHBOARD);
 
             Route::get('/alerts/{alert}', [AlertController::class, 'show'])->name(RouteName::ALERT);
+            Route::post('/alerts/{alert}/assign', [AlertController::class, 'assign'])
+                ->name(RouteName::ALERT_ASSIGN);
             Route::post('/alerts/{alert}/mark-done', [AlertController::class, 'markDone'])
                 ->name(RouteName::ALERT_MARK_DONE);
             Route::post('/alerts/{alert}/mute', [AlertController::class, 'mute'])
                 ->name(RouteName::ALERT_MUTE);
             Route::post('/alerts/{alert}/reopen', [AlertController::class, 'reopen'])
                 ->name(RouteName::ALERT_REOPEN);
+            Route::post('/alerts/{alert}/unassign', [AlertController::class, 'unassign'])
+                ->name(RouteName::ALERT_UNASSIGN);
             Route::post('/alerts/{alert}/unmute', [AlertController::class, 'unmute'])
                 ->name(RouteName::ALERT_UNMUTE);
 

@@ -192,3 +192,58 @@ test('unmute sends the user back to the alert page', function (): void {
 
     $response->assertRedirect(route(RouteName::ALERT, $alert));
 });
+
+test('assign assigns the alert to the signed in user', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->create(['assignee_id' => null]);
+    $user = User::factory()->create();
+    $this->actingAs($user, AuthenticationProvider::GUARD);
+
+    $this->post(route(RouteName::ALERT_ASSIGN, $alert));
+
+    $this->assertDatabaseHas(Alert::class, [
+        'id' => $alert->id,
+        'assignee_id' => $user->id,
+    ]);
+});
+
+test('assign sends the user back to the alert page', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->create(['assignee_id' => null]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->post(route(RouteName::ALERT_ASSIGN, $alert));
+
+    $response->assertRedirect(route(RouteName::ALERT, $alert));
+});
+
+test('unassign unassigns the alert by the signed in user', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->for(User::factory(), 'assignee')
+        ->create();
+    $user = User::factory()->create();
+    $this->actingAs($user, AuthenticationProvider::GUARD);
+
+    $this->post(route(RouteName::ALERT_UNASSIGN, $alert));
+
+    $this->assertDatabaseHas(AlertHistoryEntry::class, [
+        'alert_id' => $alert->id,
+        'type' => AlertHistoryEntryType::UNASSIGNED,
+        'user_id' => $user->id,
+    ]);
+});
+
+test('unassign sends the user back to the alert page', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->for(User::factory(), 'assignee')
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->post(route(RouteName::ALERT_UNASSIGN, $alert));
+
+    $response->assertRedirect(route(RouteName::ALERT, $alert));
+});

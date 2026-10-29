@@ -7,9 +7,11 @@ namespace Maarheeze\Compass\Http;
 enum RouteName: string
 {
     case ALERT = 'compass.alert';
+    case ALERT_ASSIGN = 'compass.alert.assign';
     case ALERT_MARK_DONE = 'compass.alert.mark-done';
     case ALERT_MUTE = 'compass.alert.mute';
     case ALERT_REOPEN = 'compass.alert.reopen';
+    case ALERT_UNASSIGN = 'compass.alert.unassign';
     case ALERT_UNMUTE = 'compass.alert.unmute';
     case DASHBOARD = 'compass.dashboard';
     case FORGE_SITE = 'compass.forge.site';
