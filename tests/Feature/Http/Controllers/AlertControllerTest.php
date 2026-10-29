@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 use Maarheeze\Compass\Alerts\AlertHistoryEntryType;
 use Maarheeze\Compass\Collections\AlertHistoryEntryCollection;
+use Maarheeze\Compass\Collections\ObservationCollection;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\AlertHistoryEntry;
+use Maarheeze\Compass\Models\Observation;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 
@@ -47,6 +49,36 @@ test('show contains the history entries of the alert, newest first', function ()
             return $historyEntries->count() === 2
                 && $historyEntries->first()->id->equals($laterAlertHistoryEntry->id)
                 && $historyEntries->last()->id->equals($earlierAlertHistoryEntry->id);
+        },
+    );
+});
+
+test('show contains the observations of the alert, newest first', function (): void {
+    $alert = Alert::factory()->create();
+    $earlierObservation = Observation::factory()->create([
+        'alert_id' => $alert->id,
+        'observed_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
+    ]);
+    $laterObservation = Observation::factory()->create([
+        'alert_id' => $alert->id,
+        'observed_at' => fake()->dateTimeBetween('-1 month'),
+    ]);
+    Observation::factory()->create(['alert_id' => Alert::factory()]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::ALERT, $alert));
+
+    $response->assertViewHas(
+        'observations',
+        static function (
+            ObservationCollection $observations,
+        ) use (
+            $earlierObservation,
+            $laterObservation,
+        ): bool {
+            return $observations->count() === 2
+                && $observations->first()->id->equals($laterObservation->id)
+                && $observations->last()->id->equals($earlierObservation->id);
         },
     );
 });

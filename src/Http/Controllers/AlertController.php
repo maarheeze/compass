@@ -57,6 +57,10 @@ readonly class AlertController
                 ->historyEntries()
                 ->latest('occurred_at')
                 ->get(),
+            'observations' => $alert
+                ->observations()
+                ->latest('observed_at')
+                ->get(),
         ]);
     }
 }

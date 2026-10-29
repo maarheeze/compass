@@ -16,6 +16,7 @@ use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\AlertHistoryEntryCollection;
+use Maarheeze\Compass\Collections\ObservationCollection;
 use Maarheeze\Compass\Database\Factories\AlertFactory;
 use Maarheeze\Compass\Models\Builders\AlertBuilder;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
@@ -35,6 +36,7 @@ use Maarheeze\Uuid\Uuid;
  * @property CarbonImmutable $updated_at
  *
  * @property-read AlertHistoryEntryCollection $historyEntries
+ * @property-read ObservationCollection $observations
  * @property-read AlertSubject $subject
  */
 class Alert extends Model
@@ -82,6 +84,14 @@ class Alert extends Model
     public function historyEntries(): HasMany
     {
         return $this->hasMany(AlertHistoryEntry::class);
+    }
+
+    /**
+     * @return HasMany<Observation, $this>
+     */
+    public function observations(): HasMany
+    {
+        return $this->hasMany(Observation::class);
     }
 
     /**
