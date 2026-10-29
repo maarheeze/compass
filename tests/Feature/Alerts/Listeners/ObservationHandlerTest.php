@@ -167,6 +167,33 @@ test('handle opens a new alert for an active condition with only a done alert', 
         ->toBeFalse();
 });
 
+test('handle opens a new alert for an active condition with an alert marked done while active', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $doneAlert = Alert::factory()
+        ->downSiteEndpoint()
+        ->done()
+        ->for($siteEndpoint, 'subject')
+        ->create([
+            'condition' => ConditionState::ACTIVE,
+            'resolved_at' => null,
+        ]);
+
+    $observationHandler = $this->app->make(ObservationHandler::class);
+    $observationHandler->handle(new ConditionObserved(
+        AlertType::DOWN_SITE_ENDPOINT,
+        $siteEndpoint,
+        ConditionState::ACTIVE,
+        CarbonImmutable::now(),
+    ));
+
+    $openedAlert = Alert::query()
+        ->whereMorphedTo('subject', $siteEndpoint)
+        ->notDone()
+        ->sole();
+    expect($openedAlert->is($doneAlert))
+        ->toBeFalse();
+});
+
 test('handle raises nothing for an active condition with an active alert', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);

@@ -25,7 +25,7 @@ test('can mark done is true for a resolved alert', function (): void {
         ->toBeTrue();
 });
 
-test('can mark done is false for an active alert', function (): void {
+test('can mark done is true for an active alert', function (): void {
     $alert = Alert::factory()
         ->active()
         ->create();
@@ -34,7 +34,7 @@ test('can mark done is false for an active alert', function (): void {
     $canMarkDone = $alertDoneMarker->canMarkDone($alert);
 
     expect($canMarkDone)
-        ->toBeFalse();
+        ->toBeTrue();
 });
 
 test('can mark done is false for a done alert', function (): void {
@@ -85,15 +85,18 @@ test('mark done writes a marked done history entry with the user', function (): 
     ]);
 });
 
-test('mark done refuses an active alert', function (): void {
+test('mark done marks an active alert done', function (): void {
     $alert = Alert::factory()
         ->active()
         ->create();
 
-    $this->expectException(ModelNotFoundException::class);
-
     $alertDoneMarker = $this->app->make(AlertDoneMarker::class);
     $alertDoneMarker->markDone($alert, User::factory()->create());
+
+    $this->assertDatabaseHas(Alert::class, [
+        'id' => $alert->id,
+        'status' => AlertStatus::DONE,
+    ]);
 });
 
 test('mark done refuses a done alert', function (): void {

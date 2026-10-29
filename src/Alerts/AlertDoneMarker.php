@@ -50,7 +50,6 @@ readonly class AlertDoneMarker
     {
         return Alert::query()
             ->whereKey($alert->id)
-            ->notDone()
-            ->where('condition', ConditionState::RESOLVED);
+            ->notDone();
     }
 }

@@ -28,7 +28,7 @@ test('should render for an alert that can be marked done', function (): void {
 
 test('should not render for an alert that cannot be marked done', function (): void {
     $alert = Alert::factory()
-        ->active()
+        ->done()
         ->create();
 
     $alertMarkDoneButton = $this->app->make(AlertMarkDoneButton::class, ['alert' => $alert]);
