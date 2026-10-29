@@ -12,6 +12,7 @@ return [
     'no_alerts' => 'No alerts.',
     'occurred_at' => 'Occurred at',
     'open_since' => 'Open since',
+    'reopen' => 'Reopen',
     'resolved_since' => 'Resolved since',
     'state' => 'State',
     'status' => 'Status',

@@ -12,6 +12,7 @@
                 </p>
             </div>
             <x-compass::alert-mark-done-button :alert="$alert" class="ml-auto" />
+            <x-compass::alert-reopen-button :alert="$alert" class="ml-auto" />
         </div>
 
         <div class="rounded-md border border-border bg-canvas px-4 py-3 text-sm">

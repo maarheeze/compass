@@ -30,6 +30,7 @@ class AlertHistoryEntryFactory extends Factory
             AlertHistoryEntryType::MARKED_DONE => $this->markedDone(),
             AlertHistoryEntryType::OPENED => $this->opened(),
             AlertHistoryEntryType::RECURRED => $this->recurred(),
+            AlertHistoryEntryType::REOPENED => $this->reopened(),
             AlertHistoryEntryType::RESOLVED => $this->resolved(),
         };
     }
@@ -66,6 +67,14 @@ class AlertHistoryEntryFactory extends Factory
         return $this->state([
             'type' => AlertHistoryEntryType::RECURRED,
             'user_id' => null,
+        ]);
+    }
+
+    public function reopened(): static
+    {
+        return $this->state([
+            'type' => AlertHistoryEntryType::REOPENED,
+            'user_id' => User::factory(),
         ]);
     }
 

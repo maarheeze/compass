@@ -77,3 +77,30 @@ test('mark done sends the user back to the dashboard', function (): void {
 
     $response->assertRedirect(route(RouteName::DASHBOARD));
 });
+
+test('reopen reopens the alert by the signed in user', function (): void {
+    $alert = Alert::factory()
+        ->done()
+        ->create();
+    $user = User::factory()->create();
+    $this->actingAs($user, AuthenticationProvider::GUARD);
+
+    $this->post(route(RouteName::ALERT_REOPEN, $alert));
+
+    $this->assertDatabaseHas(AlertHistoryEntry::class, [
+        'alert_id' => $alert->id,
+        'type' => AlertHistoryEntryType::REOPENED,
+        'user_id' => $user->id,
+    ]);
+});
+
+test('reopen sends the user back to the alert page', function (): void {
+    $alert = Alert::factory()
+        ->done()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->post(route(RouteName::ALERT_REOPEN, $alert));
+
+    $response->assertRedirect(route(RouteName::ALERT, $alert));
+});

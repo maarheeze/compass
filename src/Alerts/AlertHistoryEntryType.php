@@ -9,5 +9,6 @@ enum AlertHistoryEntryType: string
     case MARKED_DONE = 'marked-done';
     case OPENED = 'opened';
     case RECURRED = 'recurred';
+    case REOPENED = 'reopened';
     case RESOLVED = 'resolved';
 }
