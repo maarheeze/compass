@@ -30,7 +30,6 @@ readonly class MissingRepositoryResolver
             ->firstOrFail();
 
         $this->connection->transaction(static function () use ($missingRepository): void {
-            $missingRepository->alerts()->delete();
             $missingRepository->delete();
         });
     }

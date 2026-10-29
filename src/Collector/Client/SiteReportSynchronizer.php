@@ -31,7 +31,6 @@ readonly class SiteReportSynchronizer
             ]);
 
             foreach ($site->endpoints()->get() as $siteEndpoint) {
-                $siteEndpoint->alerts()->delete();
                 $siteEndpoint->delete();
             }
         });
@@ -80,7 +79,6 @@ readonly class SiteReportSynchronizer
                 ->get();
 
             foreach ($droppedSiteEndpoints as $droppedSiteEndpoint) {
-                $droppedSiteEndpoint->alerts()->delete();
                 $droppedSiteEndpoint->delete();
             }
 

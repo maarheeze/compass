@@ -9,6 +9,13 @@ use Maarheeze\Compass\Models\Observation;
 
 trait HasObservations
 {
+    public static function bootHasObservations(): void
+    {
+        static::deleting(static function (self $subject): void {
+            $subject->observations()->delete();
+        });
+    }
+
     /**
      * @return MorphMany<Observation, $this>
      */

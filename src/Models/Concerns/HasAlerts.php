@@ -9,6 +9,13 @@ use Maarheeze\Compass\Models\Alert;
 
 trait HasAlerts
 {
+    public static function bootHasAlerts(): void
+    {
+        static::deleting(static function (self $subject): void {
+            $subject->alerts()->delete();
+        });
+    }
+
     /**
      * @return MorphMany<Alert, $this>
      */

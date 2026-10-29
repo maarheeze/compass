@@ -32,10 +32,9 @@ readonly class MissingSiteResolver
 
         $this->connection->transaction(static function () use ($missingSite): void {
             foreach ($missingSite->endpoints as $siteEndpoint) {
-                $siteEndpoint->alerts()->delete();
+                $siteEndpoint->delete();
             }
 
-            $missingSite->alerts()->delete();
             $missingSite->delete();
         });
     }
