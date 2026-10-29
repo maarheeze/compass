@@ -15,7 +15,7 @@ use Maarheeze\Uuid\Uuid;
 /**
  * @property string $avatar_url
  * @property CarbonImmutable $created_at
- * @property ?string $email
+ * @property string $email
  * @property string $github_id
  * @property string $github_token
  * @property Uuid $id

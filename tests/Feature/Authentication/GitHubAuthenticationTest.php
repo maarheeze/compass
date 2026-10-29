@@ -11,6 +11,7 @@ use Laravel\Socialite\Two\User as OAuthUser;
 use Maarheeze\Compass\Authentication\AuthenticationExpired;
 use Maarheeze\Compass\Authentication\GitHubAuthentication;
 use Maarheeze\Compass\Authentication\NotAnOrganizationMember;
+use Maarheeze\Compass\Authentication\NoVerifiedEmail;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 use Maarheeze\Compass\Tests\Fakes\FakeGithubProvider;
@@ -162,3 +163,21 @@ test('callback refuses a state that is not in the session', function (): void {
     $githubAuthentication = $this->app->make(GitHubAuthentication::class);
     $githubAuthentication->callback();
 })->throws(AuthenticationExpired::class);
+
+test('callback refuses an active member without a verified email', function (): void {
+    $oauthUser = new OAuthUser()
+        ->setToken(fake()->sha1())
+        ->map([
+            'id' => fake()->randomNumber(),
+            'nickname' => fake()->userName(),
+            'name' => fake()->name(),
+            'email' => null,
+            'avatar' => fake()->imageUrl(),
+        ]);
+    $this->app->instance(GithubProvider::class, new FakeGithubProvider($this->app->make(Request::class), $oauthUser));
+
+    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(['state' => 'active'])]);
+
+    $githubAuthentication = $this->app->make(GitHubAuthentication::class);
+    $githubAuthentication->callback();
+})->throws(NoVerifiedEmail::class);

@@ -13,6 +13,7 @@ use Illuminate\Routing\Redirector;
 use Maarheeze\Compass\Authentication\AuthenticationExpired;
 use Maarheeze\Compass\Authentication\GitHubAuthentication;
 use Maarheeze\Compass\Authentication\NotAnOrganizationMember;
+use Maarheeze\Compass\Authentication\NoVerifiedEmail;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 use Webmozart\Assert\Assert;
@@ -34,6 +35,12 @@ readonly class GitHubController
             $this->githubAuthentication->callback();
         } catch (AuthenticationExpired) {
             $message = Assert::string($this->translator->get('compass::authentication.expired'));
+
+            return $this->redirector
+                ->route(RouteName::LOGIN)
+                ->withErrors(['github' => $message]);
+        } catch (NoVerifiedEmail) {
+            $message = Assert::string($this->translator->get('compass::authentication.no_verified_email'));
 
             return $this->redirector
                 ->route(RouteName::LOGIN)

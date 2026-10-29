@@ -65,6 +65,27 @@ test('callback sends a non member back to the login page', function (): void {
         ->assertSessionHasErrors(['github' => 'You are not a member of the organization.']);
 });
 
+test('callback sends a member without a verified email back to the login page', function (): void {
+    $oauthUser = new OAuthUser()
+        ->setToken(fake()->sha1())
+        ->map([
+            'id' => fake()->randomNumber(),
+            'nickname' => fake()->userName(),
+            'name' => fake()->name(),
+            'email' => null,
+            'avatar' => fake()->imageUrl(),
+        ]);
+    $this->app->instance(GithubProvider::class, new FakeGithubProvider($this->app->make(Request::class), $oauthUser));
+
+    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(['state' => 'active'])]);
+
+    $response = $this->get(route(RouteName::GITHUB_CALLBACK));
+
+    $response
+        ->assertRedirect(route(RouteName::LOGIN))
+        ->assertSessionHasErrors(['github' => 'Your GitHub account has no verified primary email. Verify it on GitHub and try again.']);
+});
+
 test('logout signs the user out', function (): void {
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 

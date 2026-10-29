@@ -32,6 +32,7 @@ readonly class GitHubAuthentication
 
     /**
      * @throws AuthenticationExpired
+     * @throws NoVerifiedEmail
      * @throws NotAnOrganizationMember
      */
     public function callback(): User
@@ -48,6 +49,12 @@ readonly class GitHubAuthentication
             throw new NotAnOrganizationMember();
         }
 
+        $email = $oauthUser->getEmail();
+
+        if ($email === null) {
+            throw new NoVerifiedEmail();
+        }
+
         $avatarUrl = $oauthUser->getAvatar();
         Assert::string($avatarUrl);
 
@@ -56,7 +63,7 @@ readonly class GitHubAuthentication
             [
                 'nickname' => $oauthUser->getNickname(),
                 'name' => $oauthUser->getName(),
-                'email' => $oauthUser->getEmail(),
+                'email' => $email,
                 'avatar_url' => $avatarUrl,
                 'github_token' => $oauthUser->token,
             ],
