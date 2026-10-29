@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Testing\Fakes\EventFake;
+use Maarheeze\Compass\Alerts\Events\AlertOpened;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateDebugEnabled;
 use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateIncompatibleClient;
@@ -16,6 +17,7 @@ use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteBehind;
 use Maarheeze\Compass\Alerts\Listeners\Forge\ResolveMissingSiteConditions;
 use Maarheeze\Compass\Alerts\Listeners\GitHub\EvaluateMissingRepository;
 use Maarheeze\Compass\Alerts\Listeners\ObservationHandler;
+use Maarheeze\Compass\Alerts\Listeners\SendAlertNotifications;
 use Maarheeze\Compass\Alerts\Listeners\SiteEndpoint\EvaluateDownSiteEndpoint;
 use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
 use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
@@ -28,6 +30,12 @@ test('observation handler listens to condition observed', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
     $eventFake->assertListening(ConditionObserved::class, ObservationHandler::class);
+});
+
+test('send alert notifications listens to alert opened', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+
+    $eventFake->assertListening(AlertOpened::class, SendAlertNotifications::class);
 });
 
 test('evaluate down site endpoint listens to site endpoint checked', function (): void {

@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Providers;
 
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\ServiceProvider;
+use Maarheeze\Compass\Alerts\Events\AlertOpened;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateDebugEnabled;
 use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateIncompatibleClient;
@@ -18,6 +19,7 @@ use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteBehind;
 use Maarheeze\Compass\Alerts\Listeners\Forge\ResolveMissingSiteConditions;
 use Maarheeze\Compass\Alerts\Listeners\GitHub\EvaluateMissingRepository;
 use Maarheeze\Compass\Alerts\Listeners\ObservationHandler;
+use Maarheeze\Compass\Alerts\Listeners\SendAlertNotifications;
 use Maarheeze\Compass\Alerts\Listeners\SiteEndpoint\EvaluateDownSiteEndpoint;
 use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
 use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
@@ -31,6 +33,7 @@ class AlertProvider extends ServiceProvider
     public function boot(Dispatcher $events): void
     {
         $events->listen(ConditionObserved::class, ObservationHandler::class);
+        $events->listen(AlertOpened::class, SendAlertNotifications::class);
         $events->listen(SiteEndpointChecked::class, EvaluateDownSiteEndpoint::class);
         $events->listen(SiteInspected::class, EvaluateDebugEnabled::class);
         $events->listen(SiteInspected::class, EvaluateNonProduction::class);
