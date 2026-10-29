@@ -122,6 +122,11 @@ class AlertFactory extends Factory
         return $this->state(['type' => AlertType::MISSING_SITE])->for(Site::factory(), 'subject');
     }
 
+    public function muted(): static
+    {
+        return $this->state(['muted_until' => fake()->dateTimeBetween('+1 minute', '+1 hour')]);
+    }
+
     public function nonProduction(): static
     {
         return $this->state(['type' => AlertType::NON_PRODUCTION])->for(Site::factory(), 'subject');

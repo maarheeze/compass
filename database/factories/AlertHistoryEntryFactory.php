@@ -28,10 +28,12 @@ class AlertHistoryEntryFactory extends Factory
 
         return match ($type) {
             AlertHistoryEntryType::MARKED_DONE => $this->markedDone(),
+            AlertHistoryEntryType::MUTED => $this->muted(),
             AlertHistoryEntryType::OPENED => $this->opened(),
             AlertHistoryEntryType::RECURRED => $this->recurred(),
             AlertHistoryEntryType::REOPENED => $this->reopened(),
             AlertHistoryEntryType::RESOLVED => $this->resolved(),
+            AlertHistoryEntryType::UNMUTED => $this->unmuted(),
         };
     }
 
@@ -50,6 +52,14 @@ class AlertHistoryEntryFactory extends Factory
     {
         return $this->state([
             'type' => AlertHistoryEntryType::MARKED_DONE,
+            'user_id' => User::factory(),
+        ]);
+    }
+
+    public function muted(): static
+    {
+        return $this->state([
+            'type' => AlertHistoryEntryType::MUTED,
             'user_id' => User::factory(),
         ]);
     }
@@ -83,6 +93,14 @@ class AlertHistoryEntryFactory extends Factory
         return $this->state([
             'type' => AlertHistoryEntryType::RESOLVED,
             'user_id' => null,
+        ]);
+    }
+
+    public function unmuted(): static
+    {
+        return $this->state([
+            'type' => AlertHistoryEntryType::UNMUTED,
+            'user_id' => User::factory(),
         ]);
     }
 }

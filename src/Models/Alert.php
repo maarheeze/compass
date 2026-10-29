@@ -28,6 +28,7 @@ use Maarheeze\Uuid\Uuid;
  * @property CarbonImmutable $created_at
  * @property ?CarbonImmutable $done_at
  * @property Uuid $id
+ * @property ?CarbonImmutable $muted_until
  * @property ?CarbonImmutable $resolved_at
  * @property AlertStatus $status
  * @property Uuid $subject_id
@@ -55,6 +56,7 @@ class Alert extends Model
         return [
             'condition',
             'done_at',
+            'muted_until',
             'resolved_at',
             'status',
             'subject_id',
@@ -111,6 +113,7 @@ class Alert extends Model
             'condition' => ConditionState::class,
             'created_at' => 'immutable_datetime',
             'done_at' => 'immutable_datetime',
+            'muted_until' => 'immutable_datetime',
             'resolved_at' => 'immutable_datetime',
             'status' => AlertStatus::class,
             'subject_id' => UuidCast::class,

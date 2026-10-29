@@ -20,6 +20,7 @@ return new class extends Migration
             $table->timestamp('resolved_at')->nullable();
             $table->string('status');
             $table->timestamp('done_at')->nullable();
+            $table->timestamp('muted_until')->nullable();
 
             $table->timestamps();
         });
