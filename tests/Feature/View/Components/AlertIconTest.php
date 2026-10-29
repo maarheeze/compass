@@ -34,6 +34,35 @@ test('should not render for a subject with only done alerts', function (): void 
         ->toBeFalse();
 });
 
+test('has alerts not muted is true for a subject with an alert that is not muted', function (): void {
+    $repository = Repository::factory()->create();
+    Alert::factory()
+        ->projectWithoutLock()
+        ->active()
+        ->for($repository, 'subject')
+        ->create();
+
+    $alertIcon = $this->app->make(AlertIcon::class, ['subject' => $repository]);
+
+    expect($alertIcon->hasAlertsNotMuted)
+        ->toBeTrue();
+});
+
+test('has alerts not muted is false for a subject with only muted alerts', function (): void {
+    $repository = Repository::factory()->create();
+    Alert::factory()
+        ->projectWithoutLock()
+        ->active()
+        ->muted()
+        ->for($repository, 'subject')
+        ->create();
+
+    $alertIcon = $this->app->make(AlertIcon::class, ['subject' => $repository]);
+
+    expect($alertIcon->hasAlertsNotMuted)
+        ->toBeFalse();
+});
+
 test('render renders the alert icon view', function (): void {
     $alertIcon = $this->app->make(AlertIcon::class, ['subject' => Repository::factory()->create()]);
 

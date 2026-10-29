@@ -11,7 +11,8 @@ use Maarheeze\Compass\Alerts\AlertSubject;
 
 class AlertIcon extends Component
 {
-    public readonly bool $hasAlertsNotDone;
+    public readonly bool $hasAlertsNotMuted;
+    private readonly bool $hasAlertsNotDone;
 
     public function __construct(
         AlertSubject $subject,
@@ -20,6 +21,11 @@ class AlertIcon extends Component
         $this->hasAlertsNotDone = $subject
             ->alerts()
             ->notDone()
+            ->exists();
+        $this->hasAlertsNotMuted = $subject
+            ->alerts()
+            ->notDone()
+            ->notMuted()
             ->exists();
     }
 

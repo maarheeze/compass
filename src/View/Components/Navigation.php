@@ -20,6 +20,7 @@ class Navigation extends Component
 {
     public readonly string $dashboardUrl;
     public readonly bool $hasAlerts;
+    public readonly bool $hasAlertsNotMuted;
     public readonly string $logoutUrl;
     public readonly NavigationTabCollection $tabs;
     public readonly User $user;
@@ -32,6 +33,10 @@ class Navigation extends Component
     ) {
         $this->dashboardUrl = $url->route(RouteName::DASHBOARD->value);
         $this->hasAlerts = Alert::query()->notDone()->exists();
+        $this->hasAlertsNotMuted = Alert::query()
+            ->notDone()
+            ->notMuted()
+            ->exists();
         $this->logoutUrl = $url->route(RouteName::LOGOUT->value);
         $this->tabs = $this->navigationTabs($request, $url);
         $this->user = $authenticatedUser->user();

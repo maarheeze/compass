@@ -5,6 +5,7 @@ declare(strict_types=1);
 return [
     'alert' => 'Alert',
     'alerts' => 'Alerts',
+    'all_alerts_muted' => 'All alerts muted',
     'condition' => 'Condition',
     'has_alerts' => 'Has alerts',
     'history' => 'History',

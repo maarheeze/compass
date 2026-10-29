@@ -79,6 +79,31 @@ test('has alerts is false without an alert', function (): void {
         ->toBeFalse();
 });
 
+test('has alerts not muted is true with an alert that is not muted', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+    Alert::factory()
+        ->active()
+        ->create();
+
+    $navigation = $this->app->make(Navigation::class);
+
+    expect($navigation->hasAlertsNotMuted)
+        ->toBeTrue();
+});
+
+test('has alerts not muted is false with only a muted alert', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+    Alert::factory()
+        ->active()
+        ->muted()
+        ->create();
+
+    $navigation = $this->app->make(Navigation::class);
+
+    expect($navigation->hasAlertsNotMuted)
+        ->toBeFalse();
+});
+
 test('logout url is the url of the logout', function (): void {
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
