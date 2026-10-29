@@ -13,6 +13,7 @@ use Maarheeze\Compass\Alerts\Listeners\Composer\EvaluateComposerWarning;
 use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateMissingSite;
 use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateOverdueDeployment;
 use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteBehind;
+use Maarheeze\Compass\Alerts\Listeners\Forge\ResolveMissingSiteConditions;
 use Maarheeze\Compass\Alerts\Listeners\GitHub\EvaluateMissingRepository;
 use Maarheeze\Compass\Alerts\Listeners\ObservationHandler;
 use Maarheeze\Compass\Alerts\Listeners\SiteEndpoint\EvaluateDownSiteEndpoint;
@@ -107,32 +108,8 @@ test('evaluate overdue deployment listens to forge run succeeded', function (): 
     $eventFake->assertListening(ForgeRunSucceeded::class, EvaluateOverdueDeployment::class);
 });
 
-test('evaluate down site endpoint listens to forge run succeeded', function (): void {
+test('resolve missing site conditions listens to forge run succeeded', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(ForgeRunSucceeded::class, EvaluateDownSiteEndpoint::class);
-});
-
-test('evaluate debug enabled listens to forge run succeeded', function (): void {
-    $eventFake = new EventFake($this->app->make(Dispatcher::class));
-
-    $eventFake->assertListening(ForgeRunSucceeded::class, EvaluateDebugEnabled::class);
-});
-
-test('evaluate non production listens to forge run succeeded', function (): void {
-    $eventFake = new EventFake($this->app->make(Dispatcher::class));
-
-    $eventFake->assertListening(ForgeRunSucceeded::class, EvaluateNonProduction::class);
-});
-
-test('evaluate unauthorized client listens to forge run succeeded', function (): void {
-    $eventFake = new EventFake($this->app->make(Dispatcher::class));
-
-    $eventFake->assertListening(ForgeRunSucceeded::class, EvaluateUnauthorizedClient::class);
-});
-
-test('evaluate incompatible client listens to forge run succeeded', function (): void {
-    $eventFake = new EventFake($this->app->make(Dispatcher::class));
-
-    $eventFake->assertListening(ForgeRunSucceeded::class, EvaluateIncompatibleClient::class);
+    $eventFake->assertListening(ForgeRunSucceeded::class, ResolveMissingSiteConditions::class);
 });
