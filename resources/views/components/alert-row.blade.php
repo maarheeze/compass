@@ -18,4 +18,14 @@
             <x-compass::date-time :time="$alert->resolved_at" />
         @endif
     </td>
+    <td class="px-4 py-2">
+        @if ($alert->is_muted)
+            <span
+                title="{{ __('compass::alert.muted') }}"
+                aria-label="{{ __('compass::alert.muted') }}"
+                class="flex text-foreground-muted">
+                <x-compass::icons.bell-slash />
+            </span>
+        @endif
+    </td>
 </tr>

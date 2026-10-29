@@ -11,6 +11,7 @@ return [
     'last_seen' => 'Last seen',
     'mark_done' => 'Mark done',
     'mute' => 'Mute',
+    'muted' => 'Muted',
     'no_alerts' => 'No alerts.',
     'observations' => 'Observations',
     'observed_at' => 'Observed at',
