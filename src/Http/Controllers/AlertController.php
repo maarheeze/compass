@@ -80,6 +80,7 @@ readonly class AlertController
             'alert' => $alert,
             'historyEntries' => $alert
                 ->historyEntries()
+                ->with('user')
                 ->latest('occurred_at')
                 ->get(),
             'observations' => $alert

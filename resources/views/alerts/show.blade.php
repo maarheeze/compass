@@ -66,6 +66,9 @@
                     <thead class="bg-canvas-subtle text-xs text-foreground-muted">
                         <tr>
                             <th class="px-4 py-2 font-medium">{{ __('compass::alert.alert') }}</th>
+                            <th class="w-16 px-4 py-2 font-medium">
+                                <span class="sr-only">{{ __('compass::alert.user') }}</span>
+                            </th>
                             <th class="w-88 px-4 py-2 font-medium">{{ __('compass::alert.occurred_at') }}</th>
                         </tr>
                     </thead>
@@ -74,6 +77,11 @@
                             <tr>
                                 <td class="px-4 py-2 text-foreground">
                                     <x-compass::enum-label :value="$historyEntry->type" />
+                                </td>
+                                <td class="px-4 py-2">
+                                    @if ($historyEntry->user)
+                                        <x-compass::user-avatar :user="$historyEntry->user" class="size-5" />
+                                    @endif
                                 </td>
                                 <td class="px-4 py-2 text-foreground-muted">
                                     <x-compass::date-time :time="$historyEntry->occurred_at" />

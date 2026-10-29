@@ -25,4 +25,5 @@ return [
     'status' => 'Status',
     'unassign' => 'Unassign',
     'unmute' => 'Unmute',
+    'user' => 'By',
 ];

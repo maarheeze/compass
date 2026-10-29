@@ -53,6 +53,20 @@ test('show contains the history entries of the alert, newest first', function ()
     );
 });
 
+test('show loads the user of the history entries', function (): void {
+    $alert = Alert::factory()->create();
+    AlertHistoryEntry::factory()
+        ->markedDone()
+        ->create(['alert_id' => $alert->id]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::ALERT, $alert));
+
+    $response->assertViewHas('historyEntries', static function (AlertHistoryEntryCollection $historyEntries): bool {
+        return $historyEntries->sole()->relationLoaded('user');
+    });
+});
+
 test('show contains the observations of the alert, newest first', function (): void {
     $alert = Alert::factory()->create();
     $earlierObservation = Observation::factory()->create([

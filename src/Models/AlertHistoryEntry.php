@@ -7,6 +7,7 @@ namespace Maarheeze\Compass\Models;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Maarheeze\Compass\Alerts\AlertHistoryEntryType;
 use Maarheeze\Compass\Collections\AlertHistoryEntryCollection;
 use Maarheeze\Compass\Database\Factories\AlertHistoryEntryFactory;
@@ -22,6 +23,8 @@ use Maarheeze\Uuid\Uuid;
  * @property AlertHistoryEntryType $type
  * @property CarbonImmutable $updated_at
  * @property ?Uuid $user_id
+ *
+ * @property-read ?User $user
  */
 class AlertHistoryEntry extends Model
 {
@@ -47,6 +50,14 @@ class AlertHistoryEntry extends Model
     public function getTable(): string
     {
         return 'compass_alert_history_entries';
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     /**
