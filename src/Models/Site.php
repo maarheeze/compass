@@ -9,9 +9,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collections\AlertCollection;
+use Maarheeze\Compass\Collections\ObservationCollection;
 use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCollection;
@@ -19,6 +19,8 @@ use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\Forge\DeploymentStatus;
 use Maarheeze\Compass\Collector\Forge\SiteStatus;
 use Maarheeze\Compass\Database\Factories\SiteFactory;
+use Maarheeze\Compass\Models\Concerns\HasAlerts;
+use Maarheeze\Compass\Models\Concerns\HasObservations;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
@@ -58,12 +60,15 @@ use Maarheeze\Uuid\Uuid;
  * @property-read AlertCollection $alerts
  * @property-read SiteEndpointCheckCollection $endpointChecks
  * @property-read SiteEndpointCollection $endpoints
+ * @property-read ObservationCollection $observations
  * @property-read ?Repository $repository
  */
 class Site extends Model implements AlertSubject
 {
+    use HasAlerts;
     /** @use HasFactory<SiteFactory> */
     use HasFactory;
+    use HasObservations;
     use HasUuidAsId;
 
     protected static string $collectionClass = SiteCollection::class;
@@ -107,14 +112,6 @@ class Site extends Model implements AlertSubject
     public function getTable(): string
     {
         return 'compass_sites';
-    }
-
-    /**
-     * @return MorphMany<Alert, $this>
-     */
-    public function alerts(): MorphMany
-    {
-        return $this->morphMany(Alert::class, 'subject');
     }
 
     /**

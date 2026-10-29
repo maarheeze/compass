@@ -8,11 +8,13 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collections\AlertCollection;
+use Maarheeze\Compass\Collections\ObservationCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCollection;
 use Maarheeze\Compass\Database\Factories\SiteEndpointFactory;
+use Maarheeze\Compass\Models\Concerns\HasAlerts;
+use Maarheeze\Compass\Models\Concerns\HasObservations;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
@@ -27,12 +29,15 @@ use function sprintf;
  * @property CarbonImmutable $updated_at
  *
  * @property-read AlertCollection $alerts
+ * @property-read ObservationCollection $observations
  * @property-read Site $site
  */
 class SiteEndpoint extends Model implements AlertSubject
 {
+    use HasAlerts;
     /** @use HasFactory<SiteEndpointFactory> */
     use HasFactory;
+    use HasObservations;
     use HasUuidAsId;
 
     protected static string $collectionClass = SiteEndpointCollection::class;
@@ -51,14 +56,6 @@ class SiteEndpoint extends Model implements AlertSubject
     public function getTable(): string
     {
         return 'compass_site_endpoints';
-    }
-
-    /**
-     * @return MorphMany<Alert, $this>
-     */
-    public function alerts(): MorphMany
-    {
-        return $this->morphMany(Alert::class, 'subject');
     }
 
     /**

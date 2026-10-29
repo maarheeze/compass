@@ -9,15 +9,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\IssueCollection;
+use Maarheeze\Compass\Collections\ObservationCollection;
 use Maarheeze\Compass\Collections\PullRequestCollection;
 use Maarheeze\Compass\Collections\RepositoryCollection;
 use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
 use Maarheeze\Compass\Database\Factories\RepositoryFactory;
+use Maarheeze\Compass\Models\Concerns\HasAlerts;
+use Maarheeze\Compass\Models\Concerns\HasObservations;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
@@ -44,13 +46,16 @@ use Maarheeze\Uuid\Uuid;
  * @property-read ?ComposerJson $composerJson
  * @property-read ?ComposerLock $composerLock
  * @property-read IssueCollection $issues
+ * @property-read ObservationCollection $observations
  * @property-read PullRequestCollection $pullRequests
  * @property-read SiteCollection $sites
  */
 class Repository extends Model implements AlertSubject
 {
+    use HasAlerts;
     /** @use HasFactory<RepositoryFactory> */
     use HasFactory;
+    use HasObservations;
     use HasUuidAsId;
 
     protected static string $collectionClass = RepositoryCollection::class;
@@ -75,14 +80,6 @@ class Repository extends Model implements AlertSubject
             'url',
             'visibility',
         ];
-    }
-
-    /**
-     * @return MorphMany<Alert, $this>
-     */
-    public function alerts(): MorphMany
-    {
-        return $this->morphMany(Alert::class, 'subject');
     }
 
     /**

@@ -43,12 +43,23 @@ readonly class ObservationHandler implements ShouldQueue
             ->first();
         $alertAction = $this->alertActionClassifier->classify($conditionObserved->condition, $storedAlert);
 
-        match ($alertAction) {
-            AlertAction::OPEN => $this->open($conditionObserved),
-            AlertAction::RECUR => $this->recur($conditionObserved, $storedAlert),
-            AlertAction::RESOLVE => $this->resolve($conditionObserved, $storedAlert),
-            null => null,
-        };
+        $this->connection->transaction(function () use ($alertAction, $conditionObserved, $storedAlert): void {
+            $observedAlert = match ($alertAction) {
+                AlertAction::OPEN => $this->open($conditionObserved),
+                AlertAction::RECUR => $this->recur($conditionObserved, $storedAlert),
+                AlertAction::RESOLVE => $this->resolve($conditionObserved, $storedAlert),
+                null => $storedAlert,
+            };
+
+            $conditionObserved->subject
+                ->observations()
+                ->create([
+                    'alert_id' => $observedAlert?->id,
+                    'alert_type' => $conditionObserved->alertType,
+                    'condition' => $conditionObserved->condition,
+                    'observed_at' => $conditionObserved->observedAt,
+                ]);
+        });
     }
 
     /**
@@ -73,56 +84,56 @@ readonly class ObservationHandler implements ShouldQueue
         ];
     }
 
-    private function open(ConditionObserved $conditionObserved): void
+    private function open(ConditionObserved $conditionObserved): Alert
     {
-        $this->connection->transaction(function () use ($conditionObserved): void {
-            $alert = $conditionObserved->subject
-                ->alerts()
-                ->create([
-                    'type' => $conditionObserved->alertType,
-                    'condition' => ConditionState::ACTIVE,
-                    'status' => AlertStatus::OPEN,
-                ]);
-            $alert->historyEntries()->create([
-                'type' => AlertHistoryEntryType::OPENED,
-                'occurred_at' => $conditionObserved->observedAt,
-            ]);
-
-            $this->events->dispatch(new AlertOpened($alert));
-        });
-    }
-
-    private function recur(ConditionObserved $conditionObserved, ?Alert $storedAlert): void
-    {
-        Assert::isInstanceOf($storedAlert, Alert::class);
-        $this->connection->transaction(function () use ($conditionObserved, $storedAlert): void {
-            $storedAlert->update([
+        $alert = $conditionObserved->subject
+            ->alerts()
+            ->create([
+                'type' => $conditionObserved->alertType,
                 'condition' => ConditionState::ACTIVE,
-                'resolved_at' => null,
+                'status' => AlertStatus::OPEN,
             ]);
-            $storedAlert->historyEntries()->create([
-                'type' => AlertHistoryEntryType::RECURRED,
-                'occurred_at' => $conditionObserved->observedAt,
-            ]);
+        $alert->historyEntries()->create([
+            'type' => AlertHistoryEntryType::OPENED,
+            'occurred_at' => $conditionObserved->observedAt,
+        ]);
 
-            $this->events->dispatch(new AlertRecurred($storedAlert));
-        });
+        $this->events->dispatch(new AlertOpened($alert));
+
+        return $alert;
     }
 
-    private function resolve(ConditionObserved $conditionObserved, ?Alert $storedAlert): void
+    private function recur(ConditionObserved $conditionObserved, ?Alert $storedAlert): Alert
     {
         Assert::isInstanceOf($storedAlert, Alert::class);
-        $this->connection->transaction(function () use ($conditionObserved, $storedAlert): void {
-            $storedAlert->update([
-                'condition' => ConditionState::RESOLVED,
-                'resolved_at' => $conditionObserved->observedAt,
-            ]);
-            $storedAlert->historyEntries()->create([
-                'type' => AlertHistoryEntryType::RESOLVED,
-                'occurred_at' => $conditionObserved->observedAt,
-            ]);
+        $storedAlert->update([
+            'condition' => ConditionState::ACTIVE,
+            'resolved_at' => null,
+        ]);
+        $storedAlert->historyEntries()->create([
+            'type' => AlertHistoryEntryType::RECURRED,
+            'occurred_at' => $conditionObserved->observedAt,
+        ]);
 
-            $this->events->dispatch(new AlertResolved($storedAlert));
-        });
+        $this->events->dispatch(new AlertRecurred($storedAlert));
+
+        return $storedAlert;
+    }
+
+    private function resolve(ConditionObserved $conditionObserved, ?Alert $storedAlert): Alert
+    {
+        Assert::isInstanceOf($storedAlert, Alert::class);
+        $storedAlert->update([
+            'condition' => ConditionState::RESOLVED,
+            'resolved_at' => $conditionObserved->observedAt,
+        ]);
+        $storedAlert->historyEntries()->create([
+            'type' => AlertHistoryEntryType::RESOLVED,
+            'occurred_at' => $conditionObserved->observedAt,
+        ]);
+
+        $this->events->dispatch(new AlertResolved($storedAlert));
+
+        return $storedAlert;
     }
 }

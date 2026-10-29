@@ -17,6 +17,7 @@ use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Listeners\ObservationHandler;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\AlertHistoryEntry;
+use Maarheeze\Compass\Models\Observation;
 use Maarheeze\Compass\Models\SiteEndpoint;
 
 test('handle opens an alert for an active condition without an alert', function (): void {
@@ -429,4 +430,73 @@ test('middleware locks observations of different subjects under different keys',
 
     expect($secondMiddleware[0]->key)
         ->not->toBe($firstMiddleware[0]->key);
+});
+
+test('handle stores an observation without an alert unattached', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $observedAt = CarbonImmutable::parse(fake()->iso8601());
+
+    $observationHandler = $this->app->make(ObservationHandler::class);
+    $observationHandler->handle(new ConditionObserved(
+        AlertType::DOWN_SITE_ENDPOINT,
+        $siteEndpoint,
+        ConditionState::RESOLVED,
+        $observedAt,
+    ));
+
+    $this->assertDatabaseHas(Observation::class, [
+        'alert_id' => null,
+        'subject_type' => $siteEndpoint->getMorphClass(),
+        'subject_id' => $siteEndpoint->id,
+        'alert_type' => AlertType::DOWN_SITE_ENDPOINT,
+        'condition' => ConditionState::RESOLVED,
+        'observed_at' => $observedAt,
+    ]);
+});
+
+test('handle attaches an active observation to the active alert', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $activeAlert = Alert::factory()
+        ->downSiteEndpoint()
+        ->active()
+        ->for($siteEndpoint, 'subject')
+        ->create();
+    $observedAt = CarbonImmutable::parse(fake()->iso8601());
+
+    $observationHandler = $this->app->make(ObservationHandler::class);
+    $observationHandler->handle(new ConditionObserved(
+        AlertType::DOWN_SITE_ENDPOINT,
+        $siteEndpoint,
+        ConditionState::ACTIVE,
+        $observedAt,
+    ));
+
+    $this->assertDatabaseHas(Observation::class, [
+        'alert_id' => $activeAlert->id,
+        'condition' => ConditionState::ACTIVE,
+        'observed_at' => $observedAt,
+    ]);
+});
+
+test('handle attaches the opening observation to the opened alert', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $observedAt = CarbonImmutable::parse(fake()->iso8601());
+
+    $observationHandler = $this->app->make(ObservationHandler::class);
+    $observationHandler->handle(new ConditionObserved(
+        AlertType::DOWN_SITE_ENDPOINT,
+        $siteEndpoint,
+        ConditionState::ACTIVE,
+        $observedAt,
+    ));
+
+    $openedAlert = Alert::query()
+        ->whereMorphedTo('subject', $siteEndpoint)
+        ->where('type', AlertType::DOWN_SITE_ENDPOINT)
+        ->sole();
+    $this->assertDatabaseHas(Observation::class, [
+        'alert_id' => $openedAlert->id,
+        'condition' => ConditionState::ACTIVE,
+        'observed_at' => $observedAt,
+    ]);
 });
