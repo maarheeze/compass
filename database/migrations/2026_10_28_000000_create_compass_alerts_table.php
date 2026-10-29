@@ -13,6 +13,10 @@ return new class extends Migration
         Schema::create('compass_alerts', static function (Blueprint $table): void {
             $table->uuid('id')->primary();
 
+            $table->foreignUuid('assignee_id')
+                ->nullable()
+                ->constrained('compass_users')
+                ->nullOnDelete();
             $table->uuidMorphs('subject');
 
             $table->string('type');

@@ -7,6 +7,7 @@ namespace Maarheeze\Compass\Models;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Query\Builder as QueryBuilder;
@@ -24,6 +25,7 @@ use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
 
 /**
+ * @property ?Uuid $assignee_id
  * @property ConditionState $condition
  * @property CarbonImmutable $created_at
  * @property ?CarbonImmutable $done_at
@@ -36,6 +38,7 @@ use Maarheeze\Uuid\Uuid;
  * @property AlertType $type
  * @property CarbonImmutable $updated_at
  *
+ * @property-read ?User $assignee
  * @property-read AlertHistoryEntryCollection $historyEntries
  * @property-read ObservationCollection $observations
  * @property-read AlertSubject $subject
@@ -54,6 +57,7 @@ class Alert extends Model
     public function getFillable(): array
     {
         return [
+            'assignee_id',
             'condition',
             'done_at',
             'is_muted',
@@ -78,6 +82,14 @@ class Alert extends Model
     public function newEloquentBuilder($query): AlertBuilder
     {
         return new AlertBuilder($query);
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function assignee(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     /**
@@ -110,6 +122,7 @@ class Alert extends Model
     protected function casts(): array
     {
         return [
+            'assignee_id' => UuidCast::class,
             'condition' => ConditionState::class,
             'created_at' => 'immutable_datetime',
             'done_at' => 'immutable_datetime',

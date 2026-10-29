@@ -12,6 +12,7 @@ use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
+use Maarheeze\Compass\Models\User;
 use Webmozart\Assert\Assert;
 
 use function fake;
@@ -79,7 +80,10 @@ class AlertFactory extends Factory
      */
     public function definition(): array
     {
-        return ['is_muted' => false];
+        return [
+            'assignee_id' => fake()->optional()->passthrough(User::factory()),
+            'is_muted' => false,
+        ];
     }
 
     public function done(): static

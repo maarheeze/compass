@@ -27,14 +27,24 @@ class AlertHistoryEntryFactory extends Factory
         Assert::isInstanceOf($type, AlertHistoryEntryType::class);
 
         return match ($type) {
+            AlertHistoryEntryType::ASSIGNED => $this->assigned(),
             AlertHistoryEntryType::MARKED_DONE => $this->markedDone(),
             AlertHistoryEntryType::MUTED => $this->muted(),
             AlertHistoryEntryType::OPENED => $this->opened(),
             AlertHistoryEntryType::RECURRED => $this->recurred(),
             AlertHistoryEntryType::REOPENED => $this->reopened(),
             AlertHistoryEntryType::RESOLVED => $this->resolved(),
+            AlertHistoryEntryType::UNASSIGNED => $this->unassigned(),
             AlertHistoryEntryType::UNMUTED => $this->unmuted(),
         };
+    }
+
+    public function assigned(): static
+    {
+        return $this->state([
+            'type' => AlertHistoryEntryType::ASSIGNED,
+            'user_id' => User::factory(),
+        ]);
     }
 
     /**
@@ -93,6 +103,14 @@ class AlertHistoryEntryFactory extends Factory
         return $this->state([
             'type' => AlertHistoryEntryType::RESOLVED,
             'user_id' => null,
+        ]);
+    }
+
+    public function unassigned(): static
+    {
+        return $this->state([
+            'type' => AlertHistoryEntryType::UNASSIGNED,
+            'user_id' => User::factory(),
         ]);
     }
 
