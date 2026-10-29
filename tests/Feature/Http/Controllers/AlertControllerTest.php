@@ -136,3 +136,59 @@ test('reopen sends the user back to the alert page', function (): void {
 
     $response->assertRedirect(route(RouteName::ALERT, $alert));
 });
+
+test('mute mutes the alert by the signed in user', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->create();
+    $user = User::factory()->create();
+    $this->actingAs($user, AuthenticationProvider::GUARD);
+
+    $this->post(route(RouteName::ALERT_MUTE, $alert));
+
+    $this->assertDatabaseHas(AlertHistoryEntry::class, [
+        'alert_id' => $alert->id,
+        'type' => AlertHistoryEntryType::MUTED,
+        'user_id' => $user->id,
+    ]);
+});
+
+test('mute sends the user back to the alert page', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->post(route(RouteName::ALERT_MUTE, $alert));
+
+    $response->assertRedirect(route(RouteName::ALERT, $alert));
+});
+
+test('unmute unmutes the alert by the signed in user', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->muted()
+        ->create();
+    $user = User::factory()->create();
+    $this->actingAs($user, AuthenticationProvider::GUARD);
+
+    $this->post(route(RouteName::ALERT_UNMUTE, $alert));
+
+    $this->assertDatabaseHas(AlertHistoryEntry::class, [
+        'alert_id' => $alert->id,
+        'type' => AlertHistoryEntryType::UNMUTED,
+        'user_id' => $user->id,
+    ]);
+});
+
+test('unmute sends the user back to the alert page', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->muted()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->post(route(RouteName::ALERT_UNMUTE, $alert));
+
+    $response->assertRedirect(route(RouteName::ALERT, $alert));
+});

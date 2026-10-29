@@ -79,7 +79,7 @@ class AlertFactory extends Factory
      */
     public function definition(): array
     {
-        return [];
+        return ['is_muted' => false];
     }
 
     public function done(): static
@@ -124,7 +124,7 @@ class AlertFactory extends Factory
 
     public function muted(): static
     {
-        return $this->state(['muted_until' => fake()->dateTimeBetween('+1 minute', '+1 hour')]);
+        return $this->state(['is_muted' => true]);
     }
 
     public function nonProduction(): static

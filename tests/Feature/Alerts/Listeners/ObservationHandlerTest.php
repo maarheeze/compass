@@ -37,6 +37,7 @@ test('handle opens an alert for an active condition without an alert', function 
         'type' => AlertType::DOWN_SITE_ENDPOINT,
         'condition' => ConditionState::ACTIVE,
         'status' => AlertStatus::OPEN,
+        'is_muted' => false,
     ]);
 });
 

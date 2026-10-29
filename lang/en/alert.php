@@ -10,6 +10,7 @@ return [
     'history' => 'History',
     'last_seen' => 'Last seen',
     'mark_done' => 'Mark done',
+    'mute' => 'Mute',
     'no_alerts' => 'No alerts.',
     'observations' => 'Observations',
     'observed_at' => 'Observed at',
@@ -20,4 +21,5 @@ return [
     'state' => 'State',
     'status' => 'Status',
     'subject' => 'Subject',
+    'unmute' => 'Unmute',
 ];

@@ -11,8 +11,12 @@
                     <x-compass::alert-subject-link :subject="$alert->subject" />
                 </p>
             </div>
-            <x-compass::alert-mark-done-button :alert="$alert" class="ml-auto" />
-            <x-compass::alert-reopen-button :alert="$alert" class="ml-auto" />
+            <div class="ml-auto flex gap-2">
+                <x-compass::alert-mute-button :alert="$alert" />
+                <x-compass::alert-unmute-button :alert="$alert" />
+                <x-compass::alert-mark-done-button :alert="$alert" />
+                <x-compass::alert-reopen-button :alert="$alert" />
+            </div>
         </div>
 
         <div class="rounded-md border border-border bg-canvas px-4 py-3 text-sm">

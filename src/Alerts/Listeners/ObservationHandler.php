@@ -92,6 +92,7 @@ readonly class ObservationHandler implements ShouldQueue
                 'type' => $conditionObserved->alertType,
                 'condition' => ConditionState::ACTIVE,
                 'status' => AlertStatus::OPEN,
+                'is_muted' => false,
             ]);
         $alert->historyEntries()->create([
             'type' => AlertHistoryEntryType::OPENED,

@@ -24,18 +24,6 @@ test('can mute is true for an alert that is not done and not muted', function ()
         ->toBeTrue();
 });
 
-test('can mute is true for an alert whose mute has passed', function (): void {
-    $alert = Alert::factory()
-        ->active()
-        ->create(['muted_until' => fake()->dateTimeBetween('-1 month')]);
-
-    $alertMuter = $this->app->make(AlertMuter::class);
-    $canMute = $alertMuter->canMute($alert);
-
-    expect($canMute)
-        ->toBeTrue();
-});
-
 test('can mute is false for a done alert', function (): void {
     $alert = Alert::factory()
         ->done()
@@ -86,9 +74,7 @@ test('can unmute is false for an alert that is not muted', function (): void {
         ->toBeFalse();
 });
 
-test('mute mutes the alert for one hour from now', function (): void {
-    $now = CarbonImmutable::parse(fake()->iso8601());
-    $this->app->instance(ClockInterface::class, new MockClock($now));
+test('mute mutes the alert', function (): void {
     $alert = Alert::factory()
         ->active()
         ->create();
@@ -98,7 +84,7 @@ test('mute mutes the alert for one hour from now', function (): void {
 
     $this->assertDatabaseHas(Alert::class, [
         'id' => $alert->id,
-        'muted_until' => $now->addHour(),
+        'is_muted' => true,
     ]);
 });
 
@@ -144,7 +130,7 @@ test('mute refuses a muted alert', function (): void {
     $alertMuter->mute($alert, User::factory()->create());
 });
 
-test('unmute empties the mute of the alert', function (): void {
+test('unmute unmutes the alert', function (): void {
     $alert = Alert::factory()
         ->active()
         ->muted()
@@ -155,7 +141,7 @@ test('unmute empties the mute of the alert', function (): void {
 
     $this->assertDatabaseHas(Alert::class, [
         'id' => $alert->id,
-        'muted_until' => null,
+        'is_muted' => false,
     ]);
 });
 
@@ -164,7 +150,8 @@ test('unmute writes an unmuted history entry with the user', function (): void {
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $alert = Alert::factory()
         ->active()
-        ->create(['muted_until' => $now->addMinutes(fake()->numberBetween(1, 60))]);
+        ->muted()
+        ->create();
     $user = User::factory()->create();
 
     $alertMuter = $this->app->make(AlertMuter::class);

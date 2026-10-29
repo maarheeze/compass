@@ -9,6 +9,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Maarheeze\Compass\Alerts\AlertDoneMarker;
+use Maarheeze\Compass\Alerts\AlertMuter;
 use Maarheeze\Compass\Alerts\AlertReopener;
 use Maarheeze\Compass\Authentication\AuthenticatedUser;
 use Maarheeze\Compass\Http\RouteName;
@@ -20,6 +21,7 @@ readonly class AlertController
 {
     public function __construct(
         private AlertDoneMarker $alertDoneMarker,
+        private AlertMuter $alertMuter,
         private AlertReopener $alertReopener,
         private AuthenticatedUser $authenticatedUser,
         private Redirector $redirector,
@@ -35,6 +37,16 @@ readonly class AlertController
         $this->alertDoneMarker->markDone($alert, $this->authenticatedUser->user());
 
         return $this->redirector->route(RouteName::DASHBOARD);
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function mute(Alert $alert): RedirectResponse
+    {
+        $this->alertMuter->mute($alert, $this->authenticatedUser->user());
+
+        return $this->redirector->route(RouteName::ALERT, $alert);
     }
 
     /**
@@ -62,5 +74,15 @@ readonly class AlertController
                 ->latest('observed_at')
                 ->get(),
         ]);
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function unmute(Alert $alert): RedirectResponse
+    {
+        $this->alertMuter->unmute($alert, $this->authenticatedUser->user());
+
+        return $this->redirector->route(RouteName::ALERT, $alert);
     }
 }
