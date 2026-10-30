@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Providers;
 
+use Illuminate\Config\Repository;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
 use Maarheeze\Compass\Collector\GitHub\BlobQuery;
@@ -14,13 +15,16 @@ use Maarheeze\Compass\Console\SyncGitHubCommand;
 
 class GitHubProvider extends ServiceProvider
 {
-    public function boot(): void
+    public function boot(Repository $config): void
     {
         $this->commands([SyncGitHubCommand::class]);
 
-        $this->callAfterResolving(Schedule::class, static function (Schedule $schedule): void {
+        $this->callAfterResolving(Schedule::class, static function (Schedule $schedule) use ($config): void {
             $schedule->command(SyncGitHubCommand::class)
-                ->hourly();
+                ->hourly()
+                ->when(static function () use ($config): bool {
+                    return $config->boolean('compass.schedule.github');
+                });
         });
     }
 

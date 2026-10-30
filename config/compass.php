@@ -119,4 +119,21 @@ return [
         'token' => env('COMPASS_GITHUB_TOKEN'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Schedule
+    |--------------------------------------------------------------------------
+    |
+    | Whether the scheduler runs the Forge sync, the GitHub sync and the
+    | endpoint checks. A task switched off still runs when started by hand
+    | or from the dashboard.
+    |
+    */
+
+    'schedule' => [
+        'forge' => env('COMPASS_SCHEDULE_FORGE', true),
+        'github' => env('COMPASS_SCHEDULE_GITHUB', true),
+        'site_endpoints' => env('COMPASS_SCHEDULE_SITE_ENDPOINTS', true),
+    ],
+
 ];

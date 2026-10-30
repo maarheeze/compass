@@ -17,13 +17,16 @@ use Maarheeze\Compass\Http\ForgeSiteUrlFactory;
 
 class ForgeProvider extends ServiceProvider
 {
-    public function boot(): void
+    public function boot(Repository $config): void
     {
         $this->commands([SyncForgeCommand::class]);
 
-        $this->callAfterResolving(Schedule::class, static function (Schedule $schedule): void {
+        $this->callAfterResolving(Schedule::class, static function (Schedule $schedule) use ($config): void {
             $schedule->command(SyncForgeCommand::class)
-                ->hourly();
+                ->hourly()
+                ->when(static function () use ($config): bool {
+                    return $config->boolean('compass.schedule.forge');
+                });
         });
     }
 
