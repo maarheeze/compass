@@ -8,23 +8,12 @@
 
         <div class="overflow-hidden rounded-md border border-border bg-canvas">
             <table class="w-full table-fixed text-left text-sm">
-                <thead class="bg-canvas-subtle text-xs text-foreground-muted">
-                    <tr>
-                        <th class="w-48 px-4 py-2 font-medium">{{ __('compass::repository.repository') }}</th>
-                        <x-compass::pull-request-heading-cells />
-                    </tr>
-                </thead>
                 <tbody class="divide-y divide-border">
                     @forelse ($pullRequests as $pullRequest)
-                        <tr>
-                            <td class="truncate px-4 py-2 text-foreground-muted">
-                                <x-compass::repository-link :repository="$pullRequest->repository" />
-                            </td>
-                            <x-compass::pull-request-cells :pull-request="$pullRequest" />
-                        </tr>
+                        <x-compass::pull-request-row :pull-request="$pullRequest" />
                     @empty
                         <tr>
-                            <td colspan="4" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::pull-request.no_open_pull_requests') }}</td>
+                            <td colspan="2" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::pull-request.no_open_pull_requests') }}</td>
                         </tr>
                     @endforelse
                 </tbody>

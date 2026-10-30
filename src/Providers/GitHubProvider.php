@@ -12,6 +12,7 @@ use Maarheeze\Compass\Collector\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\GitHub\IssuesAndPullRequestsQuery;
 use Maarheeze\Compass\Collector\GitHub\RepositoriesQuery;
 use Maarheeze\Compass\Console\SyncGitHubCommand;
+use Maarheeze\Compass\View\Components\IssueReference;
 
 class GitHubProvider extends ServiceProvider
 {
@@ -36,7 +37,7 @@ class GitHubProvider extends ServiceProvider
             ->giveConfig('compass.github.token');
 
         $this->app
-            ->when([BlobQuery::class, IssuesAndPullRequestsQuery::class, RepositoriesQuery::class])
+            ->when([BlobQuery::class, IssueReference::class, IssuesAndPullRequestsQuery::class, RepositoriesQuery::class])
             ->needs('$organization')
             ->giveConfig('compass.github.organization');
     }

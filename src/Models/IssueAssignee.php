@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\HasBuilder;
 use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Maarheeze\Compass\Collections\IssueAssigneeCollection;
 use Maarheeze\Compass\Database\Factories\IssueAssigneeFactory;
 use Maarheeze\Compass\Models\Builders\IssueAssigneeBuilder;
@@ -22,6 +23,8 @@ use Maarheeze\Uuid\Uuid;
  * @property Uuid $issue_id
  * @property string $login
  * @property CarbonImmutable $updated_at
+ *
+ * @property-read ?User $user
  */
 class IssueAssignee extends Model
 {
@@ -50,6 +53,14 @@ class IssueAssignee extends Model
     public function getTable(): string
     {
         return 'compass_issue_assignees';
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'login', 'nickname');
     }
 
     /**

@@ -21,7 +21,7 @@ readonly class IssueController
     {
         return $this->view->make('compass::issues.index', [
             'issues' => Issue::query()
-                ->with(['assignees', 'repository'])
+                ->with(['assignees.user', 'repository'])
                 ->assignedTo($this->authenticatedUser->user())
                 ->latestOpened()
                 ->get(),
@@ -32,7 +32,7 @@ readonly class IssueController
     {
         return $this->view->make('compass::issues.index', [
             'issues' => Issue::query()
-                ->with(['assignees', 'repository'])
+                ->with(['assignees.user', 'repository'])
                 ->latestOpened()
                 ->get(),
         ]);

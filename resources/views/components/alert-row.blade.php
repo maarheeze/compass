@@ -1,6 +1,6 @@
 <tr>
     <td class="px-4 py-3">
-        <a href="{{ $url }}" class="font-medium text-accent hover:underline">
+        <a href="{{ $url }}" class="text-base font-semibold text-foreground hover:text-accent">
             <x-compass::enum-label :value="$alert->type" />
         </a>
         <div class="mt-0.5 text-xs text-foreground-muted">

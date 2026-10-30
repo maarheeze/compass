@@ -51,19 +51,12 @@
 
             <div class="overflow-hidden rounded-md border border-border bg-canvas">
                 <table class="w-full table-fixed text-left text-sm">
-                    <thead class="bg-canvas-subtle text-xs text-foreground-muted">
-                        <tr>
-                            <x-compass::issue-heading-cells />
-                        </tr>
-                    </thead>
                     <tbody class="divide-y divide-border">
                         @forelse ($repository->issues as $issue)
-                            <tr>
-                                <x-compass::issue-cells :issue="$issue" />
-                            </tr>
+                            <x-compass::issue-row :issue="$issue" />
                         @empty
                             <tr>
-                                <td colspan="3" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::issue.no_open_issues') }}</td>
+                                <td colspan="2" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::issue.no_open_issues') }}</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -81,19 +74,12 @@
 
             <div class="overflow-hidden rounded-md border border-border bg-canvas">
                 <table class="w-full table-fixed text-left text-sm">
-                    <thead class="bg-canvas-subtle text-xs text-foreground-muted">
-                        <tr>
-                            <x-compass::pull-request-heading-cells />
-                        </tr>
-                    </thead>
                     <tbody class="divide-y divide-border">
                         @forelse ($repository->pullRequests as $pullRequest)
-                            <tr>
-                                <x-compass::pull-request-cells :pull-request="$pullRequest" />
-                            </tr>
+                            <x-compass::pull-request-row :pull-request="$pullRequest" />
                         @empty
                             <tr>
-                                <td colspan="3" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::pull-request.no_open_pull_requests') }}</td>
+                                <td colspan="2" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::pull-request.no_open_pull_requests') }}</td>
                             </tr>
                         @endforelse
                     </tbody>

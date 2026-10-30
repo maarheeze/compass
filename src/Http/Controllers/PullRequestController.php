@@ -21,7 +21,7 @@ readonly class PullRequestController
     {
         return $this->view->make('compass::pull-requests.index', [
             'pullRequests' => PullRequest::query()
-                ->with(['assignees', 'repository'])
+                ->with(['assignees.user', 'repository'])
                 ->assignedTo($this->authenticatedUser->user())
                 ->latestOpened()
                 ->get(),
@@ -32,7 +32,7 @@ readonly class PullRequestController
     {
         return $this->view->make('compass::pull-requests.index', [
             'pullRequests' => PullRequest::query()
-                ->with(['assignees', 'repository'])
+                ->with(['assignees.user', 'repository'])
                 ->latestOpened()
                 ->get(),
         ]);

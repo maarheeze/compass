@@ -80,11 +80,11 @@ readonly class RepositoryController
             'issues' => static function (HasMany $issueQuery): void {
                 $issueQuery->latestOpened();
             },
-            'issues.assignees',
+            'issues.assignees.user',
             'pullRequests' => static function (HasMany $pullRequestQuery): void {
                 $pullRequestQuery->latestOpened();
             },
-            'pullRequests.assignees',
+            'pullRequests.assignees.user',
             'sites' => static function (Builder $siteQuery): void {
                 $siteQuery->orderBy('name');
             },

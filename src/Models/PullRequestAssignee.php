@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\HasBuilder;
 use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Maarheeze\Compass\Collections\PullRequestAssigneeCollection;
 use Maarheeze\Compass\Database\Factories\PullRequestAssigneeFactory;
 use Maarheeze\Compass\Models\Builders\PullRequestAssigneeBuilder;
@@ -22,6 +23,8 @@ use Maarheeze\Uuid\Uuid;
  * @property string $login
  * @property Uuid $pull_request_id
  * @property CarbonImmutable $updated_at
+ *
+ * @property-read ?User $user
  */
 class PullRequestAssignee extends Model
 {
@@ -50,6 +53,14 @@ class PullRequestAssignee extends Model
     public function getTable(): string
     {
         return 'compass_pull_request_assignees';
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'login', 'nickname');
     }
 
     /**

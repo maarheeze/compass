@@ -126,7 +126,7 @@ class Repository extends Model implements AlertSubject
      */
     public function issues(): HasMany
     {
-        return $this->hasMany(Issue::class);
+        return $this->hasMany(Issue::class)->chaperone();
     }
 
     /**
@@ -134,7 +134,7 @@ class Repository extends Model implements AlertSubject
      */
     public function pullRequests(): HasMany
     {
-        return $this->hasMany(PullRequest::class);
+        return $this->hasMany(PullRequest::class)->chaperone();
     }
 
     /**

@@ -6,6 +6,7 @@
     --color-canvas-subtle: var(--compass-canvas-subtle);
     --color-foreground: var(--compass-foreground);
     --color-foreground-muted: var(--compass-foreground-muted);
+    --color-open: var(--compass-open);
 }
 
 :root {
@@ -16,6 +17,7 @@
     --compass-canvas-subtle: #f6f8fa;
     --compass-foreground: #1f2328;
     --compass-foreground-muted: #59636e;
+    --compass-open: #1a7f37;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -27,5 +29,6 @@
         --compass-canvas-subtle: #151b23;
         --compass-foreground: #f0f6fc;
         --compass-foreground-muted: #9198a1;
+        --compass-open: #3fb950;
     }
 }

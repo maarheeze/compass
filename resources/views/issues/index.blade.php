@@ -8,23 +8,12 @@
 
         <div class="overflow-hidden rounded-md border border-border bg-canvas">
             <table class="w-full table-fixed text-left text-sm">
-                <thead class="bg-canvas-subtle text-xs text-foreground-muted">
-                    <tr>
-                        <th class="w-48 px-4 py-2 font-medium">{{ __('compass::repository.repository') }}</th>
-                        <x-compass::issue-heading-cells />
-                    </tr>
-                </thead>
                 <tbody class="divide-y divide-border">
                     @forelse ($issues as $issue)
-                        <tr>
-                            <td class="truncate px-4 py-2 text-foreground-muted">
-                                <x-compass::repository-link :repository="$issue->repository" />
-                            </td>
-                            <x-compass::issue-cells :issue="$issue" />
-                        </tr>
+                        <x-compass::issue-row :issue="$issue" />
                     @empty
                         <tr>
-                            <td colspan="4" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::issue.no_open_issues') }}</td>
+                            <td colspan="2" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::issue.no_open_issues') }}</td>
                         </tr>
                     @endforelse
                 </tbody>
