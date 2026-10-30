@@ -15,7 +15,7 @@ use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 
-readonly class EvaluateUnauthorizedClient implements ShouldQueue
+readonly class EvaluateSiteClientIncompatible implements ShouldQueue
 {
     public function __construct(
         private ClockInterface $clock,
@@ -27,7 +27,7 @@ readonly class EvaluateUnauthorizedClient implements ShouldQueue
     {
         $site = $siteInspected->site;
         $this->events->dispatch(new ConditionObserved(
-            AlertType::UNAUTHORIZED_CLIENT,
+            AlertType::SITE_CLIENT_INCOMPATIBLE,
             $site,
             $this->observedCondition($site),
             CarbonImmutable::instance($this->clock->now()),
@@ -36,7 +36,7 @@ readonly class EvaluateUnauthorizedClient implements ShouldQueue
 
     private function observedCondition(Site $site): ConditionState
     {
-        if ($site->client_status === ClientStatus::UNAUTHORIZED) {
+        if ($site->client_status === ClientStatus::INCOMPATIBLE) {
             return ConditionState::ACTIVE;
         }
 

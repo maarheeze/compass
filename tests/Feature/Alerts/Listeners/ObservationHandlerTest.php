@@ -25,7 +25,7 @@ test('handle opens an alert for an active condition without an alert', function 
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -34,7 +34,7 @@ test('handle opens an alert for an active condition without an alert', function 
     $this->assertDatabaseHas(Alert::class, [
         'subject_type' => $siteEndpoint->getMorphClass(),
         'subject_id' => $siteEndpoint->id,
-        'type' => AlertType::DOWN_SITE_ENDPOINT,
+        'type' => AlertType::SITE_ENDPOINT_DOWN,
         'condition' => ConditionState::ACTIVE,
         'status' => AlertStatus::OPEN,
         'is_muted' => false,
@@ -48,7 +48,7 @@ test('handle raises alert opened with the opened alert', function (): void {
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -56,7 +56,7 @@ test('handle raises alert opened with the opened alert', function (): void {
 
     $openedAlert = Alert::query()
         ->whereMorphedTo('subject', $siteEndpoint)
-        ->where('type', AlertType::DOWN_SITE_ENDPOINT)
+        ->where('type', AlertType::SITE_ENDPOINT_DOWN)
         ->sole();
     $eventFake->assertDispatched(AlertOpened::class, static function (AlertOpened $alertOpened) use ($openedAlert): bool {
         return $alertOpened->alert->is($openedAlert);
@@ -69,7 +69,7 @@ test('handle writes an opened history entry for the opened alert', function (): 
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         ConditionState::ACTIVE,
         $observedAt,
@@ -77,7 +77,7 @@ test('handle writes an opened history entry for the opened alert', function (): 
 
     $openedAlert = Alert::query()
         ->whereMorphedTo('subject', $siteEndpoint)
-        ->where('type', AlertType::DOWN_SITE_ENDPOINT)
+        ->where('type', AlertType::SITE_ENDPOINT_DOWN)
         ->sole();
     $this->assertDatabaseHas(AlertHistoryEntry::class, [
         'alert_id' => $openedAlert->id,
@@ -95,7 +95,7 @@ test('handle raises no alert opened when its change is rolled back', function ()
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -108,12 +108,12 @@ test('handle raises no alert opened when its change is rolled back', function ()
 test('handle opens an alert for an active condition when another subject has an alert of the type', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->create();
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -126,14 +126,14 @@ test('handle opens an alert for an active condition when another subject has an 
 test('handle opens no second alert for an active condition with an active alert', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->active()
         ->for($siteEndpoint, 'subject')
         ->create();
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -146,14 +146,14 @@ test('handle opens no second alert for an active condition with an active alert'
 test('handle opens a new alert for an active condition with only a done alert', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $doneAlert = Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->done()
         ->for($siteEndpoint, 'subject')
         ->create();
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -170,7 +170,7 @@ test('handle opens a new alert for an active condition with only a done alert', 
 test('handle opens a new alert for an active condition with an alert marked done while active', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $doneAlert = Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->done()
         ->for($siteEndpoint, 'subject')
         ->create([
@@ -180,7 +180,7 @@ test('handle opens a new alert for an active condition with an alert marked done
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -199,14 +199,14 @@ test('handle raises nothing for an active condition with an active alert', funct
     $this->app->instance(Dispatcher::class, $eventFake);
     $siteEndpoint = SiteEndpoint::factory()->create();
     Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->active()
         ->for($siteEndpoint, 'subject')
         ->create();
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -218,7 +218,7 @@ test('handle raises nothing for an active condition with an active alert', funct
 test('handle resolves an active alert for a resolved condition', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $storedAlert = Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->active()
         ->for($siteEndpoint, 'subject')
         ->create();
@@ -226,7 +226,7 @@ test('handle resolves an active alert for a resolved condition', function (): vo
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         ConditionState::RESOLVED,
         $observedAt,
@@ -244,14 +244,14 @@ test('handle raises alert resolved with the resolved alert', function (): void {
     $this->app->instance(Dispatcher::class, $eventFake);
     $siteEndpoint = SiteEndpoint::factory()->create();
     $storedAlert = Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->active()
         ->for($siteEndpoint, 'subject')
         ->create();
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         ConditionState::RESOLVED,
         CarbonImmutable::now(),
@@ -265,7 +265,7 @@ test('handle raises alert resolved with the resolved alert', function (): void {
 test('handle writes a resolved history entry for the resolved alert', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $storedAlert = Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->active()
         ->for($siteEndpoint, 'subject')
         ->create();
@@ -273,7 +273,7 @@ test('handle writes a resolved history entry for the resolved alert', function (
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         ConditionState::RESOLVED,
         $observedAt,
@@ -291,7 +291,7 @@ test('handle raises no alert resolved when its change is rolled back', function 
     $this->app->instance(Dispatcher::class, $eventFake);
     $siteEndpoint = SiteEndpoint::factory()->create();
     Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->active()
         ->for($siteEndpoint, 'subject')
         ->create();
@@ -300,7 +300,7 @@ test('handle raises no alert resolved when its change is rolled back', function 
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         ConditionState::RESOLVED,
         CarbonImmutable::now(),
@@ -317,7 +317,7 @@ test('handle raises nothing for a resolved condition without an alert', function
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         ConditionState::RESOLVED,
         CarbonImmutable::now(),
@@ -329,14 +329,14 @@ test('handle raises nothing for a resolved condition without an alert', function
 test('handle recurs a resolved alert for an active condition', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $storedAlert = Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->resolved()
         ->for($siteEndpoint, 'subject')
         ->create();
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -354,14 +354,14 @@ test('handle raises alert recurred with the recurred alert', function (): void {
     $this->app->instance(Dispatcher::class, $eventFake);
     $siteEndpoint = SiteEndpoint::factory()->create();
     $storedAlert = Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->resolved()
         ->for($siteEndpoint, 'subject')
         ->create();
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -375,7 +375,7 @@ test('handle raises alert recurred with the recurred alert', function (): void {
 test('handle writes a recurred history entry for the recurred alert', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $storedAlert = Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->resolved()
         ->for($siteEndpoint, 'subject')
         ->create();
@@ -383,7 +383,7 @@ test('handle writes a recurred history entry for the recurred alert', function (
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         ConditionState::ACTIVE,
         $observedAt,
@@ -401,7 +401,7 @@ test('handle raises no alert recurred when its change is rolled back', function 
     $this->app->instance(Dispatcher::class, $eventFake);
     $siteEndpoint = SiteEndpoint::factory()->create();
     Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->resolved()
         ->for($siteEndpoint, 'subject')
         ->create();
@@ -410,7 +410,7 @@ test('handle raises no alert recurred when its change is rolled back', function 
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -425,13 +425,13 @@ test('middleware locks observations of one alert under the same key', function (
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $firstMiddleware = $observationHandler->middleware(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         fake()->randomElement(ConditionState::cases()),
         CarbonImmutable::now(),
     ));
     $secondMiddleware = $observationHandler->middleware(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         fake()->randomElement(ConditionState::cases()),
         CarbonImmutable::now(),
@@ -444,13 +444,13 @@ test('middleware locks observations of one alert under the same key', function (
 test('middleware locks observations of different subjects under different keys', function (): void {
     $observationHandler = $this->app->make(ObservationHandler::class);
     $firstMiddleware = $observationHandler->middleware(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         SiteEndpoint::factory()->create(),
         fake()->randomElement(ConditionState::cases()),
         CarbonImmutable::now(),
     ));
     $secondMiddleware = $observationHandler->middleware(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         SiteEndpoint::factory()->create(),
         fake()->randomElement(ConditionState::cases()),
         CarbonImmutable::now(),
@@ -466,7 +466,7 @@ test('handle stores an observation without an alert unattached', function (): vo
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         ConditionState::RESOLVED,
         $observedAt,
@@ -476,7 +476,7 @@ test('handle stores an observation without an alert unattached', function (): vo
         'alert_id' => null,
         'subject_type' => $siteEndpoint->getMorphClass(),
         'subject_id' => $siteEndpoint->id,
-        'alert_type' => AlertType::DOWN_SITE_ENDPOINT,
+        'alert_type' => AlertType::SITE_ENDPOINT_DOWN,
         'condition' => ConditionState::RESOLVED,
         'observed_at' => $observedAt,
     ]);
@@ -485,7 +485,7 @@ test('handle stores an observation without an alert unattached', function (): vo
 test('handle attaches an active observation to the active alert', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $activeAlert = Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->active()
         ->for($siteEndpoint, 'subject')
         ->create();
@@ -493,7 +493,7 @@ test('handle attaches an active observation to the active alert', function (): v
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         ConditionState::ACTIVE,
         $observedAt,
@@ -512,7 +512,7 @@ test('handle attaches the opening observation to the opened alert', function ():
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObserved(
-        AlertType::DOWN_SITE_ENDPOINT,
+        AlertType::SITE_ENDPOINT_DOWN,
         $siteEndpoint,
         ConditionState::ACTIVE,
         $observedAt,
@@ -520,7 +520,7 @@ test('handle attaches the opening observation to the opened alert', function ():
 
     $openedAlert = Alert::query()
         ->whereMorphedTo('subject', $siteEndpoint)
-        ->where('type', AlertType::DOWN_SITE_ENDPOINT)
+        ->where('type', AlertType::SITE_ENDPOINT_DOWN)
         ->sole();
     $this->assertDatabaseHas(Observation::class, [
         'alert_id' => $openedAlert->id,

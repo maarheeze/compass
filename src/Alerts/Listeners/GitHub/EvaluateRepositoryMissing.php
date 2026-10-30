@@ -16,7 +16,7 @@ use Maarheeze\Compass\Collector\MissingState;
 use Maarheeze\Compass\Models\Repository;
 use Psr\Clock\ClockInterface;
 
-readonly class EvaluateMissingRepository implements ShouldQueue
+readonly class EvaluateRepositoryMissing implements ShouldQueue
 {
     public function __construct(
         private ClockInterface $clock,
@@ -56,7 +56,7 @@ readonly class EvaluateMissingRepository implements ShouldQueue
     private function observe(Repository $repository, CarbonImmutable $observedAt): void
     {
         $this->events->dispatch(new ConditionObserved(
-            AlertType::MISSING_REPOSITORY,
+            AlertType::REPOSITORY_MISSING,
             $repository,
             $this->observedCondition($repository),
             $observedAt,

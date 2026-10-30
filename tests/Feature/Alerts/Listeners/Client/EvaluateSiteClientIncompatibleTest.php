@@ -8,7 +8,7 @@ use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
-use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateIncompatibleClient;
+use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteClientIncompatible;
 use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Models\Site;
@@ -22,11 +22,11 @@ test('handle observes incompatible client now for a site with an outdated client
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $site = Site::factory()->create(['client_status' => ClientStatus::INCOMPATIBLE]);
 
-    $evaluateIncompatibleClient = $this->app->make(EvaluateIncompatibleClient::class);
+    $evaluateIncompatibleClient = $this->app->make(EvaluateSiteClientIncompatible::class);
     $evaluateIncompatibleClient->handle(new SiteInspected($site));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
-        return $conditionObserved->alertType === AlertType::INCOMPATIBLE_CLIENT
+        return $conditionObserved->alertType === AlertType::SITE_CLIENT_INCOMPATIBLE
             && $conditionObserved->subject === $site
             && $conditionObserved->condition === ConditionState::ACTIVE
             && $conditionObserved->observedAt->equalTo($now);
@@ -40,11 +40,11 @@ test('handle observes incompatible client resolved now for a site with any other
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $site = Site::factory()->create(['client_status' => $clientStatus]);
 
-    $evaluateIncompatibleClient = $this->app->make(EvaluateIncompatibleClient::class);
+    $evaluateIncompatibleClient = $this->app->make(EvaluateSiteClientIncompatible::class);
     $evaluateIncompatibleClient->handle(new SiteInspected($site));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
-        return $conditionObserved->alertType === AlertType::INCOMPATIBLE_CLIENT
+        return $conditionObserved->alertType === AlertType::SITE_CLIENT_INCOMPATIBLE
             && $conditionObserved->subject === $site
             && $conditionObserved->condition === ConditionState::RESOLVED
             && $conditionObserved->observedAt->equalTo($now);

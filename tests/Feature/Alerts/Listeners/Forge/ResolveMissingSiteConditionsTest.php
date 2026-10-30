@@ -34,10 +34,10 @@ test('handle observes a client condition of a missing site resolved now', functi
             && $conditionObserved->observedAt->equalTo($now);
     });
 })->with([
-    AlertType::DEBUG_ENABLED,
-    AlertType::INCOMPATIBLE_CLIENT,
-    AlertType::NON_PRODUCTION,
-    AlertType::UNAUTHORIZED_CLIENT,
+    AlertType::SITE_DEBUG_ENABLED,
+    AlertType::SITE_CLIENT_INCOMPATIBLE,
+    AlertType::SITE_NOT_IN_PRODUCTION,
+    AlertType::SITE_CLIENT_UNAUTHORIZED,
 ]);
 
 test('handle observes the endpoint of a missing site no longer down now', function (): void {
@@ -53,7 +53,7 @@ test('handle observes the endpoint of a missing site no longer down now', functi
     $resolveMissingSiteConditions->handle(new ForgeRunSucceeded(Uuid::generate()));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $siteEndpoint): bool {
-        return $conditionObserved->alertType === AlertType::DOWN_SITE_ENDPOINT
+        return $conditionObserved->alertType === AlertType::SITE_ENDPOINT_DOWN
             && $conditionObserved->subject instanceof SiteEndpoint
             && $conditionObserved->subject->is($siteEndpoint)
             && $conditionObserved->condition === ConditionState::RESOLVED

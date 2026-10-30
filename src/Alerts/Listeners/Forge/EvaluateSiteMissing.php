@@ -16,7 +16,7 @@ use Maarheeze\Compass\Collector\MissingState;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 
-readonly class EvaluateMissingSite implements ShouldQueue
+readonly class EvaluateSiteMissing implements ShouldQueue
 {
     public function __construct(
         private ClockInterface $clock,
@@ -54,7 +54,7 @@ readonly class EvaluateMissingSite implements ShouldQueue
     private function observe(Site $site, CarbonImmutable $observedAt): void
     {
         $this->events->dispatch(new ConditionObserved(
-            AlertType::MISSING_SITE,
+            AlertType::SITE_MISSING,
             $site,
             $this->observedCondition($site),
             $observedAt,

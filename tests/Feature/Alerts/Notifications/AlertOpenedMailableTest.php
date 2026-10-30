@@ -7,7 +7,7 @@ use Maarheeze\Compass\Models\Alert;
 
 test('build sets the subject to the alert type on its subject', function (): void {
     $alert = Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->create();
 
     $alertOpenedMailable = new AlertOpenedMailable($alert);
@@ -17,7 +17,7 @@ test('build sets the subject to the alert type on its subject', function (): voi
 
 test('build says in its text that the alert opened on its subject', function (): void {
     $alert = Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->create();
 
     $alertOpenedMailable = new AlertOpenedMailable($alert);

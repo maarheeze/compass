@@ -56,7 +56,7 @@ test('delete deletes a missing repository', function (): void {
 test('delete deletes the alerts of the missing repository', function (): void {
     $repository = Repository::factory()->create(['missing_at' => fake()->dateTime()]);
     $alert = Alert::factory()
-        ->missingRepository()
+        ->repositoryMissing()
         ->for($repository, 'subject')
         ->create();
 
@@ -69,7 +69,7 @@ test('delete deletes the alerts of the missing repository', function (): void {
 test('delete keeps the alerts of another repository', function (): void {
     $repository = Repository::factory()->create(['missing_at' => fake()->dateTime()]);
     $otherAlert = Alert::factory()
-        ->missingRepository()
+        ->repositoryMissing()
         ->create();
 
     $missingRepositoryResolver = $this->app->make(MissingRepositoryResolver::class);

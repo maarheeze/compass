@@ -6,17 +6,17 @@ namespace Maarheeze\Compass\Alerts;
 
 enum AlertType: string
 {
-    case DEBUG_ENABLED = 'debug-enabled';
-    case DOWN_SITE_ENDPOINT = 'down-site-endpoint';
-    case INCOMPATIBLE_CLIENT = 'incompatible-client';
-    case LIBRARY_WITH_LOCK = 'library-with-lock';
-    case MISSING_COMPOSER_TYPE = 'missing-composer-type';
-    case MISSING_REPOSITORY = 'missing-repository';
-    case MISSING_SITE = 'missing-site';
-    case NON_PRODUCTION = 'non-production';
-    case OVERDUE_DEPLOYMENT = 'overdue-deployment';
-    case PROJECT_WITHOUT_LOCK = 'project-without-lock';
+    case COMPOSER_LIBRARY_WITH_LOCK = 'composer-library-with-lock';
+    case COMPOSER_PROJECT_WITHOUT_LOCK = 'composer-project-without-lock';
+    case COMPOSER_TYPE_MISSING = 'composer-type-missing';
+    case COMPOSER_TYPE_UNKNOWN = 'composer-type-unknown';
+    case REPOSITORY_MISSING = 'repository-missing';
     case SITE_BEHIND = 'site-behind';
-    case UNAUTHORIZED_CLIENT = 'unauthorized-client';
-    case UNKNOWN_COMPOSER_TYPE = 'unknown-composer-type';
+    case SITE_CLIENT_INCOMPATIBLE = 'site-client-incompatible';
+    case SITE_CLIENT_UNAUTHORIZED = 'site-client-unauthorized';
+    case SITE_DEBUG_ENABLED = 'site-debug-enabled';
+    case SITE_DEPLOYMENT_OVERDUE = 'site-deployment-overdue';
+    case SITE_ENDPOINT_DOWN = 'site-endpoint-down';
+    case SITE_MISSING = 'site-missing';
+    case SITE_NOT_IN_PRODUCTION = 'site-not-in-production';
 }

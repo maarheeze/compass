@@ -8,7 +8,7 @@ use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
-use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateMissingSite;
+use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteMissing;
 use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
 use Maarheeze\Compass\Collector\Events\SiteMissingIgnored;
 use Maarheeze\Compass\Models\Site;
@@ -26,11 +26,11 @@ test('handle observes a missing, not ignored site missing now', function (): voi
         'missing_ignored_at' => null,
     ]);
 
-    $evaluateMissingSite = $this->app->make(EvaluateMissingSite::class);
+    $evaluateMissingSite = $this->app->make(EvaluateSiteMissing::class);
     $evaluateMissingSite->handle(new ForgeRunSucceeded(Uuid::generate()));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
-        return $conditionObserved->alertType === AlertType::MISSING_SITE
+        return $conditionObserved->alertType === AlertType::SITE_MISSING
             && $conditionObserved->subject instanceof Site
             && $conditionObserved->subject->is($site)
             && $conditionObserved->condition === ConditionState::ACTIVE
@@ -48,11 +48,11 @@ test('handle observes a collected site no longer missing now', function (): void
         'missing_ignored_at' => null,
     ]);
 
-    $evaluateMissingSite = $this->app->make(EvaluateMissingSite::class);
+    $evaluateMissingSite = $this->app->make(EvaluateSiteMissing::class);
     $evaluateMissingSite->handle(new ForgeRunSucceeded(Uuid::generate()));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
-        return $conditionObserved->alertType === AlertType::MISSING_SITE
+        return $conditionObserved->alertType === AlertType::SITE_MISSING
             && $conditionObserved->subject instanceof Site
             && $conditionObserved->subject->is($site)
             && $conditionObserved->condition === ConditionState::RESOLVED
@@ -68,7 +68,7 @@ test('handle observes a missing, ignored site no longer missing', function (): v
         'missing_ignored_at' => fake()->dateTimeBetween('-1 month'),
     ]);
 
-    $evaluateMissingSite = $this->app->make(EvaluateMissingSite::class);
+    $evaluateMissingSite = $this->app->make(EvaluateSiteMissing::class);
     $evaluateMissingSite->handle(new ForgeRunSucceeded(Uuid::generate()));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($site): bool {
@@ -88,11 +88,11 @@ test('handle observes an ignored site no longer missing now', function (): void 
         'missing_ignored_at' => fake()->dateTimeBetween('-1 month'),
     ]);
 
-    $evaluateMissingSite = $this->app->make(EvaluateMissingSite::class);
+    $evaluateMissingSite = $this->app->make(EvaluateSiteMissing::class);
     $evaluateMissingSite->handle(new SiteMissingIgnored($site));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
-        return $conditionObserved->alertType === AlertType::MISSING_SITE
+        return $conditionObserved->alertType === AlertType::SITE_MISSING
             && $conditionObserved->subject === $site
             && $conditionObserved->condition === ConditionState::RESOLVED
             && $conditionObserved->observedAt->equalTo($now);

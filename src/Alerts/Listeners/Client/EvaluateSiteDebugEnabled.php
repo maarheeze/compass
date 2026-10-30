@@ -14,7 +14,7 @@ use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 
-readonly class EvaluateDebugEnabled implements ShouldQueue
+readonly class EvaluateSiteDebugEnabled implements ShouldQueue
 {
     public function __construct(
         private ClockInterface $clock,
@@ -26,7 +26,7 @@ readonly class EvaluateDebugEnabled implements ShouldQueue
     {
         $site = $siteInspected->site;
         $this->events->dispatch(new ConditionObserved(
-            AlertType::DEBUG_ENABLED,
+            AlertType::SITE_DEBUG_ENABLED,
             $site,
             $this->observedCondition($site),
             CarbonImmutable::instance($this->clock->now()),

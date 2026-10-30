@@ -16,7 +16,7 @@ use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 
-readonly class EvaluateOverdueDeployment implements ShouldQueue
+readonly class EvaluateSiteDeploymentOverdue implements ShouldQueue
 {
     public function __construct(
         private ClockInterface $clock,
@@ -35,7 +35,7 @@ readonly class EvaluateOverdueDeployment implements ShouldQueue
 
         foreach ($sites as $site) {
             $this->events->dispatch(new ConditionObserved(
-                AlertType::OVERDUE_DEPLOYMENT,
+                AlertType::SITE_DEPLOYMENT_OVERDUE,
                 $site,
                 $this->observedCondition($site),
                 $observedAt,

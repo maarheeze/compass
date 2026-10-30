@@ -29,19 +29,19 @@ class ObservationFactory extends Factory
         Assert::isInstanceOf($alertType, AlertType::class);
 
         $subjectFactory = match ($alertType) {
-            AlertType::DOWN_SITE_ENDPOINT => SiteEndpoint::factory(),
-            AlertType::DEBUG_ENABLED,
-            AlertType::INCOMPATIBLE_CLIENT,
-            AlertType::MISSING_SITE,
-            AlertType::NON_PRODUCTION,
-            AlertType::OVERDUE_DEPLOYMENT,
+            AlertType::SITE_ENDPOINT_DOWN => SiteEndpoint::factory(),
             AlertType::SITE_BEHIND,
-            AlertType::UNAUTHORIZED_CLIENT => Site::factory(),
-            AlertType::LIBRARY_WITH_LOCK,
-            AlertType::MISSING_COMPOSER_TYPE,
-            AlertType::MISSING_REPOSITORY,
-            AlertType::PROJECT_WITHOUT_LOCK,
-            AlertType::UNKNOWN_COMPOSER_TYPE => Repository::factory(),
+            AlertType::SITE_CLIENT_INCOMPATIBLE,
+            AlertType::SITE_CLIENT_UNAUTHORIZED,
+            AlertType::SITE_DEBUG_ENABLED,
+            AlertType::SITE_DEPLOYMENT_OVERDUE,
+            AlertType::SITE_MISSING,
+            AlertType::SITE_NOT_IN_PRODUCTION => Site::factory(),
+            AlertType::COMPOSER_LIBRARY_WITH_LOCK,
+            AlertType::COMPOSER_PROJECT_WITHOUT_LOCK,
+            AlertType::COMPOSER_TYPE_MISSING,
+            AlertType::COMPOSER_TYPE_UNKNOWN,
+            AlertType::REPOSITORY_MISSING => Repository::factory(),
         };
 
         return $this

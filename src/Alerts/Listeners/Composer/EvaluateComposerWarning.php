@@ -50,10 +50,10 @@ readonly class EvaluateComposerWarning implements ShouldQueue
     private function alertType(ComposerWarning $composerWarning): AlertType
     {
         return match ($composerWarning) {
-            ComposerWarning::LIBRARY_WITH_LOCK => AlertType::LIBRARY_WITH_LOCK,
-            ComposerWarning::MISSING_TYPE => AlertType::MISSING_COMPOSER_TYPE,
-            ComposerWarning::PROJECT_WITHOUT_LOCK => AlertType::PROJECT_WITHOUT_LOCK,
-            ComposerWarning::UNKNOWN_TYPE => AlertType::UNKNOWN_COMPOSER_TYPE,
+            ComposerWarning::LIBRARY_WITH_LOCK => AlertType::COMPOSER_LIBRARY_WITH_LOCK,
+            ComposerWarning::MISSING_TYPE => AlertType::COMPOSER_TYPE_MISSING,
+            ComposerWarning::PROJECT_WITHOUT_LOCK => AlertType::COMPOSER_PROJECT_WITHOUT_LOCK,
+            ComposerWarning::UNKNOWN_TYPE => AlertType::COMPOSER_TYPE_UNKNOWN,
         };
     }
 

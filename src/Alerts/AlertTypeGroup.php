@@ -19,27 +19,27 @@ enum AlertTypeGroup: string
     {
         return match ($this) {
             self::CLIENT => [
-                AlertType::INCOMPATIBLE_CLIENT,
-                AlertType::UNAUTHORIZED_CLIENT,
-                AlertType::DEBUG_ENABLED,
-                AlertType::NON_PRODUCTION,
+                AlertType::SITE_CLIENT_INCOMPATIBLE,
+                AlertType::SITE_CLIENT_UNAUTHORIZED,
+                AlertType::SITE_DEBUG_ENABLED,
+                AlertType::SITE_NOT_IN_PRODUCTION,
             ],
             self::COMPOSER => [
-                AlertType::LIBRARY_WITH_LOCK,
-                AlertType::MISSING_COMPOSER_TYPE,
-                AlertType::PROJECT_WITHOUT_LOCK,
-                AlertType::UNKNOWN_COMPOSER_TYPE,
+                AlertType::COMPOSER_LIBRARY_WITH_LOCK,
+                AlertType::COMPOSER_PROJECT_WITHOUT_LOCK,
+                AlertType::COMPOSER_TYPE_MISSING,
+                AlertType::COMPOSER_TYPE_UNKNOWN,
             ],
             self::ENDPOINT => [
-                AlertType::DOWN_SITE_ENDPOINT,
+                AlertType::SITE_ENDPOINT_DOWN,
             ],
             self::FORGE => [
-                AlertType::OVERDUE_DEPLOYMENT,
-                AlertType::MISSING_SITE,
                 AlertType::SITE_BEHIND,
+                AlertType::SITE_DEPLOYMENT_OVERDUE,
+                AlertType::SITE_MISSING,
             ],
             self::GITHUB => [
-                AlertType::MISSING_REPOSITORY,
+                AlertType::REPOSITORY_MISSING,
             ],
         };
     }

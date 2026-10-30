@@ -12,7 +12,7 @@ use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
 
-readonly class EvaluateDownSiteEndpoint implements ShouldQueue
+readonly class EvaluateSiteEndpointDown implements ShouldQueue
 {
     public function __construct(
         private Dispatcher $events,
@@ -23,7 +23,7 @@ readonly class EvaluateDownSiteEndpoint implements ShouldQueue
     {
         $siteEndpointCheck = $siteEndpointChecked->siteEndpointCheck;
         $this->events->dispatch(new ConditionObserved(
-            AlertType::DOWN_SITE_ENDPOINT,
+            AlertType::SITE_ENDPOINT_DOWN,
             $siteEndpointChecked->siteEndpoint,
             $this->observedCondition($siteEndpointCheck),
             $siteEndpointCheck->created_at,

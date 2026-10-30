@@ -57,7 +57,7 @@ test('delete deletes a missing site', function (): void {
 test('delete deletes the alerts of the missing site', function (): void {
     $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
     $alert = Alert::factory()
-        ->missingSite()
+        ->siteMissing()
         ->for($site, 'subject')
         ->create();
 
@@ -73,7 +73,7 @@ test('delete deletes the alerts of the endpoints of the missing site', function 
         ->for($site)
         ->create();
     $alert = Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->for($siteEndpoint, 'subject')
         ->create();
 
@@ -86,7 +86,7 @@ test('delete deletes the alerts of the endpoints of the missing site', function 
 test('delete keeps the alerts of another site', function (): void {
     $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
     $otherAlert = Alert::factory()
-        ->missingSite()
+        ->siteMissing()
         ->create();
 
     $missingSiteResolver = $this->app->make(MissingSiteResolver::class);

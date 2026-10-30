@@ -8,44 +8,44 @@ use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
-use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateDebugEnabled;
+use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteNotInProduction;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
-test('handle observes debug enabled now for a site in debug mode', function (): void {
+test('handle observes non production now for a site that is not in production', function (?string $appEnv): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $site = Site::factory()->create(['app_debug' => true]);
+    $site = Site::factory()->create(['app_env' => $appEnv]);
 
-    $evaluateDebugEnabled = $this->app->make(EvaluateDebugEnabled::class);
-    $evaluateDebugEnabled->handle(new SiteInspected($site));
+    $evaluateNonProduction = $this->app->make(EvaluateSiteNotInProduction::class);
+    $evaluateNonProduction->handle(new SiteInspected($site));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
-        return $conditionObserved->alertType === AlertType::DEBUG_ENABLED
+        return $conditionObserved->alertType === AlertType::SITE_NOT_IN_PRODUCTION
             && $conditionObserved->subject === $site
             && $conditionObserved->condition === ConditionState::ACTIVE
             && $conditionObserved->observedAt->equalTo($now);
     });
-});
+})->with(['local', 'staging', 'testing', null]);
 
-test('handle observes debug enabled resolved now for a site out of debug mode', function (?bool $appDebug): void {
+test('handle observes non production resolved now for a site in production', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $site = Site::factory()->create(['app_debug' => $appDebug]);
+    $site = Site::factory()->create(['app_env' => 'production']);
 
-    $evaluateDebugEnabled = $this->app->make(EvaluateDebugEnabled::class);
-    $evaluateDebugEnabled->handle(new SiteInspected($site));
+    $evaluateNonProduction = $this->app->make(EvaluateSiteNotInProduction::class);
+    $evaluateNonProduction->handle(new SiteInspected($site));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
-        return $conditionObserved->alertType === AlertType::DEBUG_ENABLED
+        return $conditionObserved->alertType === AlertType::SITE_NOT_IN_PRODUCTION
             && $conditionObserved->subject === $site
             && $conditionObserved->condition === ConditionState::RESOLVED
             && $conditionObserved->observedAt->equalTo($now);
     });
-})->with([false, null]);
+});

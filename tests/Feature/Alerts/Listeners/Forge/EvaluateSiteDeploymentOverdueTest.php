@@ -8,7 +8,7 @@ use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
-use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateOverdueDeployment;
+use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteDeploymentOverdue;
 use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
@@ -34,11 +34,11 @@ test('handle observes an overdue deployment now', function (): void {
         'auto_deploy' => true,
     ]);
 
-    $evaluateOverdueDeployment = $this->app->make(EvaluateOverdueDeployment::class);
+    $evaluateOverdueDeployment = $this->app->make(EvaluateSiteDeploymentOverdue::class);
     $evaluateOverdueDeployment->handle(new ForgeRunSucceeded(Uuid::generate()));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
-        return $conditionObserved->alertType === AlertType::OVERDUE_DEPLOYMENT
+        return $conditionObserved->alertType === AlertType::SITE_DEPLOYMENT_OVERDUE
             && $conditionObserved->subject instanceof Site
             && $conditionObserved->subject->is($site)
             && $conditionObserved->condition === ConditionState::ACTIVE
@@ -58,11 +58,11 @@ test('handle observes an up-to-date site without an overdue deployment now', fun
         'deployed_commit_hash' => $repository->last_commit_sha,
     ]);
 
-    $evaluateOverdueDeployment = $this->app->make(EvaluateOverdueDeployment::class);
+    $evaluateOverdueDeployment = $this->app->make(EvaluateSiteDeploymentOverdue::class);
     $evaluateOverdueDeployment->handle(new ForgeRunSucceeded(Uuid::generate()));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
-        return $conditionObserved->alertType === AlertType::OVERDUE_DEPLOYMENT
+        return $conditionObserved->alertType === AlertType::SITE_DEPLOYMENT_OVERDUE
             && $conditionObserved->subject instanceof Site
             && $conditionObserved->subject->is($site)
             && $conditionObserved->condition === ConditionState::RESOLVED

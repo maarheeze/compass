@@ -40,12 +40,12 @@ test('show contains the site', function (): void {
 test('show contains the alerts of the site and its endpoints, newest first', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $earlierAlert = Alert::factory()
-        ->debugEnabled()
+        ->siteDebugEnabled()
         ->done()
         ->for($siteEndpoint->site, 'subject')
         ->create(['created_at' => fake()->dateTimeBetween('-2 months', '-1 month')]);
     $laterAlert = Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->for($siteEndpoint, 'subject')
         ->create(['created_at' => fake()->dateTimeBetween('-1 month')]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
@@ -61,7 +61,7 @@ test('show contains the alerts of the site and its endpoints, newest first', fun
 
 test('show loads the assignee of the alerts', function (): void {
     $alert = Alert::factory()
-        ->debugEnabled()
+        ->siteDebugEnabled()
         ->create();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 

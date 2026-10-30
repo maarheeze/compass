@@ -10,11 +10,12 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
+use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 
-readonly class EvaluateNonProduction implements ShouldQueue
+readonly class EvaluateSiteClientUnauthorized implements ShouldQueue
 {
     public function __construct(
         private ClockInterface $clock,
@@ -26,7 +27,7 @@ readonly class EvaluateNonProduction implements ShouldQueue
     {
         $site = $siteInspected->site;
         $this->events->dispatch(new ConditionObserved(
-            AlertType::NON_PRODUCTION,
+            AlertType::SITE_CLIENT_UNAUTHORIZED,
             $site,
             $this->observedCondition($site),
             CarbonImmutable::instance($this->clock->now()),
@@ -35,7 +36,7 @@ readonly class EvaluateNonProduction implements ShouldQueue
 
     private function observedCondition(Site $site): ConditionState
     {
-        if ($site->app_env !== 'production') {
+        if ($site->client_status === ClientStatus::UNAUTHORIZED) {
             return ConditionState::ACTIVE;
         }
 

@@ -37,7 +37,7 @@ test('not done leaves out a done alert', function (): void {
 test('of site keeps an alert of the site', function (): void {
     $site = Site::factory()->create();
     $siteAlert = Alert::factory()
-        ->debugEnabled()
+        ->siteDebugEnabled()
         ->for($site, 'subject')
         ->create();
 
@@ -52,7 +52,7 @@ test('of site keeps an alert of the site', function (): void {
 test('of site keeps an alert of an endpoint of the site', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $siteEndpointAlert = Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->for($siteEndpoint, 'subject')
         ->create();
 
@@ -66,10 +66,10 @@ test('of site keeps an alert of an endpoint of the site', function (): void {
 
 test('of site leaves out the alerts of another site and its endpoints', function (): void {
     Alert::factory()
-        ->debugEnabled()
+        ->siteDebugEnabled()
         ->create();
     Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->create();
 
     $siteAlerts = Alert::query()
@@ -198,11 +198,11 @@ test('of type keeps an alert of the type', function (): void {
 
 test('of type leaves out an alert of another type', function (): void {
     Alert::factory()
-        ->debugEnabled()
+        ->siteDebugEnabled()
         ->create();
 
     $alertsOfType = Alert::query()
-        ->ofType(AlertType::NON_PRODUCTION)
+        ->ofType(AlertType::SITE_NOT_IN_PRODUCTION)
         ->get();
 
     expect($alertsOfType)

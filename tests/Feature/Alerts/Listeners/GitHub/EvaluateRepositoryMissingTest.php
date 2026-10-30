@@ -8,7 +8,7 @@ use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
-use Maarheeze\Compass\Alerts\Listeners\GitHub\EvaluateMissingRepository;
+use Maarheeze\Compass\Alerts\Listeners\GitHub\EvaluateRepositoryMissing;
 use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
 use Maarheeze\Compass\Collector\Events\RepositoryMissingIgnored;
 use Maarheeze\Compass\Models\Repository;
@@ -26,11 +26,11 @@ test('handle observes a missing, not ignored repository missing now', function (
         'missing_ignored_at' => null,
     ]);
 
-    $evaluateMissingRepository = $this->app->make(EvaluateMissingRepository::class);
+    $evaluateMissingRepository = $this->app->make(EvaluateRepositoryMissing::class);
     $evaluateMissingRepository->handle(new GitHubRunSucceeded(Uuid::generate()));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
-        return $conditionObserved->alertType === AlertType::MISSING_REPOSITORY
+        return $conditionObserved->alertType === AlertType::REPOSITORY_MISSING
             && $conditionObserved->subject instanceof Repository
             && $conditionObserved->subject->is($repository)
             && $conditionObserved->condition === ConditionState::ACTIVE
@@ -48,11 +48,11 @@ test('handle observes a collected repository no longer missing now', function ()
         'missing_ignored_at' => null,
     ]);
 
-    $evaluateMissingRepository = $this->app->make(EvaluateMissingRepository::class);
+    $evaluateMissingRepository = $this->app->make(EvaluateRepositoryMissing::class);
     $evaluateMissingRepository->handle(new GitHubRunSucceeded(Uuid::generate()));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
-        return $conditionObserved->alertType === AlertType::MISSING_REPOSITORY
+        return $conditionObserved->alertType === AlertType::REPOSITORY_MISSING
             && $conditionObserved->subject instanceof Repository
             && $conditionObserved->subject->is($repository)
             && $conditionObserved->condition === ConditionState::RESOLVED
@@ -68,7 +68,7 @@ test('handle observes a missing, ignored repository no longer missing', function
         'missing_ignored_at' => fake()->dateTimeBetween('-1 month'),
     ]);
 
-    $evaluateMissingRepository = $this->app->make(EvaluateMissingRepository::class);
+    $evaluateMissingRepository = $this->app->make(EvaluateRepositoryMissing::class);
     $evaluateMissingRepository->handle(new GitHubRunSucceeded(Uuid::generate()));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($repository): bool {
@@ -88,11 +88,11 @@ test('handle observes an ignored repository no longer missing now', function ():
         'missing_ignored_at' => fake()->dateTimeBetween('-1 month'),
     ]);
 
-    $evaluateMissingRepository = $this->app->make(EvaluateMissingRepository::class);
+    $evaluateMissingRepository = $this->app->make(EvaluateRepositoryMissing::class);
     $evaluateMissingRepository->handle(new RepositoryMissingIgnored($repository));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
-        return $conditionObserved->alertType === AlertType::MISSING_REPOSITORY
+        return $conditionObserved->alertType === AlertType::REPOSITORY_MISSING
             && $conditionObserved->subject === $repository
             && $conditionObserved->condition === ConditionState::RESOLVED
             && $conditionObserved->observedAt->equalTo($now);

@@ -62,7 +62,7 @@ test('store report deletes the endpoints that are no longer reported', function 
 test('store report deletes the alerts of the endpoints that are no longer reported', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $alert = Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->for($siteEndpoint, 'subject')
         ->create();
     $siteReport = new SiteReport(fake()->boolean(), fake()->word(), fake()->company(), []);
@@ -76,7 +76,7 @@ test('store report deletes the alerts of the endpoints that are no longer report
 test('store report keeps the alerts of the endpoints that are still reported', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $alert = Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->for($siteEndpoint, 'subject')
         ->create();
     $siteReport = new SiteReport(fake()->boolean(), fake()->word(), fake()->company(), [$siteEndpoint->path]);
@@ -114,7 +114,7 @@ test('clear report deletes the endpoints', function (): void {
 test('clear report deletes the alerts of the endpoints', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $alert = Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->for($siteEndpoint, 'subject')
         ->create();
 

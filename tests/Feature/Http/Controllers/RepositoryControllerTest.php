@@ -89,16 +89,16 @@ test('show contains the alerts of the repository newest first', function (): voi
     $repository = Repository::factory()->create();
     $earlierAlert = Alert::factory()
         ->done()
-        ->projectWithoutLock()
+        ->composerProjectWithoutLock()
         ->for($repository, 'subject')
         ->create(['created_at' => fake()->dateTimeBetween('-2 months', '-1 month')]);
     $laterAlert = Alert::factory()
         ->active()
-        ->projectWithoutLock()
+        ->composerProjectWithoutLock()
         ->for($repository, 'subject')
         ->create(['created_at' => fake()->dateTimeBetween('-1 month')]);
     Alert::factory()
-        ->projectWithoutLock()
+        ->composerProjectWithoutLock()
         ->create();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
@@ -116,7 +116,7 @@ test('show contains the alerts of the repository newest first', function (): voi
 
 test('show loads the assignee of the alerts of the repository', function (): void {
     $alert = Alert::factory()
-        ->projectWithoutLock()
+        ->composerProjectWithoutLock()
         ->create();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 

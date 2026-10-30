@@ -8,51 +8,44 @@ use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
-use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateUnauthorizedClient;
-use Maarheeze\Compass\Collector\Client\ClientStatus;
+use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteDebugEnabled;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
-test('handle observes unauthorized client now for a site that refused the key', function (): void {
+test('handle observes debug enabled now for a site in debug mode', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $site = Site::factory()->create(['client_status' => ClientStatus::UNAUTHORIZED]);
+    $site = Site::factory()->create(['app_debug' => true]);
 
-    $evaluateUnauthorizedClient = $this->app->make(EvaluateUnauthorizedClient::class);
-    $evaluateUnauthorizedClient->handle(new SiteInspected($site));
+    $evaluateDebugEnabled = $this->app->make(EvaluateSiteDebugEnabled::class);
+    $evaluateDebugEnabled->handle(new SiteInspected($site));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
-        return $conditionObserved->alertType === AlertType::UNAUTHORIZED_CLIENT
+        return $conditionObserved->alertType === AlertType::SITE_DEBUG_ENABLED
             && $conditionObserved->subject === $site
             && $conditionObserved->condition === ConditionState::ACTIVE
             && $conditionObserved->observedAt->equalTo($now);
     });
 });
 
-test('handle observes unauthorized client resolved now for a site with any other client status', function (?ClientStatus $clientStatus): void {
+test('handle observes debug enabled resolved now for a site out of debug mode', function (?bool $appDebug): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $site = Site::factory()->create(['client_status' => $clientStatus]);
+    $site = Site::factory()->create(['app_debug' => $appDebug]);
 
-    $evaluateUnauthorizedClient = $this->app->make(EvaluateUnauthorizedClient::class);
-    $evaluateUnauthorizedClient->handle(new SiteInspected($site));
+    $evaluateDebugEnabled = $this->app->make(EvaluateSiteDebugEnabled::class);
+    $evaluateDebugEnabled->handle(new SiteInspected($site));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
-        return $conditionObserved->alertType === AlertType::UNAUTHORIZED_CLIENT
+        return $conditionObserved->alertType === AlertType::SITE_DEBUG_ENABLED
             && $conditionObserved->subject === $site
             && $conditionObserved->condition === ConditionState::RESOLVED
             && $conditionObserved->observedAt->equalTo($now);
     });
-})->with([
-    ClientStatus::INCOMPATIBLE,
-    ClientStatus::INSTALLED,
-    ClientStatus::NOT_INSTALLED,
-    ClientStatus::UNREACHABLE,
-    null,
-]);
+})->with([false, null]);

@@ -34,7 +34,7 @@ test('handle observes the detected composer warning active now', function (): vo
     $evaluateComposerWarning->handle(new GitHubRunSucceeded(Uuid::generate()));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
-        return $conditionObserved->alertType === AlertType::PROJECT_WITHOUT_LOCK
+        return $conditionObserved->alertType === AlertType::COMPOSER_PROJECT_WITHOUT_LOCK
             && $conditionObserved->subject instanceof Repository
             && $conditionObserved->subject->is($repository)
             && $conditionObserved->condition === ConditionState::ACTIVE
@@ -67,9 +67,9 @@ test('handle observes the composer warnings that are not detected resolved now',
             && $conditionObserved->observedAt->equalTo($now);
     });
 })->with([
-    AlertType::LIBRARY_WITH_LOCK,
-    AlertType::MISSING_COMPOSER_TYPE,
-    AlertType::UNKNOWN_COMPOSER_TYPE,
+    AlertType::COMPOSER_LIBRARY_WITH_LOCK,
+    AlertType::COMPOSER_TYPE_MISSING,
+    AlertType::COMPOSER_TYPE_UNKNOWN,
 ]);
 
 test('handle observes every composer warning resolved now for a repository without a composer warning', function (AlertType $alertType): void {
@@ -90,8 +90,8 @@ test('handle observes every composer warning resolved now for a repository witho
             && $conditionObserved->observedAt->equalTo($now);
     });
 })->with([
-    AlertType::LIBRARY_WITH_LOCK,
-    AlertType::MISSING_COMPOSER_TYPE,
-    AlertType::PROJECT_WITHOUT_LOCK,
-    AlertType::UNKNOWN_COMPOSER_TYPE,
+    AlertType::COMPOSER_LIBRARY_WITH_LOCK,
+    AlertType::COMPOSER_TYPE_MISSING,
+    AlertType::COMPOSER_PROJECT_WITHOUT_LOCK,
+    AlertType::COMPOSER_TYPE_UNKNOWN,
 ]);

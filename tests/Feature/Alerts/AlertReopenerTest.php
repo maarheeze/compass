@@ -41,12 +41,12 @@ test('can reopen is false for an alert that is not done', function (): void {
 test('can reopen is false for a done alert whose subject has an alert of that type that is not done', function (): void {
     $site = Site::factory()->create();
     $alert = Alert::factory()
-        ->debugEnabled()
+        ->siteDebugEnabled()
         ->done()
         ->for($site, 'subject')
         ->create();
     Alert::factory()
-        ->debugEnabled()
+        ->siteDebugEnabled()
         ->active()
         ->for($site, 'subject')
         ->create();
@@ -61,12 +61,12 @@ test('can reopen is false for a done alert whose subject has an alert of that ty
 test('can reopen is true for a done alert whose subject has an alert of another type that is not done', function (): void {
     $site = Site::factory()->create();
     $alert = Alert::factory()
-        ->debugEnabled()
+        ->siteDebugEnabled()
         ->done()
         ->for($site, 'subject')
         ->create();
     Alert::factory()
-        ->nonProduction()
+        ->siteNotInProduction()
         ->active()
         ->for($site, 'subject')
         ->create();
@@ -80,11 +80,11 @@ test('can reopen is true for a done alert whose subject has an alert of another 
 
 test('can reopen is true for a done alert when another subject has an alert of that type that is not done', function (): void {
     $alert = Alert::factory()
-        ->debugEnabled()
+        ->siteDebugEnabled()
         ->done()
         ->create();
     Alert::factory()
-        ->debugEnabled()
+        ->siteDebugEnabled()
         ->active()
         ->create();
 
@@ -143,12 +143,12 @@ test('reopen refuses an alert that is not done', function (): void {
 test('reopen refuses a done alert whose subject has an alert of that type that is not done', function (): void {
     $site = Site::factory()->create();
     $alert = Alert::factory()
-        ->debugEnabled()
+        ->siteDebugEnabled()
         ->done()
         ->for($site, 'subject')
         ->create();
     Alert::factory()
-        ->debugEnabled()
+        ->siteDebugEnabled()
         ->active()
         ->for($site, 'subject')
         ->create();

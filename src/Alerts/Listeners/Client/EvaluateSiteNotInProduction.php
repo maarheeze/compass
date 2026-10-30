@@ -10,12 +10,11 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
-use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 
-readonly class EvaluateIncompatibleClient implements ShouldQueue
+readonly class EvaluateSiteNotInProduction implements ShouldQueue
 {
     public function __construct(
         private ClockInterface $clock,
@@ -27,7 +26,7 @@ readonly class EvaluateIncompatibleClient implements ShouldQueue
     {
         $site = $siteInspected->site;
         $this->events->dispatch(new ConditionObserved(
-            AlertType::INCOMPATIBLE_CLIENT,
+            AlertType::SITE_NOT_IN_PRODUCTION,
             $site,
             $this->observedCondition($site),
             CarbonImmutable::instance($this->clock->now()),
@@ -36,7 +35,7 @@ readonly class EvaluateIncompatibleClient implements ShouldQueue
 
     private function observedCondition(Site $site): ConditionState
     {
-        if ($site->client_status === ClientStatus::INCOMPATIBLE) {
+        if ($site->app_env !== 'production') {
             return ConditionState::ACTIVE;
         }
 

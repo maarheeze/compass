@@ -9,7 +9,7 @@ test('subject is stored under its alias', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
 
     $alert = Alert::factory()
-        ->downSiteEndpoint()
+        ->siteEndpointDown()
         ->for($siteEndpoint, 'subject')
         ->create();
 

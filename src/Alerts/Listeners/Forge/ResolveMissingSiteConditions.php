@@ -18,10 +18,10 @@ use Psr\Clock\ClockInterface;
 readonly class ResolveMissingSiteConditions implements ShouldQueue
 {
     private const array CLIENT_ALERT_TYPES = [
-        AlertType::DEBUG_ENABLED,
-        AlertType::INCOMPATIBLE_CLIENT,
-        AlertType::NON_PRODUCTION,
-        AlertType::UNAUTHORIZED_CLIENT,
+        AlertType::SITE_CLIENT_INCOMPATIBLE,
+        AlertType::SITE_CLIENT_UNAUTHORIZED,
+        AlertType::SITE_DEBUG_ENABLED,
+        AlertType::SITE_NOT_IN_PRODUCTION,
     ];
 
     public function __construct(
@@ -44,7 +44,7 @@ readonly class ResolveMissingSiteConditions implements ShouldQueue
             }
 
             foreach ($missingSite->endpoints as $siteEndpoint) {
-                $this->observeResolved(AlertType::DOWN_SITE_ENDPOINT, $siteEndpoint, $observedAt);
+                $this->observeResolved(AlertType::SITE_ENDPOINT_DOWN, $siteEndpoint, $observedAt);
             }
         }
     }

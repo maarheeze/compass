@@ -9,7 +9,7 @@ use Maarheeze\Compass\View\Components\AlertIcon;
 test('should render for a subject with an alert that is not done', function (): void {
     $repository = Repository::factory()->create();
     Alert::factory()
-        ->projectWithoutLock()
+        ->composerProjectWithoutLock()
         ->active()
         ->for($repository, 'subject')
         ->create();
@@ -23,7 +23,7 @@ test('should render for a subject with an alert that is not done', function (): 
 test('should not render for a subject with only done alerts', function (): void {
     $repository = Repository::factory()->create();
     Alert::factory()
-        ->projectWithoutLock()
+        ->composerProjectWithoutLock()
         ->done()
         ->for($repository, 'subject')
         ->create();
@@ -37,7 +37,7 @@ test('should not render for a subject with only done alerts', function (): void 
 test('has alerts not muted is true for a subject with an alert that is not muted', function (): void {
     $repository = Repository::factory()->create();
     Alert::factory()
-        ->projectWithoutLock()
+        ->composerProjectWithoutLock()
         ->active()
         ->for($repository, 'subject')
         ->create();
@@ -51,7 +51,7 @@ test('has alerts not muted is true for a subject with an alert that is not muted
 test('has alerts not muted is false for a subject with only muted alerts', function (): void {
     $repository = Repository::factory()->create();
     Alert::factory()
-        ->projectWithoutLock()
+        ->composerProjectWithoutLock()
         ->active()
         ->muted()
         ->for($repository, 'subject')
