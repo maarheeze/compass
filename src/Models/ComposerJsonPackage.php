@@ -6,12 +6,14 @@ namespace Maarheeze\Compass\Models;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\HasBuilder;
 use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Maarheeze\Compass\Collections\ComposerJsonPackageCollection;
 use Maarheeze\Compass\Collector\Composer\PackageSection;
 use Maarheeze\Compass\Database\Factories\ComposerJsonPackageFactory;
+use Maarheeze\Compass\Models\Builders\ComposerJsonPackageBuilder;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
@@ -29,12 +31,15 @@ use Maarheeze\Uuid\Uuid;
  */
 class ComposerJsonPackage extends Model
 {
+    /** @use HasBuilder<ComposerJsonPackageBuilder> */
+    use HasBuilder;
     /** @use HasCollection<ComposerJsonPackageCollection> */
     use HasCollection;
     /** @use HasFactory<ComposerJsonPackageFactory> */
     use HasFactory;
     use HasUuidAsId;
 
+    protected static string $builder = ComposerJsonPackageBuilder::class;
     protected static string $collectionClass = ComposerJsonPackageCollection::class;
 
     /**

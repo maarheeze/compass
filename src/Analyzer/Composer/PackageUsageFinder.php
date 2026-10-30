@@ -8,7 +8,6 @@ use Maarheeze\Compass\Collections\ComposerJsonPackageCollection;
 use Maarheeze\Compass\Collections\ComposerLockPackageCollection;
 use Maarheeze\Compass\Models\ComposerJsonPackage;
 use Maarheeze\Compass\Models\ComposerLockPackage;
-use Webmozart\Assert\Assert;
 
 readonly class PackageUsageFinder
 {
@@ -27,13 +26,10 @@ readonly class PackageUsageFinder
 
     private function getLockedPackagesOfProjects(string $packageName): ComposerLockPackageCollection
     {
-        $lockedPackages = Assert::isInstanceOf(
-            ComposerLockPackage::query()
-                ->with('composerLock.repository.composerJson')
-                ->where('name', $packageName)
-                ->get(),
-            ComposerLockPackageCollection::class,
-        );
+        $lockedPackages = ComposerLockPackage::query()
+            ->with('composerLock.repository.composerJson')
+            ->named($packageName)
+            ->get();
 
         return $lockedPackages
             ->filter(function (ComposerLockPackage $lockedPackage): bool {
@@ -47,13 +43,10 @@ readonly class PackageUsageFinder
 
     private function getRequiredPackagesOfLibraries(string $packageName): ComposerJsonPackageCollection
     {
-        $requiredPackages = Assert::isInstanceOf(
-            ComposerJsonPackage::query()
-                ->with('composerJson.repository.composerJson')
-                ->where('name', $packageName)
-                ->get(),
-            ComposerJsonPackageCollection::class,
-        );
+        $requiredPackages = ComposerJsonPackage::query()
+            ->with('composerJson.repository.composerJson')
+            ->named($packageName)
+            ->get();
 
         return $requiredPackages
             ->filter(function (ComposerJsonPackage $requiredPackage): bool {
