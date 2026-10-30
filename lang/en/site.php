@@ -7,8 +7,7 @@ return [
     'auto_deploy_on' => 'Auto-deploy on',
     'client' => 'Client',
     'collected' => 'collected',
-    'collected_at' => 'Collected at',
-    'deployed_commit' => 'Deployed commit',
+    'deployed' => 'deployed',
     'endpoint_history' => 'Endpoint history',
     'finished' => 'finished',
     'inactive' => 'Inactive',
@@ -17,8 +16,6 @@ return [
     'no_endpoints_checked' => 'No endpoints checked yet.',
     'no_sites' => 'No sites collected yet.',
     'path' => 'Path',
-    'server' => 'Server',
-    'site' => 'Site',
     'started' => 'started',
     'status' => 'Status',
 ];

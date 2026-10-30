@@ -2,9 +2,9 @@
     <td class="px-4 py-3">
         <x-compass::subject-name :subject="$repository">
             <a href="{{ $url }}" class="truncate text-base font-semibold text-foreground hover:text-accent">{{ $repository->name }}</a>
-            <span class="rounded-full border border-border px-2 text-xs font-medium text-foreground-muted">
+            <x-compass::badge type="neutral">
                 <x-compass::enum-label :value="$repository->visibility" />
-            </span>
+            </x-compass::badge>
         </x-compass::subject-name>
         <div class="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-foreground-muted">
             @if ($repository->composerJson?->php_constraint)

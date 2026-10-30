@@ -13,7 +13,7 @@ return [
     'environment' => 'Environment',
     'key' => 'Key',
     'key_placeholder' => 'Default key',
-    'not_checked' => 'Not checked',
+    'not_checked' => 'Client not checked',
     'not_set' => 'Not set',
     'off' => 'Off',
     'on' => 'On',
