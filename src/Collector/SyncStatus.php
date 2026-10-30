@@ -11,7 +11,7 @@ readonly class SyncStatus
     public function isRunning(): bool
     {
         return Run::query()
-            ->where('status', RunStatus::RUNNING)
+            ->running()
             ->exists();
     }
 }

@@ -28,7 +28,7 @@ readonly class RunController
     {
         return $this->view->make('compass::runs.index', [
             'runs' => Run::query()
-                ->where('type', $runType)
+                ->ofType($runType)
                 ->latest()
                 ->paginate($this->itemsPerPage),
         ]);
