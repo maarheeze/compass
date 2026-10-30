@@ -20,6 +20,7 @@ use Maarheeze\Compass\Collector\Client\SiteQuery;
 use Maarheeze\Compass\Collector\Client\SiteReportSynchronizer;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
+use Maarheeze\Compass\Collector\MissingState;
 use Maarheeze\Compass\Models\Site;
 use Throwable;
 
@@ -47,6 +48,12 @@ class InspectSite implements ShouldQueue
         SiteReportSynchronizer $siteReportSynchronizer,
     ): void {
         $context->add('site', $this->site->name);
+
+        if ($this->site->missingState() !== MissingState::COLLECTED) {
+            $collectorLogger->debug('Site inspection skipped for a missing site');
+
+            return;
+        }
 
         if (!$clientKey->hasKey($this->site)) {
             $collectorLogger->debug('Site inspection skipped without a client key');

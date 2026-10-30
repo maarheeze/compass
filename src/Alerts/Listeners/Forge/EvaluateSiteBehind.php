@@ -31,17 +31,21 @@ readonly class EvaluateSiteBehind implements ShouldQueue
         $observedAt = CarbonImmutable::instance($this->clock->now());
 
         foreach (Site::query()->with('repository')->get() as $site) {
-            $observedCondition = match ($this->deploymentStateClassifier->classify($site)) {
-                DeploymentState::BEHIND => ConditionState::ACTIVE,
-                default => ConditionState::RESOLVED,
-            };
-
             $this->events->dispatch(new ConditionObserved(
                 AlertType::SITE_BEHIND,
                 $site,
-                $observedCondition,
+                $this->observedCondition($site),
                 $observedAt,
             ));
         }
+    }
+
+    private function observedCondition(Site $site): ConditionState
+    {
+        if ($this->deploymentStateClassifier->classify($site) === DeploymentState::BEHIND) {
+            return ConditionState::ACTIVE;
+        }
+
+        return ConditionState::RESOLVED;
     }
 }

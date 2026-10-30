@@ -12,6 +12,39 @@ use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
 
+test('can ignore is true for a missing site', function (): void {
+    $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
+
+    $missingSiteResolver = $this->app->make(MissingSiteResolver::class);
+    $canIgnore = $missingSiteResolver->canIgnore($site);
+
+    expect($canIgnore)
+        ->toBeTrue();
+});
+
+test('can ignore is false for a collected site', function (): void {
+    $site = Site::factory()->create();
+
+    $missingSiteResolver = $this->app->make(MissingSiteResolver::class);
+    $canIgnore = $missingSiteResolver->canIgnore($site);
+
+    expect($canIgnore)
+        ->toBeFalse();
+});
+
+test('can ignore is false for a site that is already ignored', function (): void {
+    $site = Site::factory()->create([
+        'missing_at' => fake()->dateTime(),
+        'missing_ignored_at' => fake()->dateTime(),
+    ]);
+
+    $missingSiteResolver = $this->app->make(MissingSiteResolver::class);
+    $canIgnore = $missingSiteResolver->canIgnore($site);
+
+    expect($canIgnore)
+        ->toBeFalse();
+});
+
 test('delete deletes a missing site', function (): void {
     $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
 

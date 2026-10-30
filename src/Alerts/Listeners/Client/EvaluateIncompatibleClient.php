@@ -12,6 +12,7 @@ use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
+use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 
 readonly class EvaluateIncompatibleClient implements ShouldQueue
@@ -25,16 +26,20 @@ readonly class EvaluateIncompatibleClient implements ShouldQueue
     public function handle(SiteInspected $siteInspected): void
     {
         $site = $siteInspected->site;
-        $observedCondition = match ($site->missing_at === null && $site->client_status === ClientStatus::INCOMPATIBLE) {
-            true => ConditionState::ACTIVE,
-            false => ConditionState::RESOLVED,
-        };
-
         $this->events->dispatch(new ConditionObserved(
             AlertType::INCOMPATIBLE_CLIENT,
             $site,
-            $observedCondition,
+            $this->observedCondition($site),
             CarbonImmutable::instance($this->clock->now()),
         ));
+    }
+
+    private function observedCondition(Site $site): ConditionState
+    {
+        if ($site->client_status === ClientStatus::INCOMPATIBLE) {
+            return ConditionState::ACTIVE;
+        }
+
+        return ConditionState::RESOLVED;
     }
 }

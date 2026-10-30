@@ -11,6 +11,7 @@ use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
+use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 
 readonly class EvaluateNonProduction implements ShouldQueue
@@ -24,17 +25,20 @@ readonly class EvaluateNonProduction implements ShouldQueue
     public function handle(SiteInspected $siteInspected): void
     {
         $site = $siteInspected->site;
-        $isInAnotherEnvironment = $site->app_env !== null && $site->app_env !== 'production';
-        $observedCondition = match ($site->missing_at === null && $isInAnotherEnvironment) {
-            true => ConditionState::ACTIVE,
-            false => ConditionState::RESOLVED,
-        };
-
         $this->events->dispatch(new ConditionObserved(
             AlertType::NON_PRODUCTION,
             $site,
-            $observedCondition,
+            $this->observedCondition($site),
             CarbonImmutable::instance($this->clock->now()),
         ));
+    }
+
+    private function observedCondition(Site $site): ConditionState
+    {
+        if ($site->app_env !== null && $site->app_env !== 'production') {
+            return ConditionState::ACTIVE;
+        }
+
+        return ConditionState::RESOLVED;
     }
 }

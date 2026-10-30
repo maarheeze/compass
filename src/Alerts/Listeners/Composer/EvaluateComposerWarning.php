@@ -33,15 +33,10 @@ readonly class EvaluateComposerWarning implements ShouldQueue
             $detectedComposerWarning = $this->composerWarningDetector->detect($repository);
 
             foreach (ComposerWarning::cases() as $composerWarning) {
-                $observedCondition = match ($composerWarning === $detectedComposerWarning) {
-                    true => ConditionState::ACTIVE,
-                    false => ConditionState::RESOLVED,
-                };
-
                 $this->events->dispatch(new ConditionObserved(
                     $this->alertType($composerWarning),
                     $repository,
-                    $observedCondition,
+                    $this->observedCondition($composerWarning, $detectedComposerWarning),
                     $observedAt,
                 ));
             }
@@ -56,5 +51,16 @@ readonly class EvaluateComposerWarning implements ShouldQueue
             ComposerWarning::PROJECT_WITHOUT_LOCK => AlertType::PROJECT_WITHOUT_LOCK,
             ComposerWarning::UNKNOWN_TYPE => AlertType::UNKNOWN_COMPOSER_TYPE,
         };
+    }
+
+    private function observedCondition(
+        ComposerWarning $composerWarning,
+        ?ComposerWarning $detectedComposerWarning,
+    ): ConditionState {
+        if ($composerWarning === $detectedComposerWarning) {
+            return ConditionState::ACTIVE;
+        }
+
+        return ConditionState::RESOLVED;
     }
 }

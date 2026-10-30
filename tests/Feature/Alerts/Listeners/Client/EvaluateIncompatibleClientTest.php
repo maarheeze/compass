@@ -20,10 +20,7 @@ test('handle observes incompatible client now for a site with an outdated client
     $this->app->instance(Dispatcher::class, $eventFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $site = Site::factory()->create([
-        'client_status' => ClientStatus::INCOMPATIBLE,
-        'missing_at' => null,
-    ]);
+    $site = Site::factory()->create(['client_status' => ClientStatus::INCOMPATIBLE]);
 
     $evaluateIncompatibleClient = $this->app->make(EvaluateIncompatibleClient::class);
     $evaluateIncompatibleClient->handle(new SiteInspected($site));
@@ -41,10 +38,7 @@ test('handle observes incompatible client resolved now for a site with any other
     $this->app->instance(Dispatcher::class, $eventFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $site = Site::factory()->create([
-        'client_status' => $clientStatus,
-        'missing_at' => null,
-    ]);
+    $site = Site::factory()->create(['client_status' => $clientStatus]);
 
     $evaluateIncompatibleClient = $this->app->make(EvaluateIncompatibleClient::class);
     $evaluateIncompatibleClient->handle(new SiteInspected($site));
@@ -62,19 +56,3 @@ test('handle observes incompatible client resolved now for a site with any other
     ClientStatus::UNREACHABLE,
     null,
 ]);
-
-test('handle observes incompatible client resolved for a missing site with an outdated client', function (): void {
-    $eventFake = new EventFake($this->app->make(Dispatcher::class));
-    $this->app->instance(Dispatcher::class, $eventFake);
-    $site = Site::factory()->create([
-        'client_status' => ClientStatus::INCOMPATIBLE,
-        'missing_at' => fake()->dateTime(),
-    ]);
-
-    $evaluateIncompatibleClient = $this->app->make(EvaluateIncompatibleClient::class);
-    $evaluateIncompatibleClient->handle(new SiteInspected($site));
-
-    $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved): bool {
-        return $conditionObserved->condition === ConditionState::RESOLVED;
-    });
-});

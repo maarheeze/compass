@@ -11,6 +11,39 @@ use Maarheeze\Compass\Collector\GitHub\MissingRepositoryResolver;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Repository;
 
+test('can ignore is true for a missing repository', function (): void {
+    $repository = Repository::factory()->create(['missing_at' => fake()->dateTime()]);
+
+    $missingRepositoryResolver = $this->app->make(MissingRepositoryResolver::class);
+    $canIgnore = $missingRepositoryResolver->canIgnore($repository);
+
+    expect($canIgnore)
+        ->toBeTrue();
+});
+
+test('can ignore is false for a collected repository', function (): void {
+    $repository = Repository::factory()->create();
+
+    $missingRepositoryResolver = $this->app->make(MissingRepositoryResolver::class);
+    $canIgnore = $missingRepositoryResolver->canIgnore($repository);
+
+    expect($canIgnore)
+        ->toBeFalse();
+});
+
+test('can ignore is false for a repository that is already ignored', function (): void {
+    $repository = Repository::factory()->create([
+        'missing_at' => fake()->dateTime(),
+        'missing_ignored_at' => fake()->dateTime(),
+    ]);
+
+    $missingRepositoryResolver = $this->app->make(MissingRepositoryResolver::class);
+    $canIgnore = $missingRepositoryResolver->canIgnore($repository);
+
+    expect($canIgnore)
+        ->toBeFalse();
+});
+
 test('delete deletes a missing repository', function (): void {
     $repository = Repository::factory()->create(['missing_at' => fake()->dateTime()]);
 

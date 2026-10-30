@@ -20,6 +20,7 @@ use Maarheeze\Compass\Collector\Forge\DeploymentStatus;
 use Maarheeze\Compass\Collector\Forge\SiteStatus;
 use Maarheeze\Compass\Database\Factories\SiteFactory;
 use Maarheeze\Compass\Models\Concerns\HasAlerts;
+use Maarheeze\Compass\Models\Concerns\HasMissingState;
 use Maarheeze\Compass\Models\Concerns\HasObservations;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
@@ -68,6 +69,7 @@ class Site extends Model implements AlertSubject
     use HasAlerts;
     /** @use HasFactory<SiteFactory> */
     use HasFactory;
+    use HasMissingState;
     use HasObservations;
     use HasUuidAsId;
 

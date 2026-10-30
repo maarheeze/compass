@@ -14,6 +14,7 @@ use Maarheeze\Compass\Collector\Composer\PackageSection;
 use Maarheeze\Compass\Collector\Forge\DeploymentStatus;
 use Maarheeze\Compass\Collector\Forge\SiteStatus;
 use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
+use Maarheeze\Compass\Collector\MissingState;
 use Maarheeze\Compass\Collector\RunStatus;
 use Maarheeze\Compass\Collector\RunType;
 use Maarheeze\Compass\View\BadgeType;
@@ -63,5 +64,7 @@ test('label key has a translation', function (UnitEnum $value): void {
         DeploymentState::DEPLOYING,
         DeploymentState::DEPLOYMENT_OVERDUE,
         DeploymentState::UP_TO_DATE,
+        MissingState::IGNORED,
+        MissingState::MISSING,
     ],
 ));

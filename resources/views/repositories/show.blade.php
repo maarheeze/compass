@@ -137,7 +137,7 @@
                                 </td>
                                 <td class="px-4 py-2">
                                     <div class="flex items-center gap-2">
-                                        <x-compass::missing-label :missing-at="$site->missing_at" :missing-ignored-at="$site->missing_ignored_at" />
+                                        <x-compass::missing-label :subject="$site" />
                                         <x-compass::forge.deployment-state-badge :site="$site" />
                                     </div>
                                 </td>

@@ -6,6 +6,27 @@ use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\View\Components\SiteMissingNotice;
 
+test('can ignore a missing site', function (): void {
+    $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
+
+    $siteMissingNotice = $this->app->make(SiteMissingNotice::class, ['site' => $site]);
+
+    expect($siteMissingNotice->canIgnore)
+        ->toBeTrue();
+});
+
+test('cannot ignore a site that is already ignored', function (): void {
+    $site = Site::factory()->create([
+        'missing_at' => fake()->dateTime(),
+        'missing_ignored_at' => fake()->dateTime(),
+    ]);
+
+    $siteMissingNotice = $this->app->make(SiteMissingNotice::class, ['site' => $site]);
+
+    expect($siteMissingNotice->canIgnore)
+        ->toBeFalse();
+});
+
 test('delete url is the delete action of the site', function (): void {
     $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
 
@@ -26,6 +47,18 @@ test('ignore url is the ignore action of the site', function (): void {
 
 test('should render when the site is missing', function (): void {
     $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
+
+    $siteMissingNotice = $this->app->make(SiteMissingNotice::class, ['site' => $site]);
+
+    expect($siteMissingNotice->shouldRender())
+        ->toBeTrue();
+});
+
+test('should render when the site is ignored', function (): void {
+    $site = Site::factory()->create([
+        'missing_at' => fake()->dateTime(),
+        'missing_ignored_at' => fake()->dateTime(),
+    ]);
 
     $siteMissingNotice = $this->app->make(SiteMissingNotice::class, ['site' => $site]);
 

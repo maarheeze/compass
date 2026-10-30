@@ -12,6 +12,7 @@ use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
 use Maarheeze\Compass\Collector\Events\SiteMissingIgnored;
+use Maarheeze\Compass\Collector\MissingState;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 
@@ -50,16 +51,20 @@ readonly class EvaluateMissingSite implements ShouldQueue
 
     private function observe(Site $site, CarbonImmutable $observedAt): void
     {
-        $observedCondition = match ($site->missing_at !== null && $site->missing_ignored_at === null) {
-            true => ConditionState::ACTIVE,
-            false => ConditionState::RESOLVED,
-        };
-
         $this->events->dispatch(new ConditionObserved(
             AlertType::MISSING_SITE,
             $site,
-            $observedCondition,
+            $this->observedCondition($site),
             $observedAt,
         ));
+    }
+
+    private function observedCondition(Site $site): ConditionState
+    {
+        if ($site->missingState() === MissingState::MISSING) {
+            return ConditionState::ACTIVE;
+        }
+
+        return ConditionState::RESOLVED;
     }
 }

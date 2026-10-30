@@ -16,6 +16,7 @@ use Maarheeze\Compass\Collector\Composer\PackageSection;
 use Maarheeze\Compass\Collector\Forge\DeploymentStatus;
 use Maarheeze\Compass\Collector\Forge\SiteStatus;
 use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
+use Maarheeze\Compass\Collector\MissingState;
 use Maarheeze\Compass\Collector\RunStatus;
 use Maarheeze\Compass\Collector\RunType;
 use UnitEnum;
@@ -34,6 +35,7 @@ readonly class EnumLabels
             ConditionState::class => 'condition-state',
             DeploymentState::class => 'deployment-state',
             DeploymentStatus::class => 'deployment-status',
+            MissingState::class => 'missing-state',
             PackageSection::class => 'package-section',
             RepositoryKind::class => 'repository-kind',
             RepositoryVisibility::class => 'repository-visibility',

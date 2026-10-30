@@ -19,10 +19,7 @@ test('handle observes non production now for a site in another environment', fun
     $this->app->instance(Dispatcher::class, $eventFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $site = Site::factory()->create([
-        'app_env' => fake()->randomElement(['local', 'staging', 'testing']),
-        'missing_at' => null,
-    ]);
+    $site = Site::factory()->create(['app_env' => fake()->randomElement(['local', 'staging', 'testing'])]);
 
     $evaluateNonProduction = $this->app->make(EvaluateNonProduction::class);
     $evaluateNonProduction->handle(new SiteInspected($site));
@@ -40,10 +37,7 @@ test('handle observes non production resolved now for a site in production or wi
     $this->app->instance(Dispatcher::class, $eventFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $site = Site::factory()->create([
-        'app_env' => $appEnv,
-        'missing_at' => null,
-    ]);
+    $site = Site::factory()->create(['app_env' => $appEnv]);
 
     $evaluateNonProduction = $this->app->make(EvaluateNonProduction::class);
     $evaluateNonProduction->handle(new SiteInspected($site));
@@ -55,19 +49,3 @@ test('handle observes non production resolved now for a site in production or wi
             && $conditionObserved->observedAt->equalTo($now);
     });
 })->with(['production', null]);
-
-test('handle observes non production resolved for a missing site in another environment', function (): void {
-    $eventFake = new EventFake($this->app->make(Dispatcher::class));
-    $this->app->instance(Dispatcher::class, $eventFake);
-    $site = Site::factory()->create([
-        'app_env' => fake()->randomElement(['local', 'staging', 'testing']),
-        'missing_at' => fake()->dateTime(),
-    ]);
-
-    $evaluateNonProduction = $this->app->make(EvaluateNonProduction::class);
-    $evaluateNonProduction->handle(new SiteInspected($site));
-
-    $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved): bool {
-        return $conditionObserved->condition === ConditionState::RESOLVED;
-    });
-});

@@ -20,10 +20,7 @@ test('handle observes unauthorized client now for a site that refused the key', 
     $this->app->instance(Dispatcher::class, $eventFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $site = Site::factory()->create([
-        'client_status' => ClientStatus::UNAUTHORIZED,
-        'missing_at' => null,
-    ]);
+    $site = Site::factory()->create(['client_status' => ClientStatus::UNAUTHORIZED]);
 
     $evaluateUnauthorizedClient = $this->app->make(EvaluateUnauthorizedClient::class);
     $evaluateUnauthorizedClient->handle(new SiteInspected($site));
@@ -41,10 +38,7 @@ test('handle observes unauthorized client resolved now for a site with any other
     $this->app->instance(Dispatcher::class, $eventFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $site = Site::factory()->create([
-        'client_status' => $clientStatus,
-        'missing_at' => null,
-    ]);
+    $site = Site::factory()->create(['client_status' => $clientStatus]);
 
     $evaluateUnauthorizedClient = $this->app->make(EvaluateUnauthorizedClient::class);
     $evaluateUnauthorizedClient->handle(new SiteInspected($site));
@@ -62,19 +56,3 @@ test('handle observes unauthorized client resolved now for a site with any other
     ClientStatus::UNREACHABLE,
     null,
 ]);
-
-test('handle observes unauthorized client resolved for a missing site that refused the key', function (): void {
-    $eventFake = new EventFake($this->app->make(Dispatcher::class));
-    $this->app->instance(Dispatcher::class, $eventFake);
-    $site = Site::factory()->create([
-        'client_status' => ClientStatus::UNAUTHORIZED,
-        'missing_at' => fake()->dateTime(),
-    ]);
-
-    $evaluateUnauthorizedClient = $this->app->make(EvaluateUnauthorizedClient::class);
-    $evaluateUnauthorizedClient->handle(new SiteInspected($site));
-
-    $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved): bool {
-        return $conditionObserved->condition === ConditionState::RESOLVED;
-    });
-});

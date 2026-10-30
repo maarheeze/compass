@@ -3,13 +3,10 @@
     <span>
         {{ __('compass::missing.missing_from_last_sync_since') }}
         <x-compass::time :time="$missingAt" />
-        @if ($missingIgnoredAt)
-            &middot; {{ __('compass::missing.ignored_suffix') }}
-        @endif
     </span>
 
     <div class="ml-auto flex items-center gap-2">
-        @if (!$missingIgnoredAt)
+        @if ($canIgnore)
             <form method="POST" action="{{ $ignoreUrl }}">
                 @csrf
                 <x-compass::button>{{ __('compass::missing.ignore') }}</x-compass::button>

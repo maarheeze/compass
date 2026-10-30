@@ -19,6 +19,7 @@ use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
 use Maarheeze\Compass\Database\Factories\RepositoryFactory;
 use Maarheeze\Compass\Models\Concerns\HasAlerts;
+use Maarheeze\Compass\Models\Concerns\HasMissingState;
 use Maarheeze\Compass\Models\Concerns\HasObservations;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
@@ -55,6 +56,7 @@ class Repository extends Model implements AlertSubject
     use HasAlerts;
     /** @use HasFactory<RepositoryFactory> */
     use HasFactory;
+    use HasMissingState;
     use HasObservations;
     use HasUuidAsId;
 

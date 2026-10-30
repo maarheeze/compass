@@ -6,6 +6,27 @@ use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\View\Components\RepositoryMissingNotice;
 
+test('can ignore a missing repository', function (): void {
+    $repository = Repository::factory()->create(['missing_at' => fake()->dateTime()]);
+
+    $repositoryMissingNotice = $this->app->make(RepositoryMissingNotice::class, ['repository' => $repository]);
+
+    expect($repositoryMissingNotice->canIgnore)
+        ->toBeTrue();
+});
+
+test('cannot ignore a repository that is already ignored', function (): void {
+    $repository = Repository::factory()->create([
+        'missing_at' => fake()->dateTime(),
+        'missing_ignored_at' => fake()->dateTime(),
+    ]);
+
+    $repositoryMissingNotice = $this->app->make(RepositoryMissingNotice::class, ['repository' => $repository]);
+
+    expect($repositoryMissingNotice->canIgnore)
+        ->toBeFalse();
+});
+
 test('delete url is the delete action of the repository', function (): void {
     $repository = Repository::factory()->create(['missing_at' => fake()->dateTime()]);
 
@@ -26,6 +47,18 @@ test('ignore url is the ignore action of the repository', function (): void {
 
 test('should render when the repository is missing', function (): void {
     $repository = Repository::factory()->create(['missing_at' => fake()->dateTime()]);
+
+    $repositoryMissingNotice = $this->app->make(RepositoryMissingNotice::class, ['repository' => $repository]);
+
+    expect($repositoryMissingNotice->shouldRender())
+        ->toBeTrue();
+});
+
+test('should render when the repository is ignored', function (): void {
+    $repository = Repository::factory()->create([
+        'missing_at' => fake()->dateTime(),
+        'missing_ignored_at' => fake()->dateTime(),
+    ]);
 
     $repositoryMissingNotice = $this->app->make(RepositoryMissingNotice::class, ['repository' => $repository]);
 

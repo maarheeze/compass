@@ -102,6 +102,17 @@ test('handle leaves a site without a key alone', function (): void {
     $http->assertNothingSent();
 });
 
+test('handle leaves a missing site alone', function (): void {
+    $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake();
+
+    $inspectSite = new InspectSite($site);
+    $this->app->call([$inspectSite, 'handle']);
+
+    $http->assertNothingSent();
+});
+
 test('handle adds the site to the log context', function (): void {
     $site = Site::factory()->create(['client_key' => null]);
     $this->setConfiguration('compass.client.key', null);

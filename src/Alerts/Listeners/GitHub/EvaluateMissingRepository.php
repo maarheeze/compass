@@ -12,6 +12,7 @@ use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
 use Maarheeze\Compass\Collector\Events\RepositoryMissingIgnored;
+use Maarheeze\Compass\Collector\MissingState;
 use Maarheeze\Compass\Models\Repository;
 use Psr\Clock\ClockInterface;
 
@@ -52,16 +53,20 @@ readonly class EvaluateMissingRepository implements ShouldQueue
 
     private function observe(Repository $repository, CarbonImmutable $observedAt): void
     {
-        $observedCondition = match ($repository->missing_at !== null && $repository->missing_ignored_at === null) {
-            true => ConditionState::ACTIVE,
-            false => ConditionState::RESOLVED,
-        };
-
         $this->events->dispatch(new ConditionObserved(
             AlertType::MISSING_REPOSITORY,
             $repository,
-            $observedCondition,
+            $this->observedCondition($repository),
             $observedAt,
         ));
+    }
+
+    private function observedCondition(Repository $repository): ConditionState
+    {
+        if ($repository->missingState() === MissingState::MISSING) {
+            return ConditionState::ACTIVE;
+        }
+
+        return ConditionState::RESOLVED;
     }
 }

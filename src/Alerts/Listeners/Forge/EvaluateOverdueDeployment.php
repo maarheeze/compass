@@ -30,17 +30,21 @@ readonly class EvaluateOverdueDeployment implements ShouldQueue
         $observedAt = CarbonImmutable::instance($this->clock->now());
 
         foreach (Site::query()->with('repository')->get() as $site) {
-            $observedCondition = match ($this->deploymentStateClassifier->classify($site)) {
-                DeploymentState::DEPLOYMENT_OVERDUE => ConditionState::ACTIVE,
-                default => ConditionState::RESOLVED,
-            };
-
             $this->events->dispatch(new ConditionObserved(
                 AlertType::OVERDUE_DEPLOYMENT,
                 $site,
-                $observedCondition,
+                $this->observedCondition($site),
                 $observedAt,
             ));
         }
+    }
+
+    private function observedCondition(Site $site): ConditionState
+    {
+        if ($this->deploymentStateClassifier->classify($site) === DeploymentState::DEPLOYMENT_OVERDUE) {
+            return ConditionState::ACTIVE;
+        }
+
+        return ConditionState::RESOLVED;
     }
 }
