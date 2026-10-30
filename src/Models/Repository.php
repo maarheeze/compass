@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\IssueCollection;
@@ -18,6 +19,7 @@ use Maarheeze\Compass\Collections\RepositoryCollection;
 use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
 use Maarheeze\Compass\Database\Factories\RepositoryFactory;
+use Maarheeze\Compass\Models\Builders\RepositoryBuilder;
 use Maarheeze\Compass\Models\Concerns\HasAlerts;
 use Maarheeze\Compass\Models\Concerns\HasMissingState;
 use Maarheeze\Compass\Models\Concerns\HasObservations;
@@ -132,6 +134,16 @@ class Repository extends Model implements AlertSubject
     public function getTable(): string
     {
         return 'compass_repositories';
+    }
+
+    /**
+     * @param QueryBuilder $query
+     *
+     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+     */
+    public function newEloquentBuilder($query): RepositoryBuilder
+    {
+        return new RepositoryBuilder($query);
     }
 
     /**

@@ -34,7 +34,7 @@ readonly class ResolveMissingSiteConditions implements ShouldQueue
     {
         $observedAt = CarbonImmutable::instance($this->clock->now());
         $missingSites = Site::query()
-            ->whereNotNull('missing_at')
+            ->notCollected()
             ->with('endpoints')
             ->get();
 

@@ -22,7 +22,7 @@ class InspectSites implements ShouldQueue
     public function handle(CollectorLogger $collectorLogger): void
     {
         $collectedSites = Site::query()
-            ->whereNull('missing_at')
+            ->collected()
             ->get();
 
         $inspectSiteJobs = [];

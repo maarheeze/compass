@@ -7,8 +7,8 @@ namespace Maarheeze\Compass\Collector\GitHub;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\ConnectionInterface;
-use Illuminate\Database\Eloquent\Builder;
 use Maarheeze\Compass\Collector\Events\RepositoryMissingIgnored;
+use Maarheeze\Compass\Models\Builders\RepositoryBuilder;
 use Maarheeze\Compass\Models\Repository;
 use Throwable;
 
@@ -32,7 +32,7 @@ readonly class MissingRepositoryResolver
     {
         $missingRepository = Repository::query()
             ->whereKey($repository->id)
-            ->whereNotNull('missing_at')
+            ->notCollected()
             ->firstOrFail();
 
         $this->connection->transaction(static function () use ($missingRepository): void {
@@ -48,14 +48,10 @@ readonly class MissingRepositoryResolver
         $this->events->dispatch(new RepositoryMissingIgnored($missingRepository));
     }
 
-    /**
-     * @return Builder<Repository>
-     */
-    private function ignorableRepositoryQuery(Repository $repository): Builder
+    private function ignorableRepositoryQuery(Repository $repository): RepositoryBuilder
     {
         return Repository::query()
             ->whereKey($repository->id)
-            ->whereNotNull('missing_at')
-            ->whereNull('missing_ignored_at');
+            ->missing();
     }
 }

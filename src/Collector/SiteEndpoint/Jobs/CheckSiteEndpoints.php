@@ -8,9 +8,9 @@ use Illuminate\Bus\Batch;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Queue\InteractsWithQueue;
 use Maarheeze\Compass\Collector\CollectorLogger;
+use Maarheeze\Compass\Models\Builders\SiteBuilder;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Webmozart\Assert\Assert;
 
@@ -23,8 +23,8 @@ class CheckSiteEndpoints implements ShouldQueue
     public function handle(CollectorLogger $collectorLogger): void
     {
         $collectedSiteEndpoints = SiteEndpoint::query()
-            ->whereHas('site', static function (Builder $siteQuery): void {
-                $siteQuery->whereNull('missing_at');
+            ->whereHas('site', static function (SiteBuilder $siteQuery): void {
+                $siteQuery->collected();
             })
             ->with('site')
             ->get();

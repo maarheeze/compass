@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\ObservationCollection;
@@ -19,6 +20,7 @@ use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\Forge\DeploymentStatus;
 use Maarheeze\Compass\Collector\Forge\SiteStatus;
 use Maarheeze\Compass\Database\Factories\SiteFactory;
+use Maarheeze\Compass\Models\Builders\SiteBuilder;
 use Maarheeze\Compass\Models\Concerns\HasAlerts;
 use Maarheeze\Compass\Models\Concerns\HasMissingState;
 use Maarheeze\Compass\Models\Concerns\HasObservations;
@@ -114,6 +116,16 @@ class Site extends Model implements AlertSubject
     public function getTable(): string
     {
         return 'compass_sites';
+    }
+
+    /**
+     * @param QueryBuilder $query
+     *
+     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+     */
+    public function newEloquentBuilder($query): SiteBuilder
+    {
+        return new SiteBuilder($query);
     }
 
     /**

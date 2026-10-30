@@ -7,8 +7,8 @@ namespace Maarheeze\Compass\Collector\Forge;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\ConnectionInterface;
-use Illuminate\Database\Eloquent\Builder;
 use Maarheeze\Compass\Collector\Events\SiteMissingIgnored;
+use Maarheeze\Compass\Models\Builders\SiteBuilder;
 use Maarheeze\Compass\Models\Site;
 use Throwable;
 
@@ -32,7 +32,7 @@ readonly class MissingSiteResolver
     {
         $missingSite = Site::query()
             ->whereKey($site->id)
-            ->whereNotNull('missing_at')
+            ->notCollected()
             ->with('endpoints')
             ->firstOrFail();
 
@@ -53,14 +53,10 @@ readonly class MissingSiteResolver
         $this->events->dispatch(new SiteMissingIgnored($missingSite));
     }
 
-    /**
-     * @return Builder<Site>
-     */
-    private function ignorableSiteQuery(Site $site): Builder
+    private function ignorableSiteQuery(Site $site): SiteBuilder
     {
         return Site::query()
             ->whereKey($site->id)
-            ->whereNotNull('missing_at')
-            ->whereNull('missing_ignored_at');
+            ->missing();
     }
 }

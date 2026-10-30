@@ -15,7 +15,7 @@ readonly class RepositorySynchronizer
     {
         Repository::query()
             ->whereNot('run_id', $runId)
-            ->whereNull('missing_at')
+            ->collected()
             ->update(['missing_at' => CarbonImmutable::now()]);
     }
 
