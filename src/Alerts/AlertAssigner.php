@@ -71,17 +71,13 @@ readonly class AlertAssigner
         return Alert::query()
             ->whereKey($alert->id)
             ->notDone()
-            ->where(static function (AlertBuilder $alertQuery) use ($user): void {
-                $alertQuery
-                    ->whereNull('assignee_id')
-                    ->orWhereNot('assignee_id', $user->id);
-            });
+            ->notAssignedTo($user);
     }
 
     private function unassignableAlertQuery(Alert $alert): AlertBuilder
     {
         return Alert::query()
             ->whereKey($alert->id)
-            ->whereNotNull('assignee_id');
+            ->assigned();
     }
 }

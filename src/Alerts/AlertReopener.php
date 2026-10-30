@@ -50,12 +50,11 @@ readonly class AlertReopener
     {
         return Alert::query()
             ->whereKey($alert->id)
-            ->where('status', AlertStatus::DONE)
+            ->done()
             ->whereNotExists(
                 Alert::query()
-                    ->where('subject_type', $alert->subject_type)
-                    ->where('subject_id', $alert->subject_id)
-                    ->where('type', $alert->type)
+                    ->ofSameSubjectAs($alert)
+                    ->ofType($alert->type)
                     ->notDone(),
             );
     }
