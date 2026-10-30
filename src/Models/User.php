@@ -6,11 +6,13 @@ namespace Maarheeze\Compass\Models;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\HasBuilder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Maarheeze\Compass\Collections\NotificationSubscriptionCollection;
 use Maarheeze\Compass\Database\Factories\UserFactory;
+use Maarheeze\Compass\Models\Builders\UserBuilder;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
 
@@ -30,10 +32,14 @@ use Maarheeze\Uuid\Uuid;
  */
 class User extends Authenticatable
 {
+    /** @use HasBuilder<UserBuilder> */
+    use HasBuilder;
     /** @use HasFactory<UserFactory> */
     use HasFactory;
     use HasUuidAsId;
     use Notifiable;
+
+    protected static string $builder = UserBuilder::class;
 
     public function getAuthIdentifier(): string
     {

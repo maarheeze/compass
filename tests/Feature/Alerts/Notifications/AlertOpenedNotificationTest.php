@@ -2,16 +2,34 @@
 
 declare(strict_types=1);
 
+use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\Notifications\AlertOpenedMailable;
 use Maarheeze\Compass\Alerts\Notifications\AlertOpenedNotification;
 use Maarheeze\Compass\Models\Alert;
+use Maarheeze\Compass\Models\NotificationSubscription;
 use Maarheeze\Compass\Models\User;
 
-test('via is mail', function (): void {
-    $alertOpenedNotification = new AlertOpenedNotification(Alert::factory()->create());
+test('via is the channels the user subscribed to for the type of the alert', function (): void {
+    $alert = Alert::factory()->create();
+    $notificationSubscription = NotificationSubscription::factory()->create(['alert_type' => $alert->type]);
 
-    expect($alertOpenedNotification->via())
-        ->toBe(['mail']);
+    $alertOpenedNotification = new AlertOpenedNotification($alert);
+    $channels = $alertOpenedNotification->via($notificationSubscription->user);
+
+    expect($channels)
+        ->toBe([$notificationSubscription->channel->value]);
+});
+
+test('via leaves out the channels the user subscribed to for another alert type', function (): void {
+    [$alertType, $otherAlertType] = fake()->randomElements(AlertType::cases(), 2);
+    $alert = Alert::factory()->create(['type' => $alertType]);
+    $notificationSubscription = NotificationSubscription::factory()->create(['alert_type' => $otherAlertType]);
+
+    $alertOpenedNotification = new AlertOpenedNotification($alert);
+    $channels = $alertOpenedNotification->via($notificationSubscription->user);
+
+    expect($channels)
+        ->toBeEmpty();
 });
 
 test('to mail is the mail of the alert to the email of the user', function (): void {

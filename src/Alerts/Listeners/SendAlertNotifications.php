@@ -18,6 +18,13 @@ readonly class SendAlertNotifications
 
     public function handle(AlertOpened $alertOpened): void
     {
-        $this->notifications->send(User::query()->get(), new AlertOpenedNotification($alertOpened->alert));
+        $subscribedUsers = User::query()
+            ->subscribedTo($alertOpened->alert->type)
+            ->lazyById();
+        $alertOpenedNotification = new AlertOpenedNotification($alertOpened->alert);
+
+        foreach ($subscribedUsers as $subscribedUser) {
+            $this->notifications->send($subscribedUser, $alertOpenedNotification);
+        }
     }
 }

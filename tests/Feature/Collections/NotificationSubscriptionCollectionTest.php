@@ -29,3 +29,25 @@ test('has subscription is false for another alert type', function (): void {
     expect($hasSubscription)
         ->toBeFalse();
 });
+
+test('notification channels are the channels of the subscriptions to the alert type', function (): void {
+    $notificationSubscription = NotificationSubscription::factory()->create();
+    $notificationSubscriptions = new NotificationSubscriptionCollection([$notificationSubscription]);
+
+    $notificationChannels = $notificationSubscriptions->notificationChannels($notificationSubscription->alert_type);
+
+    expect($notificationChannels)
+        ->toBe([$notificationSubscription->channel]);
+});
+
+test('notification channels leave out the subscriptions to another alert type', function (): void {
+    [$alertType, $otherAlertType] = fake()->randomElements(AlertType::cases(), 2);
+    $notificationSubscriptions = new NotificationSubscriptionCollection([
+        NotificationSubscription::factory()->create(['alert_type' => $otherAlertType]),
+    ]);
+
+    $notificationChannels = $notificationSubscriptions->notificationChannels($alertType);
+
+    expect($notificationChannels)
+        ->toBeEmpty();
+});

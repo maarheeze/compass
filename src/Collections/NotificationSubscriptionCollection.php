@@ -9,6 +9,8 @@ use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\NotificationChannel;
 use Maarheeze\Compass\Models\NotificationSubscription;
 
+use function array_values;
+
 /**
  * @extends Collection<array-key, NotificationSubscription>
  */
@@ -20,5 +22,18 @@ class NotificationSubscriptionCollection extends Collection
             ->where('alert_type', $alertType)
             ->where('channel', $notificationChannel)
             ->isNotEmpty();
+    }
+
+    /**
+     * @return list<NotificationChannel>
+     */
+    public function notificationChannels(AlertType $alertType): array
+    {
+        return array_values($this
+            ->where('alert_type', $alertType)
+            ->map(static function (NotificationSubscription $notificationSubscription): NotificationChannel {
+                return $notificationSubscription->channel;
+            })
+            ->all());
     }
 }
