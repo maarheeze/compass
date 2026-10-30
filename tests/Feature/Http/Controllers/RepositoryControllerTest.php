@@ -61,6 +61,36 @@ test('index contains the other repositories', function (): void {
     );
 });
 
+test('index counts the issues of the repositories', function (): void {
+    $repository = Repository::factory()->create(['composer_json_oid' => null]);
+    Issue::factory()->create(['repository_id' => $repository->id]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::GITHUB_REPOSITORIES));
+
+    $response->assertViewHas(
+        'otherRepositories',
+        static function (RepositoryCollection $viewOtherRepositories): bool {
+            return $viewOtherRepositories->sole()->issues_count === 1;
+        },
+    );
+});
+
+test('index counts the pull requests of the repositories', function (): void {
+    $repository = Repository::factory()->create(['composer_json_oid' => null]);
+    PullRequest::factory()->create(['repository_id' => $repository->id]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::GITHUB_REPOSITORIES));
+
+    $response->assertViewHas(
+        'otherRepositories',
+        static function (RepositoryCollection $viewOtherRepositories): bool {
+            return $viewOtherRepositories->sole()->pull_requests_count === 1;
+        },
+    );
+});
+
 test('show contains the repository', function (): void {
     $repository = Repository::factory()->create();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);

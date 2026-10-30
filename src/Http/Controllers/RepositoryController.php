@@ -51,6 +51,7 @@ readonly class RepositoryController
         $repositories = Assert::isInstanceOf(
             Repository::query()
                 ->with('composerJson')
+                ->withCount(['issues', 'pullRequests'])
                 ->orderBy('name')
                 ->get(),
             RepositoryCollection::class,

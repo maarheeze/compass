@@ -53,8 +53,10 @@ use Maarheeze\Uuid\Uuid;
  * @property-read ?ComposerLock $composerLock
  * @property-read ?DependabotYml $dependabotYml
  * @property-read IssueCollection $issues
+ * @property-read int $issues_count
  * @property-read ObservationCollection $observations
  * @property-read PullRequestCollection $pullRequests
+ * @property-read int $pull_requests_count
  * @property-read SiteCollection $sites
  */
 class Repository extends Model implements AlertSubject
