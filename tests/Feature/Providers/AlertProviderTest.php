@@ -15,6 +15,7 @@ use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteBehind;
 use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteDeploymentOverdue;
 use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteMissing;
 use Maarheeze\Compass\Alerts\Listeners\Forge\ResolveMissingSiteConditions;
+use Maarheeze\Compass\Alerts\Listeners\GitHub\EvaluateDependabotCoverage;
 use Maarheeze\Compass\Alerts\Listeners\GitHub\EvaluateRepositoryMissing;
 use Maarheeze\Compass\Alerts\Listeners\ObservationHandler;
 use Maarheeze\Compass\Alerts\Listeners\SendAlertNotifications;
@@ -84,6 +85,12 @@ test('evaluate composer warning listens to github run succeeded', function (): v
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
     $eventFake->assertListening(GitHubRunSucceeded::class, EvaluateComposerWarning::class);
+});
+
+test('evaluate dependabot coverage listens to github run succeeded', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+
+    $eventFake->assertListening(GitHubRunSucceeded::class, EvaluateDependabotCoverage::class);
 });
 
 test('evaluate missing site listens to forge run succeeded', function (): void {

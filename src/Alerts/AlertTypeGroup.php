@@ -8,6 +8,7 @@ enum AlertTypeGroup: string
 {
     case CLIENT = 'client';
     case COMPOSER = 'composer';
+    case DEPENDABOT = 'dependabot';
     case ENDPOINT = 'endpoint';
     case FORGE = 'forge';
     case GITHUB = 'github';
@@ -29,6 +30,10 @@ enum AlertTypeGroup: string
                 AlertType::COMPOSER_PROJECT_WITHOUT_LOCK,
                 AlertType::COMPOSER_TYPE_MISSING,
                 AlertType::COMPOSER_TYPE_UNKNOWN,
+            ],
+            self::DEPENDABOT => [
+                AlertType::DEPENDABOT_COMPOSER_MISSING,
+                AlertType::DEPENDABOT_NPM_MISSING,
             ],
             self::ENDPOINT => [
                 AlertType::SITE_ENDPOINT_DOWN,

@@ -7,6 +7,8 @@ return [
     'COMPOSER_PROJECT_WITHOUT_LOCK' => 'Project without composer.lock',
     'COMPOSER_TYPE_MISSING' => 'Composer type is missing',
     'COMPOSER_TYPE_UNKNOWN' => 'Composer type unknown',
+    'DEPENDABOT_COMPOSER_MISSING' => 'Dependabot missing for Composer',
+    'DEPENDABOT_NPM_MISSING' => 'Dependabot missing for npm',
     'REPOSITORY_MISSING' => 'Repository is missing',
     'SITE_BEHIND' => 'Site behind',
     'SITE_CLIENT_INCOMPATIBLE' => 'Client imcompatible',

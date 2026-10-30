@@ -10,6 +10,8 @@ enum AlertType: string
     case COMPOSER_PROJECT_WITHOUT_LOCK = 'composer-project-without-lock';
     case COMPOSER_TYPE_MISSING = 'composer-type-missing';
     case COMPOSER_TYPE_UNKNOWN = 'composer-type-unknown';
+    case DEPENDABOT_COMPOSER_MISSING = 'dependabot-composer-missing';
+    case DEPENDABOT_NPM_MISSING = 'dependabot-npm-missing';
     case REPOSITORY_MISSING = 'repository-missing';
     case SITE_BEHIND = 'site-behind';
     case SITE_CLIENT_INCOMPATIBLE = 'site-client-incompatible';

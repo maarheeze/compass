@@ -48,6 +48,8 @@ class AlertFactory extends Factory
             AlertType::COMPOSER_PROJECT_WITHOUT_LOCK => $alertFactoryWithState->composerProjectWithoutLock(),
             AlertType::COMPOSER_TYPE_MISSING => $alertFactoryWithState->composerTypeMissing(),
             AlertType::COMPOSER_TYPE_UNKNOWN => $alertFactoryWithState->composerTypeUnknown(),
+            AlertType::DEPENDABOT_COMPOSER_MISSING => $alertFactoryWithState->dependabotComposerMissing(),
+            AlertType::DEPENDABOT_NPM_MISSING => $alertFactoryWithState->dependabotNpmMissing(),
             AlertType::REPOSITORY_MISSING => $alertFactoryWithState->repositoryMissing(),
             AlertType::SITE_BEHIND => $alertFactoryWithState->siteBehind(),
             AlertType::SITE_CLIENT_INCOMPATIBLE => $alertFactoryWithState->siteClientIncompatible(),
@@ -101,6 +103,16 @@ class AlertFactory extends Factory
             'assignee_id' => fake()->optional()->passthrough(User::factory()),
             'is_muted' => false,
         ];
+    }
+
+    public function dependabotComposerMissing(): static
+    {
+        return $this->state(['type' => AlertType::DEPENDABOT_COMPOSER_MISSING])->for(Repository::factory(), 'subject');
+    }
+
+    public function dependabotNpmMissing(): static
+    {
+        return $this->state(['type' => AlertType::DEPENDABOT_NPM_MISSING])->for(Repository::factory(), 'subject');
     }
 
     public function done(): static

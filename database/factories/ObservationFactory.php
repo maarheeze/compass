@@ -41,6 +41,8 @@ class ObservationFactory extends Factory
             AlertType::COMPOSER_PROJECT_WITHOUT_LOCK,
             AlertType::COMPOSER_TYPE_MISSING,
             AlertType::COMPOSER_TYPE_UNKNOWN,
+            AlertType::DEPENDABOT_COMPOSER_MISSING,
+            AlertType::DEPENDABOT_NPM_MISSING,
             AlertType::REPOSITORY_MISSING => Repository::factory(),
         };
 
