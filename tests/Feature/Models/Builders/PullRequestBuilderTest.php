@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Collection;
 use Maarheeze\Compass\Models\PullRequest;
 use Maarheeze\Compass\Models\PullRequestAssignee;
 use Maarheeze\Compass\Models\User;
@@ -54,5 +55,27 @@ test('not returned by run leaves out a pullRequest returned by the run', functio
         ->get();
 
     expect($pullRequestsNotReturnedByRun)
+        ->toBeEmpty();
+});
+
+test('of git hub ids keeps a pullRequest with one of the ids', function (): void {
+    $pullRequest = PullRequest::factory()->create();
+
+    $pullRequestsOfGitHubIds = PullRequest::query()
+        ->ofGitHubIds(new Collection([$pullRequest->github_id]))
+        ->get();
+
+    expect($pullRequestsOfGitHubIds->sole()->is($pullRequest))
+        ->toBeTrue();
+});
+
+test('of git hub ids leaves out a pullRequest with another id', function (): void {
+    PullRequest::factory()->create();
+
+    $pullRequestsOfGitHubIds = PullRequest::query()
+        ->ofGitHubIds(new Collection([fake()->unique()->sha1()]))
+        ->get();
+
+    expect($pullRequestsOfGitHubIds)
         ->toBeEmpty();
 });

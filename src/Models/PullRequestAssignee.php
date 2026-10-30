@@ -7,8 +7,10 @@ namespace Maarheeze\Compass\Models;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Maarheeze\Compass\Collections\PullRequestAssigneeCollection;
 use Maarheeze\Compass\Database\Factories\PullRequestAssigneeFactory;
+use Maarheeze\Compass\Models\Builders\PullRequestAssigneeBuilder;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
@@ -42,6 +44,16 @@ class PullRequestAssignee extends Model
     public function getTable(): string
     {
         return 'compass_pull_request_assignees';
+    }
+
+    /**
+     * @param QueryBuilder $query
+     *
+     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+     */
+    public function newEloquentBuilder($query): PullRequestAssigneeBuilder
+    {
+        return new PullRequestAssigneeBuilder($query);
     }
 
     /**

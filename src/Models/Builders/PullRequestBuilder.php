@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Models\Builders;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Maarheeze\Compass\Models\PullRequest;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Uuid\Uuid;
@@ -24,5 +25,13 @@ class PullRequestBuilder extends Builder
     public function notReturnedByRun(Uuid $runId): self
     {
         return $this->whereNot('run_id', $runId);
+    }
+
+    /**
+     * @param Collection<int, string> $gitHubIds
+     */
+    public function ofGitHubIds(Collection $gitHubIds): self
+    {
+        return $this->whereIn('github_id', $gitHubIds);
     }
 }

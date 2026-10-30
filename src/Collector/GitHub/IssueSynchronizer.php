@@ -23,7 +23,7 @@ readonly class IssueSynchronizer
     public function storeIssues(GitHubIssueCollection $gitHubIssues, Uuid $runId): void
     {
         $repositoryIds = Repository::query()
-            ->whereIn('name', $gitHubIssues->pluck('repositoryName'))
+            ->named($gitHubIssues->repositoryNames())
             ->pluck('id', 'name');
         $gitHubIssuesOfKnownRepositories = $gitHubIssues->filter(
             static function (GitHubIssue $gitHubIssue) use ($repositoryIds): bool {
@@ -52,9 +52,10 @@ readonly class IssueSynchronizer
 
     private function storeAssignees(GitHubIssueCollection $gitHubIssues): void
     {
-        $issueIds = Issue::query()
-            ->whereIn('github_id', $gitHubIssues->pluck('gitHubId'))
-            ->pluck('id', 'github_id');
+        $issuesOfGitHubIssues = Issue::query()
+            ->ofGitHubIds($gitHubIssues->gitHubIds())
+            ->get();
+        $issueIds = $issuesOfGitHubIssues->pluck('id', 'github_id');
         $assigneeValues = [];
 
         foreach ($gitHubIssues as $gitHubIssue) {
@@ -70,7 +71,7 @@ readonly class IssueSynchronizer
         }
 
         IssueAssignee::query()
-            ->whereIn('issue_id', $issueIds)
+            ->ofIssues($issuesOfGitHubIssues)
             ->delete();
         IssueAssignee::query()->insert($assigneeValues);
     }

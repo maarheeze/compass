@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Models\Builders;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 
@@ -35,6 +36,14 @@ class RepositoryBuilder extends Builder
         return $this
             ->whereNotNull('missing_at')
             ->whereNull('missing_ignored_at');
+    }
+
+    /**
+     * @param Collection<int, string> $names
+     */
+    public function named(Collection $names): self
+    {
+        return $this->whereIn('name', $names);
     }
 
     public function notCollected(): self

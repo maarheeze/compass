@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Collection;
 use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\ComposerLock;
 use Maarheeze\Compass\Models\Repository;
@@ -254,5 +255,27 @@ test('composer lock out of date leaves out a repository that never had a compose
         ->get();
 
     expect($repositoriesWithComposerLockOutOfDate)
+        ->toBeEmpty();
+});
+
+test('named keeps a repository with one of the names', function (): void {
+    $repository = Repository::factory()->create();
+
+    $namedRepositories = Repository::query()
+        ->named(new Collection([$repository->name]))
+        ->get();
+
+    expect($namedRepositories->sole()->is($repository))
+        ->toBeTrue();
+});
+
+test('named leaves out a repository with another name', function (): void {
+    Repository::factory()->create();
+
+    $namedRepositories = Repository::query()
+        ->named(new Collection([fake()->unique()->slug()]))
+        ->get();
+
+    expect($namedRepositories)
         ->toBeEmpty();
 });

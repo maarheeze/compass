@@ -18,9 +18,7 @@ readonly class ComposerLockSynchronizer
 
     public function delete(Repository $repository): void
     {
-        ComposerLock::query()
-            ->where('repository_id', $repository->id)
-            ->delete();
+        $repository->composerLock()->delete();
     }
 
     /**

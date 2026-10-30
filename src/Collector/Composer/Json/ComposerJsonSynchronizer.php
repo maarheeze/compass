@@ -18,9 +18,7 @@ readonly class ComposerJsonSynchronizer
 
     public function delete(Repository $repository): void
     {
-        ComposerJson::query()
-            ->where('repository_id', $repository->id)
-            ->delete();
+        $repository->composerJson()->delete();
     }
 
     /**

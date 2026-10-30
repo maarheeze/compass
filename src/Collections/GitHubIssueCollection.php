@@ -12,4 +12,23 @@ use Maarheeze\Compass\Collector\GitHub\GitHubIssue;
  */
 class GitHubIssueCollection extends Collection
 {
+    /**
+     * @return Collection<int, string>
+     */
+    public function gitHubIds(): Collection
+    {
+        return $this->toBase()->map(static function (GitHubIssue $gitHubIssue): string {
+            return $gitHubIssue->gitHubId;
+        });
+    }
+
+    /**
+     * @return Collection<int, string>
+     */
+    public function repositoryNames(): Collection
+    {
+        return $this->toBase()->map(static function (GitHubIssue $gitHubIssue): string {
+            return $gitHubIssue->repositoryName;
+        });
+    }
 }

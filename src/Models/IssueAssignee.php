@@ -7,8 +7,10 @@ namespace Maarheeze\Compass\Models;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Maarheeze\Compass\Collections\IssueAssigneeCollection;
 use Maarheeze\Compass\Database\Factories\IssueAssigneeFactory;
+use Maarheeze\Compass\Models\Builders\IssueAssigneeBuilder;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
@@ -42,6 +44,16 @@ class IssueAssignee extends Model
     public function getTable(): string
     {
         return 'compass_issue_assignees';
+    }
+
+    /**
+     * @param QueryBuilder $query
+     *
+     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+     */
+    public function newEloquentBuilder($query): IssueAssigneeBuilder
+    {
+        return new IssueAssigneeBuilder($query);
     }
 
     /**

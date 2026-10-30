@@ -25,7 +25,7 @@ readonly class PullRequestSynchronizer
         Uuid $runId,
     ): void {
         $repositoryIds = Repository::query()
-            ->whereIn('name', $gitHubPullRequests->pluck('repositoryName'))
+            ->named($gitHubPullRequests->repositoryNames())
             ->pluck('id', 'name');
         $gitHubPullRequestsOfKnownRepositories = $gitHubPullRequests->filter(
             static function (GitHubPullRequest $gitHubPullRequest) use ($repositoryIds): bool {
@@ -55,9 +55,10 @@ readonly class PullRequestSynchronizer
 
     private function storeAssignees(GitHubPullRequestCollection $gitHubPullRequests): void
     {
-        $pullRequestIds = PullRequest::query()
-            ->whereIn('github_id', $gitHubPullRequests->pluck('gitHubId'))
-            ->pluck('id', 'github_id');
+        $pullRequestsOfGitHubPullRequests = PullRequest::query()
+            ->ofGitHubIds($gitHubPullRequests->gitHubIds())
+            ->get();
+        $pullRequestIds = $pullRequestsOfGitHubPullRequests->pluck('id', 'github_id');
         $assigneeValues = [];
 
         foreach ($gitHubPullRequests as $gitHubPullRequest) {
@@ -73,7 +74,7 @@ readonly class PullRequestSynchronizer
         }
 
         PullRequestAssignee::query()
-            ->whereIn('pull_request_id', $pullRequestIds)
+            ->ofPullRequests($pullRequestsOfGitHubPullRequests)
             ->delete();
         PullRequestAssignee::query()->insert($assigneeValues);
     }

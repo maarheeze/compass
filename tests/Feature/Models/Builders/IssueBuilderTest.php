@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Collection;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\IssueAssignee;
 use Maarheeze\Compass\Models\User;
@@ -54,5 +55,27 @@ test('not returned by run leaves out a issue returned by the run', function (): 
         ->get();
 
     expect($issuesNotReturnedByRun)
+        ->toBeEmpty();
+});
+
+test('of git hub ids keeps a issue with one of the ids', function (): void {
+    $issue = Issue::factory()->create();
+
+    $issuesOfGitHubIds = Issue::query()
+        ->ofGitHubIds(new Collection([$issue->github_id]))
+        ->get();
+
+    expect($issuesOfGitHubIds->sole()->is($issue))
+        ->toBeTrue();
+});
+
+test('of git hub ids leaves out a issue with another id', function (): void {
+    Issue::factory()->create();
+
+    $issuesOfGitHubIds = Issue::query()
+        ->ofGitHubIds(new Collection([fake()->unique()->sha1()]))
+        ->get();
+
+    expect($issuesOfGitHubIds)
         ->toBeEmpty();
 });

@@ -12,4 +12,23 @@ use Maarheeze\Compass\Collector\GitHub\GitHubPullRequest;
  */
 class GitHubPullRequestCollection extends Collection
 {
+    /**
+     * @return Collection<int, string>
+     */
+    public function gitHubIds(): Collection
+    {
+        return $this->toBase()->map(static function (GitHubPullRequest $gitHubPullRequest): string {
+            return $gitHubPullRequest->gitHubId;
+        });
+    }
+
+    /**
+     * @return Collection<int, string>
+     */
+    public function repositoryNames(): Collection
+    {
+        return $this->toBase()->map(static function (GitHubPullRequest $gitHubPullRequest): string {
+            return $gitHubPullRequest->repositoryName;
+        });
+    }
 }
