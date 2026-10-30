@@ -14,25 +14,7 @@ use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
-test('handle observes non production now for a site in another environment', function (): void {
-    $eventFake = new EventFake($this->app->make(Dispatcher::class));
-    $this->app->instance(Dispatcher::class, $eventFake);
-    $now = CarbonImmutable::parse(fake()->iso8601());
-    $this->app->instance(ClockInterface::class, new MockClock($now));
-    $site = Site::factory()->create(['app_env' => fake()->randomElement(['local', 'staging', 'testing'])]);
-
-    $evaluateNonProduction = $this->app->make(EvaluateNonProduction::class);
-    $evaluateNonProduction->handle(new SiteInspected($site));
-
-    $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
-        return $conditionObserved->alertType === AlertType::NON_PRODUCTION
-            && $conditionObserved->subject === $site
-            && $conditionObserved->condition === ConditionState::ACTIVE
-            && $conditionObserved->observedAt->equalTo($now);
-    });
-});
-
-test('handle observes non production resolved now for a site in production or without an environment', function (?string $appEnv): void {
+test('handle observes non production now for a site that is not in production', function (?string $appEnv): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
@@ -45,7 +27,25 @@ test('handle observes non production resolved now for a site in production or wi
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
         return $conditionObserved->alertType === AlertType::NON_PRODUCTION
             && $conditionObserved->subject === $site
+            && $conditionObserved->condition === ConditionState::ACTIVE
+            && $conditionObserved->observedAt->equalTo($now);
+    });
+})->with(['local', 'staging', 'testing', null]);
+
+test('handle observes non production resolved now for a site in production', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+    $this->app->instance(Dispatcher::class, $eventFake);
+    $now = CarbonImmutable::parse(fake()->iso8601());
+    $this->app->instance(ClockInterface::class, new MockClock($now));
+    $site = Site::factory()->create(['app_env' => 'production']);
+
+    $evaluateNonProduction = $this->app->make(EvaluateNonProduction::class);
+    $evaluateNonProduction->handle(new SiteInspected($site));
+
+    $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
+        return $conditionObserved->alertType === AlertType::NON_PRODUCTION
+            && $conditionObserved->subject === $site
             && $conditionObserved->condition === ConditionState::RESOLVED
             && $conditionObserved->observedAt->equalTo($now);
     });
-})->with(['production', null]);
+});

@@ -78,31 +78,29 @@
             </x-compass::section-heading>
 
             <div class="rounded-md border border-border bg-canvas px-4 py-3 text-sm">
-                @if ($site->deployment_status)
-                    <p class="font-medium text-foreground">{{ $site->deployed_commit_message }}</p>
-                    <p class="mt-1 flex flex-wrap items-center gap-x-2 text-foreground-muted">
-                        <x-compass::commit-hash :repository="$site->repository" :commit-hash="$site->deployed_commit_hash" />
+                <p class="font-medium text-foreground">{{ $site->deployed_commit_message }}</p>
+                <p class="mt-1 flex flex-wrap items-center gap-x-2 text-foreground-muted">
+                    <x-compass::commit-hash :repository="$site->repository" :commit-hash="$site->deployed_commit_hash" />
+                    <span>&middot;</span>
+                    <span>
+                        @if ($site->deployment_status !== null)
+                            <x-compass::enum-label :value="$site->deployment_status" />
+                        @endif
+                    </span>
+                    @if ($site->deployment_ended_at)
                         <span>&middot;</span>
                         <span>
-                            <x-compass::enum-label :value="$site->deployment_status" />
+                            {{ __('compass::site.finished') }}
+                            <x-compass::time :time="$site->deployment_ended_at" />
                         </span>
-                        @if ($site->deployment_ended_at)
-                            <span>&middot;</span>
-                            <span>
-                                {{ __('compass::site.finished') }}
-                                <x-compass::time :time="$site->deployment_ended_at" />
-                            </span>
-                        @elseif ($site->deployment_started_at)
-                            <span>&middot;</span>
-                            <span>
-                                {{ __('compass::site.started') }}
-                                <x-compass::time :time="$site->deployment_started_at" />
-                            </span>
-                        @endif
-                    </p>
-                @else
-                    <p class="text-foreground-muted">{{ __('compass::site.never_deployed') }}</p>
-                @endif
+                    @elseif ($site->deployment_started_at)
+                        <span>&middot;</span>
+                        <span>
+                            {{ __('compass::site.started') }}
+                            <x-compass::time :time="$site->deployment_started_at" />
+                        </span>
+                    @endif
+                </p>
             </div>
         </section>
 
@@ -128,13 +126,17 @@
                             @endif
                         </dd>
 
-                        @if ($site->app_name)
+                        @if ($site->app_name !== null)
                             <dt class="text-foreground-muted">{{ __('compass::client.application') }}</dt>
                             <dd class="text-foreground">{{ $site->app_name }}</dd>
+                        @endif
 
+                        @if ($site->app_env !== null)
                             <dt class="text-foreground-muted">{{ __('compass::client.environment') }}</dt>
                             <dd class="text-foreground">{{ $site->app_env }}</dd>
+                        @endif
 
+                        @if ($site->app_debug !== null)
                             <dt class="text-foreground-muted">{{ __('compass::client.debug') }}</dt>
                             <dd class="text-foreground">
                                 @if ($site->app_debug)

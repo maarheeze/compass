@@ -35,7 +35,7 @@ readonly class EvaluateNonProduction implements ShouldQueue
 
     private function observedCondition(Site $site): ConditionState
     {
-        if ($site->app_env !== null && $site->app_env !== 'production') {
+        if ($site->app_env !== 'production') {
             return ConditionState::ACTIVE;
         }
 

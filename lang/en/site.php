@@ -14,7 +14,6 @@ return [
     'inactive' => 'Inactive',
     'last_checked' => 'Last checked',
     'latest_deployment' => 'Latest deployment',
-    'never_deployed' => 'Never deployed.',
     'no_endpoints_checked' => 'No endpoints checked yet.',
     'no_sites' => 'No sites collected yet.',
     'path' => 'Path',
