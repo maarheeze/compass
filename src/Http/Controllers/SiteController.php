@@ -60,6 +60,12 @@ readonly class SiteController
         $site->load(['endpoints', 'repository']);
 
         return $this->view->make('compass::sites.show', [
+            'activeSiteEndpointChecks' => $site
+                ->endpointChecks()
+                ->latestPerPath()
+                ->reported()
+                ->orderBy('path')
+                ->get(),
             'alerts' => Alert::query()
                 ->ofSite($site)
                 ->with('assignee')
@@ -68,9 +74,10 @@ readonly class SiteController
                 ->loadMorph('subject', [SiteEndpoint::class => ['site']]),
             'clientKey' => $this->clientKey->find($site),
             'clientPath' => $this->clientUrlFactory->path($site),
-            'latestSiteEndpointChecks' => $site
+            'inactiveSiteEndpointChecks' => $site
                 ->endpointChecks()
                 ->latestPerPath()
+                ->notReported()
                 ->orderBy('path')
                 ->get(),
             'site' => $site,

@@ -200,23 +200,19 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-border">
-                        @forelse ($latestSiteEndpointChecks as $latestSiteEndpointCheck)
-                            <tr>
-                                <td class="px-4 py-2">
-                                    <x-compass::site-endpoint-checks-link :site="$site" :path="$latestSiteEndpointCheck->path" />
-                                </td>
-                                <td class="px-4 py-2">
-                                    <x-compass::site-endpoint-check.status-label :site-endpoint-check="$latestSiteEndpointCheck" />
-                                </td>
-                                <td class="px-4 py-2 text-foreground-muted">
-                                    <x-compass::time :time="$latestSiteEndpointCheck->created_at" />
-                                </td>
-                            </tr>
-                        @empty
+                        @foreach ($activeSiteEndpointChecks as $activeSiteEndpointCheck)
+                            <x-compass::site-endpoint-check.row :site="$site" :site-endpoint-check="$activeSiteEndpointCheck" />
+                        @endforeach
+                        @foreach ($inactiveSiteEndpointChecks as $inactiveSiteEndpointCheck)
+                            <x-compass::site-endpoint-check.row :site="$site" :site-endpoint-check="$inactiveSiteEndpointCheck">
+                                <x-compass::badge type="neutral">{{ __('compass::site.inactive') }}</x-compass::badge>
+                            </x-compass::site-endpoint-check.row>
+                        @endforeach
+                        @if ($activeSiteEndpointChecks->isEmpty() && $inactiveSiteEndpointChecks->isEmpty())
                             <tr>
                                 <td colspan="3" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::site.no_endpoints_checked') }}</td>
                             </tr>
-                        @endforelse
+                        @endif
                     </tbody>
                 </table>
             </div>

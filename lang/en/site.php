@@ -11,6 +11,7 @@ return [
     'deployed_commit' => 'Deployed commit',
     'endpoint_history' => 'Endpoint history',
     'finished' => 'finished',
+    'inactive' => 'Inactive',
     'last_checked' => 'Last checked',
     'latest_deployment' => 'Latest deployment',
     'never_deployed' => 'Never deployed.',

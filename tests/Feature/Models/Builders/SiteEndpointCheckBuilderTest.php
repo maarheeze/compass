@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Maarheeze\Compass\Http\EndpointPath;
 use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
 
 test('down keeps an unsuccessful check', function (): void {
@@ -75,4 +76,60 @@ test('latest per path keeps the latest check of the same path on each site', fun
 
     expect($latestSiteEndpointCheckIds)
         ->toEqualCanonicalizing([$siteEndpointCheck->id, $siteEndpointCheckOfAnotherSite->id]);
+});
+
+test('not reported keeps a check of a path only another site reports', function (): void {
+    $siteEndpointOfAnotherSite = SiteEndpoint::factory()->create();
+    $notReportedSiteEndpointCheck = SiteEndpointCheck::factory()->create([
+        'path' => new EndpointPath($siteEndpointOfAnotherSite->path),
+    ]);
+
+    $notReportedSiteEndpointChecks = SiteEndpointCheck::query()
+        ->notReported()
+        ->get();
+
+    expect($notReportedSiteEndpointChecks->sole()->is($notReportedSiteEndpointCheck))
+        ->toBeTrue();
+});
+
+test('not reported leaves out a check of a path its site reports', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    SiteEndpointCheck::factory()->create([
+        'site_id' => $siteEndpoint->site_id,
+        'path' => new EndpointPath($siteEndpoint->path),
+    ]);
+
+    $notReportedSiteEndpointChecks = SiteEndpointCheck::query()
+        ->notReported()
+        ->get();
+
+    expect($notReportedSiteEndpointChecks)
+        ->toBeEmpty();
+});
+
+test('reported keeps a check of a path its site reports', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $reportedSiteEndpointCheck = SiteEndpointCheck::factory()->create([
+        'site_id' => $siteEndpoint->site_id,
+        'path' => new EndpointPath($siteEndpoint->path),
+    ]);
+
+    $reportedSiteEndpointChecks = SiteEndpointCheck::query()
+        ->reported()
+        ->get();
+
+    expect($reportedSiteEndpointChecks->sole()->is($reportedSiteEndpointCheck))
+        ->toBeTrue();
+});
+
+test('reported leaves out a check of a path only another site reports', function (): void {
+    $siteEndpointOfAnotherSite = SiteEndpoint::factory()->create();
+    SiteEndpointCheck::factory()->create(['path' => new EndpointPath($siteEndpointOfAnotherSite->path)]);
+
+    $reportedSiteEndpointChecks = SiteEndpointCheck::query()
+        ->reported()
+        ->get();
+
+    expect($reportedSiteEndpointChecks)
+        ->toBeEmpty();
 });

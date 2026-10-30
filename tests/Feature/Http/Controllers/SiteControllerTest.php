@@ -6,6 +6,7 @@ use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
+use Maarheeze\Compass\Http\EndpointPath;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Site;
@@ -71,18 +72,38 @@ test('show loads the assignee of the alerts', function (): void {
     });
 });
 
-test('show contains the latest check of each checked endpoint path', function (): void {
-    $latestSiteEndpointCheck = SiteEndpointCheck::factory()->create();
+test('show contains the latest check of a reported endpoint path as active', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $activeSiteEndpointCheck = SiteEndpointCheck::factory()->create([
+        'site_id' => $siteEndpoint->site_id,
+        'path' => new EndpointPath($siteEndpoint->path),
+    ]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::FORGE_SITE, $latestSiteEndpointCheck->site));
+    $response = $this->get(route(RouteName::FORGE_SITE, $siteEndpoint->site_id));
 
     $response->assertViewHas(
-        'latestSiteEndpointChecks',
+        'activeSiteEndpointChecks',
         static function (
-            SiteEndpointCheckCollection $viewLatestSiteEndpointChecks,
-        ) use ($latestSiteEndpointCheck): bool {
-            return $viewLatestSiteEndpointChecks->sole()->is($latestSiteEndpointCheck);
+            SiteEndpointCheckCollection $viewActiveSiteEndpointChecks,
+        ) use ($activeSiteEndpointCheck): bool {
+            return $viewActiveSiteEndpointChecks->sole()->is($activeSiteEndpointCheck);
+        },
+    );
+});
+
+test('show contains the latest check of an endpoint path no longer reported as inactive', function (): void {
+    $inactiveSiteEndpointCheck = SiteEndpointCheck::factory()->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::FORGE_SITE, $inactiveSiteEndpointCheck->site_id));
+
+    $response->assertViewHas(
+        'inactiveSiteEndpointChecks',
+        static function (
+            SiteEndpointCheckCollection $viewInactiveSiteEndpointChecks,
+        ) use ($inactiveSiteEndpointCheck): bool {
+            return $viewInactiveSiteEndpointChecks->sole()->is($inactiveSiteEndpointCheck);
         },
     );
 });
