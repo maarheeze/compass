@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Models\Builders;
 
 use Illuminate\Database\Eloquent\Builder;
 use Maarheeze\Compass\Models\Site;
+use Maarheeze\Uuid\Uuid;
 
 /**
  * @extends Builder<Site>
@@ -27,5 +28,10 @@ class SiteBuilder extends Builder
     public function notCollected(): self
     {
         return $this->whereNotNull('missing_at');
+    }
+
+    public function notReturnedByRun(Uuid $runId): self
+    {
+        return $this->whereNot('run_id', $runId);
     }
 }

@@ -16,7 +16,7 @@ readonly class PullRequestSynchronizer
     public function deleteUncollected(Uuid $runId): void
     {
         PullRequest::query()
-            ->whereNot('run_id', $runId)
+            ->notReturnedByRun($runId)
             ->delete();
     }
 

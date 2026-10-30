@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Maarheeze\Compass\Models\Site;
+use Maarheeze\Uuid\Uuid;
 
 test('collected keeps a collected site', function (): void {
     $collectedSite = Site::factory()->create(['missing_at' => null]);
@@ -101,5 +102,27 @@ test('not collected leaves out a collected site', function (): void {
         ->get();
 
     expect($notCollectedSites)
+        ->toBeEmpty();
+});
+
+test('not returned by run keeps a site returned by another run', function (): void {
+    $site = Site::factory()->create();
+
+    $sitesNotReturnedByRun = Site::query()
+        ->notReturnedByRun(Uuid::generate())
+        ->get();
+
+    expect($sitesNotReturnedByRun->sole()->is($site))
+        ->toBeTrue();
+});
+
+test('not returned by run leaves out a site returned by the run', function (): void {
+    $site = Site::factory()->create();
+
+    $sitesNotReturnedByRun = Site::query()
+        ->notReturnedByRun($site->run_id)
+        ->get();
+
+    expect($sitesNotReturnedByRun)
         ->toBeEmpty();
 });

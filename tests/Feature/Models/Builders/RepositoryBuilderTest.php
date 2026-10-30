@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Maarheeze\Compass\Models\Repository;
+use Maarheeze\Uuid\Uuid;
 
 test('collected keeps a collected repository', function (): void {
     $collectedRepository = Repository::factory()->create(['missing_at' => null]);
@@ -101,5 +102,49 @@ test('not collected leaves out a collected repository', function (): void {
         ->get();
 
     expect($notCollectedRepositories)
+        ->toBeEmpty();
+});
+
+test('returned by run keeps a repository returned by the run', function (): void {
+    $repository = Repository::factory()->create();
+
+    $repositoriesReturnedByRun = Repository::query()
+        ->returnedByRun($repository->run_id)
+        ->get();
+
+    expect($repositoriesReturnedByRun->sole()->is($repository))
+        ->toBeTrue();
+});
+
+test('returned by run leaves out a repository returned by another run', function (): void {
+    Repository::factory()->create();
+
+    $repositoriesReturnedByRun = Repository::query()
+        ->returnedByRun(Uuid::generate())
+        ->get();
+
+    expect($repositoriesReturnedByRun)
+        ->toBeEmpty();
+});
+
+test('not returned by run keeps a repository returned by another run', function (): void {
+    $repository = Repository::factory()->create();
+
+    $repositoriesNotReturnedByRun = Repository::query()
+        ->notReturnedByRun(Uuid::generate())
+        ->get();
+
+    expect($repositoriesNotReturnedByRun->sole()->is($repository))
+        ->toBeTrue();
+});
+
+test('not returned by run leaves out a repository returned by the run', function (): void {
+    $repository = Repository::factory()->create();
+
+    $repositoriesNotReturnedByRun = Repository::query()
+        ->notReturnedByRun($repository->run_id)
+        ->get();
+
+    expect($repositoriesNotReturnedByRun)
         ->toBeEmpty();
 });

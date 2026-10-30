@@ -29,7 +29,7 @@ class CollectChangedComposerLocks implements ShouldQueue
     public function handle(CollectorLogger $collectorLogger): void
     {
         $repositoriesWithChangedComposerLock = Repository::query()
-            ->where('run_id', $this->runId)
+            ->returnedByRun($this->runId)
             ->whereNotNull('composer_lock_oid')
             ->whereDoesntHave('composerLock', static function (Builder $composerLockQuery): void {
                 $composerLockQuery->whereColumn('oid', 'compass_repositories.composer_lock_oid');
@@ -37,7 +37,7 @@ class CollectChangedComposerLocks implements ShouldQueue
             ->get();
 
         $repositoriesWithRemovedComposerLock = Repository::query()
-            ->where('run_id', $this->runId)
+            ->returnedByRun($this->runId)
             ->whereNull('composer_lock_oid')
             ->has('composerLock')
             ->get();

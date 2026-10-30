@@ -16,7 +16,7 @@ readonly class IssueSynchronizer
     public function deleteUncollected(Uuid $runId): void
     {
         Issue::query()
-            ->whereNot('run_id', $runId)
+            ->notReturnedByRun($runId)
             ->delete();
     }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\IssueAssignee;
 use Maarheeze\Compass\Models\User;
+use Maarheeze\Uuid\Uuid;
 
 test('assigned to keeps a issue assigned to the user', function (): void {
     $user = User::factory()->create();
@@ -31,5 +32,27 @@ test('assigned to leaves out a issue assigned to someone else', function (): voi
         ->get();
 
     expect($issuesAssignedToUser)
+        ->toBeEmpty();
+});
+
+test('not returned by run keeps a issue returned by another run', function (): void {
+    $issue = Issue::factory()->create();
+
+    $issuesNotReturnedByRun = Issue::query()
+        ->notReturnedByRun(Uuid::generate())
+        ->get();
+
+    expect($issuesNotReturnedByRun->sole()->is($issue))
+        ->toBeTrue();
+});
+
+test('not returned by run leaves out a issue returned by the run', function (): void {
+    $issue = Issue::factory()->create();
+
+    $issuesNotReturnedByRun = Issue::query()
+        ->notReturnedByRun($issue->run_id)
+        ->get();
+
+    expect($issuesNotReturnedByRun)
         ->toBeEmpty();
 });

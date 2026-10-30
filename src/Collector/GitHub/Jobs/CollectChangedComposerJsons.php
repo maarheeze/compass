@@ -29,7 +29,7 @@ class CollectChangedComposerJsons implements ShouldQueue
     public function handle(CollectorLogger $collectorLogger): void
     {
         $repositoriesWithChangedComposerJson = Repository::query()
-            ->where('run_id', $this->runId)
+            ->returnedByRun($this->runId)
             ->whereNotNull('composer_json_oid')
             ->whereDoesntHave('composerJson', static function (Builder $composerJsonQuery): void {
                 $composerJsonQuery->whereColumn('oid', 'compass_repositories.composer_json_oid');
@@ -37,7 +37,7 @@ class CollectChangedComposerJsons implements ShouldQueue
             ->get();
 
         $repositoriesWithRemovedComposerJson = Repository::query()
-            ->where('run_id', $this->runId)
+            ->returnedByRun($this->runId)
             ->whereNull('composer_json_oid')
             ->has('composerJson')
             ->get();

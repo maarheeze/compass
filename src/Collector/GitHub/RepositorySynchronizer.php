@@ -14,7 +14,7 @@ readonly class RepositorySynchronizer
     public function markUncollectedMissing(Uuid $runId): void
     {
         Repository::query()
-            ->whereNot('run_id', $runId)
+            ->notReturnedByRun($runId)
             ->collected()
             ->update(['missing_at' => CarbonImmutable::now()]);
     }

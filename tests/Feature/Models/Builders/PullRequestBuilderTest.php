@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Maarheeze\Compass\Models\PullRequest;
 use Maarheeze\Compass\Models\PullRequestAssignee;
 use Maarheeze\Compass\Models\User;
+use Maarheeze\Uuid\Uuid;
 
 test('assigned to keeps a pull request assigned to the user', function (): void {
     $user = User::factory()->create();
@@ -31,5 +32,27 @@ test('assigned to leaves out a pull request assigned to someone else', function 
         ->get();
 
     expect($pullRequestsAssignedToUser)
+        ->toBeEmpty();
+});
+
+test('not returned by run keeps a pullRequest returned by another run', function (): void {
+    $pullRequest = PullRequest::factory()->create();
+
+    $pullRequestsNotReturnedByRun = PullRequest::query()
+        ->notReturnedByRun(Uuid::generate())
+        ->get();
+
+    expect($pullRequestsNotReturnedByRun->sole()->is($pullRequest))
+        ->toBeTrue();
+});
+
+test('not returned by run leaves out a pullRequest returned by the run', function (): void {
+    $pullRequest = PullRequest::factory()->create();
+
+    $pullRequestsNotReturnedByRun = PullRequest::query()
+        ->notReturnedByRun($pullRequest->run_id)
+        ->get();
+
+    expect($pullRequestsNotReturnedByRun)
         ->toBeEmpty();
 });

@@ -14,7 +14,7 @@ readonly class SiteSynchronizer
     public function markUncollectedMissing(Uuid $runId): void
     {
         Site::query()
-            ->whereNot('run_id', $runId)
+            ->notReturnedByRun($runId)
             ->collected()
             ->update(['missing_at' => CarbonImmutable::now()]);
     }
