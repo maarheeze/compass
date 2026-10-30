@@ -6,9 +6,10 @@ namespace Maarheeze\Compass\Models;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\HasBuilder;
+use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\ObservationCollection;
@@ -37,11 +38,16 @@ use function sprintf;
 class SiteEndpoint extends Model implements AlertSubject
 {
     use HasAlerts;
+    /** @use HasBuilder<SiteEndpointBuilder> */
+    use HasBuilder;
+    /** @use HasCollection<SiteEndpointCollection> */
+    use HasCollection;
     /** @use HasFactory<SiteEndpointFactory> */
     use HasFactory;
     use HasObservations;
     use HasUuidAsId;
 
+    protected static string $builder = SiteEndpointBuilder::class;
     protected static string $collectionClass = SiteEndpointCollection::class;
 
     /**
@@ -58,16 +64,6 @@ class SiteEndpoint extends Model implements AlertSubject
     public function getTable(): string
     {
         return 'compass_site_endpoints';
-    }
-
-    /**
-     * @param QueryBuilder $query
-     *
-     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
-     */
-    public function newEloquentBuilder($query): SiteEndpointBuilder
-    {
-        return new SiteEndpointBuilder($query);
     }
 
     /**

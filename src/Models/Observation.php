@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Models;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Maarheeze\Compass\Alerts\AlertSubject;
@@ -32,6 +33,8 @@ use Maarheeze\Uuid\Uuid;
  */
 class Observation extends Model
 {
+    /** @use HasCollection<ObservationCollection> */
+    use HasCollection;
     /** @use HasFactory<ObservationFactory> */
     use HasFactory;
     use HasUuidAsId;

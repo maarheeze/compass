@@ -6,11 +6,11 @@ namespace Maarheeze\Compass\Models;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\HasBuilder;
 use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 use Maarheeze\Compass\Collections\PullRequestAssigneeCollection;
 use Maarheeze\Compass\Collections\PullRequestCollection;
 use Maarheeze\Compass\Database\Factories\PullRequestFactory;
@@ -39,12 +39,15 @@ use Maarheeze\Uuid\Uuid;
  */
 class PullRequest extends Model
 {
+    /** @use HasBuilder<PullRequestBuilder> */
+    use HasBuilder;
     /** @use HasCollection<PullRequestCollection> */
     use HasCollection;
     /** @use HasFactory<PullRequestFactory> */
     use HasFactory;
     use HasUuidAsId;
 
+    protected static string $builder = PullRequestBuilder::class;
     protected static string $collectionClass = PullRequestCollection::class;
 
     /**
@@ -69,16 +72,6 @@ class PullRequest extends Model
     public function getTable(): string
     {
         return 'compass_pull_requests';
-    }
-
-    /**
-     * @param QueryBuilder $query
-     *
-     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
-     */
-    public function newEloquentBuilder($query): PullRequestBuilder
-    {
-        return new PullRequestBuilder($query);
     }
 
     /**

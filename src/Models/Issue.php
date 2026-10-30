@@ -6,11 +6,11 @@ namespace Maarheeze\Compass\Models;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\HasBuilder;
 use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 use Maarheeze\Compass\Collections\IssueAssigneeCollection;
 use Maarheeze\Compass\Collections\IssueCollection;
 use Maarheeze\Compass\Database\Factories\IssueFactory;
@@ -38,12 +38,15 @@ use Maarheeze\Uuid\Uuid;
  */
 class Issue extends Model
 {
+    /** @use HasBuilder<IssueBuilder> */
+    use HasBuilder;
     /** @use HasCollection<IssueCollection> */
     use HasCollection;
     /** @use HasFactory<IssueFactory> */
     use HasFactory;
     use HasUuidAsId;
 
+    protected static string $builder = IssueBuilder::class;
     protected static string $collectionClass = IssueCollection::class;
 
     /**
@@ -67,16 +70,6 @@ class Issue extends Model
     public function getTable(): string
     {
         return 'compass_issues';
-    }
-
-    /**
-     * @param QueryBuilder $query
-     *
-     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
-     */
-    public function newEloquentBuilder($query): IssueBuilder
-    {
-        return new IssueBuilder($query);
     }
 
     /**

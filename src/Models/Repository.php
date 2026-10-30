@@ -6,10 +6,11 @@ namespace Maarheeze\Compass\Models;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\HasBuilder;
+use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\IssueCollection;
@@ -56,12 +57,17 @@ use Maarheeze\Uuid\Uuid;
 class Repository extends Model implements AlertSubject
 {
     use HasAlerts;
+    /** @use HasBuilder<RepositoryBuilder> */
+    use HasBuilder;
+    /** @use HasCollection<RepositoryCollection> */
+    use HasCollection;
     /** @use HasFactory<RepositoryFactory> */
     use HasFactory;
     use HasMissingState;
     use HasObservations;
     use HasUuidAsId;
 
+    protected static string $builder = RepositoryBuilder::class;
     protected static string $collectionClass = RepositoryCollection::class;
 
     /**
@@ -134,16 +140,6 @@ class Repository extends Model implements AlertSubject
     public function getTable(): string
     {
         return 'compass_repositories';
-    }
-
-    /**
-     * @param QueryBuilder $query
-     *
-     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
-     */
-    public function newEloquentBuilder($query): RepositoryBuilder
-    {
-        return new RepositoryBuilder($query);
     }
 
     /**

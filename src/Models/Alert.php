@@ -6,11 +6,12 @@ namespace Maarheeze\Compass\Models;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\HasBuilder;
+use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 use Maarheeze\Compass\Alerts\AlertStatus;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Alerts\AlertType;
@@ -45,10 +46,15 @@ use Maarheeze\Uuid\Uuid;
  */
 class Alert extends Model
 {
+    /** @use HasBuilder<AlertBuilder> */
+    use HasBuilder;
+    /** @use HasCollection<AlertCollection> */
+    use HasCollection;
     /** @use HasFactory<AlertFactory> */
     use HasFactory;
     use HasUuidAsId;
 
+    protected static string $builder = AlertBuilder::class;
     protected static string $collectionClass = AlertCollection::class;
 
     /**
@@ -72,16 +78,6 @@ class Alert extends Model
     public function getTable(): string
     {
         return 'compass_alerts';
-    }
-
-    /**
-     * @param QueryBuilder $query
-     *
-     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
-     */
-    public function newEloquentBuilder($query): AlertBuilder
-    {
-        return new AlertBuilder($query);
     }
 
     /**

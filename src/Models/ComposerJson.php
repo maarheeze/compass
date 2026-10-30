@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Models;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -33,6 +34,8 @@ use Maarheeze\Uuid\Uuid;
  */
 class ComposerJson extends Model
 {
+    /** @use HasCollection<ComposerJsonCollection> */
+    use HasCollection;
     /** @use HasFactory<ComposerJsonFactory> */
     use HasFactory;
     use HasUuidAsId;

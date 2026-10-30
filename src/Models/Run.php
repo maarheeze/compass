@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Models;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
 use Maarheeze\Compass\Collections\RunCollection;
 use Maarheeze\Compass\Collector\RunStatus;
@@ -26,6 +27,8 @@ use Maarheeze\Uuid\Uuid;
  */
 class Run extends Model
 {
+    /** @use HasCollection<RunCollection> */
+    use HasCollection;
     /** @use HasFactory<RunFactory> */
     use HasFactory;
     use HasUuidAsId;

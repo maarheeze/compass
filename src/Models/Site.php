@@ -6,10 +6,11 @@ namespace Maarheeze\Compass\Models;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\HasBuilder;
+use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\ObservationCollection;
@@ -69,12 +70,17 @@ use Maarheeze\Uuid\Uuid;
 class Site extends Model implements AlertSubject
 {
     use HasAlerts;
+    /** @use HasBuilder<SiteBuilder> */
+    use HasBuilder;
+    /** @use HasCollection<SiteCollection> */
+    use HasCollection;
     /** @use HasFactory<SiteFactory> */
     use HasFactory;
     use HasMissingState;
     use HasObservations;
     use HasUuidAsId;
 
+    protected static string $builder = SiteBuilder::class;
     protected static string $collectionClass = SiteCollection::class;
 
     /**
@@ -116,16 +122,6 @@ class Site extends Model implements AlertSubject
     public function getTable(): string
     {
         return 'compass_sites';
-    }
-
-    /**
-     * @param QueryBuilder $query
-     *
-     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
-     */
-    public function newEloquentBuilder($query): SiteBuilder
-    {
-        return new SiteBuilder($query);
     }
 
     /**

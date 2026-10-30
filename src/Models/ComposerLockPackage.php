@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Models;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Maarheeze\Compass\Collections\ComposerLockPackageCollection;
@@ -28,6 +29,8 @@ use Maarheeze\Uuid\Uuid;
  */
 class ComposerLockPackage extends Model
 {
+    /** @use HasCollection<ComposerLockPackageCollection> */
+    use HasCollection;
     /** @use HasFactory<ComposerLockPackageFactory> */
     use HasFactory;
     use HasUuidAsId;

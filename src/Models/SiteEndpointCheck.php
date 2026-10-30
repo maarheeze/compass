@@ -6,9 +6,10 @@ namespace Maarheeze\Compass\Models;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\HasBuilder;
+use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
 use Maarheeze\Compass\Database\Factories\SiteEndpointCheckFactory;
 use Maarheeze\Compass\Http\EndpointPath;
@@ -32,10 +33,15 @@ use Maarheeze\Uuid\Uuid;
  */
 class SiteEndpointCheck extends Model
 {
+    /** @use HasBuilder<SiteEndpointCheckBuilder> */
+    use HasBuilder;
+    /** @use HasCollection<SiteEndpointCheckCollection> */
+    use HasCollection;
     /** @use HasFactory<SiteEndpointCheckFactory> */
     use HasFactory;
     use HasUuidAsId;
 
+    protected static string $builder = SiteEndpointCheckBuilder::class;
     protected static string $collectionClass = SiteEndpointCheckCollection::class;
 
     /**
@@ -55,16 +61,6 @@ class SiteEndpointCheck extends Model
     public function getTable(): string
     {
         return 'compass_site_endpoint_checks';
-    }
-
-    /**
-     * @param QueryBuilder $query
-     *
-     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
-     */
-    public function newEloquentBuilder($query): SiteEndpointCheckBuilder
-    {
-        return new SiteEndpointCheckBuilder($query);
     }
 
     /**
