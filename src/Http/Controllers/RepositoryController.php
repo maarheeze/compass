@@ -7,6 +7,7 @@ namespace Maarheeze\Compass\Http\Controllers;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Maarheeze\Compass\Analyzer\Composer\RepositoryKind;
@@ -76,12 +77,12 @@ readonly class RepositoryController
             'composerJson.developmentPackages' => $orderPackagesByName,
             'composerJson.productionPackages' => $orderPackagesByName,
             'composerLock.packages' => $orderPackagesByName,
-            'issues' => static function (Builder $issueQuery): void {
-                $issueQuery->latest('opened_at');
+            'issues' => static function (HasMany $issueQuery): void {
+                $issueQuery->latestOpened();
             },
             'issues.assignees',
-            'pullRequests' => static function (Builder $pullRequestQuery): void {
-                $pullRequestQuery->latest('opened_at');
+            'pullRequests' => static function (HasMany $pullRequestQuery): void {
+                $pullRequestQuery->latestOpened();
             },
             'pullRequests.assignees',
             'sites' => static function (Builder $siteQuery): void {

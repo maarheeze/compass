@@ -79,3 +79,15 @@ test('of git hub ids leaves out a issue with another id', function (): void {
     expect($issuesOfGitHubIds)
         ->toBeEmpty();
 });
+
+test('latest opened orders the issues from the most recently opened', function (): void {
+    $olderIssue = Issue::factory()->create(['opened_at' => fake()->dateTimeBetween('-2 years', '-1 year')]);
+    $newerIssue = Issue::factory()->create(['opened_at' => fake()->dateTimeBetween('-1 year')]);
+
+    $issuesLatestOpened = Issue::query()
+        ->latestOpened()
+        ->get();
+
+    expect($issuesLatestOpened->modelKeys())
+        ->toEqual([$newerIssue->id, $olderIssue->id]);
+});

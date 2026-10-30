@@ -6,14 +6,13 @@ namespace Maarheeze\Compass\Http\Controllers;
 
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
-use Maarheeze\Compass\Analyzer\GitHub\IssueFinder;
 use Maarheeze\Compass\Authentication\AuthenticatedUser;
+use Maarheeze\Compass\Models\Issue;
 
 readonly class IssueController
 {
     public function __construct(
         private AuthenticatedUser $authenticatedUser,
-        private IssueFinder $issueFinder,
         private ViewFactory $view,
     ) {
     }
@@ -21,14 +20,21 @@ readonly class IssueController
     public function assigned(): View
     {
         return $this->view->make('compass::issues.index', [
-            'issues' => $this->issueFinder->findIssuesAssignedTo($this->authenticatedUser->user()),
+            'issues' => Issue::query()
+                ->with(['assignees', 'repository'])
+                ->assignedTo($this->authenticatedUser->user())
+                ->latestOpened()
+                ->get(),
         ]);
     }
 
     public function index(): View
     {
         return $this->view->make('compass::issues.index', [
-            'issues' => $this->issueFinder->findIssues(),
+            'issues' => Issue::query()
+                ->with(['assignees', 'repository'])
+                ->latestOpened()
+                ->get(),
         ]);
     }
 }

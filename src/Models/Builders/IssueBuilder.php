@@ -22,6 +22,11 @@ class IssueBuilder extends Builder
         });
     }
 
+    public function latestOpened(): self
+    {
+        return $this->latest('opened_at');
+    }
+
     public function notReturnedByRun(Uuid $runId): self
     {
         return $this->whereNot('run_id', $runId);
@@ -30,6 +35,7 @@ class IssueBuilder extends Builder
     /**
      * @param Collection<int, string> $gitHubIds
      */
+
     public function ofGitHubIds(Collection $gitHubIds): self
     {
         return $this->whereIn('github_id', $gitHubIds);

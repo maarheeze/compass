@@ -79,3 +79,15 @@ test('of git hub ids leaves out a pullRequest with another id', function (): voi
     expect($pullRequestsOfGitHubIds)
         ->toBeEmpty();
 });
+
+test('latest opened orders the pull requests from the most recently opened', function (): void {
+    $olderPullRequest = PullRequest::factory()->create(['opened_at' => fake()->dateTimeBetween('-2 years', '-1 year')]);
+    $newerPullRequest = PullRequest::factory()->create(['opened_at' => fake()->dateTimeBetween('-1 year')]);
+
+    $pullRequestsLatestOpened = PullRequest::query()
+        ->latestOpened()
+        ->get();
+
+    expect($pullRequestsLatestOpened->modelKeys())
+        ->toEqual([$newerPullRequest->id, $olderPullRequest->id]);
+});
