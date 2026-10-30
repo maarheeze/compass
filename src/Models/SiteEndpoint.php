@@ -8,11 +8,13 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\ObservationCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCollection;
 use Maarheeze\Compass\Database\Factories\SiteEndpointFactory;
+use Maarheeze\Compass\Models\Builders\SiteEndpointBuilder;
 use Maarheeze\Compass\Models\Concerns\HasAlerts;
 use Maarheeze\Compass\Models\Concerns\HasObservations;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
@@ -56,6 +58,16 @@ class SiteEndpoint extends Model implements AlertSubject
     public function getTable(): string
     {
         return 'compass_site_endpoints';
+    }
+
+    /**
+     * @param QueryBuilder $query
+     *
+     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+     */
+    public function newEloquentBuilder($query): SiteEndpointBuilder
+    {
+        return new SiteEndpointBuilder($query);
     }
 
     /**

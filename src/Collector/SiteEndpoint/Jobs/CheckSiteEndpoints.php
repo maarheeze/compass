@@ -10,7 +10,6 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Maarheeze\Compass\Collector\CollectorLogger;
-use Maarheeze\Compass\Models\Builders\SiteBuilder;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Webmozart\Assert\Assert;
 
@@ -23,9 +22,7 @@ class CheckSiteEndpoints implements ShouldQueue
     public function handle(CollectorLogger $collectorLogger): void
     {
         $collectedSiteEndpoints = SiteEndpoint::query()
-            ->whereHas('site', static function (SiteBuilder $siteQuery): void {
-                $siteQuery->collected();
-            })
+            ->ofCollectedSites()
             ->with('site')
             ->get();
 
