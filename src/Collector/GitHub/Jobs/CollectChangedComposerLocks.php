@@ -27,19 +27,23 @@ class CollectChangedComposerLocks implements ShouldQueue
 
     public function handle(CollectorLogger $collectorLogger): void
     {
-        $repositoriesWithComposerLockOutOfDate = Repository::query()
+        $batch = Assert::isInstanceOf($this->batch(), Batch::class);
+        $repositoryWithComposerLockOutOfDateChunks = Repository::query()
             ->returnedByRun($this->runId)
             ->composerLockOutOfDate()
-            ->get();
+            ->lazyById()
+            ->chunk(100);
 
-        $collectComposerLockJobs = [];
+        foreach ($repositoryWithComposerLockOutOfDateChunks as $repositoriesWithComposerLockOutOfDate) {
+            $collectComposerLockJobs = [];
 
-        foreach ($repositoriesWithComposerLockOutOfDate as $repository) {
-            $collectComposerLockJobs[] = new CollectComposerLock($repository);
+            foreach ($repositoriesWithComposerLockOutOfDate as $repository) {
+                $collectComposerLockJobs[] = new CollectComposerLock($repository);
 
-            $collectorLogger->debug('Composer lock collection queued', ['repository' => $repository->name]);
+                $collectorLogger->debug('Composer lock collection queued', ['repository' => $repository->name]);
+            }
+
+            $batch->add($collectComposerLockJobs);
         }
-
-        Assert::isInstanceOf($this->batch(), Batch::class)->add($collectComposerLockJobs);
     }
 }

@@ -21,22 +21,26 @@ class CheckSiteEndpoints implements ShouldQueue
 
     public function handle(CollectorLogger $collectorLogger): void
     {
-        $collectedSiteEndpoints = SiteEndpoint::query()
+        $batch = Assert::isInstanceOf($this->batch(), Batch::class);
+        $collectedSiteEndpointChunks = SiteEndpoint::query()
             ->ofCollectedSites()
             ->with('site')
-            ->get();
+            ->lazyById()
+            ->chunk(100);
 
-        $checkSiteEndpointJobs = [];
+        foreach ($collectedSiteEndpointChunks as $collectedSiteEndpoints) {
+            $checkSiteEndpointJobs = [];
 
-        foreach ($collectedSiteEndpoints as $collectedSiteEndpoint) {
-            $checkSiteEndpointJobs[] = new CheckSiteEndpoint($collectedSiteEndpoint);
+            foreach ($collectedSiteEndpoints as $collectedSiteEndpoint) {
+                $checkSiteEndpointJobs[] = new CheckSiteEndpoint($collectedSiteEndpoint);
 
-            $collectorLogger->debug('Endpoint check queued', [
-                'site' => $collectedSiteEndpoint->site->name,
-                'path' => $collectedSiteEndpoint->path,
-            ]);
+                $collectorLogger->debug('Endpoint check queued', [
+                    'site' => $collectedSiteEndpoint->site->name,
+                    'path' => $collectedSiteEndpoint->path,
+                ]);
+            }
+
+            $batch->add($checkSiteEndpointJobs);
         }
-
-        Assert::isInstanceOf($this->batch(), Batch::class)->add($checkSiteEndpointJobs);
     }
 }

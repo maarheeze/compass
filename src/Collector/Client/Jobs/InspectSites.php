@@ -21,18 +21,22 @@ class InspectSites implements ShouldQueue
 
     public function handle(CollectorLogger $collectorLogger): void
     {
-        $collectedSites = Site::query()
+        $batch = Assert::isInstanceOf($this->batch(), Batch::class);
+        $collectedSiteChunks = Site::query()
             ->collected()
-            ->get();
+            ->lazyById()
+            ->chunk(100);
 
-        $inspectSiteJobs = [];
+        foreach ($collectedSiteChunks as $collectedSites) {
+            $inspectSiteJobs = [];
 
-        foreach ($collectedSites as $collectedSite) {
-            $inspectSiteJobs[] = new InspectSite($collectedSite);
+            foreach ($collectedSites as $collectedSite) {
+                $inspectSiteJobs[] = new InspectSite($collectedSite);
 
-            $collectorLogger->debug('Site inspection queued', ['site' => $collectedSite->name]);
+                $collectorLogger->debug('Site inspection queued', ['site' => $collectedSite->name]);
+            }
+
+            $batch->add($inspectSiteJobs);
         }
-
-        Assert::isInstanceOf($this->batch(), Batch::class)->add($inspectSiteJobs);
     }
 }

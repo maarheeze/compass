@@ -27,19 +27,23 @@ class CollectChangedComposerJsons implements ShouldQueue
 
     public function handle(CollectorLogger $collectorLogger): void
     {
-        $repositoriesWithComposerJsonOutOfDate = Repository::query()
+        $batch = Assert::isInstanceOf($this->batch(), Batch::class);
+        $repositoryWithComposerJsonOutOfDateChunks = Repository::query()
             ->returnedByRun($this->runId)
             ->composerJsonOutOfDate()
-            ->get();
+            ->lazyById()
+            ->chunk(100);
 
-        $collectComposerJsonJobs = [];
+        foreach ($repositoryWithComposerJsonOutOfDateChunks as $repositoriesWithComposerJsonOutOfDate) {
+            $collectComposerJsonJobs = [];
 
-        foreach ($repositoriesWithComposerJsonOutOfDate as $repository) {
-            $collectComposerJsonJobs[] = new CollectComposerJson($repository);
+            foreach ($repositoriesWithComposerJsonOutOfDate as $repository) {
+                $collectComposerJsonJobs[] = new CollectComposerJson($repository);
 
-            $collectorLogger->debug('Composer json collection queued', ['repository' => $repository->name]);
+                $collectorLogger->debug('Composer json collection queued', ['repository' => $repository->name]);
+            }
+
+            $batch->add($collectComposerJsonJobs);
         }
-
-        Assert::isInstanceOf($this->batch(), Batch::class)->add($collectComposerJsonJobs);
     }
 }
