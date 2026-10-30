@@ -10,6 +10,43 @@ use Maarheeze\Compass\Models\SiteEndpointCheck;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 
+test('delete deletes the checks of the endpoint', function (): void {
+    $siteEndpointCheck = SiteEndpointCheck::factory()->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $this->delete(route(RouteName::FORGE_SITE_ENDPOINT_CHECKS_DELETE, [$siteEndpointCheck->site, $siteEndpointCheck->path->routeKey()]));
+
+    $this->assertModelMissing($siteEndpointCheck);
+});
+
+test('delete leaves the checks of another path', function (): void {
+    $siteEndpointCheck = SiteEndpointCheck::factory()->create();
+    $endpointPath = new EndpointPath(sprintf('/%s', fake()->unique()->slug()));
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $this->delete(route(RouteName::FORGE_SITE_ENDPOINT_CHECKS_DELETE, [$siteEndpointCheck->site, $endpointPath->routeKey()]));
+
+    $this->assertModelExists($siteEndpointCheck);
+});
+
+test('delete leaves the checks of another site', function (): void {
+    $siteEndpointCheck = SiteEndpointCheck::factory()->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $this->delete(route(RouteName::FORGE_SITE_ENDPOINT_CHECKS_DELETE, [Site::factory()->create(), $siteEndpointCheck->path->routeKey()]));
+
+    $this->assertModelExists($siteEndpointCheck);
+});
+
+test('delete sends the user back to the site', function (): void {
+    $siteEndpointCheck = SiteEndpointCheck::factory()->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->delete(route(RouteName::FORGE_SITE_ENDPOINT_CHECKS_DELETE, [$siteEndpointCheck->site, $siteEndpointCheck->path->routeKey()]));
+
+    $response->assertRedirect(route(RouteName::FORGE_SITE, $siteEndpointCheck->site));
+});
+
 test('index contains the checks of the endpoint', function (): void {
     $siteEndpointCheck = SiteEndpointCheck::factory()->create();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);

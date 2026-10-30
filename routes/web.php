@@ -70,6 +70,8 @@ Route::middleware('web')
             Route::post('/forge/sites/{site}/ignore', [SiteController::class, 'ignore'])->name(RouteName::FORGE_SITE_IGNORE);
             Route::get('/forge/sites/{site}/endpoint-checks/{endpointPathRouteKey}', [SiteEndpointCheckController::class, 'index'])
                 ->name(RouteName::FORGE_SITE_ENDPOINT_CHECKS);
+            Route::delete('/forge/sites/{site}/endpoint-checks/{endpointPathRouteKey}', [SiteEndpointCheckController::class, 'delete'])
+                ->name(RouteName::FORGE_SITE_ENDPOINT_CHECKS_DELETE);
             Route::get('/forge/sites/{site}/client/edit', [SiteClientController::class, 'edit'])
                 ->name(RouteName::FORGE_SITE_CLIENT_EDIT);
             Route::patch('/forge/sites/{site}/client', [SiteClientController::class, 'update'])

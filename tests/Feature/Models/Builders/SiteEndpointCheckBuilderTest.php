@@ -107,6 +107,28 @@ test('not reported leaves out a check of a path its site reports', function (): 
         ->toBeEmpty();
 });
 
+test('of path keeps a check of the path', function (): void {
+    $siteEndpointCheck = SiteEndpointCheck::factory()->create();
+
+    $siteEndpointChecksOfPath = SiteEndpointCheck::query()
+        ->ofPath($siteEndpointCheck->path)
+        ->get();
+
+    expect($siteEndpointChecksOfPath->sole()->is($siteEndpointCheck))
+        ->toBeTrue();
+});
+
+test('of path leaves out a check of another path', function (): void {
+    SiteEndpointCheck::factory()->create();
+
+    $siteEndpointChecksOfPath = SiteEndpointCheck::query()
+        ->ofPath(new EndpointPath(sprintf('/%s', fake()->unique()->slug())))
+        ->get();
+
+    expect($siteEndpointChecksOfPath)
+        ->toBeEmpty();
+});
+
 test('reported keeps a check of a path its site reports', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $reportedSiteEndpointCheck = SiteEndpointCheck::factory()->create([

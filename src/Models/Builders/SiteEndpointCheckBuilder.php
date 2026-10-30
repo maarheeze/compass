@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Models\Builders;
 
 use Illuminate\Database\Eloquent\Builder;
+use Maarheeze\Compass\Http\EndpointPath;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
 
@@ -32,6 +33,11 @@ class SiteEndpointCheckBuilder extends Builder
     public function notReported(): self
     {
         return $this->whereNotExists($this->siteEndpointsOfCheck());
+    }
+
+    public function ofPath(EndpointPath $endpointPath): self
+    {
+        return $this->where('path', $endpointPath->path);
     }
 
     public function reported(): self
