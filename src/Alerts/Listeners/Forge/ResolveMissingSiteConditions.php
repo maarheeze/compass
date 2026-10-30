@@ -36,7 +36,7 @@ readonly class ResolveMissingSiteConditions implements ShouldQueue
         $missingSites = Site::query()
             ->notCollected()
             ->with('endpoints')
-            ->get();
+            ->lazyById();
 
         foreach ($missingSites as $missingSite) {
             foreach (self::CLIENT_ALERT_TYPES as $clientAlertType) {

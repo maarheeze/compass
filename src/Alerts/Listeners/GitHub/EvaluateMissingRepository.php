@@ -39,7 +39,9 @@ readonly class EvaluateMissingRepository implements ShouldQueue
 
     private function handleGitHubRunSucceeded(CarbonImmutable $observedAt): void
     {
-        foreach (Repository::query()->get() as $repository) {
+        $repositories = Repository::query()->lazyById();
+
+        foreach ($repositories as $repository) {
             $this->observe($repository, $observedAt);
         }
     }

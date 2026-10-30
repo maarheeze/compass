@@ -39,7 +39,9 @@ readonly class EvaluateMissingSite implements ShouldQueue
 
     private function handleForgeRunSucceeded(CarbonImmutable $observedAt): void
     {
-        foreach (Site::query()->get() as $site) {
+        $sites = Site::query()->lazyById();
+
+        foreach ($sites as $site) {
             $this->observe($site, $observedAt);
         }
     }

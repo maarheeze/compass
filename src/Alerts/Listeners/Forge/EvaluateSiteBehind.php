@@ -30,7 +30,11 @@ readonly class EvaluateSiteBehind implements ShouldQueue
     {
         $observedAt = CarbonImmutable::instance($this->clock->now());
 
-        foreach (Site::query()->with('repository')->get() as $site) {
+        $sites = Site::query()
+            ->with('repository')
+            ->lazyById();
+
+        foreach ($sites as $site) {
             $this->events->dispatch(new ConditionObserved(
                 AlertType::SITE_BEHIND,
                 $site,

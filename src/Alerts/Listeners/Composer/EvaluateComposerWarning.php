@@ -29,7 +29,11 @@ readonly class EvaluateComposerWarning implements ShouldQueue
     {
         $observedAt = CarbonImmutable::instance($this->clock->now());
 
-        foreach (Repository::query()->with('composerJson')->get() as $repository) {
+        $repositories = Repository::query()
+            ->with('composerJson')
+            ->lazyById();
+
+        foreach ($repositories as $repository) {
             $detectedComposerWarning = $this->composerWarningDetector->detect($repository);
 
             foreach (ComposerWarning::cases() as $composerWarning) {
