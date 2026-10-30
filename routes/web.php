@@ -11,6 +11,7 @@ use Maarheeze\Compass\Http\Controllers\PackageController;
 use Maarheeze\Compass\Http\Controllers\PullRequestController;
 use Maarheeze\Compass\Http\Controllers\RepositoryController;
 use Maarheeze\Compass\Http\Controllers\RunController;
+use Maarheeze\Compass\Http\Controllers\SettingsController;
 use Maarheeze\Compass\Http\Controllers\SiteClientController;
 use Maarheeze\Compass\Http\Controllers\SiteController;
 use Maarheeze\Compass\Http\Controllers\SiteEndpointCheckController;
@@ -79,6 +80,9 @@ Route::middleware('web')
 
             Route::get('/runs', [RunController::class, 'index'])->name(RouteName::RUNS);
             Route::get('/runs/{runType}', [RunController::class, 'type'])->name(RouteName::RUNS_OF_TYPE);
+
+            Route::get('/settings', [SettingsController::class, 'edit'])->name(RouteName::SETTINGS_EDIT);
+            Route::patch('/settings', [SettingsController::class, 'update'])->name(RouteName::SETTINGS_UPDATE);
 
             Route::post('/logout', [GitHubController::class, 'logout'])->name(RouteName::LOGOUT);
         });

@@ -41,6 +41,8 @@
                             <p class="text-xs text-foreground-muted">&#64;{{ $user->nickname }}</p>
                         </div>
 
+                        <a href="{{ $settingsUrl }}" class="block px-4 py-2 text-sm text-foreground hover:bg-canvas-subtle">{{ __('compass::settings.settings') }}</a>
+
                         <form method="POST" action="{{ $logoutUrl }}">
                             @csrf
                             <button type="submit" class="w-full cursor-pointer px-4 py-2 text-left text-sm text-foreground hover:bg-canvas-subtle">{{ __('compass::authentication.sign_out') }}</button>

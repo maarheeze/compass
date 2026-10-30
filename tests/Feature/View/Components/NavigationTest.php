@@ -112,3 +112,12 @@ test('logout url is the url of the logout', function (): void {
     expect($navigation->logoutUrl)
         ->toBe(route(RouteName::LOGOUT));
 });
+
+test('settings url is the url of the settings', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $navigation = $this->app->make(Navigation::class);
+
+    expect($navigation->settingsUrl)
+        ->toBe(route(RouteName::SETTINGS_EDIT));
+});

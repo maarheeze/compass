@@ -37,4 +37,6 @@ enum RouteName: string
     case LOGOUT = 'compass.logout';
     case RUNS = 'compass.runs';
     case RUNS_OF_TYPE = 'compass.runs.type';
+    case SETTINGS_EDIT = 'compass.settings.edit';
+    case SETTINGS_UPDATE = 'compass.settings.update';
 }

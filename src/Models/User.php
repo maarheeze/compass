@@ -6,8 +6,10 @@ namespace Maarheeze\Compass\Models;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Maarheeze\Compass\Collections\NotificationSubscriptionCollection;
 use Maarheeze\Compass\Database\Factories\UserFactory;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
@@ -23,6 +25,8 @@ use Maarheeze\Uuid\Uuid;
  * @property string $nickname
  * @property ?string $remember_token
  * @property CarbonImmutable $updated_at
+ *
+ * @property-read NotificationSubscriptionCollection $notificationSubscriptions
  */
 class User extends Authenticatable
 {
@@ -65,6 +69,14 @@ class User extends Authenticatable
     public function getTable(): string
     {
         return 'compass_users';
+    }
+
+    /**
+     * @return HasMany<NotificationSubscription, $this>
+     */
+    public function notificationSubscriptions(): HasMany
+    {
+        return $this->hasMany(NotificationSubscription::class);
     }
 
     /**

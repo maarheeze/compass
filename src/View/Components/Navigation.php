@@ -22,6 +22,7 @@ class Navigation extends Component
     public readonly bool $hasAlerts;
     public readonly bool $hasAlertsNotMuted;
     public readonly string $logoutUrl;
+    public readonly string $settingsUrl;
     public readonly NavigationTabCollection $tabs;
     public readonly User $user;
 
@@ -38,6 +39,7 @@ class Navigation extends Component
             ->notMuted()
             ->exists();
         $this->logoutUrl = $url->route(RouteName::LOGOUT->value);
+        $this->settingsUrl = $url->route(RouteName::SETTINGS_EDIT->value);
         $this->tabs = $this->navigationTabs($request, $url);
         $this->user = $authenticatedUser->user();
     }

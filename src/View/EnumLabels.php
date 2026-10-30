@@ -8,7 +8,9 @@ use InvalidArgumentException;
 use Maarheeze\Compass\Alerts\AlertHistoryEntryType;
 use Maarheeze\Compass\Alerts\AlertStatus;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\AlertTypeGroup;
 use Maarheeze\Compass\Alerts\ConditionState;
+use Maarheeze\Compass\Alerts\NotificationChannel;
 use Maarheeze\Compass\Analyzer\Composer\RepositoryKind;
 use Maarheeze\Compass\Analyzer\Forge\DeploymentState;
 use Maarheeze\Compass\Collector\Client\ClientStatus;
@@ -31,11 +33,13 @@ readonly class EnumLabels
             AlertHistoryEntryType::class => 'alert-history-entry-type',
             AlertStatus::class => 'alert-status',
             AlertType::class => 'alert-type',
+            AlertTypeGroup::class => 'alert-type-group',
             ClientStatus::class => 'client-status',
             ConditionState::class => 'condition-state',
             DeploymentState::class => 'deployment-state',
             DeploymentStatus::class => 'deployment-status',
             MissingState::class => 'missing-state',
+            NotificationChannel::class => 'notification-channel',
             PackageSection::class => 'package-section',
             RepositoryKind::class => 'repository-kind',
             RepositoryVisibility::class => 'repository-visibility',
