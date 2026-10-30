@@ -7,7 +7,6 @@ namespace Maarheeze\Compass\Collector\GitHub\Jobs;
 use Illuminate\Bus\Batch;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Maarheeze\Compass\Collector\CollectorLogger;
@@ -28,23 +27,14 @@ class CollectChangedComposerLocks implements ShouldQueue
 
     public function handle(CollectorLogger $collectorLogger): void
     {
-        $repositoriesWithChangedComposerLock = Repository::query()
+        $repositoriesWithComposerLockOutOfDate = Repository::query()
             ->returnedByRun($this->runId)
-            ->whereNotNull('composer_lock_oid')
-            ->whereDoesntHave('composerLock', static function (Builder $composerLockQuery): void {
-                $composerLockQuery->whereColumn('oid', 'compass_repositories.composer_lock_oid');
-            })
-            ->get();
-
-        $repositoriesWithRemovedComposerLock = Repository::query()
-            ->returnedByRun($this->runId)
-            ->whereNull('composer_lock_oid')
-            ->has('composerLock')
+            ->composerLockOutOfDate()
             ->get();
 
         $collectComposerLockJobs = [];
 
-        foreach ($repositoriesWithChangedComposerLock->merge($repositoriesWithRemovedComposerLock) as $repository) {
+        foreach ($repositoriesWithComposerLockOutOfDate as $repository) {
             $collectComposerLockJobs[] = new CollectComposerLock($repository);
 
             $collectorLogger->debug('Composer lock collection queued', ['repository' => $repository->name]);

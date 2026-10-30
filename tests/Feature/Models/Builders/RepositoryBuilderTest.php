@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Maarheeze\Compass\Models\ComposerJson;
+use Maarheeze\Compass\Models\ComposerLock;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 
@@ -146,5 +148,111 @@ test('not returned by run leaves out a repository returned by the run', function
         ->get();
 
     expect($repositoriesNotReturnedByRun)
+        ->toBeEmpty();
+});
+
+test('composer json out of date keeps a repository whose composer.json changed', function (): void {
+    $repository = Repository::factory()->create(['composer_json_oid' => fake()->unique()->sha1()]);
+    ComposerJson::factory()->create([
+        'repository_id' => $repository->id,
+        'oid' => fake()->unique()->sha1(),
+    ]);
+
+    $repositoriesWithComposerJsonOutOfDate = Repository::query()
+        ->composerJsonOutOfDate()
+        ->get();
+
+    expect($repositoriesWithComposerJsonOutOfDate->sole()->is($repository))
+        ->toBeTrue();
+});
+
+test('composer json out of date keeps a repository whose composer.json was removed', function (): void {
+    $repository = Repository::factory()->create(['composer_json_oid' => null]);
+    ComposerJson::factory()->create(['repository_id' => $repository->id]);
+
+    $repositoriesWithComposerJsonOutOfDate = Repository::query()
+        ->composerJsonOutOfDate()
+        ->get();
+
+    expect($repositoriesWithComposerJsonOutOfDate->sole()->is($repository))
+        ->toBeTrue();
+});
+
+test('composer json out of date leaves out a repository whose composer.json is unchanged', function (): void {
+    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    ComposerJson::factory()->create([
+        'repository_id' => $repository->id,
+        'oid' => $repository->composer_json_oid,
+    ]);
+
+    $repositoriesWithComposerJsonOutOfDate = Repository::query()
+        ->composerJsonOutOfDate()
+        ->get();
+
+    expect($repositoriesWithComposerJsonOutOfDate)
+        ->toBeEmpty();
+});
+
+test('composer json out of date leaves out a repository that never had a composer.json', function (): void {
+    Repository::factory()->create(['composer_json_oid' => null]);
+
+    $repositoriesWithComposerJsonOutOfDate = Repository::query()
+        ->composerJsonOutOfDate()
+        ->get();
+
+    expect($repositoriesWithComposerJsonOutOfDate)
+        ->toBeEmpty();
+});
+
+test('composer lock out of date keeps a repository whose composer.lock changed', function (): void {
+    $repository = Repository::factory()->create(['composer_lock_oid' => fake()->unique()->sha1()]);
+    ComposerLock::factory()->create([
+        'repository_id' => $repository->id,
+        'oid' => fake()->unique()->sha1(),
+    ]);
+
+    $repositoriesWithComposerLockOutOfDate = Repository::query()
+        ->composerLockOutOfDate()
+        ->get();
+
+    expect($repositoriesWithComposerLockOutOfDate->sole()->is($repository))
+        ->toBeTrue();
+});
+
+test('composer lock out of date keeps a repository whose composer.lock was removed', function (): void {
+    $repository = Repository::factory()->create(['composer_lock_oid' => null]);
+    ComposerLock::factory()->create(['repository_id' => $repository->id]);
+
+    $repositoriesWithComposerLockOutOfDate = Repository::query()
+        ->composerLockOutOfDate()
+        ->get();
+
+    expect($repositoriesWithComposerLockOutOfDate->sole()->is($repository))
+        ->toBeTrue();
+});
+
+test('composer lock out of date leaves out a repository whose composer.lock is unchanged', function (): void {
+    $repository = Repository::factory()->create(['composer_lock_oid' => fake()->sha1()]);
+    ComposerLock::factory()->create([
+        'repository_id' => $repository->id,
+        'oid' => $repository->composer_lock_oid,
+    ]);
+
+    $repositoriesWithComposerLockOutOfDate = Repository::query()
+        ->composerLockOutOfDate()
+        ->get();
+
+    expect($repositoriesWithComposerLockOutOfDate)
+        ->toBeEmpty();
+});
+
+test('composer lock out of date leaves out a repository that never had a composer.lock', function (): void {
+    Repository::factory()->create(['composer_lock_oid' => null]);
+
+    $repositoriesWithComposerLockOutOfDate = Repository::query()
+        ->composerLockOutOfDate()
+        ->get();
+
+    expect($repositoriesWithComposerLockOutOfDate)
         ->toBeEmpty();
 });

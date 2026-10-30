@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 
+use function sprintf;
+
 /**
  * @extends Builder<Repository>
  */
@@ -16,6 +18,16 @@ class RepositoryBuilder extends Builder
     public function collected(): self
     {
         return $this->whereNull('missing_at');
+    }
+
+    public function composerJsonOutOfDate(): self
+    {
+        return $this->storedFileOutOfDate('composer_json_oid', 'composerJson');
+    }
+
+    public function composerLockOutOfDate(): self
+    {
+        return $this->storedFileOutOfDate('composer_lock_oid', 'composerLock');
     }
 
     public function missing(): self
@@ -38,5 +50,30 @@ class RepositoryBuilder extends Builder
     public function returnedByRun(Uuid $runId): self
     {
         return $this->where('run_id', $runId);
+    }
+
+    private function storedFileOutOfDate(string $oidColumn, string $storedFileRelation): self
+    {
+        return $this->where(static function (self $repositoryQuery) use ($oidColumn, $storedFileRelation): void {
+            $repositoryQuery
+                ->where(static function (self $changedFileQuery) use ($oidColumn, $storedFileRelation): void {
+                    $changedFileQuery
+                        ->whereNotNull($oidColumn)
+                        ->whereDoesntHave(
+                            $storedFileRelation,
+                            static function (Builder $storedFileQuery) use ($oidColumn): void {
+                                $storedFileQuery->whereColumn(
+                                    'oid',
+                                    sprintf('compass_repositories.%s', $oidColumn),
+                                );
+                            },
+                        );
+                })
+                ->orWhere(static function (self $removedFileQuery) use ($oidColumn, $storedFileRelation): void {
+                    $removedFileQuery
+                        ->whereNull($oidColumn)
+                        ->has($storedFileRelation);
+                });
+        });
     }
 }
