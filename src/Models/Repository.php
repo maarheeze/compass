@@ -34,6 +34,7 @@ use Maarheeze\Uuid\Uuid;
  * @property ?string $composer_lock_oid
  * @property CarbonImmutable $created_at
  * @property string $default_branch
+ * @property ?string $dependabot_yml_oid
  * @property string $github_id
  * @property Uuid $id
  * @property CarbonImmutable $last_commit_committed_at
@@ -41,6 +42,7 @@ use Maarheeze\Uuid\Uuid;
  * @property ?CarbonImmutable $missing_at
  * @property ?CarbonImmutable $missing_ignored_at
  * @property string $name
+ * @property ?string $package_json_oid
  * @property Uuid $run_id
  * @property CarbonImmutable $updated_at
  * @property string $url
@@ -49,6 +51,7 @@ use Maarheeze\Uuid\Uuid;
  * @property-read AlertCollection $alerts
  * @property-read ?ComposerJson $composerJson
  * @property-read ?ComposerLock $composerLock
+ * @property-read ?DependabotYml $dependabotYml
  * @property-read IssueCollection $issues
  * @property-read ObservationCollection $observations
  * @property-read PullRequestCollection $pullRequests
@@ -80,12 +83,14 @@ class Repository extends Model implements AlertSubject
             'composer_json_oid',
             'composer_lock_oid',
             'default_branch',
+            'dependabot_yml_oid',
             'github_id',
             'last_commit_committed_at',
             'last_commit_sha',
             'missing_at',
             'missing_ignored_at',
             'name',
+            'package_json_oid',
             'run_id',
             'url',
             'visibility',
@@ -106,6 +111,14 @@ class Repository extends Model implements AlertSubject
     public function composerLock(): HasOne
     {
         return $this->hasOne(ComposerLock::class);
+    }
+
+    /**
+     * @return HasOne<DependabotYml, $this>
+     */
+    public function dependabotYml(): HasOne
+    {
+        return $this->hasOne(DependabotYml::class);
     }
 
     /**

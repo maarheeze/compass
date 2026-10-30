@@ -36,6 +36,8 @@ readonly class RepositorySynchronizer
                 'visibility' => $gitHubRepository->visibility,
                 'composer_json_oid' => $gitHubRepository->composerJsonOid,
                 'composer_lock_oid' => $gitHubRepository->composerLockOid,
+                'package_json_oid' => $gitHubRepository->packageJsonOid,
+                'dependabot_yml_oid' => $gitHubRepository->dependabotYmlOid,
                 'run_id' => $runId,
                 'collected_at' => CarbonImmutable::now(),
                 'missing_at' => null,

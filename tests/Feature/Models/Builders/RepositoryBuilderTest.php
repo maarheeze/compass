@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Collection;
 use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\ComposerLock;
+use Maarheeze\Compass\Models\DependabotYml;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 
@@ -255,6 +256,59 @@ test('composer lock out of date leaves out a repository that never had a compose
         ->get();
 
     expect($repositoriesWithComposerLockOutOfDate)
+        ->toBeEmpty();
+});
+
+test('dependabot yml out of date keeps a repository whose dependabot.yml changed', function (): void {
+    $repository = Repository::factory()->create(['dependabot_yml_oid' => fake()->unique()->sha1()]);
+    DependabotYml::factory()->create([
+        'repository_id' => $repository->id,
+        'oid' => fake()->unique()->sha1(),
+    ]);
+
+    $repositoriesWithDependabotYmlOutOfDate = Repository::query()
+        ->dependabotYmlOutOfDate()
+        ->get();
+
+    expect($repositoriesWithDependabotYmlOutOfDate->sole()->is($repository))
+        ->toBeTrue();
+});
+
+test('dependabot yml out of date keeps a repository whose dependabot.yml was removed', function (): void {
+    $repository = Repository::factory()->create(['dependabot_yml_oid' => null]);
+    DependabotYml::factory()->create(['repository_id' => $repository->id]);
+
+    $repositoriesWithDependabotYmlOutOfDate = Repository::query()
+        ->dependabotYmlOutOfDate()
+        ->get();
+
+    expect($repositoriesWithDependabotYmlOutOfDate->sole()->is($repository))
+        ->toBeTrue();
+});
+
+test('dependabot yml out of date leaves out a repository whose dependabot.yml is unchanged', function (): void {
+    $repository = Repository::factory()->create(['dependabot_yml_oid' => fake()->sha1()]);
+    DependabotYml::factory()->create([
+        'repository_id' => $repository->id,
+        'oid' => $repository->dependabot_yml_oid,
+    ]);
+
+    $repositoriesWithDependabotYmlOutOfDate = Repository::query()
+        ->dependabotYmlOutOfDate()
+        ->get();
+
+    expect($repositoriesWithDependabotYmlOutOfDate)
+        ->toBeEmpty();
+});
+
+test('dependabot yml out of date leaves out a repository that never had a dependabot.yml', function (): void {
+    Repository::factory()->create(['dependabot_yml_oid' => null]);
+
+    $repositoriesWithDependabotYmlOutOfDate = Repository::query()
+        ->dependabotYmlOutOfDate()
+        ->get();
+
+    expect($repositoriesWithDependabotYmlOutOfDate)
         ->toBeEmpty();
 });
 

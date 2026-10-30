@@ -34,6 +34,8 @@ class RepositoryFactory extends Factory
             'visibility' => fake()->randomElement(RepositoryVisibility::cases()),
             'composer_json_oid' => fake()->optional()->sha1(),
             'composer_lock_oid' => fake()->optional()->sha1(),
+            'package_json_oid' => fake()->optional()->sha1(),
+            'dependabot_yml_oid' => fake()->optional()->sha1(),
             'run_id' => Uuid::generate(),
             'collected_at' => fake()->dateTime(),
         ];

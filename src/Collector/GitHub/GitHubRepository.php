@@ -18,6 +18,8 @@ readonly class GitHubRepository
         public RepositoryVisibility $visibility,
         public ?string $composerJsonOid,
         public ?string $composerLockOid,
+        public ?string $packageJsonOid,
+        public ?string $dependabotYmlOid,
     ) {
     }
 }

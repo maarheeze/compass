@@ -57,6 +57,7 @@ class CollectRepositories implements ShouldQueue
                 new CollectIssuesAndPullRequests($this->runId),
                 new CollectChangedComposerJsons($this->runId),
                 new CollectChangedComposerLocks($this->runId),
+                new CollectChangedDependabotYmls($this->runId),
             ]);
     }
 }

@@ -143,6 +143,12 @@ test('pages hold the github repositories in the response', function (): void {
                                 'composerLock' => [
                                     'oid' => $gitHubRepository->composerLockOid,
                                 ],
+                                'packageJson' => [
+                                    'oid' => $gitHubRepository->packageJsonOid,
+                                ],
+                                'dependabotYml' => [
+                                    'oid' => $gitHubRepository->dependabotYmlOid,
+                                ],
                             ],
                         ],
                     ],
@@ -176,6 +182,8 @@ test('pages skip repositories without a default branch', function (): void {
                                 'defaultBranchRef' => null,
                                 'composerJson' => null,
                                 'composerLock' => null,
+                                'packageJson' => null,
+                                'dependabotYml' => null,
                             ],
                         ],
                     ],

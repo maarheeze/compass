@@ -31,6 +31,11 @@ class RepositoryBuilder extends Builder
         return $this->storedFileOutOfDate('composer_lock_oid', 'composerLock');
     }
 
+    public function dependabotYmlOutOfDate(): self
+    {
+        return $this->storedFileOutOfDate('dependabot_yml_oid', 'dependabotYml');
+    }
+
     public function missing(): self
     {
         return $this

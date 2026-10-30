@@ -62,6 +62,8 @@ readonly class RepositoriesQuery
                 RepositoryVisibility::from(Assert::string($repositoryResponse['visibility'])),
                 $this->getOid($repositoryResponse['composerJson']),
                 $this->getOid($repositoryResponse['composerLock']),
+                $this->getOid($repositoryResponse['packageJson']),
+                $this->getOid($repositoryResponse['dependabotYml']),
             );
 
             $gitHubRepositories->push($gitHubRepository);
@@ -106,6 +108,8 @@ readonly class RepositoriesQuery
                     defaultBranchRef { name target { oid ... on Commit { committedDate } } }
                     composerJson: object(expression: "HEAD:composer.json") { oid }
                     composerLock: object(expression: "HEAD:composer.lock") { oid }
+                    packageJson: object(expression: "HEAD:package.json") { oid }
+                    dependabotYml: object(expression: "HEAD:.github/dependabot.yml") { oid }
                   }
                 }
               }

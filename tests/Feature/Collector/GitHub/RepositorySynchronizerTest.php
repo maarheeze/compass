@@ -28,6 +28,8 @@ test('store repositories creates a repository for a new github repository', func
         'visibility' => $gitHubRepository->visibility,
         'composer_json_oid' => $gitHubRepository->composerJsonOid,
         'composer_lock_oid' => $gitHubRepository->composerLockOid,
+        'package_json_oid' => $gitHubRepository->packageJsonOid,
+        'dependabot_yml_oid' => $gitHubRepository->dependabotYmlOid,
         'run_id' => $runId,
     ]);
 });
@@ -68,6 +70,8 @@ test('store repositories updates the name of a known repository', function (): v
         fake()->sha1(),
         CarbonImmutable::parse(fake()->iso8601()),
         fake()->randomElement(RepositoryVisibility::cases()),
+        fake()->sha1(),
+        fake()->sha1(),
         fake()->sha1(),
         fake()->sha1(),
     );

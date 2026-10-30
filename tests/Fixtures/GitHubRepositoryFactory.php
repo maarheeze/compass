@@ -25,6 +25,8 @@ class GitHubRepositoryFactory
             fake()->randomElement(RepositoryVisibility::cases()),
             $repository->composer_json_oid,
             $repository->composer_lock_oid,
+            $repository->package_json_oid,
+            $repository->dependabot_yml_oid,
         );
     }
 
@@ -38,6 +40,8 @@ class GitHubRepositoryFactory
             fake()->sha1(),
             CarbonImmutable::parse(fake()->iso8601()),
             fake()->randomElement(RepositoryVisibility::cases()),
+            fake()->sha1(),
+            fake()->sha1(),
             fake()->sha1(),
             fake()->sha1(),
         );
