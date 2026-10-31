@@ -193,14 +193,7 @@
             </x-compass::section-heading>
 
             <div class="overflow-hidden rounded-md border border-border bg-canvas">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-canvas-subtle text-xs text-foreground-muted">
-                        <tr>
-                            <th class="px-4 py-2 font-medium">{{ __('compass::site.path') }}</th>
-                            <th class="px-4 py-2 font-medium">{{ __('compass::site.status') }}</th>
-                            <th class="px-4 py-2 font-medium">{{ __('compass::site.last_checked') }}</th>
-                        </tr>
-                    </thead>
+                <table class="w-full table-fixed text-left text-sm">
                     <tbody class="divide-y divide-border">
                         @foreach ($activeSiteEndpointChecks as $activeSiteEndpointCheck)
                             <x-compass::site-endpoint-check.row :site="$site" :site-endpoint-check="$activeSiteEndpointCheck" />
@@ -212,7 +205,7 @@
                         @endforeach
                         @if ($activeSiteEndpointChecks->isEmpty() && $inactiveSiteEndpointChecks->isEmpty())
                             <tr>
-                                <td colspan="3" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::site.no_endpoints_checked') }}</td>
+                                <td class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::site.no_endpoints_checked') }}</td>
                             </tr>
                         @endif
                     </tbody>

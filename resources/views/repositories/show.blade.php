@@ -97,40 +97,12 @@
 
             <div class="overflow-hidden rounded-md border border-border bg-canvas">
                 <table class="w-full table-fixed text-left text-sm">
-                    <thead class="bg-canvas-subtle text-xs text-foreground-muted">
-                        <tr>
-                            <th class="px-4 py-2 font-medium">{{ __('compass::repository.site') }}</th>
-                            <th class="w-28 px-4 py-2 font-medium">{{ __('compass::repository.branch') }}</th>
-                            <th class="w-28 px-4 py-2 font-medium">{{ __('compass::repository.deployment') }}</th>
-                            <th class="w-28 px-4 py-2 font-medium">{{ __('compass::repository.deployed_commit') }}</th>
-                            <th class="w-28 px-4 py-2 font-medium">{{ __('compass::repository.status') }}</th>
-                        </tr>
-                    </thead>
                     <tbody class="divide-y divide-border">
                         @forelse ($repository->sites as $site)
-                            <tr>
-                                <td class="truncate px-4 py-2 text-foreground">
-                                    <x-compass::site-link :site="$site" />
-                                </td>
-                                <td class="truncate px-4 py-2 text-foreground-muted">{{ $site->repository_branch }}</td>
-                                <td class="px-4 py-2 text-foreground-muted">
-                                    @if ($site->deployment_status !== null)
-                                        <x-compass::enum-label :value="$site->deployment_status" />
-                                    @endif
-                                </td>
-                                <td class="px-4 py-2 text-foreground-muted">
-                                    <x-compass::commit-hash :repository="$site->repository" :commit-hash="$site->deployed_commit_hash" />
-                                </td>
-                                <td class="px-4 py-2">
-                                    <div class="flex items-center gap-2">
-                                        <x-compass::missing-label :subject="$site" />
-                                        <x-compass::forge.deployment-state-badge :site="$site" />
-                                    </div>
-                                </td>
-                            </tr>
+                            <x-compass::site-row :site="$site" />
                         @empty
                             <tr>
-                                <td colspan="5" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::repository.no_sites') }}</td>
+                                <td class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::repository.no_sites') }}</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -159,39 +131,27 @@
                 </summary>
 
                 <table class="w-full table-fixed border-t border-border text-left text-sm">
-                    <thead class="bg-canvas-subtle text-xs text-foreground-muted">
-                        <tr>
-                            <th class="px-4 py-2 font-medium">{{ __('compass::composer.package') }}</th>
-                            <th class="w-40 px-4 py-2 font-medium">{{ __('compass::composer.constraint') }}</th>
-                        </tr>
-                    </thead>
                     @if ($repository->composerJson->productionPackages->isNotEmpty())
                         <tbody class="divide-y divide-border">
                             <tr>
-                                <th colspan="2" class="bg-canvas-subtle px-4 py-2 text-xs font-medium text-foreground-muted">{{ __('compass::composer.production') }}</th>
+                                <th class="bg-canvas-subtle px-4 py-2 text-xs font-medium text-foreground-muted">{{ __('compass::composer.production') }}</th>
                             </tr>
                             @foreach ($repository->composerJson->productionPackages as $package)
-                                <tr>
-                                    <td class="truncate px-4 py-2 text-foreground">
-                                        <x-compass::composer.package-link :package-name="$package->name" />
-                                    </td>
-                                    <td class="px-4 py-2 text-foreground-muted">{{ $package->constraint }}</td>
-                                </tr>
+                                <x-compass::composer.package-row :package-name="$package->name">
+                                    <span class="font-mono">{{ $package->constraint }}</span>
+                                </x-compass::composer.package-row>
                             @endforeach
                         </tbody>
                     @endif
                     @if ($repository->composerJson->developmentPackages->isNotEmpty())
                         <tbody class="divide-y divide-border border-t border-border">
                             <tr>
-                                <th colspan="2" class="bg-canvas-subtle px-4 py-2 text-xs font-medium text-foreground-muted">{{ __('compass::composer.development') }}</th>
+                                <th class="bg-canvas-subtle px-4 py-2 text-xs font-medium text-foreground-muted">{{ __('compass::composer.development') }}</th>
                             </tr>
                             @foreach ($repository->composerJson->developmentPackages as $package)
-                                <tr>
-                                    <td class="truncate px-4 py-2 text-foreground">
-                                        <x-compass::composer.package-link :package-name="$package->name" />
-                                    </td>
-                                    <td class="px-4 py-2 text-foreground-muted">{{ $package->constraint }}</td>
-                                </tr>
+                                <x-compass::composer.package-row :package-name="$package->name">
+                                    <span class="font-mono">{{ $package->constraint }}</span>
+                                </x-compass::composer.package-row>
                             @endforeach
                         </tbody>
                     @endif
@@ -218,24 +178,15 @@
                 </summary>
 
                 <table class="w-full table-fixed border-t border-border text-left text-sm">
-                    <thead class="bg-canvas-subtle text-xs text-foreground-muted">
-                        <tr>
-                            <th class="px-4 py-2 font-medium">{{ __('compass::composer.package') }}</th>
-                            <th class="w-40 px-4 py-2 font-medium">{{ __('compass::composer.version') }}</th>
-                            <th class="w-32 px-4 py-2 font-medium">{{ __('compass::composer.section') }}</th>
-                        </tr>
-                    </thead>
                     <tbody class="divide-y divide-border">
                         @foreach ($repository->composerLock->packages as $package)
-                            <tr>
-                                <td class="truncate px-4 py-2 text-foreground">
-                                    <x-compass::composer.package-link :package-name="$package->name" />
-                                </td>
-                                <td class="px-4 py-2 text-foreground-muted">{{ $package->version }}</td>
-                                <td class="px-4 py-2 text-foreground-muted lowercase">
+                            <x-compass::composer.package-row :package-name="$package->name">
+                                <span class="font-mono">{{ $package->version }}</span>
+                                <span>&middot;</span>
+                                <span class="lowercase">
                                     <x-compass::enum-label :value="$package->section" />
-                                </td>
-                            </tr>
+                                </span>
+                            </x-compass::composer.package-row>
                         @endforeach
                     </tbody>
                 </table>

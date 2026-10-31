@@ -1,1 +1,1 @@
-<a href="{{ $url }}" class="font-mono text-accent hover:underline">{{ $path->path }}</a>
+<a href="{{ $url }}" class="truncate font-mono text-base font-semibold text-foreground hover:text-accent">{{ $path->path }}</a>

@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 return [
     'all_runs' => 'All runs',
-    'ended' => 'Ended',
-    'failed_jobs' => 'Failed jobs',
+    'ended' => 'ended',
+    'failed_job_count' => ':count failed jobs',
     'no_runs' => 'No runs yet.',
-    'run' => 'Run',
-    'started' => 'Started',
-    'status' => 'Status',
+    'started' => 'started',
 ];

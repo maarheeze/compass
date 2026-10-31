@@ -61,7 +61,7 @@ return [
     |
     */
 
-    'items_per_page' => env('COMPASS_ITEMS_PER_PAGE', 25),
+    'items_per_page' => env('COMPASS_ITEMS_PER_PAGE', 10),
 
     /*
     |--------------------------------------------------------------------------

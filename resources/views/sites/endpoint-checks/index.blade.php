@@ -12,38 +12,37 @@
         </div>
 
         <div class="overflow-hidden rounded-md border border-border bg-canvas">
-            <table class="w-full text-left text-sm">
-                <thead class="bg-canvas-subtle text-xs text-foreground-muted">
-                    <tr>
-                        <th class="px-4 py-2 font-medium">{{ __('compass::endpoint-check.checked_at') }}</th>
-                        <th class="px-4 py-2 font-medium">{{ __('compass::endpoint-check.url') }}</th>
-                        <th class="px-4 py-2 font-medium">{{ __('compass::endpoint-check.status') }}</th>
-                    </tr>
-                </thead>
+            <table class="w-full table-fixed text-left text-sm">
                 <tbody class="divide-y divide-border">
                     @forelse ($siteEndpointChecks as $siteEndpointCheck)
                         <tr>
-                            <td class="px-4 py-2 text-foreground-muted">
-                                <x-compass::date-time :time="$siteEndpointCheck->created_at" />
-                            </td>
-                            <td class="px-4 py-2 font-mono text-foreground-muted">{{ $siteEndpointCheck->url }}</td>
-                            <td class="px-4 py-2 text-foreground">
-                                @if ($siteEndpointCheck->status_code === null)
-                                    {{ __('compass::endpoint-check.unreachable') }}
-                                @else
-                                    {{ $siteEndpointCheck->status_code }}
-                                @endif
+                            <td class="px-4 py-3">
+                                <div class="flex min-w-0 items-center gap-2">
+                                    <span class="text-base font-semibold text-foreground">
+                                        @if ($siteEndpointCheck->status_code === null)
+                                            {{ __('compass::endpoint-check.unreachable') }}
+                                        @else
+                                            {{ $siteEndpointCheck->status_code }}
+                                        @endif
+                                    </span>
+                                    <x-compass::site-endpoint-check.status-label :site-endpoint-check="$siteEndpointCheck" />
+                                </div>
+                                <div class="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-foreground-muted">
+                                    <span class="truncate font-mono">{{ $siteEndpointCheck->url }}</span>
+                                    <span>&middot;</span>
+                                    <x-compass::date-time :time="$siteEndpointCheck->created_at" />
+                                </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::endpoint-check.no_checks') }}</td>
+                            <td class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::endpoint-check.no_checks') }}</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
 
-        {{ $siteEndpointChecks->links() }}
+        {{ $siteEndpointChecks->links('compass::pagination') }}
     </main>
 </x-compass::layouts.app>

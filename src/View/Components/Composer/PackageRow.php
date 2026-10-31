@@ -10,7 +10,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 use Maarheeze\Compass\Http\RouteName;
 
-class PackageLink extends Component
+class PackageRow extends Component
 {
     public readonly string $url;
 
@@ -24,6 +24,6 @@ class PackageLink extends Component
 
     public function render(): View
     {
-        return $this->view->make('compass::components.composer.package-link');
+        return $this->view->make('compass::components.composer.package-row');
     }
 }

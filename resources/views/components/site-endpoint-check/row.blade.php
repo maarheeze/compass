@@ -1,16 +1,25 @@
 @props(['site', 'siteEndpointCheck'])
 
 <tr>
-    <td class="px-4 py-2">
-        <div class="flex items-center gap-2">
+    <td class="px-4 py-3">
+        <div class="flex min-w-0 items-center gap-2">
             <x-compass::site-endpoint-checks-link :site="$site" :path="$siteEndpointCheck->path" />
+            <x-compass::site-endpoint-check.status-label :site-endpoint-check="$siteEndpointCheck" />
             {{ $slot }}
         </div>
-    </td>
-    <td class="px-4 py-2">
-        <x-compass::site-endpoint-check.status-label :site-endpoint-check="$siteEndpointCheck" />
-    </td>
-    <td class="px-4 py-2 text-foreground-muted">
-        <x-compass::time :time="$siteEndpointCheck->created_at" />
+        <div class="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-foreground-muted">
+            <span>
+                @if ($siteEndpointCheck->status_code === null)
+                    {{ __('compass::endpoint-check.unreachable') }}
+                @else
+                    {{ $siteEndpointCheck->status_code }}
+                @endif
+            </span>
+            <span>&middot;</span>
+            <span>
+                {{ __('compass::site.checked') }}
+                <x-compass::time :time="$siteEndpointCheck->created_at" />
+            </span>
+        </div>
     </td>
 </tr>

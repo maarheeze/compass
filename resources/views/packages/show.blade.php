@@ -17,24 +17,12 @@
             @else
                 <div class="overflow-hidden rounded-md border border-border bg-canvas">
                     <table class="w-full table-fixed text-left text-sm">
-                        <thead class="bg-canvas-subtle text-xs text-foreground-muted">
-                            <tr>
-                                <th class="px-4 py-2 font-medium">{{ __('compass::repository.repository') }}</th>
-                                <th class="w-40 px-4 py-2 font-medium">{{ __('compass::composer.version') }}</th>
-                                <th class="w-32 px-4 py-2 font-medium">{{ __('compass::composer.section') }}</th>
-                            </tr>
-                        </thead>
                         <tbody class="divide-y divide-border">
                             @foreach ($packageUsages->lockedPackages as $lockedPackage)
-                                <tr>
-                                    <td class="truncate px-4 py-2 text-foreground">
-                                        <x-compass::repository-link :repository="$lockedPackage->composerLock->repository" />
-                                    </td>
-                                    <td class="px-4 py-2 text-foreground-muted">{{ $lockedPackage->version }}</td>
-                                    <td class="px-4 py-2 text-foreground-muted lowercase">
-                                        <x-compass::enum-label :value="$lockedPackage->section" />
-                                    </td>
-                                </tr>
+                                <x-compass::package-usage-row
+                                    :repository="$lockedPackage->composerLock->repository"
+                                    :version="$lockedPackage->version"
+                                    :section="$lockedPackage->section" />
                             @endforeach
                         </tbody>
                     </table>
@@ -55,24 +43,12 @@
             @else
                 <div class="overflow-hidden rounded-md border border-border bg-canvas">
                     <table class="w-full table-fixed text-left text-sm">
-                        <thead class="bg-canvas-subtle text-xs text-foreground-muted">
-                            <tr>
-                                <th class="px-4 py-2 font-medium">{{ __('compass::repository.repository') }}</th>
-                                <th class="w-40 px-4 py-2 font-medium">{{ __('compass::composer.constraint') }}</th>
-                                <th class="w-32 px-4 py-2 font-medium">{{ __('compass::composer.section') }}</th>
-                            </tr>
-                        </thead>
                         <tbody class="divide-y divide-border">
                             @foreach ($packageUsages->requiredPackages as $requiredPackage)
-                                <tr>
-                                    <td class="truncate px-4 py-2 text-foreground">
-                                        <x-compass::repository-link :repository="$requiredPackage->composerJson->repository" />
-                                    </td>
-                                    <td class="px-4 py-2 text-foreground-muted">{{ $requiredPackage->constraint }}</td>
-                                    <td class="px-4 py-2 text-foreground-muted lowercase">
-                                        <x-compass::enum-label :value="$requiredPackage->section" />
-                                    </td>
-                                </tr>
+                                <x-compass::package-usage-row
+                                    :repository="$requiredPackage->composerJson->repository"
+                                    :version="$requiredPackage->constraint"
+                                    :section="$requiredPackage->section" />
                             @endforeach
                         </tbody>
                     </table>
