@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 return [
     'COMPOSER_LIBRARY_WITH_LOCK' => 'Library with composer.lock',
+    'COMPOSER_MINIMUM_STABILITY_UNSTABLE' => 'Minimum stability not stable',
     'COMPOSER_PROJECT_WITHOUT_LOCK' => 'Project without composer.lock',
     'COMPOSER_TYPE_MISSING' => 'Composer type is missing',
     'COMPOSER_TYPE_UNKNOWN' => 'Composer type unknown',

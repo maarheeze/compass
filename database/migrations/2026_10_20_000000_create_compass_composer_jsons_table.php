@@ -21,6 +21,8 @@ return new class extends Migration
             $table->string('oid');
             $table->string('type')->nullable();
             $table->string('php_constraint')->nullable();
+            $table->string('minimum_stability')->nullable();
+            $table->boolean('prefer_stable');
 
             $table->timestamps();
         });

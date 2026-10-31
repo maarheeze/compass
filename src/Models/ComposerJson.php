@@ -21,8 +21,10 @@ use Maarheeze\Uuid\Uuid;
 /**
  * @property CarbonImmutable $created_at
  * @property Uuid $id
+ * @property ?string $minimum_stability
  * @property string $oid
  * @property ?string $php_constraint
+ * @property bool $prefer_stable
  * @property Uuid $repository_id
  * @property ?string $type
  * @property CarbonImmutable $updated_at
@@ -48,8 +50,10 @@ class ComposerJson extends Model
     public function getFillable(): array
     {
         return [
+            'minimum_stability',
             'oid',
             'php_constraint',
+            'prefer_stable',
             'repository_id',
             'type',
         ];
@@ -99,6 +103,7 @@ class ComposerJson extends Model
     {
         return [
             'created_at' => 'immutable_datetime',
+            'prefer_stable' => 'boolean',
             'repository_id' => UuidCast::class,
             'updated_at' => 'immutable_datetime',
         ];

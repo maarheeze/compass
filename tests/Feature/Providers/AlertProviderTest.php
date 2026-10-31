@@ -10,6 +10,7 @@ use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteClientIncompatible;
 use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteClientUnauthorized;
 use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteDebugEnabled;
 use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteNotInProduction;
+use Maarheeze\Compass\Alerts\Listeners\Composer\EvaluateComposerMinimumStability;
 use Maarheeze\Compass\Alerts\Listeners\Composer\EvaluateComposerWarning;
 use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteBehind;
 use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteDeploymentOverdue;
@@ -85,6 +86,12 @@ test('evaluate composer warning listens to github run succeeded', function (): v
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
     $eventFake->assertListening(GitHubRunSucceeded::class, EvaluateComposerWarning::class);
+});
+
+test('evaluate composer minimum stability listens to github run succeeded', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+
+    $eventFake->assertListening(GitHubRunSucceeded::class, EvaluateComposerMinimumStability::class);
 });
 
 test('evaluate dependabot coverage listens to github run succeeded', function (): void {

@@ -7,6 +7,7 @@ namespace Maarheeze\Compass\Alerts;
 enum AlertType: string
 {
     case COMPOSER_LIBRARY_WITH_LOCK = 'composer-library-with-lock';
+    case COMPOSER_MINIMUM_STABILITY_UNSTABLE = 'composer-minimum-stability-unstable';
     case COMPOSER_PROJECT_WITHOUT_LOCK = 'composer-project-without-lock';
     case COMPOSER_TYPE_MISSING = 'composer-type-missing';
     case COMPOSER_TYPE_UNKNOWN = 'composer-type-unknown';

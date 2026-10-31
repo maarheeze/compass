@@ -34,8 +34,22 @@ readonly class ComposerJsonReader
         return new ComposerJsonSummary(
             $this->getType($composerJson),
             $this->getPhpConstraint($requirements),
+            $this->getMinimumStability($composerJson),
+            $this->isPreferStable($composerJson),
             $productionPackages->merge($developmentPackages),
         );
+    }
+
+    /**
+     * @param array<mixed> $composerJson
+     */
+    private function getMinimumStability(array $composerJson): ?string
+    {
+        if (!array_key_exists('minimum-stability', $composerJson)) {
+            return null;
+        }
+
+        return Assert::string($composerJson['minimum-stability']);
     }
 
     /**
@@ -92,5 +106,17 @@ readonly class ComposerJsonReader
         }
 
         return Assert::string($composerJson['type']);
+    }
+
+    /**
+     * @param array<mixed> $composerJson
+     */
+    private function isPreferStable(array $composerJson): bool
+    {
+        if (!array_key_exists('prefer-stable', $composerJson)) {
+            return false;
+        }
+
+        return Assert::boolean($composerJson['prefer-stable']);
     }
 }

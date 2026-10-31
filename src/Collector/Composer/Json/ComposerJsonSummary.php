@@ -11,6 +11,8 @@ readonly class ComposerJsonSummary
     public function __construct(
         public ?string $type,
         public ?string $phpConstraint,
+        public ?string $minimumStability,
+        public bool $preferStable,
         public RequiredPackageCollection $requiredPackages,
     ) {
     }

@@ -28,6 +28,8 @@ class ComposerJsonFactory extends Factory
             'oid' => fake()->sha1(),
             'type' => fake()->optional()->word(),
             'php_constraint' => fake()->optional()->numerify('^#.#'),
+            'minimum_stability' => fake()->optional()->randomElement(['stable', 'RC', 'beta', 'alpha', 'dev']),
+            'prefer_stable' => fake()->boolean(),
         ];
     }
 }

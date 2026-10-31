@@ -17,6 +17,8 @@ test('store stores the composer json of the repository', function (): void {
     $composerJsonSummary = new ComposerJsonSummary(
         fake()->word(),
         fake()->numerify('^#.#'),
+        fake()->optional()->word(),
+        fake()->boolean(),
         new RequiredPackageCollection(),
     );
 
@@ -28,6 +30,8 @@ test('store stores the composer json of the repository', function (): void {
         'oid' => $oid,
         'type' => $composerJsonSummary->type,
         'php_constraint' => $composerJsonSummary->phpConstraint,
+        'minimum_stability' => $composerJsonSummary->minimumStability,
+        'prefer_stable' => $composerJsonSummary->preferStable,
     ]);
 });
 
@@ -43,6 +47,8 @@ test('store stores the required packages', function (): void {
     $composerJsonSynchronizer->store($repository, fake()->sha1(), new ComposerJsonSummary(
         fake()->word(),
         fake()->numerify('^#.#'),
+        fake()->optional()->word(),
+        fake()->boolean(),
         new RequiredPackageCollection([$requiredPackage]),
     ));
 
@@ -62,6 +68,8 @@ test('store replaces the composer json collected before', function (): void {
     $composerJsonSynchronizer->store($composerJson->repository, $oid, new ComposerJsonSummary(
         fake()->word(),
         fake()->numerify('^#.#'),
+        fake()->optional()->word(),
+        fake()->boolean(),
         new RequiredPackageCollection(),
     ));
 
@@ -79,6 +87,8 @@ test('store removes the packages collected before', function (): void {
     $composerJsonSynchronizer->store($repository, fake()->sha1(), new ComposerJsonSummary(
         fake()->word(),
         fake()->numerify('^#.#'),
+        fake()->optional()->word(),
+        fake()->boolean(),
         new RequiredPackageCollection(),
     ));
 

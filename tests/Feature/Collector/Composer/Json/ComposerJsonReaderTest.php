@@ -51,6 +51,50 @@ test('php constraint is null when php is not required', function (): void {
         ->toBeNull();
 });
 
+test('minimum stability is the minimum stability in the composer json', function (): void {
+    $minimumStability = fake()->word();
+
+    $composerJsonReader = $this->app->make(ComposerJsonReader::class);
+    $composerJsonSummary = $composerJsonReader->read(json_encode([
+        'minimum-stability' => $minimumStability,
+    ], JSON_THROW_ON_ERROR));
+
+    expect($composerJsonSummary->minimumStability)
+        ->toBe($minimumStability);
+});
+
+test('minimum stability is null when the composer json has none', function (): void {
+    $composerJsonReader = $this->app->make(ComposerJsonReader::class);
+    $composerJsonSummary = $composerJsonReader->read(json_encode([
+        'name' => fake()->slug(),
+    ], JSON_THROW_ON_ERROR));
+
+    expect($composerJsonSummary->minimumStability)
+        ->toBeNull();
+});
+
+test('prefer stable is the prefer stable in the composer json', function (): void {
+    $preferStable = fake()->boolean();
+
+    $composerJsonReader = $this->app->make(ComposerJsonReader::class);
+    $composerJsonSummary = $composerJsonReader->read(json_encode([
+        'prefer-stable' => $preferStable,
+    ], JSON_THROW_ON_ERROR));
+
+    expect($composerJsonSummary->preferStable)
+        ->toBe($preferStable);
+});
+
+test('prefer stable is false when the composer json has none', function (): void {
+    $composerJsonReader = $this->app->make(ComposerJsonReader::class);
+    $composerJsonSummary = $composerJsonReader->read(json_encode([
+        'name' => fake()->slug(),
+    ], JSON_THROW_ON_ERROR));
+
+    expect($composerJsonSummary->preferStable)
+        ->toBeFalse();
+});
+
 test('required packages are the packages of require and require dev with their section', function (): void {
     $productionPackage = new RequiredPackage(
         sprintf('%s/%s', fake()->slug(), fake()->slug()),

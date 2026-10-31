@@ -31,6 +31,8 @@ readonly class ComposerJsonSynchronizer
                 'oid' => $oid,
                 'type' => $composerJsonSummary->type,
                 'php_constraint' => $composerJsonSummary->phpConstraint,
+                'minimum_stability' => $composerJsonSummary->minimumStability,
+                'prefer_stable' => $composerJsonSummary->preferStable,
             ]);
 
             $composerJson->packages()->delete();
