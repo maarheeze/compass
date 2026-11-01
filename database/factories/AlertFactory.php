@@ -45,6 +45,8 @@ class AlertFactory extends Factory
 
         return match ($type) {
             AlertType::COMPOSER_LIBRARY_WITH_LOCK => $alertFactoryWithState->composerLibraryWithLock(),
+            AlertType::COMPOSER_MINIMUM_STABILITY_UNSTABLE =>
+                $alertFactoryWithState->composerMinimumStabilityUnstable(),
             AlertType::COMPOSER_PROJECT_WITHOUT_LOCK => $alertFactoryWithState->composerProjectWithoutLock(),
             AlertType::COMPOSER_TYPE_MISSING => $alertFactoryWithState->composerTypeMissing(),
             AlertType::COMPOSER_TYPE_UNKNOWN => $alertFactoryWithState->composerTypeUnknown(),
@@ -75,6 +77,13 @@ class AlertFactory extends Factory
     public function composerLibraryWithLock(): static
     {
         return $this->state(['type' => AlertType::COMPOSER_LIBRARY_WITH_LOCK])->for(Repository::factory(), 'subject');
+    }
+
+    public function composerMinimumStabilityUnstable(): static
+    {
+        return $this
+            ->state(['type' => AlertType::COMPOSER_MINIMUM_STABILITY_UNSTABLE])
+            ->for(Repository::factory(), 'subject');
     }
 
     public function composerProjectWithoutLock(): static

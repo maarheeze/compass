@@ -38,6 +38,7 @@ class ObservationFactory extends Factory
             AlertType::SITE_MISSING,
             AlertType::SITE_NOT_IN_PRODUCTION => Site::factory(),
             AlertType::COMPOSER_LIBRARY_WITH_LOCK,
+            AlertType::COMPOSER_MINIMUM_STABILITY_UNSTABLE,
             AlertType::COMPOSER_PROJECT_WITHOUT_LOCK,
             AlertType::COMPOSER_TYPE_MISSING,
             AlertType::COMPOSER_TYPE_UNKNOWN,

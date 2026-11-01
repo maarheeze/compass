@@ -7,11 +7,14 @@ namespace Maarheeze\Compass;
 use Carbon\FactoryImmutable;
 use Illuminate\Config\Repository as ConfigurationRepository;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Livewire\LivewireManager;
 use Maarheeze\Compass\Collector\CollectorLogger;
+use Maarheeze\Compass\Collector\Listeners\RecordRunFailure;
 use Maarheeze\Compass\Console\SyncCommand;
 use Maarheeze\Compass\Http\Controllers\RunController;
 use Maarheeze\Compass\Http\Controllers\SiteEndpointCheckController;
@@ -59,8 +62,10 @@ class CompassServiceProvider extends ServiceProvider
         $this->app->register(SiteEndpointProvider::class);
     }
 
-    public function boot(LivewireManager $livewire): void
+    public function boot(Dispatcher $events, LivewireManager $livewire): void
     {
+        $events->listen(JobFailed::class, RecordRunFailure::class);
+
         $this->loadTranslationsFrom(sprintf('%s/../lang', __DIR__), 'compass');
         $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'compass');

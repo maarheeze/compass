@@ -9,12 +9,6 @@
             <x-compass::run-status-badge :status="$run->status" />
         </div>
         <div class="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-foreground-muted">
-            <span class="font-mono">{{ $run->id }}</span>
-            @if ($run->failed_job_count > 0)
-                <span>&middot;</span>
-                <span>{{ __('compass::run.failed_job_count', ['count' => $run->failed_job_count]) }}</span>
-            @endif
-            <span>&middot;</span>
             <span>
                 {{ __('compass::run.started') }}
                 <x-compass::date-time :time="$run->created_at" />
@@ -26,6 +20,13 @@
                     <x-compass::date-time :time="$run->finished_at" />
                 </span>
             @endif
+            @if ($run->failed_job_count > 0)
+                <span>&middot;</span>
+                <span>{{ __('compass::run.failed_job_count', ['count' => $run->failed_job_count]) }}</span>
+            @endif
         </div>
+        @foreach ($run->failures as $runFailure)
+            <p class="mt-1 text-xs text-red-700 dark:text-red-300">{{ $runFailure->message }}</p>
+        @endforeach
     </td>
 </tr>

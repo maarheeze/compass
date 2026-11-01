@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('visibility');
             $table->string('composer_json_oid')->nullable();
             $table->string('composer_lock_oid')->nullable();
+            $table->string('package_json_oid')->nullable();
+            $table->string('dependabot_yml_oid')->nullable();
             $table->string('run_id');
             $table->timestamp('collected_at');
             $table->timestamp('missing_at')->nullable();

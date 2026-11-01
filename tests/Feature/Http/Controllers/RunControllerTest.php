@@ -6,6 +6,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Maarheeze\Compass\Collector\RunType;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Run;
+use Maarheeze\Compass\Models\RunFailure;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 
@@ -43,6 +44,29 @@ test('type leaves out the runs of another type', function (): void {
 
     $response->assertViewHas('runs', static function (LengthAwarePaginator $viewRuns): bool {
         return $viewRuns->isEmpty();
+    });
+});
+
+test('index loads the failures of the runs', function (): void {
+    RunFailure::factory()->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::RUNS));
+
+    $response->assertViewHas('runs', static function (LengthAwarePaginator $viewRuns): bool {
+        return $viewRuns->sole()->relationLoaded('failures');
+    });
+});
+
+test('type loads the failures of the runs', function (): void {
+    $run = Run::factory()->create();
+    RunFailure::factory()->create(['run_id' => $run->id]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::RUNS_OF_TYPE, $run->type));
+
+    $response->assertViewHas('runs', static function (LengthAwarePaginator $viewRuns): bool {
+        return $viewRuns->sole()->relationLoaded('failures');
     });
 });
 

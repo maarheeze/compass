@@ -9,7 +9,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\HasBuilder;
 use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Maarheeze\Compass\Collections\RunCollection;
+use Maarheeze\Compass\Collections\RunFailureCollection;
 use Maarheeze\Compass\Collector\RunStatus;
 use Maarheeze\Compass\Collector\RunType;
 use Maarheeze\Compass\Database\Factories\RunFactory;
@@ -26,6 +28,8 @@ use Maarheeze\Uuid\Uuid;
  * @property RunStatus $status
  * @property RunType $type
  * @property CarbonImmutable $updated_at
+ *
+ * @property-read RunFailureCollection $failures
  */
 class Run extends Model
 {
@@ -58,6 +62,14 @@ class Run extends Model
     public function getTable(): string
     {
         return 'compass_runs';
+    }
+
+    /**
+     * @return HasMany<RunFailure, $this>
+     */
+    public function failures(): HasMany
+    {
+        return $this->hasMany(RunFailure::class);
     }
 
     /**
