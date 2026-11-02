@@ -20,7 +20,7 @@ use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
 
 /**
- * @property string $batch_id
+ * @property ?string $batch_id
  * @property CarbonImmutable $created_at
  * @property ?int $failed_job_count
  * @property ?CarbonImmutable $finished_at

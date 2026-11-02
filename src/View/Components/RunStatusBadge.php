@@ -22,6 +22,7 @@ class RunStatusBadge extends Component
     {
         return match ($this->status) {
             RunStatus::FAILED => BadgeType::DANGER,
+            RunStatus::QUEUED => BadgeType::NEUTRAL,
             RunStatus::RUNNING => BadgeType::INFO,
             RunStatus::SUCCEEDED => BadgeType::SUCCESS,
         };

@@ -15,7 +15,7 @@ return new class extends Migration
 
             $table->string('type');
             $table->string('status');
-            $table->string('batch_id');
+            $table->string('batch_id')->nullable();
             $table->timestamp('finished_at')->nullable();
             $table->unsignedInteger('failed_job_count')->nullable();
 

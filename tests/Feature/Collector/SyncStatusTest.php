@@ -7,17 +7,17 @@ use Maarheeze\Compass\Collector\RunType;
 use Maarheeze\Compass\Collector\SyncStatus;
 use Maarheeze\Compass\Models\Run;
 
-test('is running when a run is running', function (): void {
+test('is running when a run is unfinished', function (RunStatus $runStatus): void {
     Run::factory()->create([
         'type' => fake()->randomElement(RunType::cases()),
-        'status' => RunStatus::RUNNING,
+        'status' => $runStatus,
     ]);
 
     $syncStatus = $this->app->make(SyncStatus::class);
 
     expect($syncStatus->isRunning())
         ->toBeTrue();
-});
+})->with([RunStatus::QUEUED, RunStatus::RUNNING]);
 
 test('is not running when the runs have finished', function (): void {
     Run::factory()->create([

@@ -26,16 +26,22 @@ readonly class RunRecorder
 
     public function start(Uuid $runId, RunType $runType, ShouldQueue $firstJob, RunSucceeded $runSucceeded): void
     {
+        Run::query()->create([
+            'id' => $runId,
+            'type' => $runType,
+            'status' => RunStatus::QUEUED,
+        ]);
+
         $pendingBatch = $this->dispatcher
             ->batch([$firstJob])
             ->allowFailures()
-            ->before(static function (Batch $batch) use ($runId, $runType): void {
-                Run::query()->create([
-                    'id' => $runId,
-                    'type' => $runType,
-                    'status' => RunStatus::RUNNING,
-                    'batch_id' => $batch->id,
-                ]);
+            ->before(static function (Batch $batch) use ($runId): void {
+                Run::query()
+                    ->whereKey($runId)
+                    ->update([
+                        'status' => RunStatus::RUNNING,
+                        'batch_id' => $batch->id,
+                    ]);
             });
         $pendingChain = Assert::isInstanceOf(
             $this->dispatcher->chain([$pendingBatch, new FinishRun($runId, $runSucceeded)]),

@@ -19,8 +19,8 @@ class RunBuilder extends Builder
         return $this->where('type', $runType);
     }
 
-    public function running(): self
+    public function unfinished(): self
     {
-        return $this->where('status', RunStatus::RUNNING);
+        return $this->whereIn('status', [RunStatus::QUEUED, RunStatus::RUNNING]);
     }
 }

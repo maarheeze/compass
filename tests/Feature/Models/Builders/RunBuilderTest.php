@@ -28,24 +28,24 @@ test('of type leaves out a run of another type', function (): void {
         ->toBeEmpty();
 });
 
-test('running keeps a running run', function (): void {
-    $run = Run::factory()->create(['status' => RunStatus::RUNNING]);
+test('unfinished keeps an unfinished run', function (RunStatus $runStatus): void {
+    $run = Run::factory()->create(['status' => $runStatus]);
 
-    $runningRuns = Run::query()
-        ->running()
+    $unfinishedRuns = Run::query()
+        ->unfinished()
         ->get();
 
-    expect($runningRuns->sole()->is($run))
+    expect($unfinishedRuns->sole()->is($run))
         ->toBeTrue();
-});
+})->with([RunStatus::QUEUED, RunStatus::RUNNING]);
 
-test('running leaves out a finished run', function (RunStatus $runStatus): void {
+test('unfinished leaves out a finished run', function (RunStatus $runStatus): void {
     Run::factory()->create(['status' => $runStatus]);
 
-    $runningRuns = Run::query()
-        ->running()
+    $unfinishedRuns = Run::query()
+        ->unfinished()
         ->get();
 
-    expect($runningRuns)
+    expect($unfinishedRuns)
         ->toBeEmpty();
 })->with([RunStatus::FAILED, RunStatus::SUCCEEDED]);

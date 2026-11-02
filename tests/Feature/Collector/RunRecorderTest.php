@@ -54,15 +54,30 @@ test('start keeps the batch going when one of its jobs fails', function (): void
     ]);
 });
 
-test('start records the running run of the type with its batch when the batch is stored', function (): void {
-    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
-    $this->app->instance(QueueingDispatcher::class, $busFake);
+test('start records the queued run of the type', function (): void {
+    $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
     $runId = Uuid::generate();
     $runType = fake()->randomElement(RunType::cases());
-    $batchFake = new BatchFake(fake()->uuid(), '', 1, 1, 0, [], [], CarbonImmutable::now());
 
     $runRecorder = $this->app->make(RunRecorder::class);
     $runRecorder->start($runId, $runType, new InspectSites(), new GitHubRunSucceeded($runId));
+
+    $this->assertDatabaseHas(Run::class, [
+        'id' => $runId,
+        'type' => $runType,
+        'status' => RunStatus::QUEUED,
+        'batch_id' => null,
+    ]);
+});
+
+test('start records the run as running with its batch when the batch is stored', function (): void {
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
+    $runId = Uuid::generate();
+    $batchFake = new BatchFake(fake()->uuid(), '', 1, 1, 0, [], [], CarbonImmutable::now());
+
+    $runRecorder = $this->app->make(RunRecorder::class);
+    $runRecorder->start($runId, fake()->randomElement(RunType::cases()), new InspectSites(), new GitHubRunSucceeded($runId));
     $busFake
         ->dispatched(ChainedBatch::class)
         ->sole()
@@ -71,7 +86,6 @@ test('start records the running run of the type with its batch when the batch is
 
     $this->assertDatabaseHas(Run::class, [
         'id' => $runId,
-        'type' => $runType,
         'status' => RunStatus::RUNNING,
         'batch_id' => $batchFake->id,
     ]);

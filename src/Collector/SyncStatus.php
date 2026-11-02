@@ -11,7 +11,7 @@ readonly class SyncStatus
     public function isRunning(): bool
     {
         return Run::query()
-            ->running()
+            ->unfinished()
             ->exists();
     }
 }

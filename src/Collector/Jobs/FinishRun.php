@@ -33,7 +33,7 @@ class FinishRun implements ShouldQueue
         $run = Run::query()
             ->whereKey($this->runId)
             ->sole();
-        $batch = Assert::isInstanceOf($dispatcher->findBatch($run->batch_id), Batch::class);
+        $batch = Assert::isInstanceOf($dispatcher->findBatch(Assert::string($run->batch_id)), Batch::class);
 
         $run->update([
             'status' => $batch->failedJobs > 0 ? RunStatus::FAILED : RunStatus::SUCCEEDED,

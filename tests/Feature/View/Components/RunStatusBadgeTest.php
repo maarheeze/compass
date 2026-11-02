@@ -13,6 +13,7 @@ test('badge type follows the run status', function (RunStatus $runStatus, BadgeT
         ->toBe($badgeType);
 })->with([
     'failed' => [RunStatus::FAILED, BadgeType::DANGER],
+    'queued' => [RunStatus::QUEUED, BadgeType::NEUTRAL],
     'running' => [RunStatus::RUNNING, BadgeType::INFO],
     'succeeded' => [RunStatus::SUCCEEDED, BadgeType::SUCCESS],
 ]);
