@@ -7,7 +7,6 @@ use Illuminate\Http\Client\Factory as HttpFactory;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectChangedComposerJsons;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectChangedComposerLocks;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectChangedDependabotYmls;
-use Maarheeze\Compass\Collector\GitHub\Jobs\CollectIssuesAndPullRequests;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectRepositories;
 use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
 use Maarheeze\Compass\Models\Repository;
@@ -82,7 +81,7 @@ test('handle marks the repositories of another run missing on the last page', fu
         ->toBeInstanceOf(CarbonImmutable::class);
 });
 
-test('handle adds the collection of the issues, pull requests, composer files and dependabot yml to its batch', function (): void {
+test('handle adds the collection of the composer files and dependabot yml to its batch', function (): void {
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             'data' => [
@@ -104,7 +103,6 @@ test('handle adds the collection of the issues, pull requests, composer files an
 
     expect(array_map(get_class(...), $batchFake->added))
         ->toBe([
-            CollectIssuesAndPullRequests::class,
             CollectChangedComposerJsons::class,
             CollectChangedComposerLocks::class,
             CollectChangedDependabotYmls::class,
