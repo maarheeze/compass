@@ -42,12 +42,13 @@ abstract class TestCase extends Orchestra
     {
         $configuration = $app->make(Repository::class);
         $configuration->set('compass.client.key', fake()->sha1());
-        $configuration->set('compass.forge.organization', fake()->slug());
-        $configuration->set('compass.forge.token', fake()->sha1());
         $configuration->set('compass.github.client_id', fake()->uuid());
         $configuration->set('compass.github.client_secret', fake()->sha1());
         $configuration->set('compass.github.organization', fake()->slug());
-        $configuration->set('compass.github.token', fake()->sha1());
+        $configuration->set('compass.sources.forge.organization', fake()->slug());
+        $configuration->set('compass.sources.forge.token', fake()->sha1());
+        $configuration->set('compass.sources.github.organization', fake()->slug());
+        $configuration->set('compass.sources.github.token', fake()->sha1());
     }
 
     /**
