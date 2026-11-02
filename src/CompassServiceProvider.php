@@ -29,6 +29,7 @@ use Maarheeze\Compass\Providers\ForgeProvider;
 use Maarheeze\Compass\Providers\GitHubProvider;
 use Maarheeze\Compass\Providers\ScheduleProvider;
 use Maarheeze\Compass\Providers\SiteEndpointProvider;
+use Maarheeze\Compass\Providers\SourceProvider;
 use Psr\Clock\ClockInterface;
 
 use function config_path;
@@ -62,6 +63,7 @@ class CompassServiceProvider extends ServiceProvider
         $this->app->register(GitHubProvider::class);
         $this->app->register(ScheduleProvider::class);
         $this->app->register(SiteEndpointProvider::class);
+        $this->app->register(SourceProvider::class);
     }
 
     public function boot(Dispatcher $events, LivewireManager $livewire): void

@@ -138,4 +138,16 @@ return [
         'site_endpoints' => ScheduleFrequency::EVERY_FIFTEEN_MINUTES,
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Sources
+    |--------------------------------------------------------------------------
+    |
+    | The sources Compass collects from, by name: each names its driver and
+    | the settings that driver needs.
+    |
+    */
+
+    'sources' => [],
+
 ];
