@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Providers;
 
 use Illuminate\Config\Repository;
-use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\ServiceProvider;
 use Maarheeze\Compass\Analyzer\Forge\DeploymentStateClassifier;
@@ -17,17 +16,9 @@ use Maarheeze\Compass\Http\ForgeSiteUrlFactory;
 
 class ForgeProvider extends ServiceProvider
 {
-    public function boot(Repository $config): void
+    public function boot(): void
     {
         $this->commands([SyncForgeCommand::class]);
-
-        $this->callAfterResolving(Schedule::class, static function (Schedule $schedule) use ($config): void {
-            $schedule->command(SyncForgeCommand::class)
-                ->hourly()
-                ->when(static function () use ($config): bool {
-                    return $config->boolean('compass.schedule.forge');
-                });
-        });
     }
 
     public function register(): void

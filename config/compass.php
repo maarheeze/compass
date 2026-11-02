@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Maarheeze\Compass\Collector\ScheduleFrequency;
+
 return [
 
     /*
@@ -124,16 +126,16 @@ return [
     | Schedule
     |--------------------------------------------------------------------------
     |
-    | Whether the scheduler runs the Forge sync, the GitHub sync and the
-    | endpoint checks. A task switched off still runs when started by hand
+    | How often the scheduler runs the Forge sync, the GitHub sync and the
+    | endpoint checks. A task scheduled never still runs when started by hand
     | or from the dashboard.
     |
     */
 
     'schedule' => [
-        'forge' => env('COMPASS_SCHEDULE_FORGE', true),
-        'github' => env('COMPASS_SCHEDULE_GITHUB', true),
-        'site_endpoints' => env('COMPASS_SCHEDULE_SITE_ENDPOINTS', true),
+        'forge' => ScheduleFrequency::HOURLY,
+        'github' => ScheduleFrequency::HOURLY,
+        'site_endpoints' => ScheduleFrequency::EVERY_FIFTEEN_MINUTES,
     ],
 
 ];

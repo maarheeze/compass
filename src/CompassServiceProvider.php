@@ -27,6 +27,7 @@ use Maarheeze\Compass\Providers\AuthenticationProvider;
 use Maarheeze\Compass\Providers\ClientProvider;
 use Maarheeze\Compass\Providers\ForgeProvider;
 use Maarheeze\Compass\Providers\GitHubProvider;
+use Maarheeze\Compass\Providers\ScheduleProvider;
 use Maarheeze\Compass\Providers\SiteEndpointProvider;
 use Psr\Clock\ClockInterface;
 
@@ -59,6 +60,7 @@ class CompassServiceProvider extends ServiceProvider
         $this->app->register(ClientProvider::class);
         $this->app->register(ForgeProvider::class);
         $this->app->register(GitHubProvider::class);
+        $this->app->register(ScheduleProvider::class);
         $this->app->register(SiteEndpointProvider::class);
     }
 

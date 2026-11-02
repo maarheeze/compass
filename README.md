@@ -42,10 +42,6 @@ COMPASS_FORGE_TOKEN=
 COMPASS_CLIENT_KEY=
 COMPASS_CLIENT_PATH=/_compass
 
-COMPASS_SCHEDULE_FORGE=true
-COMPASS_SCHEDULE_GITHUB=true
-COMPASS_SCHEDULE_SITE_ENDPOINTS=true
-
 COMPASS_LOG_CHANNEL=
 
 COMPASS_DISPLAY_TIMEZONE=Europe/Amsterdam
@@ -71,7 +67,7 @@ The collector runs on the Laravel scheduler and queue, so both need to run. Each
 php artisan queue:work
 ```
 
-Both syncs run hourly, and can be started from the dashboard's header or by hand:
+Both syncs run hourly, and can be started from the dashboard's header or by hand. How often each task runs is set per task under `schedule` in `config/compass.php`, from every five minutes to weekly, or never:
 
 ```bash
 php artisan compass:github-sync
