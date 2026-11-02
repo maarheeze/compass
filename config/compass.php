@@ -127,8 +127,8 @@ return [
     |--------------------------------------------------------------------------
     |
     | How often the scheduler runs the Forge sync, the GitHub sync and the
-    | endpoint checks. A task scheduled never still runs when started by hand
-    | or from the dashboard.
+    | endpoint checks. A task left out is not scheduled, but still runs when
+    | started by hand or from the dashboard.
     |
     */
 

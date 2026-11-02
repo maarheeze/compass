@@ -26,23 +26,15 @@ test('a task is scheduled at the frequency configured for it', function (string 
     'site endpoints' => ['compass.schedule.site_endpoints', CheckSiteEndpointsCommand::SIGNATURE],
 ]);
 
-test('a task scheduled never is not scheduled', function (string $key, string $signature): void {
-    $this->setConfiguration($key, ScheduleFrequency::NEVER);
+test('a task without a frequency is not scheduled', function (): void {
+    $this->setConfiguration('compass.schedule', []);
     $schedule = $this->app->make(Schedule::class);
 
-    $scheduledEvents = new Collection($schedule->events())->filter(
-        static function (Event $event) use ($signature): bool {
-            return str_contains($event->command, $signature);
-        },
-    );
+    $scheduledEvents = $schedule->events();
 
     expect($scheduledEvents)
         ->toBeEmpty();
-})->with([
-    'forge' => ['compass.schedule.forge', SyncForgeCommand::SIGNATURE],
-    'github' => ['compass.schedule.github', SyncGitHubCommand::SIGNATURE],
-    'site endpoints' => ['compass.schedule.site_endpoints', CheckSiteEndpointsCommand::SIGNATURE],
-]);
+});
 
 test('a frequency is scheduled at its cron expression', function (
     ScheduleFrequency $scheduleFrequency,

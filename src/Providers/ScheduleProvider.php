@@ -28,9 +28,9 @@ class ScheduleProvider extends ServiceProvider
         });
     }
 
-    private function scheduleCommand(Schedule $schedule, string $command, ScheduleFrequency $scheduleFrequency): void
+    private function scheduleCommand(Schedule $schedule, string $command, ?ScheduleFrequency $scheduleFrequency): void
     {
-        if ($scheduleFrequency === ScheduleFrequency::NEVER) {
+        if ($scheduleFrequency === null) {
             return;
         }
 
@@ -46,9 +46,14 @@ class ScheduleProvider extends ServiceProvider
         };
     }
 
-    private function scheduleFrequency(string $scheduleFrequencyKey): ScheduleFrequency
+    private function scheduleFrequency(string $scheduleFrequencyKey): ?ScheduleFrequency
     {
         $scheduleFrequency = $this->config->get($scheduleFrequencyKey);
+
+        if ($scheduleFrequency === null) {
+            return null;
+        }
+
         Assert::isInstanceOf($scheduleFrequency, ScheduleFrequency::class);
 
         return $scheduleFrequency;

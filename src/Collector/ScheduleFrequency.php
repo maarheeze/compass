@@ -11,6 +11,5 @@ enum ScheduleFrequency
     case EVERY_FIVE_MINUTES;
     case EVERY_THIRTY_MINUTES;
     case HOURLY;
-    case NEVER;
     case WEEKLY;
 }
