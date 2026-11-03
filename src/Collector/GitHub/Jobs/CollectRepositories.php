@@ -12,6 +12,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
+use Maarheeze\Compass\Collector\Events\PackageJsonChanged;
 use Maarheeze\Compass\Collector\Events\RepositoriesCollected;
 use Maarheeze\Compass\Collector\GitHub\RepositorySynchronizer;
 use Maarheeze\Compass\Collector\Repositories\RepositoriesCollectorManager;
@@ -44,7 +45,14 @@ class CollectRepositories implements ShouldQueue
         $collectorLogger->info('Repositories collector started');
 
         foreach ($repositoriesCollector->repositories() as $collectedRepositories) {
-            $repositorySynchronizer->storeRepositories($collectedRepositories, $this->runId);
+            $repositoriesWithChangedPackageJson = $repositorySynchronizer->storeRepositories(
+                $collectedRepositories,
+                $this->runId,
+            );
+
+            foreach ($repositoriesWithChangedPackageJson as $repositoryWithChangedPackageJson) {
+                $events->dispatch(new PackageJsonChanged($repositoryWithChangedPackageJson));
+            }
 
             $collectorLogger->debug('Repositories page collected', [
                 'repository_count' => $collectedRepositories->count(),

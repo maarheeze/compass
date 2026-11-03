@@ -114,6 +114,58 @@ test('store repositories clears the missing marks of a known repository', functi
     ]);
 });
 
+test('store repositories returns a known repository whose package json version changed', function (): void {
+    $repository = Repository::factory()->create(['package_json_oid' => fake()->unique()->sha1()]);
+    $collectedRepository = new CollectedRepository(
+        $repository->github_id,
+        $repository->name,
+        $repository->url,
+        fake()->word(),
+        fake()->sha1(),
+        CarbonImmutable::parse(fake()->iso8601()),
+        fake()->randomElement(RepositoryVisibility::cases()),
+        $repository->composer_json_oid,
+        $repository->composer_lock_oid,
+        fake()->unique()->sha1(),
+        $repository->dependabot_yml_oid,
+    );
+
+    $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
+    $repositoriesWithChangedPackageJson = $repositorySynchronizer->storeRepositories(
+        new CollectedRepositoryCollection([$collectedRepository]),
+        Uuid::generate(),
+    );
+
+    expect($repositoriesWithChangedPackageJson->sole()->is($repository))
+        ->toBeTrue();
+});
+
+test('store repositories returns a new repository with a package json', function (): void {
+    $collectedRepository = CollectedRepositoryFactory::make();
+
+    $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
+    $repositoriesWithChangedPackageJson = $repositorySynchronizer->storeRepositories(
+        new CollectedRepositoryCollection([$collectedRepository]),
+        Uuid::generate(),
+    );
+
+    expect($repositoriesWithChangedPackageJson->sole()->github_id)
+        ->toBe($collectedRepository->externalId);
+});
+
+test('store repositories returns no repository whose package json version is unchanged', function (): void {
+    $repository = Repository::factory()->create();
+
+    $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
+    $repositoriesWithChangedPackageJson = $repositorySynchronizer->storeRepositories(
+        new CollectedRepositoryCollection([CollectedRepositoryFactory::forRepository($repository)]),
+        Uuid::generate(),
+    );
+
+    expect($repositoriesWithChangedPackageJson)
+        ->toBeEmpty();
+});
+
 test('mark uncollected missing marks a repository of another run missing', function (): void {
     $repository = Repository::factory()->create();
 

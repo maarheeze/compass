@@ -61,6 +61,14 @@ class RepositoryBuilder extends Builder
         return $this->whereNot('run_id', $runId);
     }
 
+    /**
+     * @param Collection<int, string> $gitHubIds
+     */
+    public function ofGitHubIds(Collection $gitHubIds): self
+    {
+        return $this->whereIn('github_id', $gitHubIds);
+    }
+
     public function returnedByRun(Uuid $runId): self
     {
         return $this->where('run_id', $runId);

@@ -13,3 +13,13 @@ test('collected repository collection holds the collected repositories it is giv
     expect($collectedRepositoryCollection->all())
         ->toBe([$collectedRepository]);
 });
+
+test('external ids are the external ids of the repositories', function (): void {
+    $collectedRepository = CollectedRepositoryFactory::make();
+
+    $collectedRepositoryCollection = new CollectedRepositoryCollection([$collectedRepository]);
+    $externalIds = $collectedRepositoryCollection->externalIds();
+
+    expect($externalIds->all())
+        ->toBe([$collectedRepository->externalId]);
+});

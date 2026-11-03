@@ -6,6 +6,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Support\Testing\Fakes\EventFake;
+use Maarheeze\Compass\Collector\Events\PackageJsonChanged;
 use Maarheeze\Compass\Collector\Events\RepositoriesCollected;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectChangedComposerJsons;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectChangedComposerLocks;
@@ -148,4 +149,50 @@ test('handle raises repositories collected', function (): void {
     $this->app->call([$collectRepositories, 'handle']);
 
     $eventFake->assertDispatched(RepositoriesCollected::class);
+});
+
+test('handle raises package json changed for a repository whose package json version changed', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+    $this->app->instance(Dispatcher::class, $eventFake);
+    $repositoryResponse = [
+        'id' => fake()->sha1(),
+        'name' => fake()->slug(),
+        'url' => fake()->url(),
+        'visibility' => fake()->randomElement(['INTERNAL', 'PRIVATE', 'PUBLIC']),
+        'defaultBranchRef' => [
+            'name' => fake()->word(),
+            'target' => [
+                'oid' => fake()->sha1(),
+                'committedDate' => fake()->iso8601(),
+            ],
+        ],
+        'composerJson' => null,
+        'composerLock' => null,
+        'packageJson' => [
+            'oid' => fake()->sha1(),
+        ],
+        'dependabotYml' => null,
+    ];
+    $this->app->make(HttpFactory::class)->fake([
+        '*' => HttpFactory::response([
+            'data' => [
+                'organization' => [
+                    'repositories' => [
+                        'pageInfo' => [
+                            'hasNextPage' => false,
+                            'endCursor' => null,
+                        ],
+                        'nodes' => [$repositoryResponse],
+                    ],
+                ],
+            ],
+        ]),
+    ]);
+
+    [$collectRepositories] = new CollectRepositories(Uuid::generate(), 'github')->withFakeBatch();
+    $this->app->call([$collectRepositories, 'handle']);
+
+    $eventFake->assertDispatched(PackageJsonChanged::class, static function (PackageJsonChanged $packageJsonChanged) use ($repositoryResponse): bool {
+        return $packageJsonChanged->repository->github_id === $repositoryResponse['id'];
+    });
 });

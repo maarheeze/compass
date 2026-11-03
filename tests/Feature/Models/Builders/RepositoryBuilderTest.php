@@ -333,3 +333,25 @@ test('named leaves out a repository with another name', function (): void {
     expect($namedRepositories)
         ->toBeEmpty();
 });
+
+test('of git hub ids keeps a repository with one of the ids', function (): void {
+    $repository = Repository::factory()->create();
+
+    $repositoriesOfGitHubIds = Repository::query()
+        ->ofGitHubIds(new Collection([$repository->github_id]))
+        ->get();
+
+    expect($repositoriesOfGitHubIds->sole()->is($repository))
+        ->toBeTrue();
+});
+
+test('of git hub ids leaves out a repository with another id', function (): void {
+    Repository::factory()->create();
+
+    $repositoriesOfGitHubIds = Repository::query()
+        ->ofGitHubIds(new Collection([fake()->unique()->sha1()]))
+        ->get();
+
+    expect($repositoriesOfGitHubIds)
+        ->toBeEmpty();
+});
