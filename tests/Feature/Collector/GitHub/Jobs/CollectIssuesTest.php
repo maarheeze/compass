@@ -26,7 +26,7 @@ test('handle stores the issues of the page', function (): void {
     $runId = Uuid::generate();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([$issueResponse])]);
 
-    $collectIssues = new CollectIssues($runId);
+    $collectIssues = new CollectIssues($runId, 'github');
     $this->app->call([$collectIssues, 'handle']);
 
     $this->assertDatabaseHas(Issue::class, [
@@ -39,7 +39,7 @@ test('handle deletes the issues of another run on the last page', function (): v
     $issue = Issue::factory()->create();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([])]);
 
-    $collectIssues = new CollectIssues(Uuid::generate());
+    $collectIssues = new CollectIssues(Uuid::generate(), 'github');
     $this->app->call([$collectIssues, 'handle']);
 
     $this->assertModelMissing($issue);
@@ -67,7 +67,7 @@ test('handle keeps the issues collected on an earlier page', function (): void {
     $responseSequence->push([]);
     $http->fake(['*' => $responseSequence]);
 
-    $collectIssues = new CollectIssues(Uuid::generate());
+    $collectIssues = new CollectIssues(Uuid::generate(), 'github');
     $this->app->call([$collectIssues, 'handle']);
 
     $this->assertDatabaseHas(Issue::class, ['github_id' => $issueResponse['node_id']]);
@@ -77,8 +77,22 @@ test('handle leaves the pull requests alone', function (): void {
     $pullRequest = PullRequest::factory()->create();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([])]);
 
-    $collectIssues = new CollectIssues(Uuid::generate());
+    $collectIssues = new CollectIssues(Uuid::generate(), 'github');
     $this->app->call([$collectIssues, 'handle']);
 
     $this->assertModelExists($pullRequest);
+});
+
+test('handle refuses a source without an issues collector', function (): void {
+    $key = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $key => [
+            'driver' => fake()->slug(),
+        ],
+    ]);
+
+    $this->expectException(InvalidArgumentException::class);
+
+    $collectIssues = new CollectIssues(Uuid::generate(), $key);
+    $this->app->call([$collectIssues, 'handle']);
 });

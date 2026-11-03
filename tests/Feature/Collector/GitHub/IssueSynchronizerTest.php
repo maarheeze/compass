@@ -2,97 +2,97 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Collections\GitHubIssueCollection;
-use Maarheeze\Compass\Collector\GitHub\GitHubIssue;
+use Maarheeze\Compass\Collections\CollectedIssueCollection;
 use Maarheeze\Compass\Collector\GitHub\IssueSynchronizer;
+use Maarheeze\Compass\Collector\Issues\CollectedIssue;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\IssueAssignee;
 use Maarheeze\Compass\Models\Repository;
-use Maarheeze\Compass\Tests\Fixtures\GitHubIssueFactory;
+use Maarheeze\Compass\Tests\Fixtures\CollectedIssueFactory;
 use Maarheeze\Uuid\Uuid;
 
 test('store issues stores an issue in its repository', function (): void {
     $repository = Repository::factory()->create();
-    $gitHubIssue = GitHubIssueFactory::make();
-    $gitHubIssueOfRepository = new GitHubIssue(
-        $gitHubIssue->gitHubId,
+    $collectedIssue = CollectedIssueFactory::make();
+    $collectedIssueOfRepository = new CollectedIssue(
+        $collectedIssue->externalId,
         $repository->name,
-        $gitHubIssue->number,
-        $gitHubIssue->title,
-        $gitHubIssue->url,
-        $gitHubIssue->authorLogin,
-        $gitHubIssue->openedAt,
-        $gitHubIssue->assigneeLogins,
+        $collectedIssue->number,
+        $collectedIssue->title,
+        $collectedIssue->url,
+        $collectedIssue->authorLogin,
+        $collectedIssue->openedAt,
+        $collectedIssue->assigneeLogins,
     );
     $runId = Uuid::generate();
 
     $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
-    $issueSynchronizer->storeIssues(new GitHubIssueCollection([$gitHubIssueOfRepository]), $runId);
+    $issueSynchronizer->storeIssues(new CollectedIssueCollection([$collectedIssueOfRepository]), $runId);
 
     $this->assertDatabaseHas(Issue::class, [
         'repository_id' => $repository->id,
-        'github_id' => $gitHubIssue->gitHubId,
-        'number' => $gitHubIssue->number,
-        'title' => $gitHubIssue->title,
-        'url' => $gitHubIssue->url,
-        'author_login' => $gitHubIssue->authorLogin,
+        'github_id' => $collectedIssue->externalId,
+        'number' => $collectedIssue->number,
+        'title' => $collectedIssue->title,
+        'url' => $collectedIssue->url,
+        'author_login' => $collectedIssue->authorLogin,
         'run_id' => $runId,
     ]);
 });
 
 test('store issues skips an issue of an unknown repository', function (): void {
-    $gitHubIssue = GitHubIssueFactory::make();
+    $collectedIssue = CollectedIssueFactory::make();
 
     $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
-    $issueSynchronizer->storeIssues(new GitHubIssueCollection([$gitHubIssue]), Uuid::generate());
+    $issueSynchronizer->storeIssues(new CollectedIssueCollection([$collectedIssue]), Uuid::generate());
 
-    $this->assertDatabaseMissing(Issue::class, ['github_id' => $gitHubIssue->gitHubId]);
+    $this->assertDatabaseMissing(Issue::class, ['github_id' => $collectedIssue->externalId]);
 });
 
 test('store issues stores the assignees of the issues', function (): void {
     $repository = Repository::factory()->create();
-    $gitHubIssue = GitHubIssueFactory::make();
-    $gitHubIssueOfRepository = new GitHubIssue(
-        $gitHubIssue->gitHubId,
+    $collectedIssue = CollectedIssueFactory::make();
+    $collectedIssueOfRepository = new CollectedIssue(
+        $collectedIssue->externalId,
         $repository->name,
-        $gitHubIssue->number,
-        $gitHubIssue->title,
-        $gitHubIssue->url,
-        $gitHubIssue->authorLogin,
-        $gitHubIssue->openedAt,
-        $gitHubIssue->assigneeLogins,
+        $collectedIssue->number,
+        $collectedIssue->title,
+        $collectedIssue->url,
+        $collectedIssue->authorLogin,
+        $collectedIssue->openedAt,
+        $collectedIssue->assigneeLogins,
     );
 
     $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
-    $issueSynchronizer->storeIssues(new GitHubIssueCollection([$gitHubIssueOfRepository]), Uuid::generate());
+    $issueSynchronizer->storeIssues(new CollectedIssueCollection([$collectedIssueOfRepository]), Uuid::generate());
 
     $this->assertDatabaseHas(IssueAssignee::class, [
-        'issue_id' => Issue::query()->where('github_id', $gitHubIssue->gitHubId)->sole()->id,
-        'login' => $gitHubIssue->assigneeLogins[0],
+        'issue_id' => Issue::query()->where('github_id', $collectedIssue->externalId)->sole()->id,
+        'login' => $collectedIssue->assigneeLogins[0],
     ]);
 });
 
 test('store issues removes the assignees collected before', function (): void {
     $repository = Repository::factory()->create();
-    $gitHubIssue = GitHubIssueFactory::make();
-    $gitHubIssueOfRepository = new GitHubIssue(
-        $gitHubIssue->gitHubId,
+    $collectedIssue = CollectedIssueFactory::make();
+    $collectedIssueOfRepository = new CollectedIssue(
+        $collectedIssue->externalId,
         $repository->name,
-        $gitHubIssue->number,
-        $gitHubIssue->title,
-        $gitHubIssue->url,
-        $gitHubIssue->authorLogin,
-        $gitHubIssue->openedAt,
-        $gitHubIssue->assigneeLogins,
+        $collectedIssue->number,
+        $collectedIssue->title,
+        $collectedIssue->url,
+        $collectedIssue->authorLogin,
+        $collectedIssue->openedAt,
+        $collectedIssue->assigneeLogins,
     );
     $issue = Issue::factory()->create([
         'repository_id' => $repository->id,
-        'github_id' => $gitHubIssue->gitHubId,
+        'github_id' => $collectedIssue->externalId,
     ]);
     $assignee = IssueAssignee::factory()->create(['issue_id' => $issue->id]);
 
     $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
-    $issueSynchronizer->storeIssues(new GitHubIssueCollection([$gitHubIssueOfRepository]), Uuid::generate());
+    $issueSynchronizer->storeIssues(new CollectedIssueCollection([$collectedIssueOfRepository]), Uuid::generate());
 
     $this->assertModelMissing($assignee);
 });

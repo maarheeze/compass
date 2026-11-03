@@ -1,0 +1,26 @@
+<?php
+
+declare(strict_types=1);
+
+use Maarheeze\Compass\Collections\CollectedIssueCollection;
+use Maarheeze\Compass\Tests\Fixtures\CollectedIssueFactory;
+
+test('external ids are the external ids of the issues', function (): void {
+    $collectedIssue = CollectedIssueFactory::make();
+
+    $collectedIssueCollection = new CollectedIssueCollection([$collectedIssue]);
+    $externalIds = $collectedIssueCollection->externalIds();
+
+    expect($externalIds->all())
+        ->toBe([$collectedIssue->externalId]);
+});
+
+test('repository names are the repository names of the issues', function (): void {
+    $collectedIssue = CollectedIssueFactory::make();
+
+    $collectedIssueCollection = new CollectedIssueCollection([$collectedIssue]);
+    $repositoryNames = $collectedIssueCollection->repositoryNames();
+
+    expect($repositoryNames->all())
+        ->toBe([$collectedIssue->repositoryName]);
+});

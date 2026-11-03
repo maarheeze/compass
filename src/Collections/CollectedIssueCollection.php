@@ -12,4 +12,23 @@ use Maarheeze\Compass\Collector\Issues\CollectedIssue;
  */
 class CollectedIssueCollection extends Collection
 {
+    /**
+     * @return Collection<int, string>
+     */
+    public function externalIds(): Collection
+    {
+        return $this->toBase()->map(static function (CollectedIssue $collectedIssue): string {
+            return $collectedIssue->externalId;
+        });
+    }
+
+    /**
+     * @return Collection<int, string>
+     */
+    public function repositoryNames(): Collection
+    {
+        return $this->toBase()->map(static function (CollectedIssue $collectedIssue): string {
+            return $collectedIssue->repositoryName;
+        });
+    }
 }

@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Collector\GitHub;
 
 use Carbon\CarbonImmutable;
-use Maarheeze\Compass\Collections\GitHubIssueCollection;
+use Maarheeze\Compass\Collections\CollectedIssueCollection;
+use Maarheeze\Compass\Collector\Issues\CollectedIssue;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\IssueAssignee;
 use Maarheeze\Compass\Models\Repository;
@@ -20,49 +21,49 @@ readonly class IssueSynchronizer
             ->delete();
     }
 
-    public function storeIssues(GitHubIssueCollection $gitHubIssues, Uuid $runId): void
+    public function storeIssues(CollectedIssueCollection $collectedIssues, Uuid $runId): void
     {
         $repositoryIds = Repository::query()
-            ->named($gitHubIssues->repositoryNames())
+            ->named($collectedIssues->repositoryNames())
             ->pluck('id', 'name');
-        $gitHubIssuesOfKnownRepositories = $gitHubIssues->filter(
-            static function (GitHubIssue $gitHubIssue) use ($repositoryIds): bool {
-                return $repositoryIds->has($gitHubIssue->repositoryName);
+        $collectedIssuesOfKnownRepositories = $collectedIssues->filter(
+            static function (CollectedIssue $collectedIssue) use ($repositoryIds): bool {
+                return $repositoryIds->has($collectedIssue->repositoryName);
             },
         );
         $issueValues = [];
 
-        foreach ($gitHubIssuesOfKnownRepositories as $gitHubIssue) {
+        foreach ($collectedIssuesOfKnownRepositories as $collectedIssue) {
             $issueValues[] = [
-                'repository_id' => $repositoryIds->get($gitHubIssue->repositoryName),
-                'github_id' => $gitHubIssue->gitHubId,
-                'number' => $gitHubIssue->number,
-                'title' => $gitHubIssue->title,
-                'url' => $gitHubIssue->url,
-                'author_login' => $gitHubIssue->authorLogin,
-                'opened_at' => $gitHubIssue->openedAt,
+                'repository_id' => $repositoryIds->get($collectedIssue->repositoryName),
+                'github_id' => $collectedIssue->externalId,
+                'number' => $collectedIssue->number,
+                'title' => $collectedIssue->title,
+                'url' => $collectedIssue->url,
+                'author_login' => $collectedIssue->authorLogin,
+                'opened_at' => $collectedIssue->openedAt,
                 'run_id' => $runId,
                 'collected_at' => CarbonImmutable::now(),
             ];
         }
 
         Issue::query()->upsert($issueValues, ['github_id']);
-        $this->storeAssignees($gitHubIssuesOfKnownRepositories);
+        $this->storeAssignees($collectedIssuesOfKnownRepositories);
     }
 
-    private function storeAssignees(GitHubIssueCollection $gitHubIssues): void
+    private function storeAssignees(CollectedIssueCollection $collectedIssues): void
     {
-        $issuesOfGitHubIssues = Issue::query()
-            ->ofGitHubIds($gitHubIssues->gitHubIds())
+        $issuesOfCollectedIssues = Issue::query()
+            ->ofGitHubIds($collectedIssues->externalIds())
             ->get();
-        $issueIds = $issuesOfGitHubIssues->pluck('id', 'github_id');
+        $issueIds = $issuesOfCollectedIssues->pluck('id', 'github_id');
         $assigneeValues = [];
 
-        foreach ($gitHubIssues as $gitHubIssue) {
-            foreach ($gitHubIssue->assigneeLogins as $assigneeLogin) {
+        foreach ($collectedIssues as $collectedIssue) {
+            foreach ($collectedIssue->assigneeLogins as $assigneeLogin) {
                 $assigneeValues[] = [
                     'id' => Uuid::generate(),
-                    'issue_id' => $issueIds->get($gitHubIssue->gitHubId),
+                    'issue_id' => $issueIds->get($collectedIssue->externalId),
                     'login' => $assigneeLogin,
                     'created_at' => CarbonImmutable::now(),
                     'updated_at' => CarbonImmutable::now(),
@@ -71,7 +72,7 @@ readonly class IssueSynchronizer
         }
 
         IssueAssignee::query()
-            ->ofIssues($issuesOfGitHubIssues)
+            ->ofIssues($issuesOfCollectedIssues)
             ->delete();
         IssueAssignee::query()->insert($assigneeValues);
     }

@@ -8,10 +8,10 @@ use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
-use Maarheeze\Compass\Collector\GitHub\GitHubQueryFailed;
-use Maarheeze\Compass\Collector\GitHub\IssuesAndPullRequestsQuery;
 use Maarheeze\Compass\Collector\GitHub\IssueSynchronizer;
+use Maarheeze\Compass\Collector\Issues\IssuesCollectorManager;
 use Maarheeze\Uuid\Uuid;
 
 class CollectIssues implements ShouldQueue
@@ -22,24 +22,27 @@ class CollectIssues implements ShouldQueue
 
     public function __construct(
         private readonly Uuid $runId,
+        private readonly string $sourceKey,
     ) {
     }
 
     /**
-     * @throws GitHubQueryFailed
+     * @throws CollectingFailed
      */
     public function handle(
         CollectorLogger $collectorLogger,
-        IssuesAndPullRequestsQuery $issuesAndPullRequestsQuery,
         IssueSynchronizer $issueSynchronizer,
+        IssuesCollectorManager $issuesCollectorManager,
     ): void {
+        $issuesCollector = $issuesCollectorManager->collector($this->sourceKey);
+
         $collectorLogger->info('Issues collector started');
 
-        foreach ($issuesAndPullRequestsQuery->pages() as $issuesAndPullRequestsQueryResult) {
-            $issueSynchronizer->storeIssues($issuesAndPullRequestsQueryResult->gitHubIssues, $this->runId);
+        foreach ($issuesCollector->issues() as $collectedIssues) {
+            $issueSynchronizer->storeIssues($collectedIssues, $this->runId);
 
             $collectorLogger->debug('Issues page collected', [
-                'issue_count' => $issuesAndPullRequestsQueryResult->gitHubIssues->count(),
+                'issue_count' => $collectedIssues->count(),
             ]);
         }
 
