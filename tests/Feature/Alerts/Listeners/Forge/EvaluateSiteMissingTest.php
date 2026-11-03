@@ -3,11 +3,12 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
-use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Support\Testing\Fakes\EventFake;
+use Illuminate\Contracts\Bus\QueueingDispatcher;
+use Illuminate\Support\Testing\Fakes\BusFake;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
+use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteMissing;
 use Maarheeze\Compass\Collector\Events\SiteMissingIgnored;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
@@ -16,8 +17,8 @@ use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
 test('handle observes a missing, not ignored site missing now', function (): void {
-    $eventFake = new EventFake($this->app->make(Dispatcher::class));
-    $this->app->instance(Dispatcher::class, $eventFake);
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $site = Site::factory()->create([
@@ -28,18 +29,23 @@ test('handle observes a missing, not ignored site missing now', function (): voi
     $evaluateMissingSite = $this->app->make(EvaluateSiteMissing::class);
     $evaluateMissingSite->handle(new SitesCollected());
 
-    $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
-        return $conditionObserved->alertType === AlertType::SITE_MISSING
-            && $conditionObserved->subject instanceof Site
-            && $conditionObserved->subject->is($site)
-            && $conditionObserved->condition === ConditionState::ACTIVE
-            && $conditionObserved->observedAt->equalTo($now);
-    });
+    $busFake->assertDispatched(
+        HandleConditionObservations::class,
+        static function (HandleConditionObservations $handleConditionObservations) use ($now, $site): bool {
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
+                return $conditionObserved->alertType === AlertType::SITE_MISSING
+                    && $conditionObserved->subject instanceof Site
+                    && $conditionObserved->subject->is($site)
+                    && $conditionObserved->condition === ConditionState::ACTIVE
+                    && $conditionObserved->observedAt->equalTo($now);
+            });
+        },
+    );
 });
 
 test('handle observes a collected site no longer missing now', function (): void {
-    $eventFake = new EventFake($this->app->make(Dispatcher::class));
-    $this->app->instance(Dispatcher::class, $eventFake);
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $site = Site::factory()->create([
@@ -50,18 +56,23 @@ test('handle observes a collected site no longer missing now', function (): void
     $evaluateMissingSite = $this->app->make(EvaluateSiteMissing::class);
     $evaluateMissingSite->handle(new SitesCollected());
 
-    $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
-        return $conditionObserved->alertType === AlertType::SITE_MISSING
-            && $conditionObserved->subject instanceof Site
-            && $conditionObserved->subject->is($site)
-            && $conditionObserved->condition === ConditionState::RESOLVED
-            && $conditionObserved->observedAt->equalTo($now);
-    });
+    $busFake->assertDispatched(
+        HandleConditionObservations::class,
+        static function (HandleConditionObservations $handleConditionObservations) use ($now, $site): bool {
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
+                return $conditionObserved->alertType === AlertType::SITE_MISSING
+                    && $conditionObserved->subject instanceof Site
+                    && $conditionObserved->subject->is($site)
+                    && $conditionObserved->condition === ConditionState::RESOLVED
+                    && $conditionObserved->observedAt->equalTo($now);
+            });
+        },
+    );
 });
 
 test('handle observes a missing, ignored site no longer missing', function (): void {
-    $eventFake = new EventFake($this->app->make(Dispatcher::class));
-    $this->app->instance(Dispatcher::class, $eventFake);
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
     $site = Site::factory()->create([
         'missing_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
         'missing_ignored_at' => fake()->dateTimeBetween('-1 month'),
@@ -70,16 +81,21 @@ test('handle observes a missing, ignored site no longer missing', function (): v
     $evaluateMissingSite = $this->app->make(EvaluateSiteMissing::class);
     $evaluateMissingSite->handle(new SitesCollected());
 
-    $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($site): bool {
-        return $conditionObserved->subject instanceof Site
-            && $conditionObserved->subject->is($site)
-            && $conditionObserved->condition === ConditionState::RESOLVED;
-    });
+    $busFake->assertDispatched(
+        HandleConditionObservations::class,
+        static function (HandleConditionObservations $handleConditionObservations) use ($site): bool {
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($site): bool {
+                return $conditionObserved->subject instanceof Site
+                    && $conditionObserved->subject->is($site)
+                    && $conditionObserved->condition === ConditionState::RESOLVED;
+            });
+        },
+    );
 });
 
 test('handle observes an ignored site no longer missing now', function (): void {
-    $eventFake = new EventFake($this->app->make(Dispatcher::class));
-    $this->app->instance(Dispatcher::class, $eventFake);
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $site = Site::factory()->create([
@@ -90,10 +106,15 @@ test('handle observes an ignored site no longer missing now', function (): void 
     $evaluateMissingSite = $this->app->make(EvaluateSiteMissing::class);
     $evaluateMissingSite->handle(new SiteMissingIgnored($site));
 
-    $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
-        return $conditionObserved->alertType === AlertType::SITE_MISSING
-            && $conditionObserved->subject === $site
-            && $conditionObserved->condition === ConditionState::RESOLVED
-            && $conditionObserved->observedAt->equalTo($now);
-    });
+    $busFake->assertDispatched(
+        HandleConditionObservations::class,
+        static function (HandleConditionObservations $handleConditionObservations) use ($now, $site): bool {
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
+                return $conditionObserved->alertType === AlertType::SITE_MISSING
+                    && $conditionObserved->subject === $site
+                    && $conditionObserved->condition === ConditionState::RESOLVED
+                    && $conditionObserved->observedAt->equalTo($now);
+            });
+        },
+    );
 });

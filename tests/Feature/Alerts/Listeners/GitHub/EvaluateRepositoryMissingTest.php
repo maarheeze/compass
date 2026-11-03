@@ -3,11 +3,12 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
-use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Support\Testing\Fakes\EventFake;
+use Illuminate\Contracts\Bus\QueueingDispatcher;
+use Illuminate\Support\Testing\Fakes\BusFake;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
+use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Alerts\Listeners\GitHub\EvaluateRepositoryMissing;
 use Maarheeze\Compass\Collector\Events\RepositoriesCollected;
 use Maarheeze\Compass\Collector\Events\RepositoryMissingIgnored;
@@ -16,8 +17,8 @@ use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
 test('handle observes a missing, not ignored repository missing now', function (): void {
-    $eventFake = new EventFake($this->app->make(Dispatcher::class));
-    $this->app->instance(Dispatcher::class, $eventFake);
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $repository = Repository::factory()->create([
@@ -28,18 +29,23 @@ test('handle observes a missing, not ignored repository missing now', function (
     $evaluateMissingRepository = $this->app->make(EvaluateRepositoryMissing::class);
     $evaluateMissingRepository->handle(new RepositoriesCollected());
 
-    $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
-        return $conditionObserved->alertType === AlertType::REPOSITORY_MISSING
-            && $conditionObserved->subject instanceof Repository
-            && $conditionObserved->subject->is($repository)
-            && $conditionObserved->condition === ConditionState::ACTIVE
-            && $conditionObserved->observedAt->equalTo($now);
-    });
+    $busFake->assertDispatched(
+        HandleConditionObservations::class,
+        static function (HandleConditionObservations $handleConditionObservations) use ($now, $repository): bool {
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
+                return $conditionObserved->alertType === AlertType::REPOSITORY_MISSING
+                    && $conditionObserved->subject instanceof Repository
+                    && $conditionObserved->subject->is($repository)
+                    && $conditionObserved->condition === ConditionState::ACTIVE
+                    && $conditionObserved->observedAt->equalTo($now);
+            });
+        },
+    );
 });
 
 test('handle observes a collected repository no longer missing now', function (): void {
-    $eventFake = new EventFake($this->app->make(Dispatcher::class));
-    $this->app->instance(Dispatcher::class, $eventFake);
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $repository = Repository::factory()->create([
@@ -50,18 +56,23 @@ test('handle observes a collected repository no longer missing now', function ()
     $evaluateMissingRepository = $this->app->make(EvaluateRepositoryMissing::class);
     $evaluateMissingRepository->handle(new RepositoriesCollected());
 
-    $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
-        return $conditionObserved->alertType === AlertType::REPOSITORY_MISSING
-            && $conditionObserved->subject instanceof Repository
-            && $conditionObserved->subject->is($repository)
-            && $conditionObserved->condition === ConditionState::RESOLVED
-            && $conditionObserved->observedAt->equalTo($now);
-    });
+    $busFake->assertDispatched(
+        HandleConditionObservations::class,
+        static function (HandleConditionObservations $handleConditionObservations) use ($now, $repository): bool {
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
+                return $conditionObserved->alertType === AlertType::REPOSITORY_MISSING
+                    && $conditionObserved->subject instanceof Repository
+                    && $conditionObserved->subject->is($repository)
+                    && $conditionObserved->condition === ConditionState::RESOLVED
+                    && $conditionObserved->observedAt->equalTo($now);
+            });
+        },
+    );
 });
 
 test('handle observes a missing, ignored repository no longer missing', function (): void {
-    $eventFake = new EventFake($this->app->make(Dispatcher::class));
-    $this->app->instance(Dispatcher::class, $eventFake);
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
     $repository = Repository::factory()->create([
         'missing_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
         'missing_ignored_at' => fake()->dateTimeBetween('-1 month'),
@@ -70,16 +81,21 @@ test('handle observes a missing, ignored repository no longer missing', function
     $evaluateMissingRepository = $this->app->make(EvaluateRepositoryMissing::class);
     $evaluateMissingRepository->handle(new RepositoriesCollected());
 
-    $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($repository): bool {
-        return $conditionObserved->subject instanceof Repository
-            && $conditionObserved->subject->is($repository)
-            && $conditionObserved->condition === ConditionState::RESOLVED;
-    });
+    $busFake->assertDispatched(
+        HandleConditionObservations::class,
+        static function (HandleConditionObservations $handleConditionObservations) use ($repository): bool {
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($repository): bool {
+                return $conditionObserved->subject instanceof Repository
+                    && $conditionObserved->subject->is($repository)
+                    && $conditionObserved->condition === ConditionState::RESOLVED;
+            });
+        },
+    );
 });
 
 test('handle observes an ignored repository no longer missing now', function (): void {
-    $eventFake = new EventFake($this->app->make(Dispatcher::class));
-    $this->app->instance(Dispatcher::class, $eventFake);
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $repository = Repository::factory()->create([
@@ -90,10 +106,15 @@ test('handle observes an ignored repository no longer missing now', function ():
     $evaluateMissingRepository = $this->app->make(EvaluateRepositoryMissing::class);
     $evaluateMissingRepository->handle(new RepositoryMissingIgnored($repository));
 
-    $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
-        return $conditionObserved->alertType === AlertType::REPOSITORY_MISSING
-            && $conditionObserved->subject === $repository
-            && $conditionObserved->condition === ConditionState::RESOLVED
-            && $conditionObserved->observedAt->equalTo($now);
-    });
+    $busFake->assertDispatched(
+        HandleConditionObservations::class,
+        static function (HandleConditionObservations $handleConditionObservations) use ($now, $repository): bool {
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
+                return $conditionObserved->alertType === AlertType::REPOSITORY_MISSING
+                    && $conditionObserved->subject === $repository
+                    && $conditionObserved->condition === ConditionState::RESOLVED
+                    && $conditionObserved->observedAt->equalTo($now);
+            });
+        },
+    );
 });

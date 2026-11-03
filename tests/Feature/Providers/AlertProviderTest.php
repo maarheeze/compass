@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Alerts\Events\AlertOpened;
-use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteClientIncompatible;
 use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteClientUnauthorized;
 use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteDebugEnabled;
@@ -18,7 +17,6 @@ use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteMissing;
 use Maarheeze\Compass\Alerts\Listeners\Forge\ResolveMissingSiteConditions;
 use Maarheeze\Compass\Alerts\Listeners\GitHub\EvaluateDependabotCoverage;
 use Maarheeze\Compass\Alerts\Listeners\GitHub\EvaluateRepositoryMissing;
-use Maarheeze\Compass\Alerts\Listeners\ObservationHandler;
 use Maarheeze\Compass\Alerts\Listeners\SendAlertNotifications;
 use Maarheeze\Compass\Alerts\Listeners\SiteEndpoint\EvaluateSiteEndpointDown;
 use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
@@ -31,12 +29,6 @@ use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Collector\Events\SiteMissingIgnored;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
-
-test('observation handler listens to condition observed', function (): void {
-    $eventFake = new EventFake($this->app->make(Dispatcher::class));
-
-    $eventFake->assertListening(ConditionObserved::class, ObservationHandler::class);
-});
 
 test('send alert notifications listens to alert opened', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));

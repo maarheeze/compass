@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Alerts\Listeners\Forge;
 
 use Carbon\CarbonImmutable;
-use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
+use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
+use Maarheeze\Compass\Collections\ConditionObservedCollection;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
@@ -26,36 +28,43 @@ readonly class ResolveMissingSiteConditions implements ShouldQueue
 
     public function __construct(
         private ClockInterface $clock,
-        private Dispatcher $events,
+        private QueueingDispatcher $dispatcher,
     ) {
     }
 
     public function handle(SitesCollected $sitesCollected): void
     {
         $observedAt = CarbonImmutable::instance($this->clock->now());
-        $missingSites = Site::query()
+        $missingSiteChunks = Site::query()
             ->notCollected()
             ->with('endpoints')
-            ->lazyById();
+            ->lazyById()
+            ->chunk(100);
 
-        foreach ($missingSites as $missingSite) {
-            foreach (self::CLIENT_ALERT_TYPES as $clientAlertType) {
-                $this->observeResolved($clientAlertType, $missingSite, $observedAt);
+        foreach ($missingSiteChunks as $missingSites) {
+            $conditionObservations = new ConditionObservedCollection();
+
+            foreach ($missingSites as $missingSite) {
+                foreach (self::CLIENT_ALERT_TYPES as $clientAlertType) {
+                    $conditionObservations->push($this->resolvedCondition($clientAlertType, $missingSite, $observedAt));
+                }
+
+                foreach ($missingSite->endpoints as $siteEndpoint) {
+                    $conditionObservations->push(
+                        $this->resolvedCondition(AlertType::SITE_ENDPOINT_DOWN, $siteEndpoint, $observedAt),
+                    );
+                }
             }
 
-            foreach ($missingSite->endpoints as $siteEndpoint) {
-                $this->observeResolved(AlertType::SITE_ENDPOINT_DOWN, $siteEndpoint, $observedAt);
-            }
+            $this->dispatcher->dispatch(new HandleConditionObservations($conditionObservations));
         }
     }
 
-    private function observeResolved(AlertType $alertType, AlertSubject $subject, CarbonImmutable $observedAt): void
-    {
-        $this->events->dispatch(new ConditionObserved(
-            $alertType,
-            $subject,
-            ConditionState::RESOLVED,
-            $observedAt,
-        ));
+    private function resolvedCondition(
+        AlertType $alertType,
+        AlertSubject $subject,
+        CarbonImmutable $observedAt,
+    ): ConditionObserved {
+        return new ConditionObserved($alertType, $subject, ConditionState::RESOLVED, $observedAt);
     }
 }

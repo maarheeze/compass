@@ -420,46 +420,6 @@ test('handle raises no alert recurred when its change is rolled back', function 
     $eventFake->assertNotDispatched(AlertRecurred::class);
 });
 
-test('middleware locks observations of one alert under the same key', function (): void {
-    $siteEndpoint = SiteEndpoint::factory()->create();
-
-    $observationHandler = $this->app->make(ObservationHandler::class);
-    $firstMiddleware = $observationHandler->middleware(new ConditionObserved(
-        AlertType::SITE_ENDPOINT_DOWN,
-        $siteEndpoint,
-        fake()->randomElement(ConditionState::cases()),
-        CarbonImmutable::now(),
-    ));
-    $secondMiddleware = $observationHandler->middleware(new ConditionObserved(
-        AlertType::SITE_ENDPOINT_DOWN,
-        $siteEndpoint,
-        fake()->randomElement(ConditionState::cases()),
-        CarbonImmutable::now(),
-    ));
-
-    expect($secondMiddleware[0]->key)
-        ->toBe($firstMiddleware[0]->key);
-});
-
-test('middleware locks observations of different subjects under different keys', function (): void {
-    $observationHandler = $this->app->make(ObservationHandler::class);
-    $firstMiddleware = $observationHandler->middleware(new ConditionObserved(
-        AlertType::SITE_ENDPOINT_DOWN,
-        SiteEndpoint::factory()->create(),
-        fake()->randomElement(ConditionState::cases()),
-        CarbonImmutable::now(),
-    ));
-    $secondMiddleware = $observationHandler->middleware(new ConditionObserved(
-        AlertType::SITE_ENDPOINT_DOWN,
-        SiteEndpoint::factory()->create(),
-        fake()->randomElement(ConditionState::cases()),
-        CarbonImmutable::now(),
-    ));
-
-    expect($secondMiddleware[0]->key)
-        ->not->toBe($firstMiddleware[0]->key);
-});
-
 test('handle stores an observation without an alert unattached', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $observedAt = CarbonImmutable::parse(fake()->iso8601());
