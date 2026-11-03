@@ -11,16 +11,10 @@ use Maarheeze\Compass\Analyzer\Forge\DeploymentStateClassifier;
 use Maarheeze\Compass\Collector\Forge\ForgeClient;
 use Maarheeze\Compass\Collector\Forge\ServerNameFilter;
 use Maarheeze\Compass\Collector\Forge\SitesQuery;
-use Maarheeze\Compass\Console\SyncForgeCommand;
 use Maarheeze\Compass\Http\ForgeSiteUrlFactory;
 
 class ForgeProvider extends ServiceProvider
 {
-    public function boot(): void
-    {
-        $this->commands([SyncForgeCommand::class]);
-    }
-
     public function register(): void
     {
         $this->app

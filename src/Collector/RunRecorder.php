@@ -24,11 +24,17 @@ readonly class RunRecorder
     ) {
     }
 
-    public function start(Uuid $runId, RunType $runType, ShouldQueue $firstJob, RunSucceeded $runSucceeded): void
-    {
+    public function start(
+        Uuid $runId,
+        Source $source,
+        CollectionType $collectionType,
+        ShouldQueue $firstJob,
+        RunSucceeded $runSucceeded,
+    ): void {
         Run::query()->create([
             'id' => $runId,
-            'type' => $runType,
+            'source' => $source->key,
+            'collection' => $collectionType,
             'status' => RunStatus::QUEUED,
         ]);
 
@@ -51,10 +57,13 @@ readonly class RunRecorder
         $collectorLogger = $this->collectorLogger;
 
         $this->context->scope(
-            static function () use ($collectorLogger, $pendingChain, $runType): void {
+            static function () use ($collectionType, $collectorLogger, $pendingChain, $source): void {
                 $pendingChain->dispatch();
 
-                $collectorLogger->info('Run started', ['run_type' => $runType->value]);
+                $collectorLogger->info('Run started', [
+                    'source' => $source->key,
+                    'collection' => $collectionType->value,
+                ]);
             },
             ['run_id' => $runId->toString()],
         );

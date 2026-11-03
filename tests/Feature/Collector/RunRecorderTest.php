@@ -11,11 +11,13 @@ use Illuminate\Log\LogManager;
 use Illuminate\Support\Testing\Fakes\BatchFake;
 use Illuminate\Support\Testing\Fakes\BusFake;
 use Maarheeze\Compass\Collector\Client\Jobs\InspectSites;
+use Maarheeze\Compass\Collector\CollectionType;
 use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
+use Maarheeze\Compass\Collector\GitHub\GitHubDriver;
 use Maarheeze\Compass\Collector\Jobs\FinishRun;
 use Maarheeze\Compass\Collector\RunRecorder;
 use Maarheeze\Compass\Collector\RunStatus;
-use Maarheeze\Compass\Collector\RunType;
+use Maarheeze\Compass\Collector\Source;
 use Maarheeze\Compass\Models\Run;
 use Maarheeze\Uuid\Uuid;
 use Monolog\Handler\TestHandler;
@@ -28,7 +30,13 @@ test('start chains the batch with the first job', function (): void {
     $runId = Uuid::generate();
 
     $runRecorder = $this->app->make(RunRecorder::class);
-    $runRecorder->start($runId, fake()->randomElement(RunType::cases()), new InspectSites(), new GitHubRunSucceeded($runId));
+    $runRecorder->start(
+        $runId,
+        new Source(fake()->slug(), new GitHubDriver(fake()->slug(), fake()->sha1())),
+        fake()->randomElement(CollectionType::cases()),
+        new InspectSites(),
+        new GitHubRunSucceeded($runId),
+    );
 
     $busFake->assertChained([
         $busFake->chainedBatch(static function (PendingBatch $pendingBatch): bool {
@@ -44,7 +52,13 @@ test('start keeps the batch going when one of its jobs fails', function (): void
     $runId = Uuid::generate();
 
     $runRecorder = $this->app->make(RunRecorder::class);
-    $runRecorder->start($runId, fake()->randomElement(RunType::cases()), new InspectSites(), new GitHubRunSucceeded($runId));
+    $runRecorder->start(
+        $runId,
+        new Source(fake()->slug(), new GitHubDriver(fake()->slug(), fake()->sha1())),
+        fake()->randomElement(CollectionType::cases()),
+        new InspectSites(),
+        new GitHubRunSucceeded($runId),
+    );
 
     $busFake->assertChained([
         $busFake->chainedBatch(static function (PendingBatch $pendingBatch): bool {
@@ -54,17 +68,19 @@ test('start keeps the batch going when one of its jobs fails', function (): void
     ]);
 });
 
-test('start records the queued run of the type', function (): void {
+test('start records the queued run of the collection of the source', function (): void {
     $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
     $runId = Uuid::generate();
-    $runType = fake()->randomElement(RunType::cases());
+    $source = new Source(fake()->slug(), new GitHubDriver(fake()->slug(), fake()->sha1()));
+    $collectionType = fake()->randomElement(CollectionType::cases());
 
     $runRecorder = $this->app->make(RunRecorder::class);
-    $runRecorder->start($runId, $runType, new InspectSites(), new GitHubRunSucceeded($runId));
+    $runRecorder->start($runId, $source, $collectionType, new InspectSites(), new GitHubRunSucceeded($runId));
 
     $this->assertDatabaseHas(Run::class, [
         'id' => $runId,
-        'type' => $runType,
+        'source' => $source->key,
+        'collection' => $collectionType,
         'status' => RunStatus::QUEUED,
         'batch_id' => null,
     ]);
@@ -77,7 +93,13 @@ test('start records the run as running with its batch when the batch is stored',
     $batchFake = new BatchFake(fake()->uuid(), '', 1, 1, 0, [], [], CarbonImmutable::now());
 
     $runRecorder = $this->app->make(RunRecorder::class);
-    $runRecorder->start($runId, fake()->randomElement(RunType::cases()), new InspectSites(), new GitHubRunSucceeded($runId));
+    $runRecorder->start(
+        $runId,
+        new Source(fake()->slug(), new GitHubDriver(fake()->slug(), fake()->sha1())),
+        fake()->randomElement(CollectionType::cases()),
+        new InspectSites(),
+        new GitHubRunSucceeded($runId),
+    );
     $busFake
         ->dispatched(ChainedBatch::class)
         ->sole()
@@ -97,7 +119,13 @@ test('start finishes the run with its succeeded event after the batch', function
     $runId = Uuid::generate();
 
     $runRecorder = $this->app->make(RunRecorder::class);
-    $runRecorder->start($runId, fake()->randomElement(RunType::cases()), new InspectSites(), new GitHubRunSucceeded($runId));
+    $runRecorder->start(
+        $runId,
+        new Source(fake()->slug(), new GitHubDriver(fake()->slug(), fake()->sha1())),
+        fake()->randomElement(CollectionType::cases()),
+        new InspectSites(),
+        new GitHubRunSucceeded($runId),
+    );
 
     $busFake->assertChained([
         ChainedBatch::class,
@@ -121,7 +149,13 @@ test('start logs the start of the run with its run id in the log context', funct
     $runId = Uuid::generate();
 
     $runRecorder = $this->app->make(RunRecorder::class);
-    $runRecorder->start($runId, fake()->randomElement(RunType::cases()), new InspectSites(), new GitHubRunSucceeded($runId));
+    $runRecorder->start(
+        $runId,
+        new Source(fake()->slug(), new GitHubDriver(fake()->slug(), fake()->sha1())),
+        fake()->randomElement(CollectionType::cases()),
+        new InspectSites(),
+        new GitHubRunSucceeded($runId),
+    );
 
     $testHandler = $this->app
         ->make(LogManager::class)

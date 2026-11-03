@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Maarheeze\Compass\Collector\CollectionType;
 use Maarheeze\Compass\Collector\RunStatus;
-use Maarheeze\Compass\Collector\RunType;
 use Maarheeze\Compass\Models\Run;
 use Maarheeze\Uuid\Uuid;
 
@@ -27,7 +27,8 @@ class RunFactory extends Factory
     {
         return [
             'id' => Uuid::generate(),
-            'type' => fake()->randomElement(RunType::cases()),
+            'source' => fake()->slug(),
+            'collection' => fake()->randomElement(CollectionType::cases()),
             'status' => RunStatus::RUNNING,
             'batch_id' => fake()->uuid(),
             'finished_at' => null,

@@ -13,7 +13,8 @@ return new class extends Migration
         Schema::create('compass_runs', static function (Blueprint $table): void {
             $table->uuid('id')->primary();
 
-            $table->string('type');
+            $table->string('source');
+            $table->string('collection');
             $table->string('status');
             $table->string('batch_id')->nullable();
             $table->timestamp('finished_at')->nullable();

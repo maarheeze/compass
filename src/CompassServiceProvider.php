@@ -15,7 +15,6 @@ use Illuminate\Support\ServiceProvider;
 use Livewire\LivewireManager;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Listeners\RecordRunFailure;
-use Maarheeze\Compass\Console\SyncCommand;
 use Maarheeze\Compass\Http\Controllers\RunController;
 use Maarheeze\Compass\Http\Controllers\SiteEndpointCheckController;
 use Maarheeze\Compass\Http\Middleware\Authenticate;
@@ -28,7 +27,6 @@ use Maarheeze\Compass\Providers\ClientProvider;
 use Maarheeze\Compass\Providers\ForgeProvider;
 use Maarheeze\Compass\Providers\GitHubProvider;
 use Maarheeze\Compass\Providers\ScheduleProvider;
-use Maarheeze\Compass\Providers\SiteEndpointProvider;
 use Maarheeze\Compass\Providers\SourceProvider;
 use Psr\Clock\ClockInterface;
 
@@ -42,7 +40,6 @@ class CompassServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../config/compass.php', 'compass');
 
         $this->app->bindIf(ClockInterface::class, FactoryImmutable::class);
-        $this->commands([SyncCommand::class]);
 
         $this->app
             ->when(CollectorLogger::class)
@@ -62,7 +59,6 @@ class CompassServiceProvider extends ServiceProvider
         $this->app->register(ForgeProvider::class);
         $this->app->register(GitHubProvider::class);
         $this->app->register(ScheduleProvider::class);
-        $this->app->register(SiteEndpointProvider::class);
         $this->app->register(SourceProvider::class);
     }
 

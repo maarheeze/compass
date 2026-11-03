@@ -9,16 +9,10 @@ use Maarheeze\Compass\Collector\GitHub\BlobQuery;
 use Maarheeze\Compass\Collector\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\GitHub\IssuesAndPullRequestsQuery;
 use Maarheeze\Compass\Collector\GitHub\RepositoriesQuery;
-use Maarheeze\Compass\Console\SyncGitHubCommand;
 use Maarheeze\Compass\View\Components\IssueReference;
 
 class GitHubProvider extends ServiceProvider
 {
-    public function boot(): void
-    {
-        $this->commands([SyncGitHubCommand::class]);
-    }
-
     public function register(): void
     {
         $this->app
