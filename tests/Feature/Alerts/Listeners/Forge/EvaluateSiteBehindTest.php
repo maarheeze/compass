@@ -9,15 +9,14 @@ use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteBehind;
-use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
-use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
+use Maarheeze\Compass\Collector\Events\RepositoriesCollected;
+use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
-use Maarheeze\Uuid\Uuid;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
-test('handle observes a site behind now', function (GitHubRunSucceeded|ForgeRunSucceeded $runSucceeded): void {
+test('handle observes a site behind now', function (RepositoriesCollected|SitesCollected $collectedEvent): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
@@ -31,7 +30,7 @@ test('handle observes a site behind now', function (GitHubRunSucceeded|ForgeRunS
     ]);
 
     $evaluateSiteBehind = $this->app->make(EvaluateSiteBehind::class);
-    $evaluateSiteBehind->handle($runSucceeded);
+    $evaluateSiteBehind->handle($collectedEvent);
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
         return $conditionObserved->alertType === AlertType::SITE_BEHIND
@@ -41,11 +40,11 @@ test('handle observes a site behind now', function (GitHubRunSucceeded|ForgeRunS
             && $conditionObserved->observedAt->equalTo($now);
     });
 })->with([
-    new GitHubRunSucceeded(Uuid::generate()),
-    new ForgeRunSucceeded(Uuid::generate()),
+    new RepositoriesCollected(),
+    new SitesCollected(),
 ]);
 
-test('handle observes an up-to-date site no longer behind now', function (GitHubRunSucceeded|ForgeRunSucceeded $runSucceeded): void {
+test('handle observes an up-to-date site no longer behind now', function (RepositoriesCollected|SitesCollected $collectedEvent): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
@@ -58,7 +57,7 @@ test('handle observes an up-to-date site no longer behind now', function (GitHub
     ]);
 
     $evaluateSiteBehind = $this->app->make(EvaluateSiteBehind::class);
-    $evaluateSiteBehind->handle($runSucceeded);
+    $evaluateSiteBehind->handle($collectedEvent);
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
         return $conditionObserved->alertType === AlertType::SITE_BEHIND
@@ -68,6 +67,6 @@ test('handle observes an up-to-date site no longer behind now', function (GitHub
             && $conditionObserved->observedAt->equalTo($now);
     });
 })->with([
-    new GitHubRunSucceeded(Uuid::generate()),
-    new ForgeRunSucceeded(Uuid::generate()),
+    new RepositoriesCollected(),
+    new SitesCollected(),
 ]);

@@ -9,10 +9,9 @@ use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteMissing;
-use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
 use Maarheeze\Compass\Collector\Events\SiteMissingIgnored;
+use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Models\Site;
-use Maarheeze\Uuid\Uuid;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
@@ -27,7 +26,7 @@ test('handle observes a missing, not ignored site missing now', function (): voi
     ]);
 
     $evaluateMissingSite = $this->app->make(EvaluateSiteMissing::class);
-    $evaluateMissingSite->handle(new ForgeRunSucceeded(Uuid::generate()));
+    $evaluateMissingSite->handle(new SitesCollected());
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
         return $conditionObserved->alertType === AlertType::SITE_MISSING
@@ -49,7 +48,7 @@ test('handle observes a collected site no longer missing now', function (): void
     ]);
 
     $evaluateMissingSite = $this->app->make(EvaluateSiteMissing::class);
-    $evaluateMissingSite->handle(new ForgeRunSucceeded(Uuid::generate()));
+    $evaluateMissingSite->handle(new SitesCollected());
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
         return $conditionObserved->alertType === AlertType::SITE_MISSING
@@ -69,7 +68,7 @@ test('handle observes a missing, ignored site no longer missing', function (): v
     ]);
 
     $evaluateMissingSite = $this->app->make(EvaluateSiteMissing::class);
-    $evaluateMissingSite->handle(new ForgeRunSucceeded(Uuid::generate()));
+    $evaluateMissingSite->handle(new SitesCollected());
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($site): bool {
         return $conditionObserved->subject instanceof Site

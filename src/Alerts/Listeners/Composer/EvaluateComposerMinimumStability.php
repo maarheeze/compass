@@ -11,7 +11,7 @@ use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Analyzer\Composer\MinimumStabilityChecker;
-use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
+use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
 use Maarheeze\Compass\Models\Repository;
 use Psr\Clock\ClockInterface;
 
@@ -24,22 +24,16 @@ readonly class EvaluateComposerMinimumStability implements ShouldQueue
     ) {
     }
 
-    public function handle(GitHubRunSucceeded $gitHubRunSucceeded): void
+    public function handle(ComposerJsonChanged $composerJsonChanged): void
     {
-        $observedAt = CarbonImmutable::instance($this->clock->now());
+        $repository = $composerJsonChanged->repository->load('composerJson');
 
-        $repositories = Repository::query()
-            ->with('composerJson')
-            ->lazyById();
-
-        foreach ($repositories as $repository) {
-            $this->events->dispatch(new ConditionObserved(
-                AlertType::COMPOSER_MINIMUM_STABILITY_UNSTABLE,
-                $repository,
-                $this->observedCondition($repository),
-                $observedAt,
-            ));
-        }
+        $this->events->dispatch(new ConditionObserved(
+            AlertType::COMPOSER_MINIMUM_STABILITY_UNSTABLE,
+            $repository,
+            $this->observedCondition($repository),
+            CarbonImmutable::instance($this->clock->now()),
+        ));
     }
 
     private function observedCondition(Repository $repository): ConditionState

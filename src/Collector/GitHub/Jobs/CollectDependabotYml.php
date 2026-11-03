@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Collector\GitHub\Jobs;
 
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Queue\InteractsWithQueue;
@@ -15,6 +16,7 @@ use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Dependabot\DependabotFilesCollectorManager;
 use Maarheeze\Compass\Collector\Dependabot\DependabotYmlReader;
 use Maarheeze\Compass\Collector\Dependabot\DependabotYmlSynchronizer;
+use Maarheeze\Compass\Collector\Events\DependabotYmlChanged;
 use Maarheeze\Compass\Models\Repository;
 use Symfony\Component\Yaml\Exception\ParseException;
 
@@ -38,6 +40,7 @@ class CollectDependabotYml implements ShouldQueue
     public function handle(
         CollectorLogger $collectorLogger,
         Context $context,
+        Dispatcher $events,
         DependabotFilesCollectorManager $dependabotFilesCollectorManager,
         DependabotYmlReader $dependabotYmlReader,
         DependabotYmlSynchronizer $dependabotYmlSynchronizer,
@@ -53,6 +56,8 @@ class CollectDependabotYml implements ShouldQueue
 
             $collectorLogger->debug('Dependabot yml deleted');
 
+            $events->dispatch(new DependabotYmlChanged($this->repository));
+
             return;
         }
 
@@ -62,5 +67,7 @@ class CollectDependabotYml implements ShouldQueue
         $dependabotYmlSynchronizer->store($this->repository, $oid, $packageEcosystems);
 
         $collectorLogger->debug('Dependabot yml collected');
+
+        $events->dispatch(new DependabotYmlChanged($this->repository));
     }
 }

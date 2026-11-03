@@ -7,11 +7,13 @@ namespace Maarheeze\Compass\Collector\Forge\Jobs;
 use Illuminate\Bus\Batch;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Maarheeze\Compass\Collector\Client\Jobs\InspectSites;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
+use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Collector\Forge\SiteSynchronizer;
 use Maarheeze\Compass\Collector\Sites\SitesCollectorManager;
 use Maarheeze\Uuid\Uuid;
@@ -34,6 +36,7 @@ class CollectSites implements ShouldQueue
      */
     public function handle(
         CollectorLogger $collectorLogger,
+        Dispatcher $events,
         SitesCollectorManager $sitesCollectorManager,
         SiteSynchronizer $siteSynchronizer,
     ): void {
@@ -50,6 +53,8 @@ class CollectSites implements ShouldQueue
         }
 
         $siteSynchronizer->markUncollectedMissing($this->runId);
+
+        $events->dispatch(new SitesCollected());
 
         $collectorLogger->info('Sites collector ended');
 

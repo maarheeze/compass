@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Collector\GitHub\Jobs;
 
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Queue\InteractsWithQueue;
@@ -16,6 +17,7 @@ use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Composer\ComposerFilesCollectorManager;
 use Maarheeze\Compass\Collector\Composer\Json\ComposerJsonReader;
 use Maarheeze\Compass\Collector\Composer\Json\ComposerJsonSynchronizer;
+use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
 use Maarheeze\Compass\Models\Repository;
 use Throwable;
 
@@ -43,6 +45,7 @@ class CollectComposerJson implements ShouldQueue
         ComposerJsonReader $composerJsonReader,
         ComposerJsonSynchronizer $composerJsonSynchronizer,
         Context $context,
+        Dispatcher $events,
     ): void {
         $composerFilesCollector = $composerFilesCollectorManager->collector($this->sourceKey);
 
@@ -55,6 +58,8 @@ class CollectComposerJson implements ShouldQueue
 
             $collectorLogger->debug('Composer json deleted');
 
+            $events->dispatch(new ComposerJsonChanged($this->repository));
+
             return;
         }
 
@@ -62,5 +67,7 @@ class CollectComposerJson implements ShouldQueue
         $composerJsonSynchronizer->store($this->repository, $oid, $composerJsonSummary);
 
         $collectorLogger->debug('Composer json collected');
+
+        $events->dispatch(new ComposerJsonChanged($this->repository));
     }
 }

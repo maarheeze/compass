@@ -9,10 +9,10 @@ use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Listeners\Composer\EvaluateComposerWarning;
-use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
+use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
+use Maarheeze\Compass\Collector\Events\ComposerLockChanged;
 use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\Repository;
-use Maarheeze\Uuid\Uuid;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
@@ -31,7 +31,10 @@ test('handle observes the detected composer warning active now', function (): vo
     ]);
 
     $evaluateComposerWarning = $this->app->make(EvaluateComposerWarning::class);
-    $evaluateComposerWarning->handle(new GitHubRunSucceeded(Uuid::generate()));
+    $evaluateComposerWarning->handle(fake()->randomElement([
+        new ComposerJsonChanged($repository),
+        new ComposerLockChanged($repository),
+    ]));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
         return $conditionObserved->alertType === AlertType::COMPOSER_PROJECT_WITHOUT_LOCK
@@ -57,7 +60,10 @@ test('handle observes the composer warnings that are not detected resolved now',
     ]);
 
     $evaluateComposerWarning = $this->app->make(EvaluateComposerWarning::class);
-    $evaluateComposerWarning->handle(new GitHubRunSucceeded(Uuid::generate()));
+    $evaluateComposerWarning->handle(fake()->randomElement([
+        new ComposerJsonChanged($repository),
+        new ComposerLockChanged($repository),
+    ]));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($alertType, $now, $repository): bool {
         return $conditionObserved->alertType === $alertType
@@ -80,7 +86,10 @@ test('handle observes every composer warning resolved now for a repository witho
     $repository = Repository::factory()->create(['composer_json_oid' => null]);
 
     $evaluateComposerWarning = $this->app->make(EvaluateComposerWarning::class);
-    $evaluateComposerWarning->handle(new GitHubRunSucceeded(Uuid::generate()));
+    $evaluateComposerWarning->handle(fake()->randomElement([
+        new ComposerJsonChanged($repository),
+        new ComposerLockChanged($repository),
+    ]));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($alertType, $now, $repository): bool {
         return $conditionObserved->alertType === $alertType

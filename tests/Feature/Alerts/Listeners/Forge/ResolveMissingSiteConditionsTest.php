@@ -9,10 +9,9 @@ use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Listeners\Forge\ResolveMissingSiteConditions;
-use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
+use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
-use Maarheeze\Uuid\Uuid;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
@@ -24,7 +23,7 @@ test('handle observes a client condition of a missing site resolved now', functi
     $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
 
     $resolveMissingSiteConditions = $this->app->make(ResolveMissingSiteConditions::class);
-    $resolveMissingSiteConditions->handle(new ForgeRunSucceeded(Uuid::generate()));
+    $resolveMissingSiteConditions->handle(new SitesCollected());
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($alertType, $now, $site): bool {
         return $conditionObserved->alertType === $alertType
@@ -50,7 +49,7 @@ test('handle observes the endpoint of a missing site no longer down now', functi
         ->create();
 
     $resolveMissingSiteConditions = $this->app->make(ResolveMissingSiteConditions::class);
-    $resolveMissingSiteConditions->handle(new ForgeRunSucceeded(Uuid::generate()));
+    $resolveMissingSiteConditions->handle(new SitesCollected());
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $siteEndpoint): bool {
         return $conditionObserved->alertType === AlertType::SITE_ENDPOINT_DOWN
@@ -69,7 +68,7 @@ test('handle observes nothing for a collected site and its endpoints', function 
         ->create();
 
     $resolveMissingSiteConditions = $this->app->make(ResolveMissingSiteConditions::class);
-    $resolveMissingSiteConditions->handle(new ForgeRunSucceeded(Uuid::generate()));
+    $resolveMissingSiteConditions->handle(new SitesCollected());
 
     $eventFake->assertNothingDispatched();
 });

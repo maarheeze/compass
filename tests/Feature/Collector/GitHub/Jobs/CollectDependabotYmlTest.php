@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Log\Context\Repository as Context;
+use Illuminate\Support\Testing\Fakes\EventFake;
+use Maarheeze\Compass\Collector\Events\DependabotYmlChanged;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectDependabotYml;
 use Maarheeze\Compass\Models\DependabotYml;
 use Maarheeze\Compass\Models\Repository;
@@ -104,4 +107,17 @@ test('handle refuses a source without a Dependabot files collector', function ()
 
     $collectDependabotYml = new CollectDependabotYml($repository, $key);
     $this->app->call([$collectDependabotYml, 'handle']);
+});
+
+test('handle raises dependabot yml changed for the repository when its file is gone', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+    $this->app->instance(Dispatcher::class, $eventFake);
+    $repository = Repository::factory()->create(['dependabot_yml_oid' => null]);
+
+    $collectDependabotYml = new CollectDependabotYml($repository, 'github');
+    $this->app->call([$collectDependabotYml, 'handle']);
+
+    $eventFake->assertDispatched(DependabotYmlChanged::class, static function (DependabotYmlChanged $dependabotYmlChanged) use ($repository): bool {
+        return $dependabotYmlChanged->repository->is($repository);
+    });
 });

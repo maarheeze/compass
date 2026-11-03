@@ -7,10 +7,12 @@ namespace Maarheeze\Compass\Collector\GitHub\Jobs;
 use Illuminate\Bus\Batch;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
+use Maarheeze\Compass\Collector\Events\RepositoriesCollected;
 use Maarheeze\Compass\Collector\GitHub\RepositorySynchronizer;
 use Maarheeze\Compass\Collector\Repositories\RepositoriesCollectorManager;
 use Maarheeze\Uuid\Uuid;
@@ -33,6 +35,7 @@ class CollectRepositories implements ShouldQueue
      */
     public function handle(
         CollectorLogger $collectorLogger,
+        Dispatcher $events,
         RepositoriesCollectorManager $repositoriesCollectorManager,
         RepositorySynchronizer $repositorySynchronizer,
     ): void {
@@ -49,6 +52,8 @@ class CollectRepositories implements ShouldQueue
         }
 
         $repositorySynchronizer->markUncollectedMissing($this->runId);
+
+        $events->dispatch(new RepositoriesCollected());
 
         $collectorLogger->info('Repositories collector ended');
 

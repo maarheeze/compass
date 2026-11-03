@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Log\Context\Repository as Context;
+use Illuminate\Support\Testing\Fakes\EventFake;
+use Maarheeze\Compass\Collector\Events\ComposerLockChanged;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectComposerLock;
 use Maarheeze\Compass\Models\ComposerLock;
 use Maarheeze\Compass\Models\Repository;
@@ -105,4 +108,17 @@ test('handle refuses a source without a composer files collector', function (): 
 
     $collectComposerLock = new CollectComposerLock($repository, $key);
     $this->app->call([$collectComposerLock, 'handle']);
+});
+
+test('handle raises composer lock changed for the repository when its file is gone', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+    $this->app->instance(Dispatcher::class, $eventFake);
+    $repository = Repository::factory()->create(['composer_lock_oid' => null]);
+
+    $collectComposerLock = new CollectComposerLock($repository, 'github');
+    $this->app->call([$collectComposerLock, 'handle']);
+
+    $eventFake->assertDispatched(ComposerLockChanged::class, static function (ComposerLockChanged $composerLockChanged) use ($repository): bool {
+        return $composerLockChanged->repository->is($repository);
+    });
 });

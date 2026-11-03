@@ -3,8 +3,11 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Client\Factory as HttpFactory;
+use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Collector\Client\Jobs\InspectSites;
+use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Collector\Forge\Jobs\CollectSites;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Uuid\Uuid;
@@ -116,4 +119,22 @@ test('handle refuses a source without a sites collector', function (): void {
 
     [$collectSites] = new CollectSites(Uuid::generate(), $key)->withFakeBatch();
     $this->app->call([$collectSites, 'handle']);
+});
+
+test('handle raises sites collected', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+    $this->app->instance(Dispatcher::class, $eventFake);
+    $this->app->make(HttpFactory::class)->fake([
+        '*' => HttpFactory::response([
+            'data' => [],
+            'meta' => [
+                'next_cursor' => null,
+            ],
+        ]),
+    ]);
+
+    [$collectSites] = new CollectSites(Uuid::generate(), 'forge')->withFakeBatch();
+    $this->app->call([$collectSites, 'handle']);
+
+    $eventFake->assertDispatched(SitesCollected::class);
 });

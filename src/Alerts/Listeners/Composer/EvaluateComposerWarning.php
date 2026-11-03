@@ -12,8 +12,8 @@ use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Analyzer\Composer\ComposerWarning;
 use Maarheeze\Compass\Analyzer\Composer\ComposerWarningDetector;
-use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
-use Maarheeze\Compass\Models\Repository;
+use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
+use Maarheeze\Compass\Collector\Events\ComposerLockChanged;
 use Psr\Clock\ClockInterface;
 
 readonly class EvaluateComposerWarning implements ShouldQueue
@@ -25,25 +25,19 @@ readonly class EvaluateComposerWarning implements ShouldQueue
     ) {
     }
 
-    public function handle(GitHubRunSucceeded $gitHubRunSucceeded): void
+    public function handle(ComposerJsonChanged|ComposerLockChanged $changedEvent): void
     {
         $observedAt = CarbonImmutable::instance($this->clock->now());
+        $repository = $changedEvent->repository->load('composerJson');
+        $detectedComposerWarning = $this->composerWarningDetector->detect($repository);
 
-        $repositories = Repository::query()
-            ->with('composerJson')
-            ->lazyById();
-
-        foreach ($repositories as $repository) {
-            $detectedComposerWarning = $this->composerWarningDetector->detect($repository);
-
-            foreach (ComposerWarning::cases() as $composerWarning) {
-                $this->events->dispatch(new ConditionObserved(
-                    $this->alertType($composerWarning),
-                    $repository,
-                    $this->observedCondition($composerWarning, $detectedComposerWarning),
-                    $observedAt,
-                ));
-            }
+        foreach (ComposerWarning::cases() as $composerWarning) {
+            $this->events->dispatch(new ConditionObserved(
+                $this->alertType($composerWarning),
+                $repository,
+                $this->observedCondition($composerWarning, $detectedComposerWarning),
+                $observedAt,
+            ));
         }
     }
 

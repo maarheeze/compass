@@ -11,7 +11,7 @@ use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
-use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
+use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 
@@ -30,7 +30,7 @@ readonly class ResolveMissingSiteConditions implements ShouldQueue
     ) {
     }
 
-    public function handle(ForgeRunSucceeded $forgeRunSucceeded): void
+    public function handle(SitesCollected $sitesCollected): void
     {
         $observedAt = CarbonImmutable::instance($this->clock->now());
         $missingSites = Site::query()

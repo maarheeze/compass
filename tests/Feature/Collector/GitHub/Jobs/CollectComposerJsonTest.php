@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Log\Context\Repository as Context;
+use Illuminate\Support\Testing\Fakes\EventFake;
+use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectComposerJson;
 use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\Repository;
@@ -95,4 +98,17 @@ test('handle refuses a source without a composer files collector', function (): 
 
     $collectComposerJson = new CollectComposerJson($repository, $key);
     $this->app->call([$collectComposerJson, 'handle']);
+});
+
+test('handle raises composer json changed for the repository when its file is gone', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+    $this->app->instance(Dispatcher::class, $eventFake);
+    $repository = Repository::factory()->create(['composer_json_oid' => null]);
+
+    $collectComposerJson = new CollectComposerJson($repository, 'github');
+    $this->app->call([$collectComposerJson, 'handle']);
+
+    $eventFake->assertDispatched(ComposerJsonChanged::class, static function (ComposerJsonChanged $composerJsonChanged) use ($repository): bool {
+        return $composerJsonChanged->repository->is($repository);
+    });
 });

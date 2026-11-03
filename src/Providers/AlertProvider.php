@@ -23,12 +23,16 @@ use Maarheeze\Compass\Alerts\Listeners\GitHub\EvaluateRepositoryMissing;
 use Maarheeze\Compass\Alerts\Listeners\ObservationHandler;
 use Maarheeze\Compass\Alerts\Listeners\SendAlertNotifications;
 use Maarheeze\Compass\Alerts\Listeners\SiteEndpoint\EvaluateSiteEndpointDown;
-use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
-use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
+use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
+use Maarheeze\Compass\Collector\Events\ComposerLockChanged;
+use Maarheeze\Compass\Collector\Events\DependabotYmlChanged;
+use Maarheeze\Compass\Collector\Events\PackageJsonChanged;
+use Maarheeze\Compass\Collector\Events\RepositoriesCollected;
 use Maarheeze\Compass\Collector\Events\RepositoryMissingIgnored;
 use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Collector\Events\SiteMissingIgnored;
+use Maarheeze\Compass\Collector\Events\SitesCollected;
 
 class AlertProvider extends ServiceProvider
 {
@@ -41,16 +45,19 @@ class AlertProvider extends ServiceProvider
         $events->listen(SiteInspected::class, EvaluateSiteNotInProduction::class);
         $events->listen(SiteInspected::class, EvaluateSiteClientUnauthorized::class);
         $events->listen(SiteInspected::class, EvaluateSiteClientIncompatible::class);
-        $events->listen(GitHubRunSucceeded::class, EvaluateRepositoryMissing::class);
+        $events->listen(RepositoriesCollected::class, EvaluateRepositoryMissing::class);
         $events->listen(RepositoryMissingIgnored::class, EvaluateRepositoryMissing::class);
-        $events->listen(GitHubRunSucceeded::class, EvaluateComposerWarning::class);
-        $events->listen(GitHubRunSucceeded::class, EvaluateComposerMinimumStability::class);
-        $events->listen(GitHubRunSucceeded::class, EvaluateDependabotCoverage::class);
-        $events->listen(ForgeRunSucceeded::class, EvaluateSiteMissing::class);
+        $events->listen(ComposerJsonChanged::class, EvaluateComposerWarning::class);
+        $events->listen(ComposerLockChanged::class, EvaluateComposerWarning::class);
+        $events->listen(ComposerJsonChanged::class, EvaluateComposerMinimumStability::class);
+        $events->listen(ComposerJsonChanged::class, EvaluateDependabotCoverage::class);
+        $events->listen(DependabotYmlChanged::class, EvaluateDependabotCoverage::class);
+        $events->listen(PackageJsonChanged::class, EvaluateDependabotCoverage::class);
+        $events->listen(SitesCollected::class, EvaluateSiteMissing::class);
         $events->listen(SiteMissingIgnored::class, EvaluateSiteMissing::class);
-        $events->listen(GitHubRunSucceeded::class, EvaluateSiteBehind::class);
-        $events->listen(ForgeRunSucceeded::class, EvaluateSiteBehind::class);
-        $events->listen(ForgeRunSucceeded::class, EvaluateSiteDeploymentOverdue::class);
-        $events->listen(ForgeRunSucceeded::class, ResolveMissingSiteConditions::class);
+        $events->listen(RepositoriesCollected::class, EvaluateSiteBehind::class);
+        $events->listen(SitesCollected::class, EvaluateSiteBehind::class);
+        $events->listen(SitesCollected::class, EvaluateSiteDeploymentOverdue::class);
+        $events->listen(SitesCollected::class, ResolveMissingSiteConditions::class);
     }
 }

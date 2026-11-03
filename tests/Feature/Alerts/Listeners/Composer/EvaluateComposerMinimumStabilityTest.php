@@ -9,10 +9,9 @@ use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Listeners\Composer\EvaluateComposerMinimumStability;
-use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
+use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
 use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\Repository;
-use Maarheeze\Uuid\Uuid;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
@@ -29,7 +28,7 @@ test('handle observes an unstable minimum stability active now', function (): vo
     ]);
 
     $evaluateComposerMinimumStability = $this->app->make(EvaluateComposerMinimumStability::class);
-    $evaluateComposerMinimumStability->handle(new GitHubRunSucceeded(Uuid::generate()));
+    $evaluateComposerMinimumStability->handle(new ComposerJsonChanged($repository));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
         return $conditionObserved->alertType === AlertType::COMPOSER_MINIMUM_STABILITY_UNSTABLE
@@ -48,7 +47,7 @@ test('handle observes a stable minimum stability resolved now', function (): voi
     $repository = Repository::factory()->create(['composer_json_oid' => null]);
 
     $evaluateComposerMinimumStability = $this->app->make(EvaluateComposerMinimumStability::class);
-    $evaluateComposerMinimumStability->handle(new GitHubRunSucceeded(Uuid::generate()));
+    $evaluateComposerMinimumStability->handle(new ComposerJsonChanged($repository));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
         return $conditionObserved->alertType === AlertType::COMPOSER_MINIMUM_STABILITY_UNSTABLE

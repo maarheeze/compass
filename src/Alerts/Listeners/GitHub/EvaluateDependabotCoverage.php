@@ -12,7 +12,9 @@ use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Analyzer\Dependabot\DependabotCoverageChecker;
 use Maarheeze\Compass\Analyzer\Dependabot\PackageEcosystem;
-use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
+use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
+use Maarheeze\Compass\Collector\Events\DependabotYmlChanged;
+use Maarheeze\Compass\Collector\Events\PackageJsonChanged;
 use Maarheeze\Compass\Models\Repository;
 use Psr\Clock\ClockInterface;
 
@@ -25,23 +27,18 @@ readonly class EvaluateDependabotCoverage implements ShouldQueue
     ) {
     }
 
-    public function handle(GitHubRunSucceeded $gitHubRunSucceeded): void
+    public function handle(ComposerJsonChanged|DependabotYmlChanged|PackageJsonChanged $changedEvent): void
     {
         $observedAt = CarbonImmutable::instance($this->clock->now());
+        $repository = $changedEvent->repository->load(['composerJson', 'dependabotYml']);
 
-        $repositories = Repository::query()
-            ->with(['composerJson', 'dependabotYml'])
-            ->lazyById();
-
-        foreach ($repositories as $repository) {
-            foreach (PackageEcosystem::cases() as $packageEcosystem) {
-                $this->events->dispatch(new ConditionObserved(
-                    $this->alertType($packageEcosystem),
-                    $repository,
-                    $this->observedCondition($repository, $packageEcosystem),
-                    $observedAt,
-                ));
-            }
+        foreach (PackageEcosystem::cases() as $packageEcosystem) {
+            $this->events->dispatch(new ConditionObserved(
+                $this->alertType($packageEcosystem),
+                $repository,
+                $this->observedCondition($repository, $packageEcosystem),
+                $observedAt,
+            ));
         }
     }
 

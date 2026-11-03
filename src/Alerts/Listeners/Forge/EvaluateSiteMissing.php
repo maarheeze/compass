@@ -10,7 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
-use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
+use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Collector\Events\SiteMissingIgnored;
 use Maarheeze\Compass\Collector\MissingState;
 use Maarheeze\Compass\Models\Site;
@@ -24,12 +24,12 @@ readonly class EvaluateSiteMissing implements ShouldQueue
     ) {
     }
 
-    public function handle(ForgeRunSucceeded|SiteMissingIgnored $collectedEvent): void
+    public function handle(SitesCollected|SiteMissingIgnored $collectedEvent): void
     {
         $observedAt = CarbonImmutable::instance($this->clock->now());
 
         match (true) {
-            $collectedEvent instanceof ForgeRunSucceeded => $this->handleForgeRunSucceeded($observedAt),
+            $collectedEvent instanceof SitesCollected => $this->handleSitesCollected($observedAt),
             $collectedEvent instanceof SiteMissingIgnored => $this->handleSiteMissingIgnored(
                 $collectedEvent,
                 $observedAt,
@@ -37,7 +37,7 @@ readonly class EvaluateSiteMissing implements ShouldQueue
         };
     }
 
-    private function handleForgeRunSucceeded(CarbonImmutable $observedAt): void
+    private function handleSitesCollected(CarbonImmutable $observedAt): void
     {
         $sites = Site::query()->lazyById();
 

@@ -9,10 +9,9 @@ use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Listeners\GitHub\EvaluateRepositoryMissing;
-use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
+use Maarheeze\Compass\Collector\Events\RepositoriesCollected;
 use Maarheeze\Compass\Collector\Events\RepositoryMissingIgnored;
 use Maarheeze\Compass\Models\Repository;
-use Maarheeze\Uuid\Uuid;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
@@ -27,7 +26,7 @@ test('handle observes a missing, not ignored repository missing now', function (
     ]);
 
     $evaluateMissingRepository = $this->app->make(EvaluateRepositoryMissing::class);
-    $evaluateMissingRepository->handle(new GitHubRunSucceeded(Uuid::generate()));
+    $evaluateMissingRepository->handle(new RepositoriesCollected());
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
         return $conditionObserved->alertType === AlertType::REPOSITORY_MISSING
@@ -49,7 +48,7 @@ test('handle observes a collected repository no longer missing now', function ()
     ]);
 
     $evaluateMissingRepository = $this->app->make(EvaluateRepositoryMissing::class);
-    $evaluateMissingRepository->handle(new GitHubRunSucceeded(Uuid::generate()));
+    $evaluateMissingRepository->handle(new RepositoriesCollected());
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
         return $conditionObserved->alertType === AlertType::REPOSITORY_MISSING
@@ -69,7 +68,7 @@ test('handle observes a missing, ignored repository no longer missing', function
     ]);
 
     $evaluateMissingRepository = $this->app->make(EvaluateRepositoryMissing::class);
-    $evaluateMissingRepository->handle(new GitHubRunSucceeded(Uuid::generate()));
+    $evaluateMissingRepository->handle(new RepositoriesCollected());
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($repository): bool {
         return $conditionObserved->subject instanceof Repository

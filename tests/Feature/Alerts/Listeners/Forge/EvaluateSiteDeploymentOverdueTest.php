@@ -9,10 +9,9 @@ use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteDeploymentOverdue;
-use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
+use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
-use Maarheeze\Uuid\Uuid;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
@@ -35,7 +34,7 @@ test('handle observes an overdue deployment now', function (): void {
     ]);
 
     $evaluateOverdueDeployment = $this->app->make(EvaluateSiteDeploymentOverdue::class);
-    $evaluateOverdueDeployment->handle(new ForgeRunSucceeded(Uuid::generate()));
+    $evaluateOverdueDeployment->handle(new SitesCollected());
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
         return $conditionObserved->alertType === AlertType::SITE_DEPLOYMENT_OVERDUE
@@ -59,7 +58,7 @@ test('handle observes an up-to-date site without an overdue deployment now', fun
     ]);
 
     $evaluateOverdueDeployment = $this->app->make(EvaluateSiteDeploymentOverdue::class);
-    $evaluateOverdueDeployment->handle(new ForgeRunSucceeded(Uuid::generate()));
+    $evaluateOverdueDeployment->handle(new SitesCollected());
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
         return $conditionObserved->alertType === AlertType::SITE_DEPLOYMENT_OVERDUE

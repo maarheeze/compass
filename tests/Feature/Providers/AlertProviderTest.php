@@ -21,12 +21,16 @@ use Maarheeze\Compass\Alerts\Listeners\GitHub\EvaluateRepositoryMissing;
 use Maarheeze\Compass\Alerts\Listeners\ObservationHandler;
 use Maarheeze\Compass\Alerts\Listeners\SendAlertNotifications;
 use Maarheeze\Compass\Alerts\Listeners\SiteEndpoint\EvaluateSiteEndpointDown;
-use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
-use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
+use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
+use Maarheeze\Compass\Collector\Events\ComposerLockChanged;
+use Maarheeze\Compass\Collector\Events\DependabotYmlChanged;
+use Maarheeze\Compass\Collector\Events\PackageJsonChanged;
+use Maarheeze\Compass\Collector\Events\RepositoriesCollected;
 use Maarheeze\Compass\Collector\Events\RepositoryMissingIgnored;
 use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Collector\Events\SiteMissingIgnored;
+use Maarheeze\Compass\Collector\Events\SitesCollected;
 
 test('observation handler listens to condition observed', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
@@ -70,10 +74,10 @@ test('evaluate incompatible client listens to site inspected', function (): void
     $eventFake->assertListening(SiteInspected::class, EvaluateSiteClientIncompatible::class);
 });
 
-test('evaluate missing repository listens to github run succeeded', function (): void {
+test('evaluate missing repository listens to repositories collected', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(GitHubRunSucceeded::class, EvaluateRepositoryMissing::class);
+    $eventFake->assertListening(RepositoriesCollected::class, EvaluateRepositoryMissing::class);
 });
 
 test('evaluate missing repository listens to repository missing ignored', function (): void {
@@ -82,28 +86,46 @@ test('evaluate missing repository listens to repository missing ignored', functi
     $eventFake->assertListening(RepositoryMissingIgnored::class, EvaluateRepositoryMissing::class);
 });
 
-test('evaluate composer warning listens to github run succeeded', function (): void {
+test('evaluate composer warning listens to composer json changed', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(GitHubRunSucceeded::class, EvaluateComposerWarning::class);
+    $eventFake->assertListening(ComposerJsonChanged::class, EvaluateComposerWarning::class);
 });
 
-test('evaluate composer minimum stability listens to github run succeeded', function (): void {
+test('evaluate composer warning listens to composer lock changed', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(GitHubRunSucceeded::class, EvaluateComposerMinimumStability::class);
+    $eventFake->assertListening(ComposerLockChanged::class, EvaluateComposerWarning::class);
 });
 
-test('evaluate dependabot coverage listens to github run succeeded', function (): void {
+test('evaluate composer minimum stability listens to composer json changed', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(GitHubRunSucceeded::class, EvaluateDependabotCoverage::class);
+    $eventFake->assertListening(ComposerJsonChanged::class, EvaluateComposerMinimumStability::class);
 });
 
-test('evaluate missing site listens to forge run succeeded', function (): void {
+test('evaluate dependabot coverage listens to composer json changed', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(ForgeRunSucceeded::class, EvaluateSiteMissing::class);
+    $eventFake->assertListening(ComposerJsonChanged::class, EvaluateDependabotCoverage::class);
+});
+
+test('evaluate dependabot coverage listens to dependabot yml changed', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+
+    $eventFake->assertListening(DependabotYmlChanged::class, EvaluateDependabotCoverage::class);
+});
+
+test('evaluate dependabot coverage listens to package json changed', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+
+    $eventFake->assertListening(PackageJsonChanged::class, EvaluateDependabotCoverage::class);
+});
+
+test('evaluate missing site listens to sites collected', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+
+    $eventFake->assertListening(SitesCollected::class, EvaluateSiteMissing::class);
 });
 
 test('evaluate missing site listens to site missing ignored', function (): void {
@@ -112,26 +134,26 @@ test('evaluate missing site listens to site missing ignored', function (): void 
     $eventFake->assertListening(SiteMissingIgnored::class, EvaluateSiteMissing::class);
 });
 
-test('evaluate site behind listens to github run succeeded', function (): void {
+test('evaluate site behind listens to repositories collected', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(GitHubRunSucceeded::class, EvaluateSiteBehind::class);
+    $eventFake->assertListening(RepositoriesCollected::class, EvaluateSiteBehind::class);
 });
 
-test('evaluate site behind listens to forge run succeeded', function (): void {
+test('evaluate site behind listens to sites collected', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(ForgeRunSucceeded::class, EvaluateSiteBehind::class);
+    $eventFake->assertListening(SitesCollected::class, EvaluateSiteBehind::class);
 });
 
-test('evaluate overdue deployment listens to forge run succeeded', function (): void {
+test('evaluate overdue deployment listens to sites collected', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(ForgeRunSucceeded::class, EvaluateSiteDeploymentOverdue::class);
+    $eventFake->assertListening(SitesCollected::class, EvaluateSiteDeploymentOverdue::class);
 });
 
-test('resolve missing site conditions listens to forge run succeeded', function (): void {
+test('resolve missing site conditions listens to sites collected', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(ForgeRunSucceeded::class, ResolveMissingSiteConditions::class);
+    $eventFake->assertListening(SitesCollected::class, ResolveMissingSiteConditions::class);
 });

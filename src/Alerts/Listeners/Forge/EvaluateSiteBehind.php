@@ -12,8 +12,8 @@ use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Analyzer\Forge\DeploymentState;
 use Maarheeze\Compass\Analyzer\Forge\DeploymentStateClassifier;
-use Maarheeze\Compass\Collector\Events\ForgeRunSucceeded;
-use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
+use Maarheeze\Compass\Collector\Events\RepositoriesCollected;
+use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 
@@ -26,7 +26,7 @@ readonly class EvaluateSiteBehind implements ShouldQueue
     ) {
     }
 
-    public function handle(GitHubRunSucceeded|ForgeRunSucceeded $runSucceeded): void
+    public function handle(RepositoriesCollected|SitesCollected $collectedEvent): void
     {
         $observedAt = CarbonImmutable::instance($this->clock->now());
 

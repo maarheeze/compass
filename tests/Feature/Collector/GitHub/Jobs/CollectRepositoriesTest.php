@@ -3,7 +3,10 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Client\Factory as HttpFactory;
+use Illuminate\Support\Testing\Fakes\EventFake;
+use Maarheeze\Compass\Collector\Events\RepositoriesCollected;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectChangedComposerJsons;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectChangedComposerLocks;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectChangedDependabotYmls;
@@ -120,4 +123,29 @@ test('handle refuses a source without a repositories collector', function (): vo
 
     [$collectRepositories] = new CollectRepositories(Uuid::generate(), $key)->withFakeBatch();
     $this->app->call([$collectRepositories, 'handle']);
+});
+
+test('handle raises repositories collected', function (): void {
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+    $this->app->instance(Dispatcher::class, $eventFake);
+    $this->app->make(HttpFactory::class)->fake([
+        '*' => HttpFactory::response([
+            'data' => [
+                'organization' => [
+                    'repositories' => [
+                        'pageInfo' => [
+                            'hasNextPage' => false,
+                            'endCursor' => null,
+                        ],
+                        'nodes' => [],
+                    ],
+                ],
+            ],
+        ]),
+    ]);
+
+    [$collectRepositories] = new CollectRepositories(Uuid::generate(), 'github')->withFakeBatch();
+    $this->app->call([$collectRepositories, 'handle']);
+
+    $eventFake->assertDispatched(RepositoriesCollected::class);
 });

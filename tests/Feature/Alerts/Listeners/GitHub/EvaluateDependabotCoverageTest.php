@@ -9,9 +9,10 @@ use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Listeners\GitHub\EvaluateDependabotCoverage;
-use Maarheeze\Compass\Collector\Events\GitHubRunSucceeded;
+use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
+use Maarheeze\Compass\Collector\Events\DependabotYmlChanged;
+use Maarheeze\Compass\Collector\Events\PackageJsonChanged;
 use Maarheeze\Compass\Models\Repository;
-use Maarheeze\Uuid\Uuid;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
@@ -23,7 +24,11 @@ test('handle observes an uncovered package ecosystem active now', function (): v
     $repository = Repository::factory()->create(['package_json_oid' => fake()->sha1()]);
 
     $evaluateDependabotCoverage = $this->app->make(EvaluateDependabotCoverage::class);
-    $evaluateDependabotCoverage->handle(new GitHubRunSucceeded(Uuid::generate()));
+    $evaluateDependabotCoverage->handle(fake()->randomElement([
+        new ComposerJsonChanged($repository),
+        new DependabotYmlChanged($repository),
+        new PackageJsonChanged($repository),
+    ]));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
         return $conditionObserved->alertType === AlertType::DEPENDABOT_NPM_MISSING
@@ -45,7 +50,11 @@ test('handle observes a package ecosystem the repository does not need resolved 
     ]);
 
     $evaluateDependabotCoverage = $this->app->make(EvaluateDependabotCoverage::class);
-    $evaluateDependabotCoverage->handle(new GitHubRunSucceeded(Uuid::generate()));
+    $evaluateDependabotCoverage->handle(fake()->randomElement([
+        new ComposerJsonChanged($repository),
+        new DependabotYmlChanged($repository),
+        new PackageJsonChanged($repository),
+    ]));
 
     $eventFake->assertDispatched(ConditionObserved::class, static function (ConditionObserved $conditionObserved) use ($alertType, $now, $repository): bool {
         return $conditionObserved->alertType === $alertType
