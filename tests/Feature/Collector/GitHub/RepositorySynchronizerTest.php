@@ -6,7 +6,7 @@ use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\GitHubRepositoryCollection;
 use Maarheeze\Compass\Collector\GitHub\GitHubRepository;
 use Maarheeze\Compass\Collector\GitHub\RepositorySynchronizer;
-use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
+use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Tests\Fixtures\GitHubRepositoryFactory;
 use Maarheeze\Uuid\Uuid;

@@ -18,7 +18,7 @@ use Maarheeze\Compass\Collections\ObservationCollection;
 use Maarheeze\Compass\Collections\PullRequestCollection;
 use Maarheeze\Compass\Collections\RepositoryCollection;
 use Maarheeze\Compass\Collections\SiteCollection;
-use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
+use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
 use Maarheeze\Compass\Database\Factories\RepositoryFactory;
 use Maarheeze\Compass\Models\Builders\RepositoryBuilder;
 use Maarheeze\Compass\Models\Concerns\HasAlerts;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Maarheeze\Compass\Collector\GitHub;
+namespace Maarheeze\Compass\Collector\Repositories;
 
 enum RepositoryVisibility: string
 {

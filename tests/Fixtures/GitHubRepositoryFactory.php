@@ -6,7 +6,7 @@ namespace Maarheeze\Compass\Tests\Fixtures;
 
 use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collector\GitHub\GitHubRepository;
-use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
+use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
 use Maarheeze\Compass\Models\Repository;
 
 use function fake;

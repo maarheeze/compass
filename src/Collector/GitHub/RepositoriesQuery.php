@@ -7,6 +7,7 @@ namespace Maarheeze\Compass\Collector\GitHub;
 use Carbon\CarbonImmutable;
 use Generator;
 use Maarheeze\Compass\Collections\GitHubRepositoryCollection;
+use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
 use Webmozart\Assert\Assert;
 
 readonly class RepositoriesQuery

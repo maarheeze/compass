@@ -7,7 +7,7 @@ use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collections\GitHubRepositoryCollection;
 use Maarheeze\Compass\Collector\GitHub\GitHubQueryFailed;
 use Maarheeze\Compass\Collector\GitHub\RepositoriesQuery;
-use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
+use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
 use Maarheeze\Compass\Tests\Fixtures\GitHubRepositoryFactory;
 
 test('pages are queried at the github graphql api', function (): void {

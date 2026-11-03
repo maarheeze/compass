@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Collector\GitHub;
 
 use Carbon\CarbonImmutable;
+use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
 
 readonly class GitHubRepository
 {
