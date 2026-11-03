@@ -10,11 +10,11 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
+use Maarheeze\Compass\Collector\Dependabot\DependabotFilesCollectorManager;
 use Maarheeze\Compass\Collector\Dependabot\DependabotYmlReader;
 use Maarheeze\Compass\Collector\Dependabot\DependabotYmlSynchronizer;
-use Maarheeze\Compass\Collector\GitHub\BlobQuery;
-use Maarheeze\Compass\Collector\GitHub\GitHubQueryFailed;
 use Maarheeze\Compass\Models\Repository;
 use Symfony\Component\Yaml\Exception\ParseException;
 
@@ -27,20 +27,23 @@ class CollectDependabotYml implements ShouldQueue
 
     public function __construct(
         public readonly Repository $repository,
+        public readonly string $sourceKey,
     ) {
     }
 
     /**
-     * @throws GitHubQueryFailed
+     * @throws CollectingFailed
      * @throws ParseException
      */
     public function handle(
-        BlobQuery $blobQuery,
         CollectorLogger $collectorLogger,
         Context $context,
+        DependabotFilesCollectorManager $dependabotFilesCollectorManager,
         DependabotYmlReader $dependabotYmlReader,
         DependabotYmlSynchronizer $dependabotYmlSynchronizer,
     ): void {
+        $dependabotFilesCollector = $dependabotFilesCollectorManager->collector($this->sourceKey);
+
         $context->add('repository', $this->repository->name);
 
         $oid = $this->repository->dependabot_yml_oid;
@@ -53,7 +56,9 @@ class CollectDependabotYml implements ShouldQueue
             return;
         }
 
-        $packageEcosystems = $dependabotYmlReader->packageEcosystems($blobQuery->text($this->repository->name, $oid));
+        $packageEcosystems = $dependabotYmlReader->packageEcosystems(
+            $dependabotFilesCollector->content($this->repository->name, $oid),
+        );
         $dependabotYmlSynchronizer->store($this->repository, $oid, $packageEcosystems);
 
         $collectorLogger->debug('Dependabot yml collected');

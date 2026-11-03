@@ -19,7 +19,10 @@ test('handle adds collect dependabot yml when its oid differs from the collected
         'oid' => fake()->unique()->sha1(),
     ]);
 
-    [$collectChangedDependabotYmls, $batchFake] = new CollectChangedDependabotYmls($runId)->withFakeBatch();
+    [$collectChangedDependabotYmls, $batchFake] = new CollectChangedDependabotYmls(
+        $runId,
+        fake()->slug(),
+    )->withFakeBatch();
     $this->app->call([$collectChangedDependabotYmls, 'handle']);
 
     $addedRepositoryIds = array_map(
@@ -41,7 +44,10 @@ test('handle adds collect dependabot yml when the dependabot yml is gone', funct
     ]);
     DependabotYml::factory()->create(['repository_id' => $repository->id]);
 
-    [$collectChangedDependabotYmls, $batchFake] = new CollectChangedDependabotYmls($runId)->withFakeBatch();
+    [$collectChangedDependabotYmls, $batchFake] = new CollectChangedDependabotYmls(
+        $runId,
+        fake()->slug(),
+    )->withFakeBatch();
     $this->app->call([$collectChangedDependabotYmls, 'handle']);
 
     $addedRepositoryIds = array_map(
@@ -66,7 +72,10 @@ test('handle does not add collect dependabot yml when its oid is the collected o
         'oid' => $repository->dependabot_yml_oid,
     ]);
 
-    [$collectChangedDependabotYmls, $batchFake] = new CollectChangedDependabotYmls($runId)->withFakeBatch();
+    [$collectChangedDependabotYmls, $batchFake] = new CollectChangedDependabotYmls(
+        $runId,
+        fake()->slug(),
+    )->withFakeBatch();
     $this->app->call([$collectChangedDependabotYmls, 'handle']);
 
     expect($batchFake->added)
@@ -80,7 +89,10 @@ test('handle does not add collect dependabot yml for a repository without one', 
         'dependabot_yml_oid' => null,
     ]);
 
-    [$collectChangedDependabotYmls, $batchFake] = new CollectChangedDependabotYmls($runId)->withFakeBatch();
+    [$collectChangedDependabotYmls, $batchFake] = new CollectChangedDependabotYmls(
+        $runId,
+        fake()->slug(),
+    )->withFakeBatch();
     $this->app->call([$collectChangedDependabotYmls, 'handle']);
 
     expect($batchFake->added)
@@ -93,9 +105,27 @@ test('handle ignores repositories of another run', function (): void {
         'dependabot_yml_oid' => fake()->sha1(),
     ]);
 
-    [$collectChangedDependabotYmls, $batchFake] = new CollectChangedDependabotYmls(Uuid::generate())->withFakeBatch();
+    [$collectChangedDependabotYmls, $batchFake] = new CollectChangedDependabotYmls(
+        Uuid::generate(),
+        fake()->slug(),
+    )->withFakeBatch();
     $this->app->call([$collectChangedDependabotYmls, 'handle']);
 
     expect($batchFake->added)
         ->toBeEmpty();
+});
+
+test('handle adds collect dependabot yml for the source of its run', function (): void {
+    $runId = Uuid::generate();
+    $sourceKey = fake()->slug();
+    Repository::factory()->create([
+        'run_id' => $runId,
+        'dependabot_yml_oid' => fake()->sha1(),
+    ]);
+
+    [$collectChangedDependabotYmls, $batchFake] = new CollectChangedDependabotYmls($runId, $sourceKey)->withFakeBatch();
+    $this->app->call([$collectChangedDependabotYmls, 'handle']);
+
+    expect($batchFake->added[0]->sourceKey)
+        ->toBe($sourceKey);
 });

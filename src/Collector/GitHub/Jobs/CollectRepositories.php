@@ -56,7 +56,7 @@ class CollectRepositories implements ShouldQueue
             ->add([
                 new CollectChangedComposerJsons($this->runId, $this->sourceKey),
                 new CollectChangedComposerLocks($this->runId, $this->sourceKey),
-                new CollectChangedDependabotYmls($this->runId),
+                new CollectChangedDependabotYmls($this->runId, $this->sourceKey),
             ]);
     }
 }

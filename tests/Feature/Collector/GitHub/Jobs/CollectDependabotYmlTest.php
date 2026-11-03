@@ -26,7 +26,7 @@ test('handle queries the blob of the current dependabot yml oid', function (): v
         ]),
     ]);
 
-    $collectDependabotYml = new CollectDependabotYml($repository);
+    $collectDependabotYml = new CollectDependabotYml($repository, 'github');
     $this->app->call([$collectDependabotYml, 'handle']);
 
     $http->assertSent(static function (HttpRequest $request) use ($repository): bool {
@@ -61,7 +61,7 @@ test('handle stores the package ecosystems of the dependabot yml with its oid', 
         ]),
     ]);
 
-    $collectDependabotYml = new CollectDependabotYml($repository);
+    $collectDependabotYml = new CollectDependabotYml($repository, 'github');
     $this->app->call([$collectDependabotYml, 'handle']);
 
     $this->assertDatabaseHas(DependabotYml::class, [
@@ -75,7 +75,7 @@ test('handle removes the dependabot yml when the repository no longer has one', 
     $repository = Repository::factory()->create(['dependabot_yml_oid' => null]);
     $dependabotYml = DependabotYml::factory()->create(['repository_id' => $repository->id]);
 
-    $collectDependabotYml = new CollectDependabotYml($repository);
+    $collectDependabotYml = new CollectDependabotYml($repository, 'github');
     $this->app->call([$collectDependabotYml, 'handle']);
 
     $this->assertDatabaseMissing(DependabotYml::class, ['id' => $dependabotYml->id]);
@@ -84,9 +84,24 @@ test('handle removes the dependabot yml when the repository no longer has one', 
 test('handle adds the repository to the log context', function (): void {
     $repository = Repository::factory()->create(['dependabot_yml_oid' => null]);
 
-    $collectDependabotYml = new CollectDependabotYml($repository);
+    $collectDependabotYml = new CollectDependabotYml($repository, 'github');
     $this->app->call([$collectDependabotYml, 'handle']);
 
     expect($this->app->make(Context::class)->get('repository'))
         ->toBe($repository->name);
+});
+
+test('handle refuses a source without a Dependabot files collector', function (): void {
+    $key = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $key => [
+            'driver' => fake()->slug(),
+        ],
+    ]);
+    $repository = Repository::factory()->create();
+
+    $this->expectException(InvalidArgumentException::class);
+
+    $collectDependabotYml = new CollectDependabotYml($repository, $key);
+    $this->app->call([$collectDependabotYml, 'handle']);
 });

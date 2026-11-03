@@ -8,6 +8,7 @@ use Illuminate\Support\ServiceProvider;
 use Maarheeze\Compass\Collector\CollectorRegistry;
 use Maarheeze\Compass\Collector\CollectorType;
 use Maarheeze\Compass\Collector\Composer\ComposerFilesCollectorManager;
+use Maarheeze\Compass\Collector\Dependabot\DependabotFilesCollectorManager;
 use Maarheeze\Compass\Collector\Forge\Jobs\CollectSites;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectIssues;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectPullRequests;
@@ -29,6 +30,7 @@ class CollectorProvider extends ServiceProvider
     {
         $this->app->singleton(CollectorRegistry::class);
         $this->app->singleton(ComposerFilesCollectorManager::class);
+        $this->app->singleton(DependabotFilesCollectorManager::class);
         $this->app->singleton(RepositoriesCollectorManager::class);
         $this->app->singleton(SitesCollectorManager::class);
     }
