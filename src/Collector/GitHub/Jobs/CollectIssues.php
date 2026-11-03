@@ -33,7 +33,7 @@ class CollectIssues implements ShouldQueue
         IssuesAndPullRequestsQuery $issuesAndPullRequestsQuery,
         IssueSynchronizer $issueSynchronizer,
     ): void {
-        $collectorLogger->info('Issues collection started');
+        $collectorLogger->info('Issues collector started');
 
         foreach ($issuesAndPullRequestsQuery->pages() as $issuesAndPullRequestsQueryResult) {
             $issueSynchronizer->storeIssues($issuesAndPullRequestsQueryResult->gitHubIssues, $this->runId);
@@ -45,6 +45,6 @@ class CollectIssues implements ShouldQueue
 
         $issueSynchronizer->deleteUncollected($this->runId);
 
-        $collectorLogger->info('Issues collection ended');
+        $collectorLogger->info('Issues collector ended');
     }
 }

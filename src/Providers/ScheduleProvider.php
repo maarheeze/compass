@@ -24,13 +24,13 @@ class ScheduleProvider extends ServiceProvider
         });
     }
 
-    private function scheduleCollection(
+    private function scheduleCollector(
         Schedule $schedule,
         string $sourceKey,
-        string $collection,
+        string $collector,
         ScheduleFrequency $scheduleFrequency,
     ): void {
-        $event = $schedule->command(CollectCommand::SIGNATURE, [$sourceKey, $collection]);
+        $event = $schedule->command(CollectCommand::SIGNATURE, [$sourceKey, $collector]);
 
         match ($scheduleFrequency) {
             ScheduleFrequency::EVERY_FIVE_MINUTES => $event->everyFiveMinutes(),
@@ -51,10 +51,10 @@ class ScheduleProvider extends ServiceProvider
             return;
         }
 
-        foreach (Assert::isMap($sourceConfig['schedule']) as $collection => $scheduleFrequency) {
+        foreach (Assert::isMap($sourceConfig['schedule']) as $collector => $scheduleFrequency) {
             Assert::isInstanceOf($scheduleFrequency, ScheduleFrequency::class);
 
-            $this->scheduleCollection($schedule, $sourceKey, $collection, $scheduleFrequency);
+            $this->scheduleCollector($schedule, $sourceKey, $collector, $scheduleFrequency);
         }
     }
 }

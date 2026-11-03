@@ -36,7 +36,7 @@ class CollectSites implements ShouldQueue
         SitesQuery $sitesQuery,
         SiteSynchronizer $siteSynchronizer,
     ): void {
-        $collectorLogger->info('Sites collection started');
+        $collectorLogger->info('Sites collector started');
 
         foreach ($sitesQuery->pages() as $sitesQueryResult) {
             $siteSynchronizer->storeSites(
@@ -51,7 +51,7 @@ class CollectSites implements ShouldQueue
 
         $siteSynchronizer->markUncollectedMissing($this->runId);
 
-        $collectorLogger->info('Sites collection ended');
+        $collectorLogger->info('Sites collector ended');
 
         Assert::isInstanceOf($this->batch(), Batch::class)->add([new InspectSites()]);
     }

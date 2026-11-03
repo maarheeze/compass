@@ -33,7 +33,7 @@ class CollectPullRequests implements ShouldQueue
         IssuesAndPullRequestsQuery $issuesAndPullRequestsQuery,
         PullRequestSynchronizer $pullRequestSynchronizer,
     ): void {
-        $collectorLogger->info('Pull requests collection started');
+        $collectorLogger->info('Pull requests collector started');
 
         foreach ($issuesAndPullRequestsQuery->pages() as $issuesAndPullRequestsQueryResult) {
             $pullRequestSynchronizer->storePullRequests(
@@ -48,6 +48,6 @@ class CollectPullRequests implements ShouldQueue
 
         $pullRequestSynchronizer->deleteUncollected($this->runId);
 
-        $collectorLogger->info('Pull requests collection ended');
+        $collectorLogger->info('Pull requests collector ended');
     }
 }

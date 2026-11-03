@@ -24,6 +24,7 @@ use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Providers\AlertProvider;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 use Maarheeze\Compass\Providers\ClientProvider;
+use Maarheeze\Compass\Providers\CollectorProvider;
 use Maarheeze\Compass\Providers\ScheduleProvider;
 use Maarheeze\Compass\Providers\SourceProvider;
 use Psr\Clock\ClockInterface;
@@ -54,6 +55,7 @@ class CompassServiceProvider extends ServiceProvider
         $this->app->register(AlertProvider::class);
         $this->app->register(AuthenticationProvider::class);
         $this->app->register(ClientProvider::class);
+        $this->app->register(CollectorProvider::class);
         $this->app->register(ScheduleProvider::class);
         $this->app->register(SourceProvider::class);
     }

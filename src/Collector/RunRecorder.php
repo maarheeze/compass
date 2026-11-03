@@ -9,7 +9,6 @@ use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\PendingChain;
 use Illuminate\Log\Context\Repository as Context;
-use Maarheeze\Compass\Collector\Events\RunSucceeded;
 use Maarheeze\Compass\Collector\Jobs\FinishRun;
 use Maarheeze\Compass\Models\Run;
 use Maarheeze\Uuid\Uuid;
@@ -27,14 +26,13 @@ readonly class RunRecorder
     public function start(
         Uuid $runId,
         Source $source,
-        CollectionType $collectionType,
+        CollectorType $collectorType,
         ShouldQueue $firstJob,
-        RunSucceeded $runSucceeded,
     ): void {
         Run::query()->create([
             'id' => $runId,
             'source' => $source->key,
-            'collection' => $collectionType,
+            'collector' => $collectorType,
             'status' => RunStatus::QUEUED,
         ]);
 
@@ -50,19 +48,19 @@ readonly class RunRecorder
                     ]);
             });
         $pendingChain = Assert::isInstanceOf(
-            $this->dispatcher->chain([$pendingBatch, new FinishRun($runId, $runSucceeded)]),
+            $this->dispatcher->chain([$pendingBatch, new FinishRun($runId)]),
             PendingChain::class,
         );
 
         $collectorLogger = $this->collectorLogger;
 
         $this->context->scope(
-            static function () use ($collectionType, $collectorLogger, $pendingChain, $source): void {
+            static function () use ($collectorType, $collectorLogger, $pendingChain, $source): void {
                 $pendingChain->dispatch();
 
                 $collectorLogger->info('Run started', [
                     'source' => $source->key,
-                    'collection' => $collectionType->value,
+                    'collector' => $collectorType->value,
                 ]);
             },
             ['run_id' => $runId->toString()],

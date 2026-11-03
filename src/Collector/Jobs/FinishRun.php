@@ -8,10 +8,8 @@ use Carbon\CarbonImmutable;
 use Illuminate\Bus\Batch;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
-use Maarheeze\Compass\Collector\Events\RunSucceeded;
 use Maarheeze\Compass\Collector\RunStatus;
 use Maarheeze\Compass\Models\Run;
 use Maarheeze\Uuid\Uuid;
@@ -24,11 +22,10 @@ class FinishRun implements ShouldQueue
 
     public function __construct(
         public readonly Uuid $runId,
-        public readonly RunSucceeded $runSucceeded,
     ) {
     }
 
-    public function handle(QueueingDispatcher $dispatcher, Dispatcher $events): void
+    public function handle(QueueingDispatcher $dispatcher): void
     {
         $run = Run::query()
             ->whereKey($this->runId)
@@ -40,11 +37,5 @@ class FinishRun implements ShouldQueue
             'finished_at' => CarbonImmutable::now(),
             'failed_job_count' => $batch->failedJobs,
         ]);
-
-        if ($run->status !== RunStatus::SUCCEEDED) {
-            return;
-        }
-
-        $events->dispatch($this->runSucceeded);
     }
 }

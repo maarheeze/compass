@@ -14,7 +14,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
 
             $table->string('source');
-            $table->string('collection');
+            $table->string('collector');
             $table->string('status');
             $table->string('batch_id')->nullable();
             $table->timestamp('finished_at')->nullable();

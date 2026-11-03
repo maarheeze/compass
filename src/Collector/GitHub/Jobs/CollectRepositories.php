@@ -35,7 +35,7 @@ class CollectRepositories implements ShouldQueue
         RepositoriesQuery $repositoriesQuery,
         RepositorySynchronizer $repositorySynchronizer,
     ): void {
-        $collectorLogger->info('Repositories collection started');
+        $collectorLogger->info('Repositories collector started');
 
         foreach ($repositoriesQuery->pages() as $repositoriesQueryResult) {
             $repositorySynchronizer->storeRepositories(
@@ -50,7 +50,7 @@ class CollectRepositories implements ShouldQueue
 
         $repositorySynchronizer->markUncollectedMissing($this->runId);
 
-        $collectorLogger->info('Repositories collection ended');
+        $collectorLogger->info('Repositories collector ended');
 
         Assert::isInstanceOf($this->batch(), Batch::class)
             ->add([

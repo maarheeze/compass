@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Maarheeze\Compass\Collections\RunCollection;
 use Maarheeze\Compass\Collections\RunFailureCollection;
-use Maarheeze\Compass\Collector\CollectionType;
+use Maarheeze\Compass\Collector\CollectorType;
 use Maarheeze\Compass\Collector\RunStatus;
 use Maarheeze\Compass\Database\Factories\RunFactory;
 use Maarheeze\Compass\Models\Builders\RunBuilder;
@@ -21,7 +21,7 @@ use Maarheeze\Uuid\Uuid;
 
 /**
  * @property ?string $batch_id
- * @property CollectionType $collection
+ * @property CollectorType $collector
  * @property CarbonImmutable $created_at
  * @property ?int $failed_job_count
  * @property ?CarbonImmutable $finished_at
@@ -52,7 +52,7 @@ class Run extends Model
     {
         return [
             'batch_id',
-            'collection',
+            'collector',
             'failed_job_count',
             'finished_at',
             'id',
@@ -80,7 +80,7 @@ class Run extends Model
     protected function casts(): array
     {
         return [
-            'collection' => CollectionType::class,
+            'collector' => CollectorType::class,
             'created_at' => 'immutable_datetime',
             'failed_job_count' => 'integer',
             'finished_at' => 'immutable_datetime',

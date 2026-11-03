@@ -24,7 +24,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | The log channel the collector writes what it did to: an info line when
-    | a collection starts and ends, a debug line per page, composer file,
+    | a collector starts and ends, a debug line per page, composer file,
     | site and endpoint.
     | Null writes to the default channel of the application.
     |
@@ -104,7 +104,7 @@ return [
     |
     | The sources Compass collects from, by name: each names its driver and
     | the settings that driver needs, and under "schedule" how often the
-    | scheduler collects each collection. A collection left out is not
+    | scheduler runs each collector. A collector left out is not
     | scheduled, but still runs when started by hand.
     |
     */

@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Collection;
-use Maarheeze\Compass\Collector\CollectionType;
+use Maarheeze\Compass\Collector\CollectorType;
 use Maarheeze\Compass\Collector\ScheduleFrequency;
 use Maarheeze\Compass\Console\CollectCommand;
 
-test('a collection of a source is scheduled as a collect command of that source and collection', function (): void {
+test('a collector of a source is scheduled as a collect command of that source and collector', function (): void {
     $sourceKey = fake()->slug();
-    $collection = fake()->randomElement(CollectionType::cases())->value;
+    $collector = fake()->randomElement(CollectorType::cases())->value;
     $this->setConfiguration('compass.sources', [
         $sourceKey => [
             'schedule' => [
-                $collection => fake()->randomElement(ScheduleFrequency::cases()),
+                $collector => fake()->randomElement(ScheduleFrequency::cases()),
             ],
         ],
     ]);
@@ -23,20 +23,20 @@ test('a collection of a source is scheduled as a collect command of that source 
     $scheduledEvent = new Collection($schedule->events())->sole();
 
     expect($scheduledEvent->command)
-        ->toEndWith(sprintf("%s '%s' '%s'", CollectCommand::SIGNATURE, $sourceKey, $collection));
+        ->toEndWith(sprintf("%s '%s' '%s'", CollectCommand::SIGNATURE, $sourceKey, $collector));
 });
 
-test('each collection in the schedule of each source is scheduled', function (): void {
+test('each collector in the schedule of each source is scheduled', function (): void {
     $this->setConfiguration('compass.sources', [
         fake()->unique()->slug() => [
             'schedule' => [
-                CollectionType::REPOSITORIES->value => fake()->randomElement(ScheduleFrequency::cases()),
-                CollectionType::PULL_REQUESTS->value => fake()->randomElement(ScheduleFrequency::cases()),
+                CollectorType::REPOSITORIES->value => fake()->randomElement(ScheduleFrequency::cases()),
+                CollectorType::PULL_REQUESTS->value => fake()->randomElement(ScheduleFrequency::cases()),
             ],
         ],
         fake()->unique()->slug() => [
             'schedule' => [
-                CollectionType::SITES->value => fake()->randomElement(ScheduleFrequency::cases()),
+                CollectorType::SITES->value => fake()->randomElement(ScheduleFrequency::cases()),
             ],
         ],
     ]);
@@ -69,7 +69,7 @@ test('a frequency is scheduled at its cron expression', function (
     $this->setConfiguration('compass.sources', [
         fake()->slug() => [
             'schedule' => [
-                fake()->randomElement(CollectionType::cases())->value => $scheduleFrequency,
+                fake()->randomElement(CollectorType::cases())->value => $scheduleFrequency,
             ],
         ],
     ]);
