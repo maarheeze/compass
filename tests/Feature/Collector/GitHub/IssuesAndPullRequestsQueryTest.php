@@ -5,12 +5,12 @@ declare(strict_types=1);
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collections\CollectedIssueCollection;
-use Maarheeze\Compass\Collections\GitHubPullRequestCollection;
+use Maarheeze\Compass\Collections\CollectedPullRequestCollection;
 use Maarheeze\Compass\Collector\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\GitHub\GitHubQueryFailed;
 use Maarheeze\Compass\Collector\GitHub\IssuesAndPullRequestsQuery;
 use Maarheeze\Compass\Tests\Fixtures\CollectedIssueFactory;
-use Maarheeze\Compass\Tests\Fixtures\GitHubPullRequestFactory;
+use Maarheeze\Compass\Tests\Fixtures\CollectedPullRequestFactory;
 
 test('pages query the first page of the open issues of the organization', function (): void {
     $organization = fake()->slug();
@@ -89,26 +89,26 @@ test('pages hold the collected issues in the response', function (): void {
         ->toEqual(new CollectedIssueCollection([$collectedIssue]));
 });
 
-test('pages hold the github pull requests in the response', function (): void {
-    $gitHubPullRequest = GitHubPullRequestFactory::make();
+test('pages hold the collected pull requests in the response', function (): void {
+    $collectedPullRequest = CollectedPullRequestFactory::make();
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             [
-                'node_id' => $gitHubPullRequest->gitHubId,
+                'node_id' => $collectedPullRequest->externalId,
                 'repository' => [
-                    'name' => $gitHubPullRequest->repositoryName,
+                    'name' => $collectedPullRequest->repositoryName,
                 ],
-                'number' => $gitHubPullRequest->number,
-                'title' => $gitHubPullRequest->title,
-                'html_url' => $gitHubPullRequest->url,
+                'number' => $collectedPullRequest->number,
+                'title' => $collectedPullRequest->title,
+                'html_url' => $collectedPullRequest->url,
                 'user' => [
-                    'login' => $gitHubPullRequest->authorLogin,
+                    'login' => $collectedPullRequest->authorLogin,
                 ],
-                'draft' => $gitHubPullRequest->isDraft,
-                'created_at' => $gitHubPullRequest->openedAt->toIso8601String(),
+                'draft' => $collectedPullRequest->isDraft,
+                'created_at' => $collectedPullRequest->openedAt->toIso8601String(),
                 'assignees' => [
                     [
-                        'login' => $gitHubPullRequest->assigneeLogins[0],
+                        'login' => $collectedPullRequest->assigneeLogins[0],
                     ],
                 ],
                 'pull_request' => [
@@ -124,8 +124,8 @@ test('pages hold the github pull requests in the response', function (): void {
     );
     $issuesAndPullRequestsQueryResult = $issuesAndPullRequestsQuery->pages()->current();
 
-    expect($issuesAndPullRequestsQueryResult->gitHubPullRequests)
-        ->toEqual(new GitHubPullRequestCollection([$gitHubPullRequest]));
+    expect($issuesAndPullRequestsQueryResult->collectedPullRequests)
+        ->toEqual(new CollectedPullRequestCollection([$collectedPullRequest]));
 });
 
 test('pages hold no author login for an issue without a user', function (): void {

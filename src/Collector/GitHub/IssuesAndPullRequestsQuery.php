@@ -8,8 +8,9 @@ use Carbon\CarbonImmutable;
 use Generator;
 use Illuminate\Http\Client\Response;
 use Maarheeze\Compass\Collections\CollectedIssueCollection;
-use Maarheeze\Compass\Collections\GitHubPullRequestCollection;
+use Maarheeze\Compass\Collections\CollectedPullRequestCollection;
 use Maarheeze\Compass\Collector\Issues\CollectedIssue;
+use Maarheeze\Compass\Collector\PullRequests\CollectedPullRequest;
 use Webmozart\Assert\Assert;
 
 use function array_key_exists;
@@ -91,9 +92,9 @@ readonly class IssuesAndPullRequestsQuery
     /**
      * @param array<mixed> $issueResponse
      */
-    private function getGitHubPullRequest(array $issueResponse): GitHubPullRequest
+    private function getCollectedPullRequest(array $issueResponse): CollectedPullRequest
     {
-        return new GitHubPullRequest(
+        return new CollectedPullRequest(
             Assert::string($issueResponse['node_id']),
             $this->getRepositoryName($issueResponse),
             Assert::integer($issueResponse['number']),
@@ -113,13 +114,13 @@ readonly class IssuesAndPullRequestsQuery
     {
         $response = $this->gitHubClient->get($this->getPageUrl($pageUrl));
         $collectedIssues = new CollectedIssueCollection();
-        $gitHubPullRequests = new GitHubPullRequestCollection();
+        $collectedPullRequests = new CollectedPullRequestCollection();
 
         foreach (Assert::isList($response->json()) as $issueResponse) {
             Assert::isArray($issueResponse);
 
             if (array_key_exists('pull_request', $issueResponse)) {
-                $gitHubPullRequests->push($this->getGitHubPullRequest($issueResponse));
+                $collectedPullRequests->push($this->getCollectedPullRequest($issueResponse));
             } else {
                 $collectedIssues->push($this->getCollectedIssue($issueResponse));
             }
@@ -127,7 +128,7 @@ readonly class IssuesAndPullRequestsQuery
 
         return new IssuesAndPullRequestsQueryResult(
             $collectedIssues,
-            $gitHubPullRequests,
+            $collectedPullRequests,
             $this->getNextPageUrl($response),
         );
     }
