@@ -13,7 +13,7 @@ test('get is sent to the forge api at its path', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response([])]);
 
-    $forgeClient = $this->app->make(ForgeClient::class);
+    $forgeClient = new ForgeClient($http, fake()->sha1());
     $forgeClient->get($path, []);
 
     $http->assertSent(static function (HttpRequest $request) use ($path): bool {
@@ -27,12 +27,11 @@ test('get is sent to the forge api at its path', function (): void {
 
 test('get is sent with the forge token', function (): void {
     $token = fake()->sha1();
-    $this->setConfiguration('compass.forge.token', $token);
 
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response([])]);
 
-    $forgeClient = $this->app->make(ForgeClient::class);
+    $forgeClient = new ForgeClient($http, $token);
     $forgeClient->get(fake()->slug(), []);
 
     $http->assertSent(static function (HttpRequest $request) use ($token): bool {
@@ -46,7 +45,7 @@ test('get is sent with its query', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response([])]);
 
-    $forgeClient = $this->app->make(ForgeClient::class);
+    $forgeClient = new ForgeClient($http, fake()->sha1());
     $forgeClient->get(fake()->slug(), $query);
 
     $http->assertSent(static function (HttpRequest $request) use ($query): bool {
@@ -57,13 +56,13 @@ test('get is sent with its query', function (): void {
 test('get throws when forge refuses the request', function (): void {
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, 401)]);
 
-    $forgeClient = $this->app->make(ForgeClient::class);
+    $forgeClient = new ForgeClient($this->app->make(HttpFactory::class), fake()->sha1());
     $forgeClient->get(fake()->slug(), []);
 })->throws(ForgeRequestFailed::class);
 
 test('get throws when forge cannot be reached', function (): void {
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::failedConnection()]);
 
-    $forgeClient = $this->app->make(ForgeClient::class);
+    $forgeClient = new ForgeClient($this->app->make(HttpFactory::class), fake()->sha1());
     $forgeClient->get(fake()->slug(), []);
 })->throws(ForgeRequestFailed::class);

@@ -52,13 +52,11 @@ class SourceManager
     {
         Assert::keyExists($sourceConfig, 'organization');
         Assert::keyExists($sourceConfig, 'token');
-        Assert::keyExists($sourceConfig, 'server_name_prefix');
         Assert::keyExists($sourceConfig, 'auto_deploy_grace_minutes');
 
         return new ForgeDriver(
             Assert::stringNotEmpty($sourceConfig['organization']),
             Assert::stringNotEmpty($sourceConfig['token']),
-            Assert::string($sourceConfig['server_name_prefix']),
             (int) Assert::integerish($sourceConfig['auto_deploy_grace_minutes']),
         );
     }

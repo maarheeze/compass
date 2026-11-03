@@ -11,7 +11,6 @@ readonly class ForgeDriver implements CollectorDriver
     public function __construct(
         public string $organization,
         public string $token,
-        public string $serverNamePrefix,
         public int $autoDeployGraceMinutes,
     ) {
     }

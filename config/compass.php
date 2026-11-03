@@ -124,7 +124,6 @@ return [
             'driver' => 'forge',
             'organization' => env('COMPASS_FORGE_ORGANIZATION'),
             'token' => env('COMPASS_FORGE_TOKEN'),
-            'server_name_prefix' => env('COMPASS_FORGE_SERVER_NAME_PREFIX', ''),
             'auto_deploy_grace_minutes' => env('COMPASS_FORGE_AUTO_DEPLOY_GRACE_MINUTES', 5),
             'schedule' => [
                 'sites' => ScheduleFrequency::HOURLY,

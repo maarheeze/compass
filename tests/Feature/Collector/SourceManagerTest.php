@@ -27,18 +27,16 @@ test('source is a github source with the organization and token of its config', 
         ->toEqual(new Source($key, new GitHubDriver($organization, $token)));
 });
 
-test('source is a forge source with the organization, token, server name prefix and grace minutes of its config', function (): void {
+test('source is a forge source with the organization, token and grace minutes of its config', function (): void {
     $key = fake()->slug();
     $organization = fake()->slug();
     $token = fake()->sha1();
-    $serverNamePrefix = fake()->slug();
     $autoDeployGraceMinutes = fake()->numberBetween(1, 60);
     $this->setConfiguration('compass.sources', [
         $key => [
             'driver' => 'forge',
             'organization' => $organization,
             'token' => $token,
-            'server_name_prefix' => $serverNamePrefix,
             'auto_deploy_grace_minutes' => $autoDeployGraceMinutes,
         ],
     ]);
@@ -50,7 +48,6 @@ test('source is a forge source with the organization, token, server name prefix 
         ->toEqual(new Source($key, new ForgeDriver(
             $organization,
             $token,
-            $serverNamePrefix,
             $autoDeployGraceMinutes,
         )));
 });
@@ -63,7 +60,6 @@ test('source reads the grace minutes of a forge source given as a string from th
             'driver' => 'forge',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
-            'server_name_prefix' => fake()->slug(),
             'auto_deploy_grace_minutes' => sprintf('%d', $autoDeployGraceMinutes),
         ],
     ]);
@@ -222,23 +218,12 @@ test('source refuses a source with a setting its driver needs missing or wrong',
             ];
         },
     ],
-    'forge without a server name prefix' => [
-        function (): array {
-            return [
-                'driver' => 'forge',
-                'organization' => fake()->slug(),
-                'token' => fake()->sha1(),
-                'auto_deploy_grace_minutes' => fake()->numberBetween(1, 60),
-            ];
-        },
-    ],
     'forge with grace minutes that are not a number' => [
         function (): array {
             return [
                 'driver' => 'forge',
                 'organization' => fake()->slug(),
                 'token' => fake()->sha1(),
-                'server_name_prefix' => fake()->slug(),
                 'auto_deploy_grace_minutes' => fake()->word(),
             ];
         },
