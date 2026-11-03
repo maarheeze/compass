@@ -10,10 +10,10 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Maarheeze\Compass\Collector\Client\Jobs\InspectSites;
+use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
-use Maarheeze\Compass\Collector\Forge\ForgeRequestFailed;
-use Maarheeze\Compass\Collector\Forge\SitesQuery;
 use Maarheeze\Compass\Collector\Forge\SiteSynchronizer;
+use Maarheeze\Compass\Collector\Sites\SitesCollectorManager;
 use Maarheeze\Uuid\Uuid;
 use Webmozart\Assert\Assert;
 
@@ -25,27 +25,27 @@ class CollectSites implements ShouldQueue
 
     public function __construct(
         private readonly Uuid $runId,
+        private readonly string $sourceKey,
     ) {
     }
 
     /**
-     * @throws ForgeRequestFailed
+     * @throws CollectingFailed
      */
     public function handle(
         CollectorLogger $collectorLogger,
-        SitesQuery $sitesQuery,
+        SitesCollectorManager $sitesCollectorManager,
         SiteSynchronizer $siteSynchronizer,
     ): void {
+        $sitesCollector = $sitesCollectorManager->collector($this->sourceKey);
+
         $collectorLogger->info('Sites collector started');
 
-        foreach ($sitesQuery->pages() as $sitesQueryResult) {
-            $siteSynchronizer->storeSites(
-                $sitesQueryResult->forgeSites,
-                $this->runId,
-            );
+        foreach ($sitesCollector->sites() as $collectedSites) {
+            $siteSynchronizer->storeSites($collectedSites, $this->runId);
 
             $collectorLogger->debug('Sites page collected', [
-                'site_count' => $sitesQueryResult->forgeSites->count(),
+                'site_count' => $collectedSites->count(),
             ]);
         }
 

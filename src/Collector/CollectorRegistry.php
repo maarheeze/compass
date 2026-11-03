@@ -14,9 +14,9 @@ class CollectorRegistry
      */
     private array $jobClasses = [];
 
-    public function job(CollectorType $collectorType, Uuid $runId): ShouldQueue
+    public function job(CollectorType $collectorType, Uuid $runId, string $sourceKey): ShouldQueue
     {
-        return new $this->jobClasses[$collectorType->value]($runId);
+        return new $this->jobClasses[$collectorType->value]($runId, $sourceKey);
     }
 
     /**

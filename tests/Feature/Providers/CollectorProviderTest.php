@@ -16,7 +16,7 @@ test('the job of each collector type is registered', function (
 ): void {
     $collectorRegistry = $this->app->make(CollectorRegistry::class);
 
-    expect($collectorRegistry->job($collectorType, Uuid::generate()))
+    expect($collectorRegistry->job($collectorType, Uuid::generate(), fake()->slug()))
         ->toBeInstanceOf($jobClass);
 })->with([
     'issues' => [CollectorType::ISSUES, CollectIssues::class],

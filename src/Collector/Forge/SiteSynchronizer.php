@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Collector\Forge;
 
 use Carbon\CarbonImmutable;
-use Maarheeze\Compass\Collections\ForgeSiteCollection;
+use Maarheeze\Compass\Collections\CollectedSiteCollection;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Uuid\Uuid;
 
@@ -19,28 +19,25 @@ readonly class SiteSynchronizer
             ->update(['missing_at' => CarbonImmutable::now()]);
     }
 
-    public function storeSites(ForgeSiteCollection $forgeSites, Uuid $runId): void
+    public function storeSites(CollectedSiteCollection $collectedSites, Uuid $runId): void
     {
         $siteValues = [];
 
-        foreach ($forgeSites as $forgeSite) {
+        foreach ($collectedSites as $collectedSite) {
             $siteValues[] = [
-                'forge_id' => $forgeSite->forgeId,
-                'name' => $forgeSite->name,
-                'url' => $forgeSite->url,
-                'status' => $forgeSite->status,
-                'php_version' => $forgeSite->phpVersion,
-                'repository_url' => $forgeSite->repositoryUrl,
-                'repository_branch' => $forgeSite->repositoryBranch,
-                'auto_deploy' => $forgeSite->autoDeploy,
-                'server_name' => $forgeSite->serverName,
-                'server_slug' => $forgeSite->serverSlug,
-                'server_ip_address' => $forgeSite->serverIpAddress,
-                'deployment_status' => $forgeSite->latestDeployment?->status,
-                'deployed_commit_hash' => $forgeSite->latestDeployment?->commitHash,
-                'deployed_commit_message' => $forgeSite->latestDeployment?->commitMessage,
-                'deployment_started_at' => $forgeSite->latestDeployment?->startedAt,
-                'deployment_ended_at' => $forgeSite->latestDeployment?->endedAt,
+                'forge_id' => $collectedSite->externalId,
+                'name' => $collectedSite->name,
+                'url' => $collectedSite->url,
+                'php_version' => $collectedSite->phpVersion,
+                'repository_url' => $collectedSite->repositoryUrl,
+                'repository_branch' => $collectedSite->repositoryBranch,
+                'auto_deploy' => $collectedSite->autoDeploy,
+                'server_name' => $collectedSite->serverName,
+                'server_ip_address' => $collectedSite->serverIpAddress,
+                'deployment_status' => $collectedSite->deploymentStatus,
+                'deployed_commit_hash' => $collectedSite->deployedCommitHash,
+                'deployment_started_at' => $collectedSite->deploymentStartedAt,
+                'deployment_ended_at' => $collectedSite->deploymentEndedAt,
                 'run_id' => $runId,
                 'collected_at' => CarbonImmutable::now(),
                 'missing_at' => null,

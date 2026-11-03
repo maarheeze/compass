@@ -60,7 +60,7 @@ test('handle stores the sites of the page', function (): void {
         ]),
     ]);
 
-    [$collectSites] = new CollectSites($runId)->withFakeBatch();
+    [$collectSites] = new CollectSites($runId, 'forge')->withFakeBatch();
     $this->app->call([$collectSites, 'handle']);
 
     $this->assertDatabaseHas(Site::class, [
@@ -80,7 +80,7 @@ test('handle marks the sites of another run missing on the last page', function 
         ]),
     ]);
 
-    [$collectSites] = new CollectSites(Uuid::generate())->withFakeBatch();
+    [$collectSites] = new CollectSites(Uuid::generate(), 'forge')->withFakeBatch();
     $this->app->call([$collectSites, 'handle']);
 
     expect($site->refresh()->missing_at)
@@ -97,9 +97,23 @@ test('handle adds the inspection of the sites to its batch', function (): void {
         ]),
     ]);
 
-    [$collectSites, $batchFake] = new CollectSites(Uuid::generate())->withFakeBatch();
+    [$collectSites, $batchFake] = new CollectSites(Uuid::generate(), 'forge')->withFakeBatch();
     $this->app->call([$collectSites, 'handle']);
 
     expect(array_map(get_class(...), $batchFake->added))
         ->toBe([InspectSites::class]);
+});
+
+test('handle refuses a source without a sites collector', function (): void {
+    $key = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $key => [
+            'driver' => fake()->slug(),
+        ],
+    ]);
+
+    $this->expectException(InvalidArgumentException::class);
+
+    [$collectSites] = new CollectSites(Uuid::generate(), $key)->withFakeBatch();
+    $this->app->call([$collectSites, 'handle']);
 });

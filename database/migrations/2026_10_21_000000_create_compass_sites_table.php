@@ -16,17 +16,14 @@ return new class extends Migration
             $table->string('forge_id')->unique();
             $table->string('name');
             $table->string('url');
-            $table->string('status');
             $table->string('php_version')->nullable();
             $table->string('repository_url')->nullable();
             $table->string('repository_branch')->nullable();
             $table->boolean('auto_deploy')->nullable();
             $table->string('server_name');
-            $table->string('server_slug');
             $table->string('server_ip_address')->nullable();
             $table->string('deployment_status')->nullable();
             $table->string('deployed_commit_hash')->nullable();
-            $table->text('deployed_commit_message')->nullable();
             $table->timestamp('deployment_started_at')->nullable();
             $table->timestamp('deployment_ended_at')->nullable();
             $table->string('client_path')->nullable();

@@ -3,61 +3,57 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
-use Maarheeze\Compass\Collections\ForgeSiteCollection;
-use Maarheeze\Compass\Collector\Forge\ForgeSite;
-use Maarheeze\Compass\Collector\Forge\SiteStatus;
+use Maarheeze\Compass\Collections\CollectedSiteCollection;
 use Maarheeze\Compass\Collector\Forge\SiteSynchronizer;
+use Maarheeze\Compass\Collector\Sites\CollectedSite;
 use Maarheeze\Compass\Models\Site;
-use Maarheeze\Compass\Tests\Fixtures\ForgeSiteFactory;
+use Maarheeze\Compass\Tests\Fixtures\CollectedSiteFactory;
 use Maarheeze\Uuid\Uuid;
 
-test('store sites creates a site for a new forge site', function (): void {
-    $forgeSite = ForgeSiteFactory::make();
+test('store sites creates a site for a new collected site', function (): void {
+    $collectedSite = CollectedSiteFactory::make();
     $runId = Uuid::generate();
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->storeSites(new ForgeSiteCollection([$forgeSite]), $runId);
+    $siteSynchronizer->storeSites(new CollectedSiteCollection([$collectedSite]), $runId);
 
     $this->assertDatabaseHas(Site::class, [
-        'forge_id' => $forgeSite->forgeId,
-        'name' => $forgeSite->name,
-        'url' => $forgeSite->url,
-        'status' => $forgeSite->status,
-        'php_version' => $forgeSite->phpVersion,
-        'repository_url' => $forgeSite->repositoryUrl,
-        'repository_branch' => $forgeSite->repositoryBranch,
-        'auto_deploy' => $forgeSite->autoDeploy,
-        'server_name' => $forgeSite->serverName,
-        'server_slug' => $forgeSite->serverSlug,
-        'server_ip_address' => $forgeSite->serverIpAddress,
+        'forge_id' => $collectedSite->externalId,
+        'name' => $collectedSite->name,
+        'url' => $collectedSite->url,
+        'php_version' => $collectedSite->phpVersion,
+        'repository_url' => $collectedSite->repositoryUrl,
+        'repository_branch' => $collectedSite->repositoryBranch,
+        'auto_deploy' => $collectedSite->autoDeploy,
+        'server_name' => $collectedSite->serverName,
+        'server_ip_address' => $collectedSite->serverIpAddress,
         'run_id' => $runId,
     ]);
 });
 
-test('store sites stores the latest deployment of a forge site', function (): void {
-    $forgeSite = ForgeSiteFactory::make();
+test('store sites stores the latest deployment of a collected site', function (): void {
+    $collectedSite = CollectedSiteFactory::make();
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->storeSites(new ForgeSiteCollection([$forgeSite]), Uuid::generate());
+    $siteSynchronizer->storeSites(new CollectedSiteCollection([$collectedSite]), Uuid::generate());
 
     $this->assertDatabaseHas(Site::class, [
-        'forge_id' => $forgeSite->forgeId,
-        'deployment_status' => $forgeSite->latestDeployment?->status,
-        'deployed_commit_hash' => $forgeSite->latestDeployment?->commitHash,
-        'deployed_commit_message' => $forgeSite->latestDeployment?->commitMessage,
-        'deployment_started_at' => $forgeSite->latestDeployment?->startedAt,
-        'deployment_ended_at' => $forgeSite->latestDeployment?->endedAt,
+        'forge_id' => $collectedSite->externalId,
+        'deployment_status' => $collectedSite->deploymentStatus,
+        'deployed_commit_hash' => $collectedSite->deployedCommitHash,
+        'deployment_started_at' => $collectedSite->deploymentStartedAt,
+        'deployment_ended_at' => $collectedSite->deploymentEndedAt,
     ]);
 });
 
-test('store sites stores no deployment for a forge site that was never deployed', function (): void {
-    $forgeSite = ForgeSiteFactory::makeNeverDeployed();
+test('store sites stores no deployment for a collected site that was never deployed', function (): void {
+    $collectedSite = CollectedSiteFactory::neverDeployed();
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->storeSites(new ForgeSiteCollection([$forgeSite]), Uuid::generate());
+    $siteSynchronizer->storeSites(new CollectedSiteCollection([$collectedSite]), Uuid::generate());
 
     $this->assertDatabaseHas(Site::class, [
-        'forge_id' => $forgeSite->forgeId,
+        'forge_id' => $collectedSite->externalId,
         'deployment_status' => null,
         'deployed_commit_hash' => null,
     ]);
@@ -65,27 +61,28 @@ test('store sites stores no deployment for a forge site that was never deployed'
 
 test('store sites updates the name of a known site', function (): void {
     $site = Site::factory()->create(['name' => fake()->unique()->domainName()]);
-    $renamedForgeSite = new ForgeSite(
+    $renamedCollectedSite = new CollectedSite(
         $site->forge_id,
         fake()->unique()->domainName(),
         fake()->url(),
-        fake()->randomElement(SiteStatus::cases()),
         fake()->numerify('php8#'),
         fake()->url(),
         fake()->word(),
         fake()->optional()->boolean(),
         fake()->slug(),
-        fake()->slug(),
         fake()->ipv4(),
+        null,
+        null,
+        null,
         null,
     );
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->storeSites(new ForgeSiteCollection([$renamedForgeSite]), Uuid::generate());
+    $siteSynchronizer->storeSites(new CollectedSiteCollection([$renamedCollectedSite]), Uuid::generate());
 
     $this->assertDatabaseHas(Site::class, [
         'id' => $site->id,
-        'name' => $renamedForgeSite->name,
+        'name' => $renamedCollectedSite->name,
     ]);
 });
 
@@ -94,10 +91,10 @@ test('store sites clears the missing marks of a known site', function (): void {
         'missing_at' => fake()->dateTime(),
         'missing_ignored_at' => fake()->dateTime(),
     ]);
-    $forgeSite = ForgeSiteFactory::forSite($site);
+    $collectedSite = CollectedSiteFactory::forSite($site);
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->storeSites(new ForgeSiteCollection([$forgeSite]), Uuid::generate());
+    $siteSynchronizer->storeSites(new CollectedSiteCollection([$collectedSite]), Uuid::generate());
 
     $this->assertDatabaseHas(Site::class, [
         'id' => $site->id,

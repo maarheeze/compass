@@ -18,8 +18,7 @@ use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCollection;
 use Maarheeze\Compass\Collector\Client\ClientStatus;
-use Maarheeze\Compass\Collector\Forge\DeploymentStatus;
-use Maarheeze\Compass\Collector\Forge\SiteStatus;
+use Maarheeze\Compass\Collector\Sites\DeploymentStatus;
 use Maarheeze\Compass\Database\Factories\SiteFactory;
 use Maarheeze\Compass\Models\Builders\SiteBuilder;
 use Maarheeze\Compass\Models\Concerns\HasAlerts;
@@ -41,7 +40,6 @@ use Maarheeze\Uuid\Uuid;
  * @property CarbonImmutable $collected_at
  * @property CarbonImmutable $created_at
  * @property ?string $deployed_commit_hash
- * @property ?string $deployed_commit_message
  * @property ?CarbonImmutable $deployment_ended_at
  * @property ?CarbonImmutable $deployment_started_at
  * @property ?DeploymentStatus $deployment_status
@@ -56,8 +54,6 @@ use Maarheeze\Uuid\Uuid;
  * @property Uuid $run_id
  * @property ?string $server_ip_address
  * @property string $server_name
- * @property string $server_slug
- * @property SiteStatus $status
  * @property CarbonImmutable $updated_at
  * @property string $url
  *
@@ -99,7 +95,6 @@ class Site extends Model implements AlertSubject
             'client_status',
             'collected_at',
             'deployed_commit_hash',
-            'deployed_commit_message',
             'deployment_ended_at',
             'deployment_started_at',
             'deployment_status',
@@ -113,8 +108,6 @@ class Site extends Model implements AlertSubject
             'run_id',
             'server_ip_address',
             'server_name',
-            'server_slug',
-            'status',
             'url',
         ];
     }
@@ -171,7 +164,6 @@ class Site extends Model implements AlertSubject
             'missing_at' => 'immutable_datetime',
             'missing_ignored_at' => 'immutable_datetime',
             'run_id' => UuidCast::class,
-            'status' => SiteStatus::class,
             'updated_at' => 'immutable_datetime',
         ];
     }

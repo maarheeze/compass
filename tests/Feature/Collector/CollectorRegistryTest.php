@@ -13,6 +13,6 @@ test('job is the registered job of the collector type', function (): void {
     $collectorRegistry = new CollectorRegistry();
     $collectorRegistry->register($collectorType, CollectIssues::class);
 
-    expect($collectorRegistry->job($collectorType, Uuid::generate()))
+    expect($collectorRegistry->job($collectorType, Uuid::generate(), fake()->slug()))
         ->toBeInstanceOf(CollectIssues::class);
 });

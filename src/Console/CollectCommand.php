@@ -25,7 +25,7 @@ class CollectCommand extends Command
         $runId = Uuid::generate();
         $source = $sourceManager->source(Assert::string($this->argument('source')));
         $collectorType = CollectorType::from(Assert::string($this->argument('collector')));
-        $job = $collectorRegistry->job($collectorType, $runId);
+        $job = $collectorRegistry->job($collectorType, $runId, $source->key);
 
         $runRecorder->start($runId, $source, $collectorType, $job);
     }

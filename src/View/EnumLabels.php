@@ -15,12 +15,11 @@ use Maarheeze\Compass\Analyzer\Composer\RepositoryKind;
 use Maarheeze\Compass\Analyzer\Forge\DeploymentState;
 use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\Composer\PackageSection;
-use Maarheeze\Compass\Collector\Forge\DeploymentStatus;
-use Maarheeze\Compass\Collector\Forge\SiteStatus;
 use Maarheeze\Compass\Collector\GitHub\RepositoryVisibility;
 use Maarheeze\Compass\Collector\MissingState;
 use Maarheeze\Compass\Collector\RunStatus;
 use Maarheeze\Compass\Collector\RunType;
+use Maarheeze\Compass\Collector\Sites\DeploymentStatus;
 use UnitEnum;
 
 use function sprintf;
@@ -45,7 +44,6 @@ readonly class EnumLabels
             RepositoryVisibility::class => 'repository-visibility',
             RunStatus::class => 'run-status',
             RunType::class => 'run-type',
-            SiteStatus::class => 'site-status',
             default => throw new InvalidArgumentException(),
         };
 

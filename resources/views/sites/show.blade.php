@@ -10,7 +10,6 @@
                     <h1 class="text-lg font-semibold text-foreground">{{ $site->name }}</h1>
                 </x-compass::subject-name>
                 <x-compass::forge.deployment-state-badge :site="$site" />
-                <x-compass::forge.link :site="$site" class="ml-auto" />
             </div>
             <p class="flex flex-wrap items-center gap-x-2 text-sm text-foreground-muted">
                 <a href="{{ $site->url }}" target="_blank" rel="noopener" class="text-accent hover:underline">{{ $site->url }}</a>
@@ -41,10 +40,6 @@
                         @endif
                     </span>
                 @endif
-                <span>&middot;</span>
-                <span>
-                    <x-compass::enum-label :value="$site->status" />
-                </span>
                 @if ($site->php_version)
                     <span>&middot;</span>
                     <span>{{ $site->php_version }}</span>
@@ -78,8 +73,7 @@
             </x-compass::section-heading>
 
             <div class="rounded-md border border-border bg-canvas px-4 py-3 text-sm">
-                <p class="font-medium text-foreground">{{ $site->deployed_commit_message }}</p>
-                <p class="mt-1 flex flex-wrap items-center gap-x-2 text-foreground-muted">
+                <p class="flex flex-wrap items-center gap-x-2 text-foreground-muted">
                     <x-compass::commit-hash :repository="$site->repository" :commit-hash="$site->deployed_commit_hash" />
                     <span>&middot;</span>
                     <span>
