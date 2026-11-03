@@ -33,12 +33,10 @@
                     <x-compass::date-time :time="$alert->created_at" />
                 </dd>
 
-                @if ($observations->lastObservedAt() !== null)
-                    <dt class="text-foreground-muted">{{ __('compass::alert.last_seen') }}</dt>
-                    <dd class="text-foreground">
-                        <x-compass::date-time :time="$observations->lastObservedAt()" />
-                    </dd>
-                @endif
+                <dt class="text-foreground-muted">{{ __('compass::alert.last_seen') }}</dt>
+                <dd class="text-foreground">
+                    <x-compass::date-time :time="$alert->last_observed_at" />
+                </dd>
 
                 <dt class="text-foreground-muted">{{ __('compass::alert.status') }}</dt>
                 <dd class="text-foreground">
@@ -78,33 +76,6 @@
                                     @if ($historyEntry->user)
                                         <x-compass::user-avatar :user="$historyEntry->user" class="ml-auto block size-5" />
                                     @endif
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <section class="space-y-3">
-            <x-compass::section-heading>
-                <x-slot:icon>
-                    <x-compass::icons.eye />
-                </x-slot:icon>
-                {{ __('compass::alert.observations') }}
-            </x-compass::section-heading>
-            <div class="overflow-hidden rounded-md border border-border bg-canvas">
-                <table class="w-full table-fixed text-left text-sm">
-                    <tbody class="divide-y divide-border">
-                        @foreach ($observations as $observation)
-                            <tr>
-                                <td class="px-4 py-3">
-                                    <span class="text-base font-semibold text-foreground">
-                                        <x-compass::enum-label :value="$observation->condition" />
-                                    </span>
-                                    <div class="mt-1 text-xs text-foreground-muted">
-                                        <x-compass::date-time :time="$observation->observed_at" />
-                                    </div>
                                 </td>
                             </tr>
                         @endforeach

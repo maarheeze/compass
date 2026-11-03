@@ -12,12 +12,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collections\AlertCollection;
-use Maarheeze\Compass\Collections\ObservationCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCollection;
 use Maarheeze\Compass\Database\Factories\SiteEndpointFactory;
 use Maarheeze\Compass\Models\Builders\SiteEndpointBuilder;
 use Maarheeze\Compass\Models\Concerns\HasAlerts;
-use Maarheeze\Compass\Models\Concerns\HasObservations;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
@@ -32,7 +30,6 @@ use function sprintf;
  * @property CarbonImmutable $updated_at
  *
  * @property-read AlertCollection $alerts
- * @property-read ObservationCollection $observations
  * @property-read Site $site
  */
 class SiteEndpoint extends Model implements AlertSubject
@@ -44,7 +41,6 @@ class SiteEndpoint extends Model implements AlertSubject
     use HasCollection;
     /** @use HasFactory<SiteEndpointFactory> */
     use HasFactory;
-    use HasObservations;
     use HasUuidAsId;
 
     protected static string $builder = SiteEndpointBuilder::class;

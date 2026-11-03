@@ -15,7 +15,6 @@ return [
     'mute' => 'Mute',
     'muted' => 'Muted',
     'no_alerts' => 'No alerts.',
-    'observations' => 'Observations',
     'open_since' => 'Open since',
     'reopen' => 'Reopen',
     'resolved_since' => 'Resolved since',

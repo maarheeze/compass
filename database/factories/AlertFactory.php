@@ -111,6 +111,7 @@ class AlertFactory extends Factory
         return [
             'assignee_id' => fake()->optional()->passthrough(User::factory()),
             'is_muted' => false,
+            'last_observed_at' => fake()->dateTime(),
         ];
     }
 

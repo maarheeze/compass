@@ -24,14 +24,17 @@ readonly class EvaluateSiteEndpointDown implements ShouldQueue
     public function handle(SiteEndpointChecked $siteEndpointChecked): void
     {
         $siteEndpointCheck = $siteEndpointChecked->siteEndpointCheck;
-        $this->dispatcher->dispatch(new HandleConditionObservations(new ConditionObservedCollection([
-            new ConditionObserved(
-                AlertType::SITE_ENDPOINT_DOWN,
-                $siteEndpointChecked->siteEndpoint,
-                $this->observedCondition($siteEndpointCheck),
-                $siteEndpointCheck->created_at,
-            ),
-        ])));
+        $conditionObserved = new ConditionObserved(
+            AlertType::SITE_ENDPOINT_DOWN,
+            $siteEndpointChecked->siteEndpoint,
+            $this->observedCondition($siteEndpointCheck),
+            $siteEndpointCheck->created_at,
+        );
+        $conditionObservations = new ConditionObservedCollection([
+            $conditionObserved,
+        ]);
+
+        $this->dispatcher->dispatch(new HandleConditionObservations($conditionObservations));
     }
 
     private function observedCondition(SiteEndpointCheck $siteEndpointCheck): ConditionState

@@ -18,7 +18,6 @@ use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\AlertHistoryEntryCollection;
-use Maarheeze\Compass\Collections\ObservationCollection;
 use Maarheeze\Compass\Database\Factories\AlertFactory;
 use Maarheeze\Compass\Models\Builders\AlertBuilder;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
@@ -32,6 +31,7 @@ use Maarheeze\Uuid\Uuid;
  * @property ?CarbonImmutable $done_at
  * @property Uuid $id
  * @property bool $is_muted
+ * @property CarbonImmutable $last_observed_at
  * @property ?CarbonImmutable $resolved_at
  * @property AlertStatus $status
  * @property Uuid $subject_id
@@ -41,7 +41,6 @@ use Maarheeze\Uuid\Uuid;
  *
  * @property-read ?User $assignee
  * @property-read AlertHistoryEntryCollection $historyEntries
- * @property-read ObservationCollection $observations
  * @property-read AlertSubject $subject
  */
 class Alert extends Model
@@ -67,6 +66,7 @@ class Alert extends Model
             'condition',
             'done_at',
             'is_muted',
+            'last_observed_at',
             'resolved_at',
             'status',
             'subject_id',
@@ -97,14 +97,6 @@ class Alert extends Model
     }
 
     /**
-     * @return HasMany<Observation, $this>
-     */
-    public function observations(): HasMany
-    {
-        return $this->hasMany(Observation::class);
-    }
-
-    /**
      * @return MorphTo<Model, $this>
      */
     public function subject(): MorphTo
@@ -123,6 +115,7 @@ class Alert extends Model
             'created_at' => 'immutable_datetime',
             'done_at' => 'immutable_datetime',
             'is_muted' => 'boolean',
+            'last_observed_at' => 'immutable_datetime',
             'resolved_at' => 'immutable_datetime',
             'status' => AlertStatus::class,
             'subject_id' => UuidCast::class,
