@@ -54,8 +54,8 @@ class CollectRepositories implements ShouldQueue
 
         Assert::isInstanceOf($this->batch(), Batch::class)
             ->add([
-                new CollectChangedComposerJsons($this->runId),
-                new CollectChangedComposerLocks($this->runId),
+                new CollectChangedComposerJsons($this->runId, $this->sourceKey),
+                new CollectChangedComposerLocks($this->runId, $this->sourceKey),
                 new CollectChangedDependabotYmls($this->runId),
             ]);
     }

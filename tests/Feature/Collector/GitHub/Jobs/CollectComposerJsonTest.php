@@ -25,7 +25,7 @@ test('handle queries the blob of the current composer json oid', function (): vo
         ]),
     ]);
 
-    $collectComposerJson = new CollectComposerJson($repository);
+    $collectComposerJson = new CollectComposerJson($repository, 'github');
     $this->app->call([$collectComposerJson, 'handle']);
 
     $http->assertSent(static function (HttpRequest $request) use ($repository): bool {
@@ -52,7 +52,7 @@ test('handle stores the composer json with its oid', function (): void {
         ]),
     ]);
 
-    $collectComposerJson = new CollectComposerJson($repository);
+    $collectComposerJson = new CollectComposerJson($repository, 'github');
     $this->app->call([$collectComposerJson, 'handle']);
 
     $this->assertDatabaseHas(ComposerJson::class, [
@@ -66,7 +66,7 @@ test('handle removes the composer json when the repository no longer has one', f
     $repository = Repository::factory()->create(['composer_json_oid' => null]);
     $composerJson = ComposerJson::factory()->create(['repository_id' => $repository->id]);
 
-    $collectComposerJson = new CollectComposerJson($repository);
+    $collectComposerJson = new CollectComposerJson($repository, 'github');
     $this->app->call([$collectComposerJson, 'handle']);
 
     $this->assertDatabaseMissing(ComposerJson::class, ['id' => $composerJson->id]);
@@ -75,9 +75,24 @@ test('handle removes the composer json when the repository no longer has one', f
 test('handle adds the repository to the log context', function (): void {
     $repository = Repository::factory()->create(['composer_json_oid' => null]);
 
-    $collectComposerJson = new CollectComposerJson($repository);
+    $collectComposerJson = new CollectComposerJson($repository, 'github');
     $this->app->call([$collectComposerJson, 'handle']);
 
     expect($this->app->make(Context::class)->get('repository'))
         ->toBe($repository->name);
+});
+
+test('handle refuses a source without a composer files collector', function (): void {
+    $key = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $key => [
+            'driver' => fake()->slug(),
+        ],
+    ]);
+    $repository = Repository::factory()->create();
+
+    $this->expectException(InvalidArgumentException::class);
+
+    $collectComposerJson = new CollectComposerJson($repository, $key);
+    $this->app->call([$collectComposerJson, 'handle']);
 });

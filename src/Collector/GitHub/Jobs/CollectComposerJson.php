@@ -11,11 +11,11 @@ use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use JsonException;
+use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
+use Maarheeze\Compass\Collector\Composer\ComposerFilesCollectorManager;
 use Maarheeze\Compass\Collector\Composer\Json\ComposerJsonReader;
 use Maarheeze\Compass\Collector\Composer\Json\ComposerJsonSynchronizer;
-use Maarheeze\Compass\Collector\GitHub\BlobQuery;
-use Maarheeze\Compass\Collector\GitHub\GitHubQueryFailed;
 use Maarheeze\Compass\Models\Repository;
 use Throwable;
 
@@ -28,21 +28,24 @@ class CollectComposerJson implements ShouldQueue
 
     public function __construct(
         public readonly Repository $repository,
+        public readonly string $sourceKey,
     ) {
     }
 
     /**
-     * @throws GitHubQueryFailed
+     * @throws CollectingFailed
      * @throws JsonException
      * @throws Throwable
      */
     public function handle(
-        BlobQuery $blobQuery,
         CollectorLogger $collectorLogger,
+        ComposerFilesCollectorManager $composerFilesCollectorManager,
         ComposerJsonReader $composerJsonReader,
         ComposerJsonSynchronizer $composerJsonSynchronizer,
         Context $context,
     ): void {
+        $composerFilesCollector = $composerFilesCollectorManager->collector($this->sourceKey);
+
         $context->add('repository', $this->repository->name);
 
         $oid = $this->repository->composer_json_oid;
@@ -55,7 +58,7 @@ class CollectComposerJson implements ShouldQueue
             return;
         }
 
-        $composerJsonSummary = $composerJsonReader->read($blobQuery->text($this->repository->name, $oid));
+        $composerJsonSummary = $composerJsonReader->read($composerFilesCollector->content($this->repository->name, $oid));
         $composerJsonSynchronizer->store($this->repository, $oid, $composerJsonSummary);
 
         $collectorLogger->debug('Composer json collected');

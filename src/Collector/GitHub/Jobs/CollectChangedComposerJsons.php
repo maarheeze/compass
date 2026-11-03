@@ -22,6 +22,7 @@ class CollectChangedComposerJsons implements ShouldQueue
 
     public function __construct(
         private readonly Uuid $runId,
+        private readonly string $sourceKey,
     ) {
     }
 
@@ -38,7 +39,7 @@ class CollectChangedComposerJsons implements ShouldQueue
             $collectComposerJsonJobs = [];
 
             foreach ($repositoriesWithComposerJsonOutOfDate as $repository) {
-                $collectComposerJsonJobs[] = new CollectComposerJson($repository);
+                $collectComposerJsonJobs[] = new CollectComposerJson($repository, $this->sourceKey);
 
                 $collectorLogger->debug('Composer json collection queued', ['repository' => $repository->name]);
             }

@@ -19,7 +19,10 @@ test('handle adds collect composer lock when its oid differs from the collected 
         'oid' => fake()->unique()->sha1(),
     ]);
 
-    [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks($runId)->withFakeBatch();
+    [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks(
+        $runId,
+        fake()->slug(),
+    )->withFakeBatch();
     $this->app->call([$collectChangedComposerLocks, 'handle']);
 
     $addedRepositoryIds = array_map(
@@ -41,7 +44,10 @@ test('handle adds collect composer lock when the composer lock is gone', functio
     ]);
     ComposerLock::factory()->create(['repository_id' => $repository->id]);
 
-    [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks($runId)->withFakeBatch();
+    [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks(
+        $runId,
+        fake()->slug(),
+    )->withFakeBatch();
     $this->app->call([$collectChangedComposerLocks, 'handle']);
 
     $addedRepositoryIds = array_map(
@@ -66,7 +72,10 @@ test('handle does not add collect composer lock when its oid is the collected on
         'oid' => $repository->composer_lock_oid,
     ]);
 
-    [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks($runId)->withFakeBatch();
+    [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks(
+        $runId,
+        fake()->slug(),
+    )->withFakeBatch();
     $this->app->call([$collectChangedComposerLocks, 'handle']);
 
     expect($batchFake->added)
@@ -80,7 +89,10 @@ test('handle does not add collect composer lock for a repository without one', f
         'composer_lock_oid' => null,
     ]);
 
-    [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks($runId)->withFakeBatch();
+    [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks(
+        $runId,
+        fake()->slug(),
+    )->withFakeBatch();
     $this->app->call([$collectChangedComposerLocks, 'handle']);
 
     expect($batchFake->added)
@@ -93,9 +105,27 @@ test('handle ignores repositories of another run', function (): void {
         'composer_lock_oid' => fake()->sha1(),
     ]);
 
-    [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks(Uuid::generate())->withFakeBatch();
+    [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks(
+        Uuid::generate(),
+        fake()->slug(),
+    )->withFakeBatch();
     $this->app->call([$collectChangedComposerLocks, 'handle']);
 
     expect($batchFake->added)
         ->toBeEmpty();
+});
+
+test('handle adds collect composer lock for the source of its run', function (): void {
+    $runId = Uuid::generate();
+    $sourceKey = fake()->slug();
+    Repository::factory()->create([
+        'run_id' => $runId,
+        'composer_lock_oid' => fake()->sha1(),
+    ]);
+
+    [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks($runId, $sourceKey)->withFakeBatch();
+    $this->app->call([$collectChangedComposerLocks, 'handle']);
+
+    expect($batchFake->added[0]->sourceKey)
+        ->toBe($sourceKey);
 });
