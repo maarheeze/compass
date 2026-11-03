@@ -17,6 +17,7 @@ use Maarheeze\Compass\Collector\Issues\IssuesCollectorManager;
 use Maarheeze\Compass\Collector\PullRequests\PullRequestsCollectorManager;
 use Maarheeze\Compass\Collector\Repositories\RepositoriesCollectorManager;
 use Maarheeze\Compass\Collector\Sites\SitesCollectorManager;
+use Maarheeze\Compass\Console\CollectCommand;
 
 class CollectorProvider extends ServiceProvider
 {
@@ -26,6 +27,8 @@ class CollectorProvider extends ServiceProvider
         $collectorRegistry->register(CollectorType::PULL_REQUESTS, CollectPullRequests::class);
         $collectorRegistry->register(CollectorType::REPOSITORIES, CollectRepositories::class);
         $collectorRegistry->register(CollectorType::SITES, CollectSites::class);
+
+        $this->commands([CollectCommand::class]);
     }
 
     public function register(): void

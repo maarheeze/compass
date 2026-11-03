@@ -61,15 +61,3 @@ test('handle refuses a collector that does not exist', function (): void {
     ]);
     $pendingCommand->run();
 });
-
-test('handle refuses a source that is not configured', function (): void {
-    $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
-
-    $this->expectException(InvalidArgumentException::class);
-
-    $pendingCommand = $this->artisan(CollectCommand::class, [
-        'source' => fake()->slug(),
-        'collector' => fake()->randomElement(CollectorType::cases())->value,
-    ]);
-    $pendingCommand->run();
-});

@@ -26,7 +26,6 @@ use Maarheeze\Compass\Providers\AuthenticationProvider;
 use Maarheeze\Compass\Providers\ClientProvider;
 use Maarheeze\Compass\Providers\CollectorProvider;
 use Maarheeze\Compass\Providers\ScheduleProvider;
-use Maarheeze\Compass\Providers\SourceProvider;
 use Psr\Clock\ClockInterface;
 
 use function config_path;
@@ -57,7 +56,6 @@ class CompassServiceProvider extends ServiceProvider
         $this->app->register(ClientProvider::class);
         $this->app->register(CollectorProvider::class);
         $this->app->register(ScheduleProvider::class);
-        $this->app->register(SourceProvider::class);
     }
 
     public function boot(Dispatcher $events, LivewireManager $livewire): void

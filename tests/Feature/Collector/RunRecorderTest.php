@@ -12,11 +12,9 @@ use Illuminate\Support\Testing\Fakes\BatchFake;
 use Illuminate\Support\Testing\Fakes\BusFake;
 use Maarheeze\Compass\Collector\Client\Jobs\InspectSites;
 use Maarheeze\Compass\Collector\CollectorType;
-use Maarheeze\Compass\Collector\GitHub\GitHubDriver;
 use Maarheeze\Compass\Collector\Jobs\FinishRun;
 use Maarheeze\Compass\Collector\RunRecorder;
 use Maarheeze\Compass\Collector\RunStatus;
-use Maarheeze\Compass\Collector\Source;
 use Maarheeze\Compass\Models\Run;
 use Maarheeze\Uuid\Uuid;
 use Monolog\Handler\TestHandler;
@@ -31,7 +29,7 @@ test('start chains the batch with the first job', function (): void {
     $runRecorder = $this->app->make(RunRecorder::class);
     $runRecorder->start(
         $runId,
-        new Source(fake()->slug(), new GitHubDriver(fake()->slug(), fake()->sha1())),
+        fake()->slug(),
         fake()->randomElement(CollectorType::cases()),
         new InspectSites(),
     );
@@ -52,7 +50,7 @@ test('start keeps the batch going when one of its jobs fails', function (): void
     $runRecorder = $this->app->make(RunRecorder::class);
     $runRecorder->start(
         $runId,
-        new Source(fake()->slug(), new GitHubDriver(fake()->slug(), fake()->sha1())),
+        fake()->slug(),
         fake()->randomElement(CollectorType::cases()),
         new InspectSites(),
     );
@@ -68,15 +66,15 @@ test('start keeps the batch going when one of its jobs fails', function (): void
 test('start records the queued run of the collector of the source', function (): void {
     $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
     $runId = Uuid::generate();
-    $source = new Source(fake()->slug(), new GitHubDriver(fake()->slug(), fake()->sha1()));
+    $sourceKey = fake()->slug();
     $collectorType = fake()->randomElement(CollectorType::cases());
 
     $runRecorder = $this->app->make(RunRecorder::class);
-    $runRecorder->start($runId, $source, $collectorType, new InspectSites());
+    $runRecorder->start($runId, $sourceKey, $collectorType, new InspectSites());
 
     $this->assertDatabaseHas(Run::class, [
         'id' => $runId,
-        'source' => $source->key,
+        'source' => $sourceKey,
         'collector' => $collectorType,
         'status' => RunStatus::QUEUED,
         'batch_id' => null,
@@ -92,7 +90,7 @@ test('start records the run as running with its batch when the batch is stored',
     $runRecorder = $this->app->make(RunRecorder::class);
     $runRecorder->start(
         $runId,
-        new Source(fake()->slug(), new GitHubDriver(fake()->slug(), fake()->sha1())),
+        fake()->slug(),
         fake()->randomElement(CollectorType::cases()),
         new InspectSites(),
     );
@@ -117,7 +115,7 @@ test('start finishes the run after the batch', function (): void {
     $runRecorder = $this->app->make(RunRecorder::class);
     $runRecorder->start(
         $runId,
-        new Source(fake()->slug(), new GitHubDriver(fake()->slug(), fake()->sha1())),
+        fake()->slug(),
         fake()->randomElement(CollectorType::cases()),
         new InspectSites(),
     );
@@ -144,7 +142,7 @@ test('start logs the start of the run with its run id in the log context', funct
     $runRecorder = $this->app->make(RunRecorder::class);
     $runRecorder->start(
         $runId,
-        new Source(fake()->slug(), new GitHubDriver(fake()->slug(), fake()->sha1())),
+        fake()->slug(),
         fake()->randomElement(CollectorType::cases()),
         new InspectSites(),
     );
