@@ -99,28 +99,13 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Schedule
-    |--------------------------------------------------------------------------
-    |
-    | How often the scheduler runs the Forge sync, the GitHub sync and the
-    | endpoint checks. A task left out is not scheduled, but still runs when
-    | started by hand or from the dashboard.
-    |
-    */
-
-    'schedule' => [
-        'forge' => ScheduleFrequency::HOURLY,
-        'github' => ScheduleFrequency::HOURLY,
-        'site_endpoints' => ScheduleFrequency::EVERY_FIFTEEN_MINUTES,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
     | Sources
     |--------------------------------------------------------------------------
     |
     | The sources Compass collects from, by name: each names its driver and
-    | the settings that driver needs.
+    | the settings that driver needs, and under "schedule" how often the
+    | scheduler collects each collection. A collection left out is not
+    | scheduled, but still runs when started by hand.
     |
     */
 
@@ -129,6 +114,11 @@ return [
             'driver' => 'github',
             'organization' => env('COMPASS_GITHUB_ORGANIZATION'),
             'token' => env('COMPASS_GITHUB_TOKEN'),
+            'schedule' => [
+                'repositories' => ScheduleFrequency::HOURLY,
+                'issues' => ScheduleFrequency::HOURLY,
+                'pull_requests' => ScheduleFrequency::HOURLY,
+            ],
         ],
         'forge' => [
             'driver' => 'forge',
@@ -136,6 +126,9 @@ return [
             'token' => env('COMPASS_FORGE_TOKEN'),
             'server_name_prefix' => env('COMPASS_FORGE_SERVER_NAME_PREFIX', ''),
             'auto_deploy_grace_minutes' => env('COMPASS_FORGE_AUTO_DEPLOY_GRACE_MINUTES', 5),
+            'schedule' => [
+                'sites' => ScheduleFrequency::HOURLY,
+            ],
         ],
     ],
 

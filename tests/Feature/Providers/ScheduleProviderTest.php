@@ -2,32 +2,58 @@
 
 declare(strict_types=1);
 
-use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Collection;
+use Maarheeze\Compass\Collector\CollectionType;
 use Maarheeze\Compass\Collector\ScheduleFrequency;
-use Maarheeze\Compass\Console\CheckSiteEndpointsCommand;
-use Maarheeze\Compass\Console\SyncForgeCommand;
-use Maarheeze\Compass\Console\SyncGitHubCommand;
+use Maarheeze\Compass\Console\CollectCommand;
 
-test('a task is scheduled at the frequency configured for it', function (string $key, string $signature): void {
-    $this->setConfiguration($key, ScheduleFrequency::DAILY);
+test('a collection of a source is scheduled as a collect command of that source and collection', function (): void {
+    $sourceKey = fake()->slug();
+    $collection = fake()->randomElement(CollectionType::cases())->value;
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'schedule' => [
+                $collection => fake()->randomElement(ScheduleFrequency::cases()),
+            ],
+        ],
+    ]);
     $schedule = $this->app->make(Schedule::class);
 
-    $scheduledEvent = new Collection($schedule->events())->sole(static function (Event $event) use ($signature): bool {
-        return str_contains($event->command, $signature);
-    });
+    $scheduledEvent = new Collection($schedule->events())->sole();
 
-    expect($scheduledEvent->expression)
-        ->toBe('0 0 * * *');
-})->with([
-    'forge' => ['compass.schedule.forge', SyncForgeCommand::SIGNATURE],
-    'github' => ['compass.schedule.github', SyncGitHubCommand::SIGNATURE],
-    'site endpoints' => ['compass.schedule.site_endpoints', CheckSiteEndpointsCommand::SIGNATURE],
-]);
+    expect($scheduledEvent->command)
+        ->toEndWith(sprintf("%s '%s' '%s'", CollectCommand::SIGNATURE, $sourceKey, $collection));
+});
 
-test('a task without a frequency is not scheduled', function (): void {
-    $this->setConfiguration('compass.schedule', []);
+test('each collection in the schedule of each source is scheduled', function (): void {
+    $this->setConfiguration('compass.sources', [
+        fake()->unique()->slug() => [
+            'schedule' => [
+                CollectionType::REPOSITORIES->value => fake()->randomElement(ScheduleFrequency::cases()),
+                CollectionType::PULL_REQUESTS->value => fake()->randomElement(ScheduleFrequency::cases()),
+            ],
+        ],
+        fake()->unique()->slug() => [
+            'schedule' => [
+                CollectionType::SITES->value => fake()->randomElement(ScheduleFrequency::cases()),
+            ],
+        ],
+    ]);
+    $schedule = $this->app->make(Schedule::class);
+
+    $scheduledEvents = $schedule->events();
+
+    expect($scheduledEvents)
+        ->toHaveCount(3);
+});
+
+test('a source without a schedule is not scheduled', function (): void {
+    $this->setConfiguration('compass.sources', [
+        fake()->slug() => [
+            'driver' => 'github',
+        ],
+    ]);
     $schedule = $this->app->make(Schedule::class);
 
     $scheduledEvents = $schedule->events();
@@ -40,12 +66,16 @@ test('a frequency is scheduled at its cron expression', function (
     ScheduleFrequency $scheduleFrequency,
     string $expression,
 ): void {
-    $this->setConfiguration('compass.schedule.forge', $scheduleFrequency);
+    $this->setConfiguration('compass.sources', [
+        fake()->slug() => [
+            'schedule' => [
+                fake()->randomElement(CollectionType::cases())->value => $scheduleFrequency,
+            ],
+        ],
+    ]);
     $schedule = $this->app->make(Schedule::class);
 
-    $scheduledEvent = new Collection($schedule->events())->sole(static function (Event $event): bool {
-        return str_contains($event->command, SyncForgeCommand::SIGNATURE);
-    });
+    $scheduledEvent = new Collection($schedule->events())->sole();
 
     expect($scheduledEvent->expression)
         ->toBe($expression);

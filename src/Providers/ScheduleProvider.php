@@ -8,33 +8,29 @@ use Illuminate\Config\Repository;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
 use Maarheeze\Compass\Collector\ScheduleFrequency;
-use Maarheeze\Compass\Console\CheckSiteEndpointsCommand;
-use Maarheeze\Compass\Console\SyncForgeCommand;
-use Maarheeze\Compass\Console\SyncGitHubCommand;
+use Maarheeze\Compass\Console\CollectCommand;
 use Webmozart\Assert\Assert;
+
+use function array_key_exists;
 
 class ScheduleProvider extends ServiceProvider
 {
-    private Repository $config;
-
     public function boot(Repository $config): void
     {
-        $this->config = $config;
-
-        $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
-            $this->scheduleCommand($schedule, SyncForgeCommand::class, $this->scheduleFrequency('compass.schedule.forge'));
-            $this->scheduleCommand($schedule, SyncGitHubCommand::class, $this->scheduleFrequency('compass.schedule.github'));
-            $this->scheduleCommand($schedule, CheckSiteEndpointsCommand::class, $this->scheduleFrequency('compass.schedule.site_endpoints'));
+        $this->callAfterResolving(Schedule::class, function (Schedule $schedule) use ($config): void {
+            foreach ($config->array('compass.sources') as $sourceKey => $sourceConfig) {
+                $this->scheduleSource($schedule, Assert::stringNotEmpty($sourceKey), Assert::isMap($sourceConfig));
+            }
         });
     }
 
-    private function scheduleCommand(Schedule $schedule, string $command, ?ScheduleFrequency $scheduleFrequency): void
-    {
-        if ($scheduleFrequency === null) {
-            return;
-        }
-
-        $event = $schedule->command($command);
+    private function scheduleCollection(
+        Schedule $schedule,
+        string $sourceKey,
+        string $collection,
+        ScheduleFrequency $scheduleFrequency,
+    ): void {
+        $event = $schedule->command(CollectCommand::SIGNATURE, [$sourceKey, $collection]);
 
         match ($scheduleFrequency) {
             ScheduleFrequency::EVERY_FIVE_MINUTES => $event->everyFiveMinutes(),
@@ -46,16 +42,19 @@ class ScheduleProvider extends ServiceProvider
         };
     }
 
-    private function scheduleFrequency(string $scheduleFrequencyKey): ?ScheduleFrequency
+    /**
+     * @param array<string, mixed> $sourceConfig
+     */
+    private function scheduleSource(Schedule $schedule, string $sourceKey, array $sourceConfig): void
     {
-        $scheduleFrequency = $this->config->get($scheduleFrequencyKey);
-
-        if ($scheduleFrequency === null) {
-            return null;
+        if (!array_key_exists('schedule', $sourceConfig)) {
+            return;
         }
 
-        Assert::isInstanceOf($scheduleFrequency, ScheduleFrequency::class);
+        foreach (Assert::isMap($sourceConfig['schedule']) as $collection => $scheduleFrequency) {
+            Assert::isInstanceOf($scheduleFrequency, ScheduleFrequency::class);
 
-        return $scheduleFrequency;
+            $this->scheduleCollection($schedule, $sourceKey, $collection, $scheduleFrequency);
+        }
     }
 }
