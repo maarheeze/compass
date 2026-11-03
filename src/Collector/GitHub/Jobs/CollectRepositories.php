@@ -9,10 +9,10 @@ use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
-use Maarheeze\Compass\Collector\GitHub\GitHubQueryFailed;
-use Maarheeze\Compass\Collector\GitHub\RepositoriesQuery;
 use Maarheeze\Compass\Collector\GitHub\RepositorySynchronizer;
+use Maarheeze\Compass\Collector\Repositories\RepositoriesCollectorManager;
 use Maarheeze\Uuid\Uuid;
 use Webmozart\Assert\Assert;
 
@@ -24,27 +24,27 @@ class CollectRepositories implements ShouldQueue
 
     public function __construct(
         private readonly Uuid $runId,
+        private readonly string $sourceKey,
     ) {
     }
 
     /**
-     * @throws GitHubQueryFailed
+     * @throws CollectingFailed
      */
     public function handle(
         CollectorLogger $collectorLogger,
-        RepositoriesQuery $repositoriesQuery,
+        RepositoriesCollectorManager $repositoriesCollectorManager,
         RepositorySynchronizer $repositorySynchronizer,
     ): void {
+        $repositoriesCollector = $repositoriesCollectorManager->collector($this->sourceKey);
+
         $collectorLogger->info('Repositories collector started');
 
-        foreach ($repositoriesQuery->pages() as $repositoriesQueryResult) {
-            $repositorySynchronizer->storeRepositories(
-                $repositoriesQueryResult->gitHubRepositories,
-                $this->runId,
-            );
+        foreach ($repositoriesCollector->repositories() as $collectedRepositories) {
+            $repositorySynchronizer->storeRepositories($collectedRepositories, $this->runId);
 
             $collectorLogger->debug('Repositories page collected', [
-                'repository_count' => $repositoriesQueryResult->gitHubRepositories->count(),
+                'repository_count' => $collectedRepositories->count(),
             ]);
         }
 

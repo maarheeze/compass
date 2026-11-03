@@ -8,7 +8,6 @@ use Maarheeze\Compass\Collector\GitHub\Jobs\CollectChangedComposerJsons;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectChangedComposerLocks;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectChangedDependabotYmls;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectRepositories;
-use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 
@@ -17,7 +16,7 @@ test('handle stores the repositories of the page', function (): void {
         'id' => fake()->sha1(),
         'name' => fake()->slug(),
         'url' => fake()->url(),
-        'visibility' => fake()->randomElement(RepositoryVisibility::cases())->value,
+        'visibility' => fake()->randomElement(['INTERNAL', 'PRIVATE', 'PUBLIC']),
         'defaultBranchRef' => [
             'name' => fake()->word(),
             'target' => [
@@ -47,7 +46,7 @@ test('handle stores the repositories of the page', function (): void {
         ]),
     ]);
 
-    [$collectRepositories] = new CollectRepositories($runId)->withFakeBatch();
+    [$collectRepositories] = new CollectRepositories($runId, 'github')->withFakeBatch();
     $this->app->call([$collectRepositories, 'handle']);
 
     $this->assertDatabaseHas(Repository::class, [
@@ -74,7 +73,7 @@ test('handle marks the repositories of another run missing on the last page', fu
         ]),
     ]);
 
-    [$collectRepositories] = new CollectRepositories(Uuid::generate())->withFakeBatch();
+    [$collectRepositories] = new CollectRepositories(Uuid::generate(), 'github')->withFakeBatch();
     $this->app->call([$collectRepositories, 'handle']);
 
     expect($repository->refresh()->missing_at)
@@ -98,7 +97,7 @@ test('handle adds the collection of the composer files and dependabot yml to its
         ]),
     ]);
 
-    [$collectRepositories, $batchFake] = new CollectRepositories(Uuid::generate())->withFakeBatch();
+    [$collectRepositories, $batchFake] = new CollectRepositories(Uuid::generate(), 'github')->withFakeBatch();
     $this->app->call([$collectRepositories, 'handle']);
 
     expect(array_map(get_class(...), $batchFake->added))
@@ -107,4 +106,18 @@ test('handle adds the collection of the composer files and dependabot yml to its
             CollectChangedComposerLocks::class,
             CollectChangedDependabotYmls::class,
         ]);
+});
+
+test('handle refuses a source without a repositories collector', function (): void {
+    $key = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $key => [
+            'driver' => fake()->slug(),
+        ],
+    ]);
+
+    $this->expectException(InvalidArgumentException::class);
+
+    [$collectRepositories] = new CollectRepositories(Uuid::generate(), $key)->withFakeBatch();
+    $this->app->call([$collectRepositories, 'handle']);
 });

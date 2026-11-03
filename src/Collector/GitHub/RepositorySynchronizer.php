@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Collector\GitHub;
 
 use Carbon\CarbonImmutable;
-use Maarheeze\Compass\Collections\GitHubRepositoryCollection;
+use Maarheeze\Compass\Collections\CollectedRepositoryCollection;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 
@@ -20,24 +20,24 @@ readonly class RepositorySynchronizer
     }
 
     public function storeRepositories(
-        GitHubRepositoryCollection $gitHubRepositories,
+        CollectedRepositoryCollection $collectedRepositories,
         Uuid $runId,
     ): void {
         $repositoryValues = [];
 
-        foreach ($gitHubRepositories as $gitHubRepository) {
+        foreach ($collectedRepositories as $collectedRepository) {
             $repositoryValues[] = [
-                'github_id' => $gitHubRepository->gitHubId,
-                'name' => $gitHubRepository->name,
-                'url' => $gitHubRepository->url,
-                'default_branch' => $gitHubRepository->defaultBranch,
-                'last_commit_sha' => $gitHubRepository->lastCommitSha,
-                'last_commit_committed_at' => $gitHubRepository->lastCommitCommittedAt,
-                'visibility' => $gitHubRepository->visibility,
-                'composer_json_oid' => $gitHubRepository->composerJsonOid,
-                'composer_lock_oid' => $gitHubRepository->composerLockOid,
-                'package_json_oid' => $gitHubRepository->packageJsonOid,
-                'dependabot_yml_oid' => $gitHubRepository->dependabotYmlOid,
+                'github_id' => $collectedRepository->externalId,
+                'name' => $collectedRepository->name,
+                'url' => $collectedRepository->url,
+                'default_branch' => $collectedRepository->defaultBranch,
+                'last_commit_sha' => $collectedRepository->lastCommitSha,
+                'last_commit_committed_at' => $collectedRepository->lastCommitCommittedAt,
+                'visibility' => $collectedRepository->visibility,
+                'composer_json_oid' => $collectedRepository->composerJsonVersion,
+                'composer_lock_oid' => $collectedRepository->composerLockVersion,
+                'package_json_oid' => $collectedRepository->packageJsonVersion,
+                'dependabot_yml_oid' => $collectedRepository->dependabotYmlVersion,
                 'run_id' => $runId,
                 'collected_at' => CarbonImmutable::now(),
                 'missing_at' => null,

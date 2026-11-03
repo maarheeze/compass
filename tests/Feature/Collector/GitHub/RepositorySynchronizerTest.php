@@ -3,66 +3,72 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
-use Maarheeze\Compass\Collections\GitHubRepositoryCollection;
-use Maarheeze\Compass\Collector\GitHub\GitHubRepository;
+use Maarheeze\Compass\Collections\CollectedRepositoryCollection;
 use Maarheeze\Compass\Collector\GitHub\RepositorySynchronizer;
+use Maarheeze\Compass\Collector\Repositories\CollectedRepository;
 use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
 use Maarheeze\Compass\Models\Repository;
-use Maarheeze\Compass\Tests\Fixtures\GitHubRepositoryFactory;
+use Maarheeze\Compass\Tests\Fixtures\CollectedRepositoryFactory;
 use Maarheeze\Uuid\Uuid;
 
-test('store repositories creates a repository for a new github repository', function (): void {
-    $gitHubRepository = GitHubRepositoryFactory::make();
+test('store repositories creates a repository for a new collected repository', function (): void {
+    $collectedRepository = CollectedRepositoryFactory::make();
     $runId = Uuid::generate();
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositorySynchronizer->storeRepositories(new GitHubRepositoryCollection([$gitHubRepository]), $runId);
+    $repositorySynchronizer->storeRepositories(new CollectedRepositoryCollection([$collectedRepository]), $runId);
 
     $this->assertDatabaseHas(Repository::class, [
-        'github_id' => $gitHubRepository->gitHubId,
-        'name' => $gitHubRepository->name,
-        'url' => $gitHubRepository->url,
-        'default_branch' => $gitHubRepository->defaultBranch,
-        'last_commit_sha' => $gitHubRepository->lastCommitSha,
-        'last_commit_committed_at' => $gitHubRepository->lastCommitCommittedAt,
-        'visibility' => $gitHubRepository->visibility,
-        'composer_json_oid' => $gitHubRepository->composerJsonOid,
-        'composer_lock_oid' => $gitHubRepository->composerLockOid,
-        'package_json_oid' => $gitHubRepository->packageJsonOid,
-        'dependabot_yml_oid' => $gitHubRepository->dependabotYmlOid,
+        'github_id' => $collectedRepository->externalId,
+        'name' => $collectedRepository->name,
+        'url' => $collectedRepository->url,
+        'default_branch' => $collectedRepository->defaultBranch,
+        'last_commit_sha' => $collectedRepository->lastCommitSha,
+        'last_commit_committed_at' => $collectedRepository->lastCommitCommittedAt,
+        'visibility' => $collectedRepository->visibility,
+        'composer_json_oid' => $collectedRepository->composerJsonVersion,
+        'composer_lock_oid' => $collectedRepository->composerLockVersion,
+        'package_json_oid' => $collectedRepository->packageJsonVersion,
+        'dependabot_yml_oid' => $collectedRepository->dependabotYmlVersion,
         'run_id' => $runId,
     ]);
 });
 
 test('store repositories updates the default branch of a known repository', function (): void {
     $repository = Repository::factory()->create(['default_branch' => fake()->unique()->word()]);
-    $gitHubRepository = GitHubRepositoryFactory::forRepository($repository);
+    $collectedRepository = CollectedRepositoryFactory::forRepository($repository);
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositorySynchronizer->storeRepositories(new GitHubRepositoryCollection([$gitHubRepository]), Uuid::generate());
+    $repositorySynchronizer->storeRepositories(
+        new CollectedRepositoryCollection([$collectedRepository]),
+        Uuid::generate(),
+    );
 
     $this->assertDatabaseHas(Repository::class, [
         'id' => $repository->id,
-        'default_branch' => $gitHubRepository->defaultBranch,
+        'default_branch' => $collectedRepository->defaultBranch,
     ]);
 });
 
 test('store repositories updates the last commit sha of a known repository', function (): void {
     $repository = Repository::factory()->create();
-    $gitHubRepository = GitHubRepositoryFactory::forRepository($repository);
+    $collectedRepository = CollectedRepositoryFactory::forRepository($repository);
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositorySynchronizer->storeRepositories(new GitHubRepositoryCollection([$gitHubRepository]), Uuid::generate());
+    $repositorySynchronizer->storeRepositories(
+        new CollectedRepositoryCollection([$collectedRepository]),
+        Uuid::generate(),
+    );
 
     $this->assertDatabaseHas(Repository::class, [
         'id' => $repository->id,
-        'last_commit_sha' => $gitHubRepository->lastCommitSha,
+        'last_commit_sha' => $collectedRepository->lastCommitSha,
     ]);
 });
 
 test('store repositories updates the name of a known repository', function (): void {
     $repository = Repository::factory()->create(['name' => fake()->unique()->slug()]);
-    $gitHubRepository = new GitHubRepository(
+    $collectedRepository = new CollectedRepository(
         $repository->github_id,
         fake()->unique()->slug(),
         fake()->url(),
@@ -77,11 +83,14 @@ test('store repositories updates the name of a known repository', function (): v
     );
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositorySynchronizer->storeRepositories(new GitHubRepositoryCollection([$gitHubRepository]), Uuid::generate());
+    $repositorySynchronizer->storeRepositories(
+        new CollectedRepositoryCollection([$collectedRepository]),
+        Uuid::generate(),
+    );
 
     $this->assertDatabaseHas(Repository::class, [
         'id' => $repository->id,
-        'name' => $gitHubRepository->name,
+        'name' => $collectedRepository->name,
     ]);
 });
 
@@ -90,10 +99,13 @@ test('store repositories clears the missing marks of a known repository', functi
         'missing_at' => fake()->dateTime(),
         'missing_ignored_at' => fake()->dateTime(),
     ]);
-    $gitHubRepository = GitHubRepositoryFactory::forRepository($repository);
+    $collectedRepository = CollectedRepositoryFactory::forRepository($repository);
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositorySynchronizer->storeRepositories(new GitHubRepositoryCollection([$gitHubRepository]), Uuid::generate());
+    $repositorySynchronizer->storeRepositories(
+        new CollectedRepositoryCollection([$collectedRepository]),
+        Uuid::generate(),
+    );
 
     $this->assertDatabaseHas(Repository::class, [
         'id' => $repository->id,

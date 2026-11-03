@@ -7,11 +7,29 @@ namespace Maarheeze\Compass\Tests\Fixtures;
 use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collector\Repositories\CollectedRepository;
 use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
+use Maarheeze\Compass\Models\Repository;
 
 use function fake;
 
 class CollectedRepositoryFactory
 {
+    public static function forRepository(Repository $repository): CollectedRepository
+    {
+        return new CollectedRepository(
+            $repository->github_id,
+            $repository->name,
+            $repository->url,
+            fake()->unique()->word(),
+            fake()->sha1(),
+            CarbonImmutable::parse(fake()->iso8601()),
+            fake()->randomElement(RepositoryVisibility::cases()),
+            $repository->composer_json_oid,
+            $repository->composer_lock_oid,
+            $repository->package_json_oid,
+            $repository->dependabot_yml_oid,
+        );
+    }
+
     public static function make(): CollectedRepository
     {
         return self::withVisibility(fake()->randomElement(RepositoryVisibility::cases()));
