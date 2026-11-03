@@ -12,4 +12,23 @@ use Maarheeze\Compass\Collector\PullRequests\CollectedPullRequest;
  */
 class CollectedPullRequestCollection extends Collection
 {
+    /**
+     * @return Collection<int, string>
+     */
+    public function externalIds(): Collection
+    {
+        return $this->toBase()->map(static function (CollectedPullRequest $collectedPullRequest): string {
+            return $collectedPullRequest->externalId;
+        });
+    }
+
+    /**
+     * @return Collection<int, string>
+     */
+    public function repositoryNames(): Collection
+    {
+        return $this->toBase()->map(static function (CollectedPullRequest $collectedPullRequest): string {
+            return $collectedPullRequest->repositoryName;
+        });
+    }
 }

@@ -30,7 +30,7 @@ test('handle stores the pull requests of the page', function (): void {
     $runId = Uuid::generate();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([$pullRequestResponse])]);
 
-    $collectPullRequests = new CollectPullRequests($runId);
+    $collectPullRequests = new CollectPullRequests($runId, 'github');
     $this->app->call([$collectPullRequests, 'handle']);
 
     $this->assertDatabaseHas(PullRequest::class, [
@@ -43,7 +43,7 @@ test('handle deletes the pull requests of another run on the last page', functio
     $pullRequest = PullRequest::factory()->create();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([])]);
 
-    $collectPullRequests = new CollectPullRequests(Uuid::generate());
+    $collectPullRequests = new CollectPullRequests(Uuid::generate(), 'github');
     $this->app->call([$collectPullRequests, 'handle']);
 
     $this->assertModelMissing($pullRequest);
@@ -75,7 +75,7 @@ test('handle keeps the pull requests collected on an earlier page', function ():
     $responseSequence->push([]);
     $http->fake(['*' => $responseSequence]);
 
-    $collectPullRequests = new CollectPullRequests(Uuid::generate());
+    $collectPullRequests = new CollectPullRequests(Uuid::generate(), 'github');
     $this->app->call([$collectPullRequests, 'handle']);
 
     $this->assertDatabaseHas(PullRequest::class, ['github_id' => $pullRequestResponse['node_id']]);
@@ -85,8 +85,22 @@ test('handle leaves the issues alone', function (): void {
     $issue = Issue::factory()->create();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([])]);
 
-    $collectPullRequests = new CollectPullRequests(Uuid::generate());
+    $collectPullRequests = new CollectPullRequests(Uuid::generate(), 'github');
     $this->app->call([$collectPullRequests, 'handle']);
 
     $this->assertModelExists($issue);
+});
+
+test('handle refuses a source without a pull requests collector', function (): void {
+    $key = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $key => [
+            'driver' => fake()->slug(),
+        ],
+    ]);
+
+    $this->expectException(InvalidArgumentException::class);
+
+    $collectPullRequests = new CollectPullRequests(Uuid::generate(), $key);
+    $this->app->call([$collectPullRequests, 'handle']);
 });

@@ -8,10 +8,10 @@ use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
-use Maarheeze\Compass\Collector\GitHub\GitHubQueryFailed;
-use Maarheeze\Compass\Collector\GitHub\IssuesAndPullRequestsQuery;
 use Maarheeze\Compass\Collector\GitHub\PullRequestSynchronizer;
+use Maarheeze\Compass\Collector\PullRequests\PullRequestsCollectorManager;
 use Maarheeze\Uuid\Uuid;
 
 class CollectPullRequests implements ShouldQueue
@@ -22,27 +22,27 @@ class CollectPullRequests implements ShouldQueue
 
     public function __construct(
         private readonly Uuid $runId,
+        private readonly string $sourceKey,
     ) {
     }
 
     /**
-     * @throws GitHubQueryFailed
+     * @throws CollectingFailed
      */
     public function handle(
         CollectorLogger $collectorLogger,
-        IssuesAndPullRequestsQuery $issuesAndPullRequestsQuery,
         PullRequestSynchronizer $pullRequestSynchronizer,
+        PullRequestsCollectorManager $pullRequestsCollectorManager,
     ): void {
+        $pullRequestsCollector = $pullRequestsCollectorManager->collector($this->sourceKey);
+
         $collectorLogger->info('Pull requests collector started');
 
-        foreach ($issuesAndPullRequestsQuery->pages() as $issuesAndPullRequestsQueryResult) {
-            $pullRequestSynchronizer->storePullRequests(
-                $issuesAndPullRequestsQueryResult->gitHubPullRequests,
-                $this->runId,
-            );
+        foreach ($pullRequestsCollector->pullRequests() as $collectedPullRequests) {
+            $pullRequestSynchronizer->storePullRequests($collectedPullRequests, $this->runId);
 
             $collectorLogger->debug('Pull requests page collected', [
-                'pull_request_count' => $issuesAndPullRequestsQueryResult->gitHubPullRequests->count(),
+                'pull_request_count' => $collectedPullRequests->count(),
             ]);
         }
 

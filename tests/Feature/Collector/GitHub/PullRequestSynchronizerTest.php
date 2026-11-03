@@ -2,111 +2,111 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Collections\GitHubPullRequestCollection;
-use Maarheeze\Compass\Collector\GitHub\GitHubPullRequest;
+use Maarheeze\Compass\Collections\CollectedPullRequestCollection;
 use Maarheeze\Compass\Collector\GitHub\PullRequestSynchronizer;
+use Maarheeze\Compass\Collector\PullRequests\CollectedPullRequest;
 use Maarheeze\Compass\Models\PullRequest;
 use Maarheeze\Compass\Models\PullRequestAssignee;
 use Maarheeze\Compass\Models\Repository;
-use Maarheeze\Compass\Tests\Fixtures\GitHubPullRequestFactory;
+use Maarheeze\Compass\Tests\Fixtures\CollectedPullRequestFactory;
 use Maarheeze\Uuid\Uuid;
 
 test('store pull requests stores a pull request in its repository', function (): void {
     $repository = Repository::factory()->create();
-    $gitHubPullRequest = GitHubPullRequestFactory::make();
-    $gitHubPullRequestOfRepository = new GitHubPullRequest(
-        $gitHubPullRequest->gitHubId,
+    $collectedPullRequest = CollectedPullRequestFactory::make();
+    $collectedPullRequestOfRepository = new CollectedPullRequest(
+        $collectedPullRequest->externalId,
         $repository->name,
-        $gitHubPullRequest->number,
-        $gitHubPullRequest->title,
-        $gitHubPullRequest->url,
-        $gitHubPullRequest->authorLogin,
-        $gitHubPullRequest->isDraft,
-        $gitHubPullRequest->openedAt,
-        $gitHubPullRequest->assigneeLogins,
+        $collectedPullRequest->number,
+        $collectedPullRequest->title,
+        $collectedPullRequest->url,
+        $collectedPullRequest->authorLogin,
+        $collectedPullRequest->isDraft,
+        $collectedPullRequest->openedAt,
+        $collectedPullRequest->assigneeLogins,
     );
     $runId = Uuid::generate();
 
     $pullRequestSynchronizer = $this->app->make(PullRequestSynchronizer::class);
     $pullRequestSynchronizer->storePullRequests(
-        new GitHubPullRequestCollection([$gitHubPullRequestOfRepository]),
+        new CollectedPullRequestCollection([$collectedPullRequestOfRepository]),
         $runId,
     );
 
     $this->assertDatabaseHas(PullRequest::class, [
         'repository_id' => $repository->id,
-        'github_id' => $gitHubPullRequest->gitHubId,
-        'number' => $gitHubPullRequest->number,
-        'title' => $gitHubPullRequest->title,
-        'url' => $gitHubPullRequest->url,
-        'author_login' => $gitHubPullRequest->authorLogin,
-        'is_draft' => $gitHubPullRequest->isDraft,
+        'github_id' => $collectedPullRequest->externalId,
+        'number' => $collectedPullRequest->number,
+        'title' => $collectedPullRequest->title,
+        'url' => $collectedPullRequest->url,
+        'author_login' => $collectedPullRequest->authorLogin,
+        'is_draft' => $collectedPullRequest->isDraft,
         'run_id' => $runId,
     ]);
 });
 
 test('store pull requests skips a pull request of an unknown repository', function (): void {
-    $gitHubPullRequest = GitHubPullRequestFactory::make();
+    $collectedPullRequest = CollectedPullRequestFactory::make();
 
     $pullRequestSynchronizer = $this->app->make(PullRequestSynchronizer::class);
     $pullRequestSynchronizer->storePullRequests(
-        new GitHubPullRequestCollection([$gitHubPullRequest]),
+        new CollectedPullRequestCollection([$collectedPullRequest]),
         Uuid::generate(),
     );
 
-    $this->assertDatabaseMissing(PullRequest::class, ['github_id' => $gitHubPullRequest->gitHubId]);
+    $this->assertDatabaseMissing(PullRequest::class, ['github_id' => $collectedPullRequest->externalId]);
 });
 
 test('store pull requests stores the assignees of the pull requests', function (): void {
     $repository = Repository::factory()->create();
-    $gitHubPullRequest = GitHubPullRequestFactory::make();
-    $gitHubPullRequestOfRepository = new GitHubPullRequest(
-        $gitHubPullRequest->gitHubId,
+    $collectedPullRequest = CollectedPullRequestFactory::make();
+    $collectedPullRequestOfRepository = new CollectedPullRequest(
+        $collectedPullRequest->externalId,
         $repository->name,
-        $gitHubPullRequest->number,
-        $gitHubPullRequest->title,
-        $gitHubPullRequest->url,
-        $gitHubPullRequest->authorLogin,
-        $gitHubPullRequest->isDraft,
-        $gitHubPullRequest->openedAt,
-        $gitHubPullRequest->assigneeLogins,
+        $collectedPullRequest->number,
+        $collectedPullRequest->title,
+        $collectedPullRequest->url,
+        $collectedPullRequest->authorLogin,
+        $collectedPullRequest->isDraft,
+        $collectedPullRequest->openedAt,
+        $collectedPullRequest->assigneeLogins,
     );
 
     $pullRequestSynchronizer = $this->app->make(PullRequestSynchronizer::class);
     $pullRequestSynchronizer->storePullRequests(
-        new GitHubPullRequestCollection([$gitHubPullRequestOfRepository]),
+        new CollectedPullRequestCollection([$collectedPullRequestOfRepository]),
         Uuid::generate(),
     );
 
     $this->assertDatabaseHas(PullRequestAssignee::class, [
-        'pull_request_id' => PullRequest::query()->where('github_id', $gitHubPullRequest->gitHubId)->sole()->id,
-        'login' => $gitHubPullRequest->assigneeLogins[0],
+        'pull_request_id' => PullRequest::query()->where('github_id', $collectedPullRequest->externalId)->sole()->id,
+        'login' => $collectedPullRequest->assigneeLogins[0],
     ]);
 });
 
 test('store pull requests removes the assignees collected before', function (): void {
     $repository = Repository::factory()->create();
-    $gitHubPullRequest = GitHubPullRequestFactory::make();
-    $gitHubPullRequestOfRepository = new GitHubPullRequest(
-        $gitHubPullRequest->gitHubId,
+    $collectedPullRequest = CollectedPullRequestFactory::make();
+    $collectedPullRequestOfRepository = new CollectedPullRequest(
+        $collectedPullRequest->externalId,
         $repository->name,
-        $gitHubPullRequest->number,
-        $gitHubPullRequest->title,
-        $gitHubPullRequest->url,
-        $gitHubPullRequest->authorLogin,
-        $gitHubPullRequest->isDraft,
-        $gitHubPullRequest->openedAt,
-        $gitHubPullRequest->assigneeLogins,
+        $collectedPullRequest->number,
+        $collectedPullRequest->title,
+        $collectedPullRequest->url,
+        $collectedPullRequest->authorLogin,
+        $collectedPullRequest->isDraft,
+        $collectedPullRequest->openedAt,
+        $collectedPullRequest->assigneeLogins,
     );
     $pullRequest = PullRequest::factory()->create([
         'repository_id' => $repository->id,
-        'github_id' => $gitHubPullRequest->gitHubId,
+        'github_id' => $collectedPullRequest->externalId,
     ]);
     $assignee = PullRequestAssignee::factory()->create(['pull_request_id' => $pullRequest->id]);
 
     $pullRequestSynchronizer = $this->app->make(PullRequestSynchronizer::class);
     $pullRequestSynchronizer->storePullRequests(
-        new GitHubPullRequestCollection([$gitHubPullRequestOfRepository]),
+        new CollectedPullRequestCollection([$collectedPullRequestOfRepository]),
         Uuid::generate(),
     );
 

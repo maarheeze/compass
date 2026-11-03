@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Collector\GitHub;
 
 use Carbon\CarbonImmutable;
-use Maarheeze\Compass\Collections\GitHubPullRequestCollection;
+use Maarheeze\Compass\Collections\CollectedPullRequestCollection;
+use Maarheeze\Compass\Collector\PullRequests\CollectedPullRequest;
 use Maarheeze\Compass\Models\PullRequest;
 use Maarheeze\Compass\Models\PullRequestAssignee;
 use Maarheeze\Compass\Models\Repository;
@@ -21,51 +22,51 @@ readonly class PullRequestSynchronizer
     }
 
     public function storePullRequests(
-        GitHubPullRequestCollection $gitHubPullRequests,
+        CollectedPullRequestCollection $collectedPullRequests,
         Uuid $runId,
     ): void {
         $repositoryIds = Repository::query()
-            ->named($gitHubPullRequests->repositoryNames())
+            ->named($collectedPullRequests->repositoryNames())
             ->pluck('id', 'name');
-        $gitHubPullRequestsOfKnownRepositories = $gitHubPullRequests->filter(
-            static function (GitHubPullRequest $gitHubPullRequest) use ($repositoryIds): bool {
-                return $repositoryIds->has($gitHubPullRequest->repositoryName);
+        $collectedPullRequestsOfKnownRepositories = $collectedPullRequests->filter(
+            static function (CollectedPullRequest $collectedPullRequest) use ($repositoryIds): bool {
+                return $repositoryIds->has($collectedPullRequest->repositoryName);
             },
         );
         $pullRequestValues = [];
 
-        foreach ($gitHubPullRequestsOfKnownRepositories as $gitHubPullRequest) {
+        foreach ($collectedPullRequestsOfKnownRepositories as $collectedPullRequest) {
             $pullRequestValues[] = [
-                'repository_id' => $repositoryIds->get($gitHubPullRequest->repositoryName),
-                'github_id' => $gitHubPullRequest->gitHubId,
-                'number' => $gitHubPullRequest->number,
-                'title' => $gitHubPullRequest->title,
-                'url' => $gitHubPullRequest->url,
-                'author_login' => $gitHubPullRequest->authorLogin,
-                'is_draft' => $gitHubPullRequest->isDraft,
-                'opened_at' => $gitHubPullRequest->openedAt,
+                'repository_id' => $repositoryIds->get($collectedPullRequest->repositoryName),
+                'github_id' => $collectedPullRequest->externalId,
+                'number' => $collectedPullRequest->number,
+                'title' => $collectedPullRequest->title,
+                'url' => $collectedPullRequest->url,
+                'author_login' => $collectedPullRequest->authorLogin,
+                'is_draft' => $collectedPullRequest->isDraft,
+                'opened_at' => $collectedPullRequest->openedAt,
                 'run_id' => $runId,
                 'collected_at' => CarbonImmutable::now(),
             ];
         }
 
         PullRequest::query()->upsert($pullRequestValues, ['github_id']);
-        $this->storeAssignees($gitHubPullRequestsOfKnownRepositories);
+        $this->storeAssignees($collectedPullRequestsOfKnownRepositories);
     }
 
-    private function storeAssignees(GitHubPullRequestCollection $gitHubPullRequests): void
+    private function storeAssignees(CollectedPullRequestCollection $collectedPullRequests): void
     {
-        $pullRequestsOfGitHubPullRequests = PullRequest::query()
-            ->ofGitHubIds($gitHubPullRequests->gitHubIds())
+        $pullRequestsOfCollectedPullRequests = PullRequest::query()
+            ->ofGitHubIds($collectedPullRequests->externalIds())
             ->get();
-        $pullRequestIds = $pullRequestsOfGitHubPullRequests->pluck('id', 'github_id');
+        $pullRequestIds = $pullRequestsOfCollectedPullRequests->pluck('id', 'github_id');
         $assigneeValues = [];
 
-        foreach ($gitHubPullRequests as $gitHubPullRequest) {
-            foreach ($gitHubPullRequest->assigneeLogins as $assigneeLogin) {
+        foreach ($collectedPullRequests as $collectedPullRequest) {
+            foreach ($collectedPullRequest->assigneeLogins as $assigneeLogin) {
                 $assigneeValues[] = [
                     'id' => Uuid::generate(),
-                    'pull_request_id' => $pullRequestIds->get($gitHubPullRequest->gitHubId),
+                    'pull_request_id' => $pullRequestIds->get($collectedPullRequest->externalId),
                     'login' => $assigneeLogin,
                     'created_at' => CarbonImmutable::now(),
                     'updated_at' => CarbonImmutable::now(),
@@ -74,7 +75,7 @@ readonly class PullRequestSynchronizer
         }
 
         PullRequestAssignee::query()
-            ->ofPullRequests($pullRequestsOfGitHubPullRequests)
+            ->ofPullRequests($pullRequestsOfCollectedPullRequests)
             ->delete();
         PullRequestAssignee::query()->insert($assigneeValues);
     }
