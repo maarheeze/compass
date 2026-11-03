@@ -7,8 +7,9 @@ namespace Maarheeze\Compass\Collector\GitHub;
 use Carbon\CarbonImmutable;
 use Generator;
 use Illuminate\Http\Client\Response;
-use Maarheeze\Compass\Collections\GitHubIssueCollection;
+use Maarheeze\Compass\Collections\CollectedIssueCollection;
 use Maarheeze\Compass\Collections\GitHubPullRequestCollection;
+use Maarheeze\Compass\Collector\Issues\CollectedIssue;
 use Webmozart\Assert\Assert;
 
 use function array_key_exists;
@@ -73,9 +74,9 @@ readonly class IssuesAndPullRequestsQuery
     /**
      * @param array<mixed> $issueResponse
      */
-    private function getGitHubIssue(array $issueResponse): GitHubIssue
+    private function getCollectedIssue(array $issueResponse): CollectedIssue
     {
-        return new GitHubIssue(
+        return new CollectedIssue(
             Assert::string($issueResponse['node_id']),
             $this->getRepositoryName($issueResponse),
             Assert::integer($issueResponse['number']),
@@ -111,7 +112,7 @@ readonly class IssuesAndPullRequestsQuery
     private function getIssuesAndPullRequestsQueryResult(?string $pageUrl): IssuesAndPullRequestsQueryResult
     {
         $response = $this->gitHubClient->get($this->getPageUrl($pageUrl));
-        $gitHubIssues = new GitHubIssueCollection();
+        $collectedIssues = new CollectedIssueCollection();
         $gitHubPullRequests = new GitHubPullRequestCollection();
 
         foreach (Assert::isList($response->json()) as $issueResponse) {
@@ -120,12 +121,12 @@ readonly class IssuesAndPullRequestsQuery
             if (array_key_exists('pull_request', $issueResponse)) {
                 $gitHubPullRequests->push($this->getGitHubPullRequest($issueResponse));
             } else {
-                $gitHubIssues->push($this->getGitHubIssue($issueResponse));
+                $collectedIssues->push($this->getCollectedIssue($issueResponse));
             }
         }
 
         return new IssuesAndPullRequestsQueryResult(
-            $gitHubIssues,
+            $collectedIssues,
             $gitHubPullRequests,
             $this->getNextPageUrl($response),
         );

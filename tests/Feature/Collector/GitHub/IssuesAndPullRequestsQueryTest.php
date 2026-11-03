@@ -4,21 +4,24 @@ declare(strict_types=1);
 
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
-use Maarheeze\Compass\Collections\GitHubIssueCollection;
+use Maarheeze\Compass\Collections\CollectedIssueCollection;
 use Maarheeze\Compass\Collections\GitHubPullRequestCollection;
+use Maarheeze\Compass\Collector\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\GitHub\GitHubQueryFailed;
 use Maarheeze\Compass\Collector\GitHub\IssuesAndPullRequestsQuery;
-use Maarheeze\Compass\Tests\Fixtures\GitHubIssueFactory;
+use Maarheeze\Compass\Tests\Fixtures\CollectedIssueFactory;
 use Maarheeze\Compass\Tests\Fixtures\GitHubPullRequestFactory;
 
 test('pages query the first page of the open issues of the organization', function (): void {
     $organization = fake()->slug();
-    $this->setConfiguration('compass.github.organization', $organization);
 
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response([])]);
 
-    $issuesAndPullRequestsQuery = $this->app->make(IssuesAndPullRequestsQuery::class);
+    $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
+        new GitHubClient($http, fake()->sha1()),
+        $organization,
+    );
     $issuesAndPullRequestsQuery->pages()->current();
 
     $http->assertSent(static function (HttpRequest $request) use ($organization): bool {
@@ -40,7 +43,10 @@ test('pages query the next page the page before it links to', function (): void 
     $responseSequence->push([]);
     $http->fake(['*' => $responseSequence]);
 
-    $issuesAndPullRequestsQuery = $this->app->make(IssuesAndPullRequestsQuery::class);
+    $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
+        new GitHubClient($http, fake()->sha1()),
+        fake()->slug(),
+    );
     iterator_to_array($issuesAndPullRequestsQuery->pages());
 
     $http->assertSent(static function (HttpRequest $request) use ($nextPageUrl): bool {
@@ -48,36 +54,39 @@ test('pages query the next page the page before it links to', function (): void 
     });
 });
 
-test('pages hold the github issues in the response', function (): void {
-    $gitHubIssue = GitHubIssueFactory::make();
+test('pages hold the collected issues in the response', function (): void {
+    $collectedIssue = CollectedIssueFactory::make();
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             [
-                'node_id' => $gitHubIssue->gitHubId,
+                'node_id' => $collectedIssue->externalId,
                 'repository' => [
-                    'name' => $gitHubIssue->repositoryName,
+                    'name' => $collectedIssue->repositoryName,
                 ],
-                'number' => $gitHubIssue->number,
-                'title' => $gitHubIssue->title,
-                'html_url' => $gitHubIssue->url,
+                'number' => $collectedIssue->number,
+                'title' => $collectedIssue->title,
+                'html_url' => $collectedIssue->url,
                 'user' => [
-                    'login' => $gitHubIssue->authorLogin,
+                    'login' => $collectedIssue->authorLogin,
                 ],
-                'created_at' => $gitHubIssue->openedAt->toIso8601String(),
+                'created_at' => $collectedIssue->openedAt->toIso8601String(),
                 'assignees' => [
                     [
-                        'login' => $gitHubIssue->assigneeLogins[0],
+                        'login' => $collectedIssue->assigneeLogins[0],
                     ],
                 ],
             ],
         ]),
     ]);
 
-    $issuesAndPullRequestsQuery = $this->app->make(IssuesAndPullRequestsQuery::class);
+    $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
+        new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
+        fake()->slug(),
+    );
     $issuesAndPullRequestsQueryResult = $issuesAndPullRequestsQuery->pages()->current();
 
-    expect($issuesAndPullRequestsQueryResult->gitHubIssues)
-        ->toEqual(new GitHubIssueCollection([$gitHubIssue]));
+    expect($issuesAndPullRequestsQueryResult->collectedIssues)
+        ->toEqual(new CollectedIssueCollection([$collectedIssue]));
 });
 
 test('pages hold the github pull requests in the response', function (): void {
@@ -109,7 +118,10 @@ test('pages hold the github pull requests in the response', function (): void {
         ]),
     ]);
 
-    $issuesAndPullRequestsQuery = $this->app->make(IssuesAndPullRequestsQuery::class);
+    $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
+        new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
+        fake()->slug(),
+    );
     $issuesAndPullRequestsQueryResult = $issuesAndPullRequestsQuery->pages()->current();
 
     expect($issuesAndPullRequestsQueryResult->gitHubPullRequests)
@@ -134,10 +146,13 @@ test('pages hold no author login for an issue without a user', function (): void
         ]),
     ]);
 
-    $issuesAndPullRequestsQuery = $this->app->make(IssuesAndPullRequestsQuery::class);
+    $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
+        new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
+        fake()->slug(),
+    );
     $issuesAndPullRequestsQueryResult = $issuesAndPullRequestsQuery->pages()->current();
 
-    expect($issuesAndPullRequestsQueryResult->gitHubIssues->sole()->authorLogin)
+    expect($issuesAndPullRequestsQueryResult->collectedIssues->sole()->authorLogin)
         ->toBeNull();
 });
 
@@ -149,7 +164,10 @@ test('pages end with the page without a next link', function (): void {
         ]),
     ]);
 
-    $issuesAndPullRequestsQuery = $this->app->make(IssuesAndPullRequestsQuery::class);
+    $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
+        new GitHubClient($http, fake()->sha1()),
+        fake()->slug(),
+    );
     iterator_to_array($issuesAndPullRequestsQuery->pages());
 
     $http->assertSentCount(1);
@@ -158,6 +176,9 @@ test('pages end with the page without a next link', function (): void {
 test('pages throw when github refuses the request', function (): void {
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, 401)]);
 
-    $issuesAndPullRequestsQuery = $this->app->make(IssuesAndPullRequestsQuery::class);
+    $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
+        new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
+        fake()->slug(),
+    );
     $issuesAndPullRequestsQuery->pages()->current();
 })->throws(GitHubQueryFailed::class);
