@@ -2,24 +2,23 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Collections\GitHubRepositoryCollection;
+use Maarheeze\Compass\Collections\CollectedRepositoryCollection;
 use Maarheeze\Compass\Collector\GitHub\RepositoriesQueryResult;
-use Maarheeze\Compass\Tests\Fixtures\GitHubRepositoryFactory;
+use Maarheeze\Compass\Tests\Fixtures\CollectedRepositoryFactory;
 
-test('repositories query result holds the github repositories it is given', function (): void {
-    $gitHubRepository = GitHubRepositoryFactory::make();
-    $gitHubRepositories = new GitHubRepositoryCollection([$gitHubRepository]);
+test('repositories query result holds the collected repositories it is given', function (): void {
+    $collectedRepositories = new CollectedRepositoryCollection([CollectedRepositoryFactory::make()]);
 
-    $repositoriesQueryResult = new RepositoriesQueryResult($gitHubRepositories, fake()->sha1());
+    $repositoriesQueryResult = new RepositoriesQueryResult($collectedRepositories, fake()->sha1());
 
-    expect($repositoriesQueryResult->gitHubRepositories)
-        ->toBe($gitHubRepositories);
+    expect($repositoriesQueryResult->collectedRepositories)
+        ->toBe($collectedRepositories);
 });
 
 test('repositories query result holds the next cursor it is given', function (): void {
     $nextCursor = fake()->sha1();
 
-    $repositoriesQueryResult = new RepositoriesQueryResult(new GitHubRepositoryCollection(), $nextCursor);
+    $repositoriesQueryResult = new RepositoriesQueryResult(new CollectedRepositoryCollection(), $nextCursor);
 
     expect($repositoriesQueryResult->nextCursor)
         ->toBe($nextCursor);

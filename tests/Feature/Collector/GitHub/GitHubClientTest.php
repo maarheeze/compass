@@ -11,7 +11,7 @@ test('query is posted to the github graphql api', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response([])]);
 
-    $gitHubClient = $this->app->make(GitHubClient::class);
+    $gitHubClient = new GitHubClient($http, fake()->sha1());
     $gitHubClient->query(fake()->sentence(), []);
 
     $http->assertSent(static function (HttpRequest $request): bool {
@@ -23,14 +23,13 @@ test('query is posted to the github graphql api', function (): void {
     });
 });
 
-test('query is sent with the ci user token', function (): void {
+test('query is sent with its token', function (): void {
     $token = fake()->sha1();
-    $this->setConfiguration('compass.github.token', $token);
 
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response([])]);
 
-    $gitHubClient = $this->app->make(GitHubClient::class);
+    $gitHubClient = new GitHubClient($http, $token);
     $gitHubClient->query(fake()->sentence(), []);
 
     $http->assertSent(static function (HttpRequest $request) use ($token): bool {
@@ -48,7 +47,7 @@ test('query is sent with its variables', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response([])]);
 
-    $gitHubClient = $this->app->make(GitHubClient::class);
+    $gitHubClient = new GitHubClient($http, fake()->sha1());
     $gitHubClient->query($query, $variables);
 
     $http->assertSent(static function (HttpRequest $request) use ($query, $variables): bool {
@@ -71,7 +70,7 @@ test('query throws when github answers with errors', function (): void {
         ]),
     ]);
 
-    $gitHubClient = $this->app->make(GitHubClient::class);
+    $gitHubClient = new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1());
     $gitHubClient->query(fake()->sentence(), []);
 })->throws(GitHubQueryFailed::class);
 
@@ -87,7 +86,7 @@ test('query throws with the error messages github answered with', function (): v
         ]),
     ]);
 
-    $gitHubClient = $this->app->make(GitHubClient::class);
+    $gitHubClient = new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1());
 
     expect(static function () use ($gitHubClient): void {
         $gitHubClient->query(fake()->sentence(), []);
@@ -100,14 +99,14 @@ test('query throws with the error messages github answered with', function (): v
 test('query throws when github refuses the request', function (): void {
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, 401)]);
 
-    $gitHubClient = $this->app->make(GitHubClient::class);
+    $gitHubClient = new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1());
     $gitHubClient->query(fake()->sentence(), []);
 })->throws(GitHubQueryFailed::class);
 
 test('query throws when github cannot be reached', function (): void {
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::failedConnection()]);
 
-    $gitHubClient = $this->app->make(GitHubClient::class);
+    $gitHubClient = new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1());
     $gitHubClient->query(fake()->sentence(), []);
 })->throws(GitHubQueryFailed::class);
 
@@ -117,7 +116,7 @@ test('get is sent to the github api', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response([])]);
 
-    $gitHubClient = $this->app->make(GitHubClient::class);
+    $gitHubClient = new GitHubClient($http, fake()->sha1());
     $gitHubClient->get($path);
 
     $http->assertSent(static function (HttpRequest $request) use ($path): bool {
@@ -135,7 +134,7 @@ test('get is sent to an absolute url as is', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response([])]);
 
-    $gitHubClient = $this->app->make(GitHubClient::class);
+    $gitHubClient = new GitHubClient($http, fake()->sha1());
     $gitHubClient->get($url);
 
     $http->assertSent(static function (HttpRequest $request) use ($url): bool {
@@ -143,14 +142,13 @@ test('get is sent to an absolute url as is', function (): void {
     });
 });
 
-test('get is sent with the ci user token', function (): void {
+test('get is sent with its token', function (): void {
     $token = fake()->sha1();
-    $this->setConfiguration('compass.github.token', $token);
 
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response([])]);
 
-    $gitHubClient = $this->app->make(GitHubClient::class);
+    $gitHubClient = new GitHubClient($http, $token);
     $gitHubClient->get(fake()->slug());
 
     $http->assertSent(static function (HttpRequest $request) use ($token): bool {
@@ -161,13 +159,13 @@ test('get is sent with the ci user token', function (): void {
 test('get throws when github refuses the request', function (): void {
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, 401)]);
 
-    $gitHubClient = $this->app->make(GitHubClient::class);
+    $gitHubClient = new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1());
     $gitHubClient->get(fake()->slug());
 })->throws(GitHubQueryFailed::class);
 
 test('get throws when github cannot be reached', function (): void {
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::failedConnection()]);
 
-    $gitHubClient = $this->app->make(GitHubClient::class);
+    $gitHubClient = new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1());
     $gitHubClient->get(fake()->slug());
 })->throws(GitHubQueryFailed::class);

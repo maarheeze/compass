@@ -6,7 +6,8 @@ namespace Maarheeze\Compass\Collector\GitHub;
 
 use Carbon\CarbonImmutable;
 use Generator;
-use Maarheeze\Compass\Collections\GitHubRepositoryCollection;
+use Maarheeze\Compass\Collections\CollectedRepositoryCollection;
+use Maarheeze\Compass\Collector\Repositories\CollectedRepository;
 use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
 use Webmozart\Assert\Assert;
 
@@ -39,9 +40,9 @@ readonly class RepositoriesQuery
     /**
      * @param list<mixed> $repositoryResponses
      */
-    private function buildGitHubRepositoriesCollection(array $repositoryResponses): GitHubRepositoryCollection
+    private function getCollectedRepositories(array $repositoryResponses): CollectedRepositoryCollection
     {
-        $gitHubRepositories = new GitHubRepositoryCollection();
+        $collectedRepositories = new CollectedRepositoryCollection();
 
         foreach ($repositoryResponses as $repositoryResponse) {
             Assert::isArray($repositoryResponse);
@@ -53,24 +54,24 @@ readonly class RepositoriesQuery
             $defaultBranchResponse = Assert::isArray($repositoryResponse['defaultBranchRef']);
             $lastCommitResponse = Assert::isArray($defaultBranchResponse['target']);
 
-            $gitHubRepository = new GitHubRepository(
+            $collectedRepository = new CollectedRepository(
                 Assert::string($repositoryResponse['id']),
                 Assert::string($repositoryResponse['name']),
                 Assert::string($repositoryResponse['url']),
                 Assert::string($defaultBranchResponse['name']),
                 Assert::string($lastCommitResponse['oid']),
                 CarbonImmutable::parse(Assert::string($lastCommitResponse['committedDate'])),
-                RepositoryVisibility::from(Assert::string($repositoryResponse['visibility'])),
+                $this->getVisibility(Assert::string($repositoryResponse['visibility'])),
                 $this->getOid($repositoryResponse['composerJson']),
                 $this->getOid($repositoryResponse['composerLock']),
                 $this->getOid($repositoryResponse['packageJson']),
                 $this->getOid($repositoryResponse['dependabotYml']),
             );
 
-            $gitHubRepositories->push($gitHubRepository);
+            $collectedRepositories->push($collectedRepository);
         }
 
-        return $gitHubRepositories;
+        return $collectedRepositories;
     }
 
     /**
@@ -130,8 +131,17 @@ readonly class RepositoriesQuery
         $repositoriesResponse = Assert::isArray($response->json('data.organization.repositories'));
 
         return new RepositoriesQueryResult(
-            $this->buildGitHubRepositoriesCollection(Assert::isList($repositoriesResponse['nodes'])),
+            $this->getCollectedRepositories(Assert::isList($repositoriesResponse['nodes'])),
             $this->getNextCursor(Assert::isArray($repositoriesResponse['pageInfo'])),
         );
+    }
+
+    private function getVisibility(string $visibilityResponse): RepositoryVisibility
+    {
+        return match ($visibilityResponse) {
+            'INTERNAL' => RepositoryVisibility::INTERNAL,
+            'PRIVATE' => RepositoryVisibility::PRIVATE,
+            'PUBLIC' => RepositoryVisibility::PUBLIC,
+        };
     }
 }
