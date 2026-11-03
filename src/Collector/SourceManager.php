@@ -16,11 +16,11 @@ use function array_key_exists;
 
 class SourceManager
 {
-    /** @var array<string, Closure(Container, array<string, mixed>): SourceDriver> */
+    /** @var array<string, Closure(Container, array<string, mixed>): CollectorDriver> */
     private array $customCreators = [];
 
-    /** @var array<string, Source>|null */
-    private ?array $sources = null;
+    /** @var array<string, Source> */
+    private array $sources = [];
 
     public function __construct(
         private readonly Repository $config,
@@ -29,7 +29,7 @@ class SourceManager
     }
 
     /**
-     * @param Closure(Container, array<string, mixed>): SourceDriver $creator
+     * @param Closure(Container, array<string, mixed>): CollectorDriver $creator
      */
     public function extend(string $driverName, Closure $creator): void
     {
@@ -38,11 +38,9 @@ class SourceManager
 
     public function source(string $key): Source
     {
-        if ($this->sources === null) {
-            $this->sources = $this->makeSources();
+        if (!array_key_exists($key, $this->sources)) {
+            $this->sources[$key] = $this->makeSource($key);
         }
-
-        Assert::keyExists($this->sources, $key);
 
         return $this->sources[$key];
     }
@@ -82,7 +80,7 @@ class SourceManager
     /**
      * @param array<string, mixed> $sourceConfig
      */
-    private function makeDriver(array $sourceConfig): SourceDriver
+    private function makeDriver(array $sourceConfig): CollectorDriver
     {
         Assert::keyExists($sourceConfig, 'driver');
 
@@ -99,20 +97,12 @@ class SourceManager
         };
     }
 
-    /**
-     * @return array<string, Source>
-     */
-    private function makeSources(): array
+    private function makeSource(string $key): Source
     {
-        $sources = [];
+        $sourceConfigs = $this->config->array('compass.sources');
 
-        foreach ($this->config->array('compass.sources') as $key => $sourceConfig) {
-            $sourceKey = Assert::stringNotEmpty($key);
-            $driver = $this->makeDriver(Assert::isMap($sourceConfig));
+        Assert::keyExists($sourceConfigs, $key);
 
-            $sources[$sourceKey] = new Source($sourceKey, $driver);
-        }
-
-        return $sources;
+        return new Source($key, $this->makeDriver(Assert::isMap($sourceConfigs[$key])));
     }
 }

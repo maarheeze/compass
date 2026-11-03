@@ -8,7 +8,7 @@ readonly class Source
 {
     public function __construct(
         public string $key,
-        public SourceDriver $driver,
+        public CollectorDriver $driver,
     ) {
     }
 }

@@ -161,15 +161,10 @@ test('source refuses a key no source is configured under', function (): void {
     $sourceManager->source(fake()->slug());
 })->throws(InvalidArgumentException::class);
 
-test('source refuses every source while another names a driver that is neither built in nor extended', function (): void {
-    $key = fake()->unique()->slug();
+test('source refuses a source naming a driver that is neither built in nor extended', function (): void {
+    $key = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $key => [
-            'driver' => 'github',
-            'organization' => fake()->slug(),
-            'token' => fake()->sha1(),
-        ],
-        fake()->unique()->slug() => [
             'driver' => fake()->slug(),
         ],
     ]);
@@ -178,6 +173,28 @@ test('source refuses every source while another names a driver that is neither b
 
     $sourceManager->source($key);
 })->throws(InvalidArgumentException::class);
+
+test('source makes a source while another names a driver that is neither built in nor extended', function (): void {
+    $key = fake()->unique()->slug();
+    $organization = fake()->slug();
+    $token = fake()->sha1();
+    $this->setConfiguration('compass.sources', [
+        $key => [
+            'driver' => 'github',
+            'organization' => $organization,
+            'token' => $token,
+        ],
+        fake()->unique()->slug() => [
+            'driver' => fake()->slug(),
+        ],
+    ]);
+
+    $sourceManager = $this->app->make(SourceManager::class);
+    $source = $sourceManager->source($key);
+
+    expect($source)
+        ->toEqual(new Source($key, new GitHubDriver($organization, $token)));
+});
 
 test('source refuses a source with a setting its driver needs missing or wrong', function (array $sourceConfig): void {
     $key = fake()->slug();

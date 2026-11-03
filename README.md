@@ -82,7 +82,7 @@ For anything else, such as a second organization or no Forge at all, publish the
 ],
 ```
 
-Every source is checked the first time Compass needs one: a source naming a driver Compass does not have, or missing a setting its driver needs, fails before anything is collected.
+A source is checked when a run of it starts: a source naming a driver Compass does not have, or missing a setting its driver needs, fails before anything is collected, and leaves the other sources alone.
 
 ## Usage
 
