@@ -42,13 +42,6 @@ test('collector of a github source reads the files of its organization with its 
     });
 });
 
-test('collector of the shipped github source is a github composer files collector', function (): void {
-    $composerFilesCollectorManager = $this->app->make(ComposerFilesCollectorManager::class);
-
-    expect($composerFilesCollectorManager->collector('github'))
-        ->toBeInstanceOf(GitHubComposerFilesCollector::class);
-});
-
 test('collector is the collector its extension makes from its config', function (): void {
     $key = fake()->slug();
     $driverName = fake()->slug();

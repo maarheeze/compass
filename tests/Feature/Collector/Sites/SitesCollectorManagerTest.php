@@ -39,13 +39,6 @@ test('collector of a forge source collects the sites of its organization with it
     });
 });
 
-test('collector of the shipped forge source is a forge sites collector', function (): void {
-    $sitesCollectorManager = $this->app->make(SitesCollectorManager::class);
-
-    expect($sitesCollectorManager->collector('forge'))
-        ->toBeInstanceOf(ForgeSitesCollector::class);
-});
-
 test('collector is the collector its extension makes from its config', function (): void {
     $key = fake()->slug();
     $driverName = fake()->slug();

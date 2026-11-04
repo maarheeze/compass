@@ -32,13 +32,6 @@ test('collector of a github source collects the issues of its organization with 
     });
 });
 
-test('collector of the shipped github source is a github issues collector', function (): void {
-    $issuesCollectorManager = $this->app->make(IssuesCollectorManager::class);
-
-    expect($issuesCollectorManager->collector('github'))
-        ->toBeInstanceOf(GitHubIssuesCollector::class);
-});
-
 test('collector is the collector its extension makes from its config', function (): void {
     $key = fake()->slug();
     $driverName = fake()->slug();

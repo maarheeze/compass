@@ -10,6 +10,14 @@ use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 
 test('handle stores the pull requests of the page', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'github',
+            'organization' => fake()->slug(),
+            'token' => fake()->sha1(),
+        ],
+    ]);
     $repository = Repository::factory()->create();
     $pullRequestResponse = [
         'node_id' => fake()->sha1(),
@@ -30,7 +38,7 @@ test('handle stores the pull requests of the page', function (): void {
     $runId = Uuid::generate();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([$pullRequestResponse])]);
 
-    $collectPullRequests = new CollectPullRequests($runId, 'github');
+    $collectPullRequests = new CollectPullRequests($runId, $sourceKey);
     $this->app->call([$collectPullRequests, 'handle']);
 
     $this->assertDatabaseHas(PullRequest::class, [
@@ -40,16 +48,32 @@ test('handle stores the pull requests of the page', function (): void {
 });
 
 test('handle deletes the pull requests of another run on the last page', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'github',
+            'organization' => fake()->slug(),
+            'token' => fake()->sha1(),
+        ],
+    ]);
     $pullRequest = PullRequest::factory()->create();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([])]);
 
-    $collectPullRequests = new CollectPullRequests(Uuid::generate(), 'github');
+    $collectPullRequests = new CollectPullRequests(Uuid::generate(), $sourceKey);
     $this->app->call([$collectPullRequests, 'handle']);
 
     $this->assertModelMissing($pullRequest);
 });
 
 test('handle keeps the pull requests collected on an earlier page', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'github',
+            'organization' => fake()->slug(),
+            'token' => fake()->sha1(),
+        ],
+    ]);
     $repository = Repository::factory()->create();
     $pullRequestResponse = [
         'node_id' => fake()->sha1(),
@@ -75,17 +99,25 @@ test('handle keeps the pull requests collected on an earlier page', function ():
     $responseSequence->push([]);
     $http->fake(['*' => $responseSequence]);
 
-    $collectPullRequests = new CollectPullRequests(Uuid::generate(), 'github');
+    $collectPullRequests = new CollectPullRequests(Uuid::generate(), $sourceKey);
     $this->app->call([$collectPullRequests, 'handle']);
 
     $this->assertDatabaseHas(PullRequest::class, ['github_id' => $pullRequestResponse['node_id']]);
 });
 
 test('handle leaves the issues alone', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'github',
+            'organization' => fake()->slug(),
+            'token' => fake()->sha1(),
+        ],
+    ]);
     $issue = Issue::factory()->create();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([])]);
 
-    $collectPullRequests = new CollectPullRequests(Uuid::generate(), 'github');
+    $collectPullRequests = new CollectPullRequests(Uuid::generate(), $sourceKey);
     $this->app->call([$collectPullRequests, 'handle']);
 
     $this->assertModelExists($issue);

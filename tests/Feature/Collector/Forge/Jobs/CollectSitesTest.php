@@ -13,6 +13,14 @@ use Maarheeze\Compass\Models\Site;
 use Maarheeze\Uuid\Uuid;
 
 test('handle stores the sites of the page', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'forge',
+            'organization' => fake()->slug(),
+            'token' => fake()->sha1(),
+        ],
+    ]);
     $forgeId = fake()->numerify('#######');
     $serverId = fake()->numerify('####');
     $runId = Uuid::generate();
@@ -63,7 +71,7 @@ test('handle stores the sites of the page', function (): void {
         ]),
     ]);
 
-    [$collectSites] = new CollectSites($runId, 'forge')->withFakeBatch();
+    [$collectSites] = new CollectSites($runId, $sourceKey)->withFakeBatch();
     $this->app->call([$collectSites, 'handle']);
 
     $this->assertDatabaseHas(Site::class, [
@@ -73,6 +81,14 @@ test('handle stores the sites of the page', function (): void {
 });
 
 test('handle marks the sites of another run missing on the last page', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'forge',
+            'organization' => fake()->slug(),
+            'token' => fake()->sha1(),
+        ],
+    ]);
     $site = Site::factory()->create();
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
@@ -83,7 +99,7 @@ test('handle marks the sites of another run missing on the last page', function 
         ]),
     ]);
 
-    [$collectSites] = new CollectSites(Uuid::generate(), 'forge')->withFakeBatch();
+    [$collectSites] = new CollectSites(Uuid::generate(), $sourceKey)->withFakeBatch();
     $this->app->call([$collectSites, 'handle']);
 
     expect($site->refresh()->missing_at)
@@ -91,6 +107,14 @@ test('handle marks the sites of another run missing on the last page', function 
 });
 
 test('handle adds the inspection of the sites to its batch', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'forge',
+            'organization' => fake()->slug(),
+            'token' => fake()->sha1(),
+        ],
+    ]);
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             'data' => [],
@@ -100,7 +124,7 @@ test('handle adds the inspection of the sites to its batch', function (): void {
         ]),
     ]);
 
-    [$collectSites, $batchFake] = new CollectSites(Uuid::generate(), 'forge')->withFakeBatch();
+    [$collectSites, $batchFake] = new CollectSites(Uuid::generate(), $sourceKey)->withFakeBatch();
     $this->app->call([$collectSites, 'handle']);
 
     expect(array_map(get_class(...), $batchFake->added))
@@ -122,6 +146,14 @@ test('handle refuses a source without a sites collector', function (): void {
 });
 
 test('handle raises sites collected', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'forge',
+            'organization' => fake()->slug(),
+            'token' => fake()->sha1(),
+        ],
+    ]);
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
     $this->app->make(HttpFactory::class)->fake([
@@ -133,7 +165,7 @@ test('handle raises sites collected', function (): void {
         ]),
     ]);
 
-    [$collectSites] = new CollectSites(Uuid::generate(), 'forge')->withFakeBatch();
+    [$collectSites] = new CollectSites(Uuid::generate(), $sourceKey)->withFakeBatch();
     $this->app->call([$collectSites, 'handle']);
 
     $eventFake->assertDispatched(SitesCollected::class);

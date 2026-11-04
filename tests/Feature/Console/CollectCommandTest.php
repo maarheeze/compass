@@ -14,16 +14,17 @@ use Maarheeze\Compass\Models\Run;
 
 test('handle starts a run of the collector of the source', function (): void {
     $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
+    $sourceKey = fake()->slug();
     $collectorType = fake()->randomElement(CollectorType::cases());
 
     $pendingCommand = $this->artisan(CollectCommand::class, [
-        'source' => 'github',
+        'source' => $sourceKey,
         'collector' => $collectorType->value,
     ]);
     $pendingCommand->assertSuccessful();
 
     $this->assertDatabaseHas(Run::class, [
-        'source' => 'github',
+        'source' => $sourceKey,
         'collector' => $collectorType,
     ]);
 });
@@ -37,7 +38,7 @@ test('handle runs the job of the collector from the registry', function (): void
         ->register($collectorType, CollectIssues::class);
 
     $pendingCommand = $this->artisan(CollectCommand::class, [
-        'source' => 'github',
+        'source' => fake()->slug(),
         'collector' => $collectorType->value,
     ]);
     $pendingCommand->run();
@@ -56,7 +57,7 @@ test('handle refuses a collector that does not exist', function (): void {
     $this->expectException(ValueError::class);
 
     $pendingCommand = $this->artisan(CollectCommand::class, [
-        'source' => 'github',
+        'source' => fake()->slug(),
         'collector' => fake()->slug(),
     ]);
     $pendingCommand->run();

@@ -129,6 +129,11 @@ return [
                 'sites' => ScheduleFrequency::HOURLY,
             ],
         ],
+        'compass-client' => [
+            'driver' => 'compass-client',
+            'key' => env('COMPASS_CLIENT_KEY'),
+            'path' => env('COMPASS_CLIENT_PATH', '/_compass'),
+        ],
     ],
 
 ];

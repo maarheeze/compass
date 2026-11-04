@@ -13,6 +13,14 @@ use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\Repository;
 
 test('handle queries the blob of the current composer json oid', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'github',
+            'organization' => fake()->slug(),
+            'token' => fake()->sha1(),
+        ],
+    ]);
     $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
 
     $http = $this->app->make(HttpFactory::class);
@@ -28,7 +36,7 @@ test('handle queries the blob of the current composer json oid', function (): vo
         ]),
     ]);
 
-    $collectComposerJson = new CollectComposerJson($repository, 'github');
+    $collectComposerJson = new CollectComposerJson($repository, $sourceKey);
     $this->app->call([$collectComposerJson, 'handle']);
 
     $http->assertSent(static function (HttpRequest $request) use ($repository): bool {
@@ -41,6 +49,14 @@ test('handle queries the blob of the current composer json oid', function (): vo
 });
 
 test('handle stores the composer json with its oid', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'github',
+            'organization' => fake()->slug(),
+            'token' => fake()->sha1(),
+        ],
+    ]);
     $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
     $type = fake()->word();
     $this->app->make(HttpFactory::class)->fake([
@@ -55,7 +71,7 @@ test('handle stores the composer json with its oid', function (): void {
         ]),
     ]);
 
-    $collectComposerJson = new CollectComposerJson($repository, 'github');
+    $collectComposerJson = new CollectComposerJson($repository, $sourceKey);
     $this->app->call([$collectComposerJson, 'handle']);
 
     $this->assertDatabaseHas(ComposerJson::class, [
@@ -66,19 +82,35 @@ test('handle stores the composer json with its oid', function (): void {
 });
 
 test('handle removes the composer json when the repository no longer has one', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'github',
+            'organization' => fake()->slug(),
+            'token' => fake()->sha1(),
+        ],
+    ]);
     $repository = Repository::factory()->create(['composer_json_oid' => null]);
     $composerJson = ComposerJson::factory()->create(['repository_id' => $repository->id]);
 
-    $collectComposerJson = new CollectComposerJson($repository, 'github');
+    $collectComposerJson = new CollectComposerJson($repository, $sourceKey);
     $this->app->call([$collectComposerJson, 'handle']);
 
     $this->assertDatabaseMissing(ComposerJson::class, ['id' => $composerJson->id]);
 });
 
 test('handle adds the repository to the log context', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'github',
+            'organization' => fake()->slug(),
+            'token' => fake()->sha1(),
+        ],
+    ]);
     $repository = Repository::factory()->create(['composer_json_oid' => null]);
 
-    $collectComposerJson = new CollectComposerJson($repository, 'github');
+    $collectComposerJson = new CollectComposerJson($repository, $sourceKey);
     $this->app->call([$collectComposerJson, 'handle']);
 
     expect($this->app->make(Context::class)->get('repository'))
@@ -101,11 +133,19 @@ test('handle refuses a source without a composer files collector', function (): 
 });
 
 test('handle raises composer json changed for the repository when its file is gone', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'github',
+            'organization' => fake()->slug(),
+            'token' => fake()->sha1(),
+        ],
+    ]);
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
     $repository = Repository::factory()->create(['composer_json_oid' => null]);
 
-    $collectComposerJson = new CollectComposerJson($repository, 'github');
+    $collectComposerJson = new CollectComposerJson($repository, $sourceKey);
     $this->app->call([$collectComposerJson, 'handle']);
 
     $eventFake->assertDispatched(ComposerJsonChanged::class, static function (ComposerJsonChanged $composerJsonChanged) use ($repository): bool {

@@ -13,6 +13,14 @@ use Maarheeze\Compass\Models\ComposerLock;
 use Maarheeze\Compass\Models\Repository;
 
 test('handle queries the blob of the current composer lock oid', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'github',
+            'organization' => fake()->slug(),
+            'token' => fake()->sha1(),
+        ],
+    ]);
     $repository = Repository::factory()->create(['composer_lock_oid' => fake()->sha1()]);
 
     $http = $this->app->make(HttpFactory::class);
@@ -32,7 +40,7 @@ test('handle queries the blob of the current composer lock oid', function (): vo
         ]),
     ]);
 
-    $collectComposerLock = new CollectComposerLock($repository, 'github');
+    $collectComposerLock = new CollectComposerLock($repository, $sourceKey);
     $this->app->call([$collectComposerLock, 'handle']);
 
     $http->assertSent(static function (HttpRequest $request) use ($repository): bool {
@@ -45,6 +53,14 @@ test('handle queries the blob of the current composer lock oid', function (): vo
 });
 
 test('handle stores the composer lock with its oid', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'github',
+            'organization' => fake()->slug(),
+            'token' => fake()->sha1(),
+        ],
+    ]);
     $repository = Repository::factory()->create(['composer_lock_oid' => fake()->sha1()]);
     $phpConstraint = fake()->numerify('^#.#');
     $this->app->make(HttpFactory::class)->fake([
@@ -65,7 +81,7 @@ test('handle stores the composer lock with its oid', function (): void {
         ]),
     ]);
 
-    $collectComposerLock = new CollectComposerLock($repository, 'github');
+    $collectComposerLock = new CollectComposerLock($repository, $sourceKey);
     $this->app->call([$collectComposerLock, 'handle']);
 
     $this->assertDatabaseHas(ComposerLock::class, [
@@ -76,19 +92,35 @@ test('handle stores the composer lock with its oid', function (): void {
 });
 
 test('handle removes the composer lock when the repository no longer has one', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'github',
+            'organization' => fake()->slug(),
+            'token' => fake()->sha1(),
+        ],
+    ]);
     $repository = Repository::factory()->create(['composer_lock_oid' => null]);
     $composerLock = ComposerLock::factory()->create(['repository_id' => $repository->id]);
 
-    $collectComposerLock = new CollectComposerLock($repository, 'github');
+    $collectComposerLock = new CollectComposerLock($repository, $sourceKey);
     $this->app->call([$collectComposerLock, 'handle']);
 
     $this->assertDatabaseMissing(ComposerLock::class, ['id' => $composerLock->id]);
 });
 
 test('handle adds the repository to the log context', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'github',
+            'organization' => fake()->slug(),
+            'token' => fake()->sha1(),
+        ],
+    ]);
     $repository = Repository::factory()->create(['composer_lock_oid' => null]);
 
-    $collectComposerLock = new CollectComposerLock($repository, 'github');
+    $collectComposerLock = new CollectComposerLock($repository, $sourceKey);
     $this->app->call([$collectComposerLock, 'handle']);
 
     expect($this->app->make(Context::class)->get('repository'))
@@ -111,11 +143,19 @@ test('handle refuses a source without a composer files collector', function (): 
 });
 
 test('handle raises composer lock changed for the repository when its file is gone', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'github',
+            'organization' => fake()->slug(),
+            'token' => fake()->sha1(),
+        ],
+    ]);
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
     $repository = Repository::factory()->create(['composer_lock_oid' => null]);
 
-    $collectComposerLock = new CollectComposerLock($repository, 'github');
+    $collectComposerLock = new CollectComposerLock($repository, $sourceKey);
     $this->app->call([$collectComposerLock, 'handle']);
 
     $eventFake->assertDispatched(ComposerLockChanged::class, static function (ComposerLockChanged $composerLockChanged) use ($repository): bool {

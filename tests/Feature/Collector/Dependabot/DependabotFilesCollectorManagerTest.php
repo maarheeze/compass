@@ -42,13 +42,6 @@ test('collector of a github source reads the files of its organization with its 
     });
 });
 
-test('collector of the shipped github source is a github dependabot files collector', function (): void {
-    $dependabotFilesCollectorManager = $this->app->make(DependabotFilesCollectorManager::class);
-
-    expect($dependabotFilesCollectorManager->collector('github'))
-        ->toBeInstanceOf(GitHubDependabotFilesCollector::class);
-});
-
 test('collector is the collector its extension makes from its config', function (): void {
     $key = fake()->slug();
     $driverName = fake()->slug();

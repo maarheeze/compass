@@ -16,6 +16,7 @@ use Maarheeze\Compass\Collector\GitHub\Jobs\CollectRepositories;
 use Maarheeze\Compass\Collector\Issues\IssuesCollectorManager;
 use Maarheeze\Compass\Collector\PullRequests\PullRequestsCollectorManager;
 use Maarheeze\Compass\Collector\Repositories\RepositoriesCollectorManager;
+use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollectorManager;
 use Maarheeze\Compass\Collector\Sites\SitesCollectorManager;
 use Maarheeze\Compass\Console\CollectCommand;
 
@@ -39,6 +40,7 @@ class CollectorProvider extends ServiceProvider
         $this->app->singleton(IssuesCollectorManager::class);
         $this->app->singleton(PullRequestsCollectorManager::class);
         $this->app->singleton(RepositoriesCollectorManager::class);
+        $this->app->singleton(SiteReportsCollectorManager::class);
         $this->app->singleton(SitesCollectorManager::class);
     }
 }

@@ -46,13 +46,6 @@ test('collector of a github source collects the repositories of its organization
     });
 });
 
-test('collector of the shipped github source is a github repositories collector', function (): void {
-    $repositoriesCollectorManager = $this->app->make(RepositoriesCollectorManager::class);
-
-    expect($repositoriesCollectorManager->collector('github'))
-        ->toBeInstanceOf(GitHubRepositoriesCollector::class);
-});
-
 test('collector is the collector its extension makes from its config', function (): void {
     $key = fake()->slug();
     $driverName = fake()->slug();

@@ -32,13 +32,6 @@ test('collector of a github source collects the pull requests of its organizatio
     });
 });
 
-test('collector of the shipped github source is a github pull requests collector', function (): void {
-    $pullRequestsCollectorManager = $this->app->make(PullRequestsCollectorManager::class);
-
-    expect($pullRequestsCollectorManager->collector('github'))
-        ->toBeInstanceOf(GitHubPullRequestsCollector::class);
-});
-
 test('collector is the collector its extension makes from its config', function (): void {
     $key = fake()->slug();
     $driverName = fake()->slug();

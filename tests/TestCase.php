@@ -45,10 +45,6 @@ abstract class TestCase extends Orchestra
         $configuration->set('compass.github.client_id', fake()->uuid());
         $configuration->set('compass.github.client_secret', fake()->sha1());
         $configuration->set('compass.github.organization', fake()->slug());
-        $configuration->set('compass.sources.forge.organization', fake()->slug());
-        $configuration->set('compass.sources.forge.token', fake()->sha1());
-        $configuration->set('compass.sources.github.organization', fake()->slug());
-        $configuration->set('compass.sources.github.token', fake()->sha1());
     }
 
     /**
