@@ -89,6 +89,7 @@ readonly class RepositoryController
             'sites' => static function (Builder $siteQuery): void {
                 $siteQuery->orderBy('name');
             },
+            'sites.reports',
             'sites.repository',
         ]);
 

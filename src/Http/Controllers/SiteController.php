@@ -8,8 +8,6 @@ use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
-use Maarheeze\Compass\Collector\Client\ClientKey;
-use Maarheeze\Compass\Collector\Client\ClientUrlFactory;
 use Maarheeze\Compass\Collector\Forge\MissingSiteResolver;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
@@ -21,8 +19,6 @@ use Throwable;
 readonly class SiteController
 {
     public function __construct(
-        private ClientKey $clientKey,
-        private ClientUrlFactory $clientUrlFactory,
         private MissingSiteResolver $missingSiteResolver,
         private Redirector $redirector,
         private ViewFactory $view,
@@ -50,7 +46,7 @@ readonly class SiteController
     {
         return $this->view->make('compass::sites.index', [
             'sites' => Site::query()
-                ->with('repository')
+                ->with(['reports', 'repository'])
                 ->orderBy('name')
                 ->get(),
         ]);
@@ -58,7 +54,7 @@ readonly class SiteController
 
     public function show(Site $site): View
     {
-        $site->load(['endpoints', 'repository']);
+        $site->load(['reports.endpoints', 'repository']);
 
         return $this->view->make('compass::sites.show', [
             'activeSiteEndpointChecks' => $site
@@ -73,8 +69,6 @@ readonly class SiteController
                 ->latest()
                 ->get()
                 ->loadMorph('subject', [SiteEndpoint::class => ['siteReport.site'], SiteReport::class => ['site']]),
-            'clientKey' => $this->clientKey->find($site),
-            'clientPath' => $this->clientUrlFactory->path($site),
             'inactiveSiteEndpointChecks' => $site
                 ->endpointChecks()
                 ->latestPerPath()

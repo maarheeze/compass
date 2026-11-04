@@ -108,24 +108,6 @@ test('show contains the latest check of an endpoint path no longer reported as i
     );
 });
 
-test('show contains the key of the site', function (): void {
-    $site = Site::factory()->create(['client_key' => fake()->sha1()]);
-    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
-
-    $response = $this->get(route(RouteName::FORGE_SITE, $site));
-
-    $response->assertViewHas('clientKey', $site->client_key);
-});
-
-test('show contains the path of the site', function (): void {
-    $site = Site::factory()->create(['client_path' => sprintf('/%s', fake()->slug())]);
-    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
-
-    $response = $this->get(route(RouteName::FORGE_SITE, $site));
-
-    $response->assertViewHas('clientPath', $site->client_path);
-});
-
 test('delete deletes a missing site', function (): void {
     $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);

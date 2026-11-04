@@ -14,7 +14,6 @@ return [
     'key' => 'Key',
     'key_placeholder' => 'Default key',
     'not_checked' => 'Client not checked',
-    'not_set' => 'Not set',
     'off' => 'Off',
     'on' => 'On',
     'path' => 'Path',
@@ -22,5 +21,6 @@ return [
     'path_placeholder' => 'Default path',
     'save' => 'Save',
     'settings_explanation' => 'Client settings. Leave a field empty to use the default.',
+    'source' => 'Source',
     'status' => 'Status',
 ];
