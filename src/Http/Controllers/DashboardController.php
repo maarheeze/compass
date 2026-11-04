@@ -30,7 +30,7 @@ readonly class DashboardController
                 ->with('assignee')
                 ->latest()
                 ->get()
-                ->loadMorph('subject', [SiteEndpoint::class => ['site']]),
+                ->loadMorph('subject', [SiteEndpoint::class => ['siteReport.site']]),
             'issueCounts' => $this->issueCounter->count($this->authenticatedUser->user()),
             'pullRequestCounts' => $this->pullRequestCounter->count($this->authenticatedUser->user()),
         ]);

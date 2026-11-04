@@ -57,7 +57,7 @@ test('of site keeps an alert of an endpoint of the site', function (): void {
         ->create();
 
     $siteAlerts = Alert::query()
-        ->ofSite($siteEndpoint->site)
+        ->ofSite($siteEndpoint->siteReport->site)
         ->get();
 
     expect($siteAlerts->sole()->is($siteEndpointAlert))

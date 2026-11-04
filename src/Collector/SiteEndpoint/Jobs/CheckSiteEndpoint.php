@@ -44,7 +44,7 @@ class CheckSiteEndpoint implements ShouldQueue
         Dispatcher $events,
         HttpFactory $http,
     ): void {
-        $site = $this->siteEndpoint->site;
+        $site = $this->siteEndpoint->siteReport->site;
         $url = sprintf('%s/%s', rtrim($site->url, '/'), ltrim($this->siteEndpoint->path, '/'));
 
         $context->add('site', $site->name);

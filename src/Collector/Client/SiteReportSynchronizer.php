@@ -8,7 +8,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\ConnectionInterface;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteReport;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
-use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteReport;
 use Throwable;
 
 readonly class SiteReportSynchronizer
@@ -21,31 +21,31 @@ readonly class SiteReportSynchronizer
     /**
      * @throws Throwable
      */
-    public function storeReport(Site $site, CollectedSiteReport $collectedSiteReport): void
+    public function storeReport(SiteReport $siteReport, CollectedSiteReport $collectedSiteReport): void
     {
         match ($collectedSiteReport->status) {
             SiteReportStatus::INCOMPATIBLE,
-            SiteReportStatus::UNAUTHORIZED => $this->storeStatus($site, $collectedSiteReport),
+            SiteReportStatus::UNAUTHORIZED => $this->storeStatus($siteReport, $collectedSiteReport),
             SiteReportStatus::INSTALLED,
-            SiteReportStatus::NOT_INSTALLED => $this->storeReportAndEndpoints($site, $collectedSiteReport),
+            SiteReportStatus::NOT_INSTALLED => $this->storeReportAndEndpoints($siteReport, $collectedSiteReport),
         };
     }
 
     /**
      * @throws Throwable
      */
-    private function storeReportAndEndpoints(Site $site, CollectedSiteReport $collectedSiteReport): void
+    private function storeReportAndEndpoints(SiteReport $siteReport, CollectedSiteReport $collectedSiteReport): void
     {
-        $this->connection->transaction(static function () use ($site, $collectedSiteReport): void {
-            $site->update([
-                'client_status' => $collectedSiteReport->status,
+        $this->connection->transaction(static function () use ($siteReport, $collectedSiteReport): void {
+            $siteReport->fill([
+                'status' => $collectedSiteReport->status,
                 'app_debug' => $collectedSiteReport->appDebug,
                 'app_env' => $collectedSiteReport->appEnv,
                 'app_name' => $collectedSiteReport->appName,
-                'client_collected_at' => CarbonImmutable::now(),
-            ]);
+                'collected_at' => CarbonImmutable::now(),
+            ])->save();
 
-            $droppedSiteEndpoints = $site->endpoints()
+            $droppedSiteEndpoints = $siteReport->endpoints()
                 ->whereNotIn('path', $collectedSiteReport->endpoints)
                 ->get();
 
@@ -54,16 +54,16 @@ readonly class SiteReportSynchronizer
             }
 
             foreach ($collectedSiteReport->endpoints as $endpoint) {
-                $site->endpoints()->firstOrCreate(['path' => $endpoint]);
+                $siteReport->endpoints()->firstOrCreate(['path' => $endpoint]);
             }
         });
     }
 
-    private function storeStatus(Site $site, CollectedSiteReport $collectedSiteReport): void
+    private function storeStatus(SiteReport $siteReport, CollectedSiteReport $collectedSiteReport): void
     {
-        $site->update([
-            'client_status' => $collectedSiteReport->status,
-            'client_collected_at' => CarbonImmutable::now(),
-        ]);
+        $siteReport->fill([
+            'status' => $collectedSiteReport->status,
+            'collected_at' => CarbonImmutable::now(),
+        ])->save();
     }
 }

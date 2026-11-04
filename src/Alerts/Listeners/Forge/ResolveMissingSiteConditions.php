@@ -37,7 +37,7 @@ readonly class ResolveMissingSiteConditions implements ShouldQueue
         $observedAt = CarbonImmutable::instance($this->clock->now());
         $missingSiteChunks = Site::query()
             ->notCollected()
-            ->with('endpoints')
+            ->with('reports.endpoints')
             ->lazyById()
             ->chunk(100);
 
@@ -49,10 +49,12 @@ readonly class ResolveMissingSiteConditions implements ShouldQueue
                     $conditionObservations->push($this->resolvedCondition($clientAlertType, $missingSite, $observedAt));
                 }
 
-                foreach ($missingSite->endpoints as $siteEndpoint) {
-                    $conditionObservations->push(
-                        $this->resolvedCondition(AlertType::SITE_ENDPOINT_DOWN, $siteEndpoint, $observedAt),
-                    );
+                foreach ($missingSite->reports as $siteReport) {
+                    foreach ($siteReport->endpoints as $siteEndpoint) {
+                        $conditionObservations->push(
+                            $this->resolvedCondition(AlertType::SITE_ENDPOINT_DOWN, $siteEndpoint, $observedAt),
+                        );
+                    }
                 }
             }
 

@@ -74,7 +74,7 @@ readonly class AlertController
     public function show(Alert $alert): View
     {
         $alert->load('assignee');
-        $alert->loadMorph('subject', [SiteEndpoint::class => ['site']]);
+        $alert->loadMorph('subject', [SiteEndpoint::class => ['siteReport.site']]);
 
         return $this->view->make('compass::alerts.show', [
             'alert' => $alert,

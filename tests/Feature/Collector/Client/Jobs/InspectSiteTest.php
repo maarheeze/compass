@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Client\Factory as HttpFactory;
+use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Collector\Client\Jobs\InspectSite;
@@ -11,6 +12,7 @@ use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteReport;
 
 test('handle stores the report the collector of its source collected', function (): void {
     $sourceKey = fake()->slug();
@@ -33,10 +35,35 @@ test('handle stores the report the collector of its source collected', function 
     $inspectSite = new InspectSite($site, $sourceKey);
     $this->app->call([$inspectSite, 'handle']);
 
-    $this->assertDatabaseHas(Site::class, [
-        'id' => $site->id,
-        'client_status' => SiteReportStatus::INSTALLED,
+    $this->assertDatabaseHas(SiteReport::class, [
+        'site_id' => $site->id,
+        'source' => $sourceKey,
+        'status' => SiteReportStatus::INSTALLED,
     ]);
+});
+
+test('handle asks the site with the key of its report for its source', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'compass-client',
+            'key' => fake()->unique()->sha1(),
+            'path' => sprintf('/%s', fake()->slug()),
+        ],
+    ]);
+    $siteReport = SiteReport::factory()->create([
+        'source' => $sourceKey,
+        'key' => fake()->unique()->sha1(),
+    ]);
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response(null, 404)]);
+
+    $inspectSite = new InspectSite($siteReport->site, $sourceKey);
+    $this->app->call([$inspectSite, 'handle']);
+
+    $http->assertSent(static function (HttpRequest $request) use ($siteReport): bool {
+        return $request->hasHeader('Authorization', sprintf('Bearer %s', $siteReport->key));
+    });
 });
 
 test('handle fails when the site cannot be reached', function (): void {

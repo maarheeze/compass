@@ -30,7 +30,7 @@ class AlertSubjectLink extends Component
             $subject instanceof Site => $url->route(RouteName::FORGE_SITE->value, $subject),
             $subject instanceof SiteEndpoint => $url->route(
                 RouteName::FORGE_SITE_ENDPOINT_CHECKS->value,
-                [$subject->site, new EndpointPath($subject->path)->routeKey()],
+                [$subject->siteReport->site, new EndpointPath($subject->path)->routeKey()],
             ),
         };
     }

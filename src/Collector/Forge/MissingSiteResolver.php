@@ -33,12 +33,14 @@ readonly class MissingSiteResolver
         $missingSite = Site::query()
             ->whereKey($site->id)
             ->notCollected()
-            ->with('endpoints')
+            ->with('reports.endpoints')
             ->firstOrFail();
 
         $this->connection->transaction(static function () use ($missingSite): void {
-            foreach ($missingSite->endpoints as $siteEndpoint) {
-                $siteEndpoint->delete();
+            foreach ($missingSite->reports as $siteReport) {
+                foreach ($siteReport->endpoints as $siteEndpoint) {
+                    $siteEndpoint->delete();
+                }
             }
 
             $missingSite->delete();

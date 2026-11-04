@@ -68,7 +68,7 @@ class AlertBuilder extends Builder
                     'subject',
                     [SiteEndpoint::class],
                     static function (QueryBuilder $siteEndpointQuery) use ($site): void {
-                        $siteEndpointQuery->where('site_id', $site->id);
+                        $siteEndpointQuery->whereRelation('siteReport', 'site_id', $site->id);
                     },
                 );
         });

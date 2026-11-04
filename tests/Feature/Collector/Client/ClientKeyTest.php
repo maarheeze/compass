@@ -3,25 +3,25 @@
 declare(strict_types=1);
 
 use Maarheeze\Compass\Collector\Client\ClientKey;
-use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteReport;
 
-test('for site is the key of the site', function (): void {
-    $site = Site::factory()->make(['client_key' => fake()->unique()->sha1()]);
+test('for site report is the key of the site report', function (): void {
+    $siteReport = SiteReport::factory()->make(['key' => fake()->unique()->sha1()]);
 
     $clientKey = new ClientKey(fake()->unique()->sha1());
-    $keyForSite = $clientKey->forSite($site);
+    $keyForSiteReport = $clientKey->forSiteReport($siteReport);
 
-    expect($keyForSite)
-        ->toBe($site->client_key);
+    expect($keyForSiteReport)
+        ->toBe($siteReport->key);
 });
 
-test('for site is the default key for a site without a key of its own', function (?string $siteKey): void {
+test('for site report is the default key for a site report without its own', function (?string $siteReportKey): void {
     $defaultKey = fake()->sha1();
 
     $clientKey = new ClientKey($defaultKey);
-    $keyForSite = $clientKey->forSite(Site::factory()->make(['client_key' => $siteKey]));
+    $keyForSiteReport = $clientKey->forSiteReport(SiteReport::factory()->make(['key' => $siteReportKey]));
 
-    expect($keyForSite)
+    expect($keyForSiteReport)
         ->toBe($defaultKey);
 })->with([
     'without a key' => [null],

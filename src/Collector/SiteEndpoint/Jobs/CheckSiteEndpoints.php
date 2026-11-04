@@ -24,7 +24,7 @@ class CheckSiteEndpoints implements ShouldQueue
         $batch = Assert::isInstanceOf($this->batch(), Batch::class);
         $collectedSiteEndpointChunks = SiteEndpoint::query()
             ->ofCollectedSites()
-            ->with('site')
+            ->with('siteReport.site')
             ->lazyById()
             ->chunk(100);
 
@@ -35,7 +35,7 @@ class CheckSiteEndpoints implements ShouldQueue
                 $checkSiteEndpointJobs[] = new CheckSiteEndpoint($collectedSiteEndpoint);
 
                 $collectorLogger->debug('Endpoint check queued', [
-                    'site' => $collectedSiteEndpoint->site->name,
+                    'site' => $collectedSiteEndpoint->siteReport->site->name,
                     'path' => $collectedSiteEndpoint->path,
                 ]);
             }

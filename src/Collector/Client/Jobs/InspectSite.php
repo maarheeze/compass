@@ -18,6 +18,7 @@ use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Collector\MissingState;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollectorManager;
 use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteReport;
 use Throwable;
 
 class InspectSite implements ShouldQueue
@@ -54,9 +55,10 @@ class InspectSite implements ShouldQueue
             return;
         }
 
-        $siteReportSynchronizer->storeReport($this->site, $siteReportsCollector->siteReport($this->site));
+        $siteReport = SiteReport::query()->firstOrNew(['site_id' => $this->site->id, 'source' => $this->sourceKey]);
+        $siteReportSynchronizer->storeReport($siteReport, $siteReportsCollector->siteReport($siteReport));
 
-        $collectorLogger->debug('Site inspected', ['client_status' => $this->site->client_status?->value]);
+        $collectorLogger->debug('Site inspected', ['status' => $siteReport->status?->value]);
 
         $events->dispatch(new SiteInspected($this->site));
     }

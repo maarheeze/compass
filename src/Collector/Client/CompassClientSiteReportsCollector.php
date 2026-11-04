@@ -8,7 +8,7 @@ use Illuminate\Http\Client\Factory as HttpFactory;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteReport;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollector;
-use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteReport;
 
 readonly class CompassClientSiteReportsCollector implements SiteReportsCollector
 {
@@ -22,20 +22,20 @@ readonly class CompassClientSiteReportsCollector implements SiteReportsCollector
     /**
      * @throws CollectingFailed
      */
-    public function siteReport(Site $site): CollectedSiteReport
+    public function siteReport(SiteReport $siteReport): CollectedSiteReport
     {
         $siteQuery = new SiteQuery(new ClientKey($this->key), new ClientUrlFactory($this->path), $this->http);
 
         try {
-            $clientReport = $siteQuery->report($site);
+            $clientReport = $siteQuery->report($siteReport);
         } catch (ClientIncompatible) {
             return CollectedSiteReport::incompatible();
         } catch (ClientNotInstalled) {
             return CollectedSiteReport::notInstalled();
         } catch (ClientUnauthorized) {
             return CollectedSiteReport::unauthorized();
-        } catch (ClientUnreachable $clientUnreachable) {
-            throw CollectingFailed::fromThrowable($clientUnreachable);
+        } catch (ClientRequestFailed $clientRequestFailed) {
+            throw CollectingFailed::fromThrowable($clientRequestFailed);
         }
 
         return CollectedSiteReport::installed(

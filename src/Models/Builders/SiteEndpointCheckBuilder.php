@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Models\Builders;
 
+use Illuminate\Contracts\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\Builder;
 use Maarheeze\Compass\Http\EndpointPath;
 use Maarheeze\Compass\Models\SiteEndpoint;
@@ -51,7 +52,9 @@ class SiteEndpointCheckBuilder extends Builder
     private function siteEndpointsOfCheck(): Builder
     {
         return SiteEndpoint::query()
-            ->whereColumn('compass_site_endpoints.site_id', 'compass_site_endpoint_checks.site_id')
+            ->whereHas('siteReport', static function (QueryBuilder $siteReportQuery): void {
+                $siteReportQuery->whereColumn('compass_site_reports.site_id', 'compass_site_endpoint_checks.site_id');
+            })
             ->whereColumn('compass_site_endpoints.path', 'compass_site_endpoint_checks.path');
     }
 }

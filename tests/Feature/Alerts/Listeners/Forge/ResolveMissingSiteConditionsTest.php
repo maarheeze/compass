@@ -13,6 +13,7 @@ use Maarheeze\Compass\Alerts\Listeners\Forge\ResolveMissingSiteConditions;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
+use Maarheeze\Compass\Models\SiteReport;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
@@ -51,7 +52,7 @@ test('handle observes the endpoint of a missing site no longer down now', functi
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $siteEndpoint = SiteEndpoint::factory()
-        ->for(Site::factory()->state(['missing_at' => fake()->dateTime()]))
+        ->for(SiteReport::factory()->for(Site::factory()->state(['missing_at' => fake()->dateTime()])))
         ->create();
 
     $resolveMissingSiteConditions = $this->app->make(ResolveMissingSiteConditions::class);
@@ -75,7 +76,7 @@ test('handle observes nothing for a collected site and its endpoints', function 
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     SiteEndpoint::factory()
-        ->for(Site::factory()->state(['missing_at' => null]))
+        ->for(SiteReport::factory()->for(Site::factory()->state(['missing_at' => null])))
         ->create();
 
     $resolveMissingSiteConditions = $this->app->make(ResolveMissingSiteConditions::class);

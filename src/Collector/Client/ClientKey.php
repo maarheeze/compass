@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Collector\Client;
 
-use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteReport;
 
 readonly class ClientKey
 {
@@ -13,12 +13,12 @@ readonly class ClientKey
     ) {
     }
 
-    public function forSite(Site $site): string
+    public function forSiteReport(SiteReport $siteReport): string
     {
-        if ($site->client_key === null || $site->client_key === '') {
+        if ($siteReport->key === null || $siteReport->key === '') {
             return $this->defaultKey;
         }
 
-        return $site->client_key;
+        return $siteReport->key;
     }
 }

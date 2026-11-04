@@ -11,6 +11,7 @@ use Maarheeze\Compass\Collector\Forge\MissingSiteResolver;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
+use Maarheeze\Compass\Models\SiteReport;
 
 test('can ignore is true for a missing site', function (): void {
     $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
@@ -70,7 +71,7 @@ test('delete deletes the alerts of the missing site', function (): void {
 test('delete deletes the alerts of the endpoints of the missing site', function (): void {
     $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
     $siteEndpoint = SiteEndpoint::factory()
-        ->for($site)
+        ->for(SiteReport::factory()->for($site))
         ->create();
     $alert = Alert::factory()
         ->siteEndpointDown()

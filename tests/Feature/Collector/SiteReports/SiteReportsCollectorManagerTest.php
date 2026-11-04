@@ -7,7 +7,7 @@ use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collector\Client\CompassClientSiteReportsCollector;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollectorManager;
-use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteReport;
 
 test('collector of a compass client source asks a site for its report with its key at its path', function (): void {
     $sourceKey = fake()->slug();
@@ -24,9 +24,9 @@ test('collector of a compass client source asks a site for its report with its k
     $http->fake(['*' => HttpFactory::response(null, 404)]);
 
     $siteReportsCollectorManager = $this->app->make(SiteReportsCollectorManager::class);
-    $siteReportsCollectorManager->collector($sourceKey)->siteReport(Site::factory()->create([
-        'client_key' => null,
-        'client_path' => null,
+    $siteReportsCollectorManager->collector($sourceKey)->siteReport(SiteReport::factory()->create([
+        'key' => null,
+        'path' => null,
     ]));
 
     $http->assertSent(static function (HttpRequest $request) use ($key, $path): bool {

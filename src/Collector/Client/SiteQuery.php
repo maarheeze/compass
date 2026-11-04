@@ -8,7 +8,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Response;
 use InvalidArgumentException;
-use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteReport;
 use Webmozart\Assert\Assert;
 
 use function is_array;
@@ -25,9 +25,9 @@ readonly class SiteQuery
     /**
      * @throws ClientRequestFailed
      */
-    public function report(Site $site): ClientReport
+    public function report(SiteReport $siteReport): ClientReport
     {
-        $reportResponse = $this->getReportResponse($this->get($site));
+        $reportResponse = $this->getReportResponse($this->get($siteReport));
 
         try {
             return $this->getClientReport($reportResponse);
@@ -39,14 +39,14 @@ readonly class SiteQuery
     /**
      * @throws ClientUnreachable
      */
-    private function get(Site $site): Response
+    private function get(SiteReport $siteReport): Response
     {
         try {
             return $this->http
-                ->withToken($this->clientKey->forSite($site))
+                ->withToken($this->clientKey->forSiteReport($siteReport))
                 ->acceptJson()
                 ->timeout(10)
-                ->get($this->clientUrlFactory->create($site));
+                ->get($this->clientUrlFactory->create($siteReport));
         } catch (ConnectionException $exception) {
             throw new ClientUnreachable(previous: $exception);
         }

@@ -71,7 +71,7 @@ readonly class SiteController
                 ->with('assignee')
                 ->latest()
                 ->get()
-                ->loadMorph('subject', [SiteEndpoint::class => ['site']]),
+                ->loadMorph('subject', [SiteEndpoint::class => ['siteReport.site']]),
             'clientKey' => $this->clientKey->find($site),
             'clientPath' => $this->clientUrlFactory->path($site),
             'inactiveSiteEndpointChecks' => $site

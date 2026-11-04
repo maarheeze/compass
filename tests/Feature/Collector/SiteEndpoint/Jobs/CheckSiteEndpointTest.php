@@ -11,6 +11,7 @@ use Maarheeze\Compass\Collector\SiteEndpoint\Jobs\CheckSiteEndpoint;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
+use Maarheeze\Compass\Models\SiteReport;
 
 test('handle stores the status code of the endpoint', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
@@ -21,7 +22,7 @@ test('handle stores the status code of the endpoint', function (): void {
     $this->app->call([$checkSiteEndpoint, 'handle']);
 
     $this->assertDatabaseHas(SiteEndpointCheck::class, [
-        'site_id' => $siteEndpoint->site_id,
+        'site_id' => $siteEndpoint->siteReport->site_id,
         'path' => $siteEndpoint->path,
         'status_code' => $statusCode,
     ]);
@@ -29,7 +30,7 @@ test('handle stores the status code of the endpoint', function (): void {
 
 test('handle stores the checked url', function (): void {
     $siteEndpoint = SiteEndpoint::factory()
-        ->for(Site::factory()->state(['url' => 'https://example.com/']))
+        ->for(SiteReport::factory()->for(Site::factory()->state(['url' => 'https://example.com/'])))
         ->create(['path' => '/up']);
     $this->app->make(HttpFactory::class)->fake();
 
@@ -37,7 +38,7 @@ test('handle stores the checked url', function (): void {
     $this->app->call([$checkSiteEndpoint, 'handle']);
 
     $this->assertDatabaseHas(SiteEndpointCheck::class, [
-        'site_id' => $siteEndpoint->site_id,
+        'site_id' => $siteEndpoint->siteReport->site_id,
         'url' => 'https://example.com/up',
     ]);
 });
@@ -50,7 +51,7 @@ test('handle does not follow a redirect', function (): void {
     $this->app->call([$checkSiteEndpoint, 'handle']);
 
     $this->assertDatabaseHas(SiteEndpointCheck::class, [
-        'site_id' => $siteEndpoint->site_id,
+        'site_id' => $siteEndpoint->siteReport->site_id,
         'status_code' => 301,
     ]);
 });
@@ -63,7 +64,7 @@ test('handle stores no status code for an endpoint that cannot be reached', func
     $this->app->call([$checkSiteEndpoint, 'handle']);
 
     $this->assertDatabaseHas(SiteEndpointCheck::class, [
-        'site_id' => $siteEndpoint->site_id,
+        'site_id' => $siteEndpoint->siteReport->site_id,
         'status_code' => null,
     ]);
 });
@@ -77,7 +78,7 @@ test('handle adds the site and path of the endpoint to the log context', functio
 
     expect($this->app->make(Context::class)->only(['site', 'path']))
         ->toBe([
-            'site' => $siteEndpoint->site->name,
+            'site' => $siteEndpoint->siteReport->site->name,
             'path' => $siteEndpoint->path,
         ]);
 });
@@ -90,7 +91,7 @@ test('handle records a check of an endpoint that responds with a 2xx status code
     $this->app->call([$checkSiteEndpoint, 'handle']);
 
     $this->assertDatabaseHas(SiteEndpointCheck::class, [
-        'site_id' => $siteEndpoint->site_id,
+        'site_id' => $siteEndpoint->siteReport->site_id,
         'path' => $siteEndpoint->path,
         'is_successful' => true,
     ]);
@@ -104,7 +105,7 @@ test('handle records a check of an endpoint that responds with another status co
     $this->app->call([$checkSiteEndpoint, 'handle']);
 
     $this->assertDatabaseHas(SiteEndpointCheck::class, [
-        'site_id' => $siteEndpoint->site_id,
+        'site_id' => $siteEndpoint->siteReport->site_id,
         'path' => $siteEndpoint->path,
         'is_successful' => false,
     ]);
@@ -118,7 +119,7 @@ test('handle records a check of an endpoint that cannot be reached as unsuccessf
     $this->app->call([$checkSiteEndpoint, 'handle']);
 
     $this->assertDatabaseHas(SiteEndpointCheck::class, [
-        'site_id' => $siteEndpoint->site_id,
+        'site_id' => $siteEndpoint->siteReport->site_id,
         'path' => $siteEndpoint->path,
         'is_successful' => false,
     ]);
@@ -134,7 +135,7 @@ test('handle raises site endpoint checked with the endpoint and the stored check
     $this->app->call([$checkSiteEndpoint, 'handle']);
 
     $siteEndpointCheck = SiteEndpointCheck::query()
-        ->where('site_id', $siteEndpoint->site_id)
+        ->where('site_id', $siteEndpoint->siteReport->site_id)
         ->where('path', $siteEndpoint->path)
         ->sole();
     $eventFake->assertDispatched(SiteEndpointChecked::class, static function (SiteEndpointChecked $siteEndpointChecked) use ($siteEndpoint, $siteEndpointCheck): bool {

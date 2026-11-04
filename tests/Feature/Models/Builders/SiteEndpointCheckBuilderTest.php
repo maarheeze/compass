@@ -95,7 +95,7 @@ test('not reported keeps a check of a path only another site reports', function 
 test('not reported leaves out a check of a path its site reports', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     SiteEndpointCheck::factory()->create([
-        'site_id' => $siteEndpoint->site_id,
+        'site_id' => $siteEndpoint->siteReport->site_id,
         'path' => new EndpointPath($siteEndpoint->path),
     ]);
 
@@ -132,7 +132,7 @@ test('of path leaves out a check of another path', function (): void {
 test('reported keeps a check of a path its site reports', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $reportedSiteEndpointCheck = SiteEndpointCheck::factory()->create([
-        'site_id' => $siteEndpoint->site_id,
+        'site_id' => $siteEndpoint->siteReport->site_id,
         'path' => new EndpointPath($siteEndpoint->path),
     ]);
 

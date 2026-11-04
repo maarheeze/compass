@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Collector\Client;
 
-use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteReport;
 
 use function ltrim;
 use function rtrim;
@@ -17,21 +17,21 @@ readonly class ClientUrlFactory
     ) {
     }
 
-    public function create(Site $site): string
+    public function create(SiteReport $siteReport): string
     {
         return sprintf(
             '%s/%s',
-            rtrim($site->url, '/'),
-            ltrim($this->path($site), '/'),
+            rtrim($siteReport->site->url, '/'),
+            ltrim($this->path($siteReport), '/'),
         );
     }
 
-    public function path(Site $site): string
+    public function path(SiteReport $siteReport): string
     {
-        if ($site->client_path === null) {
+        if ($siteReport->path === null) {
             return $this->defaultPath;
         }
 
-        return $site->client_path;
+        return $siteReport->path;
     }
 }

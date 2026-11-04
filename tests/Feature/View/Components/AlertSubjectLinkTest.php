@@ -43,7 +43,7 @@ test('url is the check history of a site endpoint subject', function (): void {
 
     expect($alertSubjectLink->url)
         ->toBe(route(RouteName::FORGE_SITE_ENDPOINT_CHECKS, [
-            $siteEndpoint->site,
+            $siteEndpoint->siteReport->site,
             new EndpointPath($siteEndpoint->path)->routeKey(),
         ]));
 });
