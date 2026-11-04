@@ -121,7 +121,7 @@ test('handle adds the site to the log context', function (): void {
         ->toBe($site->name);
 });
 
-test('handle raises site inspected with the site', function (): void {
+test('handle raises site inspected with the report of the site for its source', function (): void {
     $sourceKey = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $sourceKey => [
@@ -138,8 +138,9 @@ test('handle raises site inspected with the site', function (): void {
     $inspectSite = new InspectSite($site, $sourceKey);
     $this->app->call([$inspectSite, 'handle']);
 
-    $eventFake->assertDispatched(SiteInspected::class, static function (SiteInspected $siteInspected) use ($site): bool {
-        return $siteInspected->site->is($site);
+    $eventFake->assertDispatched(SiteInspected::class, static function (SiteInspected $siteInspected) use ($site, $sourceKey): bool {
+        return $siteInspected->siteReport->site_id->equals($site->id)
+            && $siteInspected->siteReport->source === $sourceKey;
     });
 });
 

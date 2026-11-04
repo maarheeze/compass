@@ -12,7 +12,7 @@ use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteClientUnauthorized;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
-use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteReport;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
@@ -21,17 +21,17 @@ test('handle observes unauthorized client now for a site that refused the key', 
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $site = Site::factory()->create(['client_status' => SiteReportStatus::UNAUTHORIZED]);
+    $siteReport = SiteReport::factory()->create(['status' => SiteReportStatus::UNAUTHORIZED]);
 
     $evaluateUnauthorizedClient = $this->app->make(EvaluateSiteClientUnauthorized::class);
-    $evaluateUnauthorizedClient->handle(new SiteInspected($site));
+    $evaluateUnauthorizedClient->handle(new SiteInspected($siteReport));
 
     $busFake->assertDispatched(
         HandleConditionObservations::class,
-        static function (HandleConditionObservations $handleConditionObservations) use ($now, $site): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
+        static function (HandleConditionObservations $handleConditionObservations) use ($now, $siteReport): bool {
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $siteReport): bool {
                 return $conditionObserved->alertType === AlertType::SITE_CLIENT_UNAUTHORIZED
-                    && $conditionObserved->subject === $site
+                    && $conditionObserved->subject === $siteReport
                     && $conditionObserved->condition === ConditionState::ACTIVE
                     && $conditionObserved->observedAt->equalTo($now);
             });
@@ -44,17 +44,17 @@ test('handle observes unauthorized client resolved now for a site with any other
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $site = Site::factory()->create(['client_status' => $siteReportStatus]);
+    $siteReport = SiteReport::factory()->create(['status' => $siteReportStatus]);
 
     $evaluateUnauthorizedClient = $this->app->make(EvaluateSiteClientUnauthorized::class);
-    $evaluateUnauthorizedClient->handle(new SiteInspected($site));
+    $evaluateUnauthorizedClient->handle(new SiteInspected($siteReport));
 
     $busFake->assertDispatched(
         HandleConditionObservations::class,
-        static function (HandleConditionObservations $handleConditionObservations) use ($now, $site): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
+        static function (HandleConditionObservations $handleConditionObservations) use ($now, $siteReport): bool {
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $siteReport): bool {
                 return $conditionObserved->alertType === AlertType::SITE_CLIENT_UNAUTHORIZED
-                    && $conditionObserved->subject === $site
+                    && $conditionObserved->subject === $siteReport
                     && $conditionObserved->condition === ConditionState::RESOLVED
                     && $conditionObserved->observedAt->equalTo($now);
             });

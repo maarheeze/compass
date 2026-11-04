@@ -12,6 +12,7 @@ use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
+use Maarheeze\Compass\Models\SiteReport;
 use Maarheeze\Compass\Models\User;
 use Webmozart\Assert\Assert;
 
@@ -162,17 +163,17 @@ class AlertFactory extends Factory
 
     public function siteClientIncompatible(): static
     {
-        return $this->state(['type' => AlertType::SITE_CLIENT_INCOMPATIBLE])->for(Site::factory(), 'subject');
+        return $this->state(['type' => AlertType::SITE_CLIENT_INCOMPATIBLE])->for(SiteReport::factory(), 'subject');
     }
 
     public function siteClientUnauthorized(): static
     {
-        return $this->state(['type' => AlertType::SITE_CLIENT_UNAUTHORIZED])->for(Site::factory(), 'subject');
+        return $this->state(['type' => AlertType::SITE_CLIENT_UNAUTHORIZED])->for(SiteReport::factory(), 'subject');
     }
 
     public function siteDebugEnabled(): static
     {
-        return $this->state(['type' => AlertType::SITE_DEBUG_ENABLED])->for(Site::factory(), 'subject');
+        return $this->state(['type' => AlertType::SITE_DEBUG_ENABLED])->for(SiteReport::factory(), 'subject');
     }
 
     public function siteDeploymentOverdue(): static
@@ -192,6 +193,6 @@ class AlertFactory extends Factory
 
     public function siteNotInProduction(): static
     {
-        return $this->state(['type' => AlertType::SITE_NOT_IN_PRODUCTION])->for(Site::factory(), 'subject');
+        return $this->state(['type' => AlertType::SITE_NOT_IN_PRODUCTION])->for(SiteReport::factory(), 'subject');
     }
 }

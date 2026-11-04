@@ -13,7 +13,7 @@ use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Collections\ConditionObservedCollection;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
-use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteReport;
 use Psr\Clock\ClockInterface;
 
 readonly class EvaluateSiteDebugEnabled implements ShouldQueue
@@ -26,20 +26,20 @@ readonly class EvaluateSiteDebugEnabled implements ShouldQueue
 
     public function handle(SiteInspected $siteInspected): void
     {
-        $site = $siteInspected->site;
+        $siteReport = $siteInspected->siteReport;
         $this->dispatcher->dispatch(new HandleConditionObservations(new ConditionObservedCollection([
             new ConditionObserved(
                 AlertType::SITE_DEBUG_ENABLED,
-                $site,
-                $this->observedCondition($site),
+                $siteReport,
+                $this->observedCondition($siteReport),
                 CarbonImmutable::instance($this->clock->now()),
             ),
         ])));
     }
 
-    private function observedCondition(Site $site): ConditionState
+    private function observedCondition(SiteReport $siteReport): ConditionState
     {
-        if ($site->app_debug === true) {
+        if ($siteReport->app_debug === true) {
             return ConditionState::ACTIVE;
         }
 

@@ -60,6 +60,6 @@ class InspectSite implements ShouldQueue
 
         $collectorLogger->debug('Site inspected', ['status' => $siteReport->status?->value]);
 
-        $events->dispatch(new SiteInspected($this->site));
+        $events->dispatch(new SiteInspected($siteReport));
     }
 }

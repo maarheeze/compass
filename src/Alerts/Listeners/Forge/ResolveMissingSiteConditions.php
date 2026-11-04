@@ -15,6 +15,7 @@ use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Collections\ConditionObservedCollection;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteReport;
 use Psr\Clock\ClockInterface;
 
 readonly class ResolveMissingSiteConditions implements ShouldQueue
@@ -45,16 +46,10 @@ readonly class ResolveMissingSiteConditions implements ShouldQueue
             $conditionObservations = new ConditionObservedCollection();
 
             foreach ($missingSites as $missingSite) {
-                foreach (self::CLIENT_ALERT_TYPES as $clientAlertType) {
-                    $conditionObservations->push($this->resolvedCondition($clientAlertType, $missingSite, $observedAt));
-                }
-
                 foreach ($missingSite->reports as $siteReport) {
-                    foreach ($siteReport->endpoints as $siteEndpoint) {
-                        $conditionObservations->push(
-                            $this->resolvedCondition(AlertType::SITE_ENDPOINT_DOWN, $siteEndpoint, $observedAt),
-                        );
-                    }
+                    $conditionObservations = $conditionObservations->merge(
+                        $this->resolvedSiteReportConditions($siteReport, $observedAt),
+                    );
                 }
             }
 
@@ -68,5 +63,24 @@ readonly class ResolveMissingSiteConditions implements ShouldQueue
         CarbonImmutable $observedAt,
     ): ConditionObserved {
         return new ConditionObserved($alertType, $subject, ConditionState::RESOLVED, $observedAt);
+    }
+
+    private function resolvedSiteReportConditions(
+        SiteReport $siteReport,
+        CarbonImmutable $observedAt,
+    ): ConditionObservedCollection {
+        $conditionObservations = new ConditionObservedCollection();
+
+        foreach (self::CLIENT_ALERT_TYPES as $clientAlertType) {
+            $conditionObservations->push($this->resolvedCondition($clientAlertType, $siteReport, $observedAt));
+        }
+
+        foreach ($siteReport->endpoints as $siteEndpoint) {
+            $conditionObservations->push(
+                $this->resolvedCondition(AlertType::SITE_ENDPOINT_DOWN, $siteEndpoint, $observedAt),
+            );
+        }
+
+        return $conditionObservations;
     }
 }

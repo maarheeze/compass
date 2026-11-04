@@ -17,23 +17,25 @@ use Maarheeze\Compass\Models\SiteReport;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
-test('handle observes a client condition of a missing site resolved now', function (AlertType $alertType): void {
+test('handle observes a client condition of a report of a missing site resolved now', function (AlertType $alertType): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
+    $siteReport = SiteReport::factory()
+        ->for(Site::factory()->state(['missing_at' => fake()->dateTime()]))
+        ->create();
 
     $resolveMissingSiteConditions = $this->app->make(ResolveMissingSiteConditions::class);
     $resolveMissingSiteConditions->handle(new SitesCollected());
 
     $busFake->assertDispatched(
         HandleConditionObservations::class,
-        static function (HandleConditionObservations $handleConditionObservations) use ($alertType, $now, $site): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($alertType, $now, $site): bool {
+        static function (HandleConditionObservations $handleConditionObservations) use ($alertType, $now, $siteReport): bool {
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($alertType, $now, $siteReport): bool {
                 return $conditionObserved->alertType === $alertType
-                    && $conditionObserved->subject instanceof Site
-                    && $conditionObserved->subject->is($site)
+                    && $conditionObserved->subject instanceof SiteReport
+                    && $conditionObserved->subject->is($siteReport)
                     && $conditionObserved->condition === ConditionState::RESOLVED
                     && $conditionObserved->observedAt->equalTo($now);
             });

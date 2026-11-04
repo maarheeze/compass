@@ -41,6 +41,8 @@ readonly class MissingSiteResolver
                 foreach ($siteReport->endpoints as $siteEndpoint) {
                     $siteEndpoint->delete();
                 }
+
+                $siteReport->delete();
             }
 
             $missingSite->delete();

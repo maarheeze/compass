@@ -68,6 +68,19 @@ test('delete deletes the alerts of the missing site', function (): void {
     $this->assertModelMissing($alert);
 });
 
+test('delete deletes the alerts of the reports of the missing site', function (): void {
+    $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
+    $alert = Alert::factory()
+        ->siteDebugEnabled()
+        ->for(SiteReport::factory()->for($site), 'subject')
+        ->create();
+
+    $missingSiteResolver = $this->app->make(MissingSiteResolver::class);
+    $missingSiteResolver->delete($site);
+
+    $this->assertModelMissing($alert);
+});
+
 test('delete deletes the alerts of the endpoints of the missing site', function (): void {
     $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
     $siteEndpoint = SiteEndpoint::factory()

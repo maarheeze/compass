@@ -13,6 +13,7 @@ use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
+use Maarheeze\Compass\Models\SiteReport;
 
 class AlertSubjectLink extends Component
 {
@@ -20,7 +21,7 @@ class AlertSubjectLink extends Component
     public readonly string $url;
 
     public function __construct(
-        Repository|Site|SiteEndpoint $subject,
+        Repository|Site|SiteEndpoint|SiteReport $subject,
         UrlGenerator $url,
         private readonly ViewFactory $view,
     ) {
@@ -32,6 +33,7 @@ class AlertSubjectLink extends Component
                 RouteName::FORGE_SITE_ENDPOINT_CHECKS->value,
                 [$subject->siteReport->site, new EndpointPath($subject->path)->routeKey()],
             ),
+            $subject instanceof SiteReport => $url->route(RouteName::FORGE_SITE->value, $subject->site),
         };
     }
 

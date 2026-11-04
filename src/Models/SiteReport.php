@@ -10,13 +10,18 @@ use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Maarheeze\Compass\Alerts\AlertSubject;
+use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCollection;
 use Maarheeze\Compass\Collections\SiteReportCollection;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Database\Factories\SiteReportFactory;
+use Maarheeze\Compass\Models\Concerns\HasAlerts;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
+
+use function sprintf;
 
 /**
  * @property ?bool $app_debug
@@ -32,11 +37,13 @@ use Maarheeze\Uuid\Uuid;
  * @property ?SiteReportStatus $status
  * @property CarbonImmutable $updated_at
  *
+ * @property-read AlertCollection $alerts
  * @property-read SiteEndpointCollection $endpoints
  * @property-read Site $site
  */
-class SiteReport extends Model
+class SiteReport extends Model implements AlertSubject
 {
+    use HasAlerts;
     /** @use HasCollection<SiteReportCollection> */
     use HasCollection;
     /** @use HasFactory<SiteReportFactory> */
@@ -82,6 +89,11 @@ class SiteReport extends Model
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
+    }
+
+    public function displayName(): string
+    {
+        return sprintf('%s (%s)', $this->site->name, $this->source);
     }
 
     /**

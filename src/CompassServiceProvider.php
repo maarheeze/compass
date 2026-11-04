@@ -21,6 +21,7 @@ use Maarheeze\Compass\Http\Middleware\Authenticate;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
+use Maarheeze\Compass\Models\SiteReport;
 use Maarheeze\Compass\Providers\AlertProvider;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 use Maarheeze\Compass\Providers\ClientProvider;
@@ -71,6 +72,7 @@ class CompassServiceProvider extends ServiceProvider
             'repository' => Repository::class,
             'site' => Site::class,
             'site-endpoint' => SiteEndpoint::class,
+            'site-report' => SiteReport::class,
         ]);
 
         Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components', 'compass');

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Repository;
+use Maarheeze\Compass\Models\SiteReport;
 use Maarheeze\Compass\View\Components\AlertIcon;
 
 test('should render for a subject with an alert that is not done', function (): void {
@@ -15,6 +16,20 @@ test('should render for a subject with an alert that is not done', function (): 
         ->create();
 
     $alertIcon = $this->app->make(AlertIcon::class, ['subject' => $repository]);
+
+    expect($alertIcon->shouldRender())
+        ->toBeTrue();
+});
+
+test('should render for a site with an alert of its report that is not done', function (): void {
+    $siteReport = SiteReport::factory()->create();
+    Alert::factory()
+        ->siteDebugEnabled()
+        ->active()
+        ->for($siteReport, 'subject')
+        ->create();
+
+    $alertIcon = $this->app->make(AlertIcon::class, ['subject' => $siteReport->site]);
 
     expect($alertIcon->shouldRender())
         ->toBeTrue();

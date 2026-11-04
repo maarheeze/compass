@@ -15,6 +15,7 @@ use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
+use Maarheeze\Compass\Models\SiteReport;
 use Throwable;
 
 readonly class SiteController
@@ -71,7 +72,7 @@ readonly class SiteController
                 ->with('assignee')
                 ->latest()
                 ->get()
-                ->loadMorph('subject', [SiteEndpoint::class => ['siteReport.site']]),
+                ->loadMorph('subject', [SiteEndpoint::class => ['siteReport.site'], SiteReport::class => ['site']]),
             'clientKey' => $this->clientKey->find($site),
             'clientPath' => $this->clientUrlFactory->path($site),
             'inactiveSiteEndpointChecks' => $site

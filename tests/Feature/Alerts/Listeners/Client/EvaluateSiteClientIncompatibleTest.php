@@ -12,7 +12,7 @@ use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteClientIncompatible;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
-use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteReport;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
@@ -21,17 +21,17 @@ test('handle observes incompatible client now for a site with an outdated client
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $site = Site::factory()->create(['client_status' => SiteReportStatus::INCOMPATIBLE]);
+    $siteReport = SiteReport::factory()->create(['status' => SiteReportStatus::INCOMPATIBLE]);
 
     $evaluateIncompatibleClient = $this->app->make(EvaluateSiteClientIncompatible::class);
-    $evaluateIncompatibleClient->handle(new SiteInspected($site));
+    $evaluateIncompatibleClient->handle(new SiteInspected($siteReport));
 
     $busFake->assertDispatched(
         HandleConditionObservations::class,
-        static function (HandleConditionObservations $handleConditionObservations) use ($now, $site): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
+        static function (HandleConditionObservations $handleConditionObservations) use ($now, $siteReport): bool {
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $siteReport): bool {
                 return $conditionObserved->alertType === AlertType::SITE_CLIENT_INCOMPATIBLE
-                    && $conditionObserved->subject === $site
+                    && $conditionObserved->subject === $siteReport
                     && $conditionObserved->condition === ConditionState::ACTIVE
                     && $conditionObserved->observedAt->equalTo($now);
             });
@@ -44,17 +44,17 @@ test('handle observes incompatible client resolved now for a site with any other
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $site = Site::factory()->create(['client_status' => $siteReportStatus]);
+    $siteReport = SiteReport::factory()->create(['status' => $siteReportStatus]);
 
     $evaluateIncompatibleClient = $this->app->make(EvaluateSiteClientIncompatible::class);
-    $evaluateIncompatibleClient->handle(new SiteInspected($site));
+    $evaluateIncompatibleClient->handle(new SiteInspected($siteReport));
 
     $busFake->assertDispatched(
         HandleConditionObservations::class,
-        static function (HandleConditionObservations $handleConditionObservations) use ($now, $site): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
+        static function (HandleConditionObservations $handleConditionObservations) use ($now, $siteReport): bool {
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $siteReport): bool {
                 return $conditionObserved->alertType === AlertType::SITE_CLIENT_INCOMPATIBLE
-                    && $conditionObserved->subject === $site
+                    && $conditionObserved->subject === $siteReport
                     && $conditionObserved->condition === ConditionState::RESOLVED
                     && $conditionObserved->observedAt->equalTo($now);
             });
