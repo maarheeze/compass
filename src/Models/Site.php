@@ -16,7 +16,7 @@ use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCollection;
-use Maarheeze\Compass\Collector\Client\ClientStatus;
+use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Collector\Sites\DeploymentStatus;
 use Maarheeze\Compass\Database\Factories\SiteFactory;
 use Maarheeze\Compass\Models\Builders\SiteBuilder;
@@ -34,7 +34,7 @@ use Maarheeze\Uuid\Uuid;
  * @property ?CarbonImmutable $client_collected_at
  * @property ?string $client_key
  * @property ?string $client_path
- * @property ?ClientStatus $client_status
+ * @property ?SiteReportStatus $client_status
  * @property CarbonImmutable $collected_at
  * @property CarbonImmutable $created_at
  * @property ?string $deployed_commit_hash
@@ -151,7 +151,7 @@ class Site extends Model implements AlertSubject
             'app_debug' => 'boolean',
             'auto_deploy' => 'boolean',
             'client_collected_at' => 'immutable_datetime',
-            'client_status' => ClientStatus::class,
+            'client_status' => SiteReportStatus::class,
             'collected_at' => 'immutable_datetime',
             'created_at' => 'immutable_datetime',
             'deployment_ended_at' => 'immutable_datetime',

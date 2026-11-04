@@ -7,5 +7,4 @@ return [
     'INSTALLED' => 'Client installed',
     'NOT_INSTALLED' => 'Client not installed',
     'UNAUTHORIZED' => 'Client key refused',
-    'UNREACHABLE' => 'Client unknown',
 ];

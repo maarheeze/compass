@@ -12,8 +12,8 @@ use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Collections\ConditionObservedCollection;
-use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
+use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 
@@ -40,7 +40,7 @@ readonly class EvaluateSiteClientIncompatible implements ShouldQueue
 
     private function observedCondition(Site $site): ConditionState
     {
-        if ($site->client_status === ClientStatus::INCOMPATIBLE) {
+        if ($site->client_status === SiteReportStatus::INCOMPATIBLE) {
             return ConditionState::ACTIVE;
         }
 

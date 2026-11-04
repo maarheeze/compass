@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Maarheeze\Compass\Collector\Client;
+namespace Maarheeze\Compass\Collector\SiteReports;
 
-enum ClientStatus: string
+enum SiteReportStatus: string
 {
     case INCOMPATIBLE = 'incompatible';
     case INSTALLED = 'installed';
     case NOT_INSTALLED = 'not-installed';
     case UNAUTHORIZED = 'unauthorized';
-    case UNREACHABLE = 'unreachable';
 }

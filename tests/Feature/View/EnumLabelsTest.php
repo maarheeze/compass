@@ -11,12 +11,12 @@ use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\NotificationChannel;
 use Maarheeze\Compass\Analyzer\Composer\RepositoryKind;
 use Maarheeze\Compass\Analyzer\Forge\DeploymentState;
-use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\Composer\PackageSection;
 use Maarheeze\Compass\Collector\MissingState;
 use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
 use Maarheeze\Compass\Collector\RunStatus;
 use Maarheeze\Compass\Collector\RunType;
+use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Collector\Sites\DeploymentStatus;
 use Maarheeze\Compass\View\BadgeType;
 use Maarheeze\Compass\View\EnumLabels;
@@ -52,7 +52,6 @@ test('label key has a translation', function (UnitEnum $value): void {
     AlertStatus::cases(),
     AlertType::cases(),
     AlertTypeGroup::cases(),
-    ClientStatus::cases(),
     ConditionState::cases(),
     DeploymentStatus::cases(),
     NotificationChannel::cases(),
@@ -61,6 +60,7 @@ test('label key has a translation', function (UnitEnum $value): void {
     RepositoryVisibility::cases(),
     RunStatus::cases(),
     RunType::cases(),
+    SiteReportStatus::cases(),
     [
         DeploymentState::BEHIND,
         DeploymentState::DEPLOYING,

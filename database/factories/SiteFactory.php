@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Maarheeze\Compass\Collector\Client\ClientStatus;
+use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Collector\Sites\DeploymentStatus;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Uuid\Uuid;
@@ -42,7 +42,7 @@ class SiteFactory extends Factory
             'deployment_ended_at' => fake()->optional()->dateTimeBetween('-1 month'),
             'client_key' => fake()->optional()->sha1(),
             'client_path' => fake()->optional()->passthrough(sprintf('/%s', fake()->slug())),
-            'client_status' => fake()->optional()->randomElement(ClientStatus::cases()),
+            'client_status' => fake()->optional()->randomElement(SiteReportStatus::cases()),
             'app_debug' => fake()->optional()->boolean(),
             'app_env' => fake()->optional()->word(),
             'app_name' => fake()->optional()->company(),

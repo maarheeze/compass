@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Collector\Client;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\ConnectionInterface;
+use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Models\Site;
 use Throwable;
 
@@ -23,7 +24,7 @@ readonly class SiteReportSynchronizer
     {
         $this->connection->transaction(static function () use ($site): void {
             $site->update([
-                'client_status' => ClientStatus::NOT_INSTALLED,
+                'client_status' => SiteReportStatus::NOT_INSTALLED,
                 'app_debug' => null,
                 'app_env' => null,
                 'app_name' => null,
@@ -39,7 +40,7 @@ readonly class SiteReportSynchronizer
     public function markIncompatible(Site $site): void
     {
         $site->update([
-            'client_status' => ClientStatus::INCOMPATIBLE,
+            'client_status' => SiteReportStatus::INCOMPATIBLE,
             'client_collected_at' => CarbonImmutable::now(),
         ]);
     }
@@ -47,7 +48,7 @@ readonly class SiteReportSynchronizer
     public function markUnauthorized(Site $site): void
     {
         $site->update([
-            'client_status' => ClientStatus::UNAUTHORIZED,
+            'client_status' => SiteReportStatus::UNAUTHORIZED,
             'client_collected_at' => CarbonImmutable::now(),
         ]);
     }
@@ -55,7 +56,7 @@ readonly class SiteReportSynchronizer
     public function markUnreachable(Site $site): void
     {
         $site->update([
-            'client_status' => ClientStatus::UNREACHABLE,
+            'client_status' => SiteReportStatus::UNREACHABLE,
             'client_collected_at' => CarbonImmutable::now(),
         ]);
     }
@@ -67,7 +68,7 @@ readonly class SiteReportSynchronizer
     {
         $this->connection->transaction(static function () use ($site, $siteReport): void {
             $site->update([
-                'client_status' => ClientStatus::INSTALLED,
+                'client_status' => SiteReportStatus::INSTALLED,
                 'app_debug' => $siteReport->appDebug,
                 'app_env' => $siteReport->appEnv,
                 'app_name' => $siteReport->appName,

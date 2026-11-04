@@ -10,8 +10,8 @@ use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteClientIncompatible;
-use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
+use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
@@ -21,7 +21,7 @@ test('handle observes incompatible client now for a site with an outdated client
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $site = Site::factory()->create(['client_status' => ClientStatus::INCOMPATIBLE]);
+    $site = Site::factory()->create(['client_status' => SiteReportStatus::INCOMPATIBLE]);
 
     $evaluateIncompatibleClient = $this->app->make(EvaluateSiteClientIncompatible::class);
     $evaluateIncompatibleClient->handle(new SiteInspected($site));
@@ -39,12 +39,12 @@ test('handle observes incompatible client now for a site with an outdated client
     );
 });
 
-test('handle observes incompatible client resolved now for a site with any other client status', function (?ClientStatus $clientStatus): void {
+test('handle observes incompatible client resolved now for a site with any other client status', function (?SiteReportStatus $siteReportStatus): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $site = Site::factory()->create(['client_status' => $clientStatus]);
+    $site = Site::factory()->create(['client_status' => $siteReportStatus]);
 
     $evaluateIncompatibleClient = $this->app->make(EvaluateSiteClientIncompatible::class);
     $evaluateIncompatibleClient->handle(new SiteInspected($site));
@@ -61,9 +61,8 @@ test('handle observes incompatible client resolved now for a site with any other
         },
     );
 })->with([
-    ClientStatus::INSTALLED,
-    ClientStatus::NOT_INSTALLED,
-    ClientStatus::UNAUTHORIZED,
-    ClientStatus::UNREACHABLE,
+    SiteReportStatus::INSTALLED,
+    SiteReportStatus::NOT_INSTALLED,
+    SiteReportStatus::UNAUTHORIZED,
     null,
 ]);

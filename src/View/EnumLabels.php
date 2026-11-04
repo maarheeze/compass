@@ -13,12 +13,12 @@ use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\NotificationChannel;
 use Maarheeze\Compass\Analyzer\Composer\RepositoryKind;
 use Maarheeze\Compass\Analyzer\Forge\DeploymentState;
-use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\Composer\PackageSection;
 use Maarheeze\Compass\Collector\MissingState;
 use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
 use Maarheeze\Compass\Collector\RunStatus;
 use Maarheeze\Compass\Collector\RunType;
+use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Collector\Sites\DeploymentStatus;
 use UnitEnum;
 
@@ -33,7 +33,6 @@ readonly class EnumLabels
             AlertStatus::class => 'alert-status',
             AlertType::class => 'alert-type',
             AlertTypeGroup::class => 'alert-type-group',
-            ClientStatus::class => 'client-status',
             ConditionState::class => 'condition-state',
             DeploymentState::class => 'deployment-state',
             DeploymentStatus::class => 'deployment-status',
@@ -44,6 +43,7 @@ readonly class EnumLabels
             RepositoryVisibility::class => 'repository-visibility',
             RunStatus::class => 'run-status',
             RunType::class => 'run-type',
+            SiteReportStatus::class => 'site-report-status',
             default => throw new InvalidArgumentException(),
         };
 

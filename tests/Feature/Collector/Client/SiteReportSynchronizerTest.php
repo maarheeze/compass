@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\Client\SiteReport;
 use Maarheeze\Compass\Collector\Client\SiteReportSynchronizer;
+use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
@@ -18,7 +18,7 @@ test('store report stores what the client reported', function (): void {
 
     $this->assertDatabaseHas(Site::class, [
         'id' => $site->id,
-        'client_status' => ClientStatus::INSTALLED,
+        'client_status' => SiteReportStatus::INSTALLED,
         'app_debug' => $siteReport->appDebug,
         'app_env' => $siteReport->appEnv,
         'app_name' => $siteReport->appName,
@@ -95,7 +95,7 @@ test('clear report marks the client not installed', function (): void {
 
     $this->assertDatabaseHas(Site::class, [
         'id' => $site->id,
-        'client_status' => ClientStatus::NOT_INSTALLED,
+        'client_status' => SiteReportStatus::NOT_INSTALLED,
         'app_debug' => null,
         'app_env' => null,
         'app_name' => null,
@@ -132,7 +132,7 @@ test('mark incompatible marks the client incompatible', function (): void {
 
     $this->assertDatabaseHas(Site::class, [
         'id' => $site->id,
-        'client_status' => ClientStatus::INCOMPATIBLE,
+        'client_status' => SiteReportStatus::INCOMPATIBLE,
     ]);
 });
 
@@ -153,7 +153,7 @@ test('mark unauthorized marks the client unauthorized', function (): void {
 
     $this->assertDatabaseHas(Site::class, [
         'id' => $site->id,
-        'client_status' => ClientStatus::UNAUTHORIZED,
+        'client_status' => SiteReportStatus::UNAUTHORIZED,
     ]);
 });
 
@@ -174,7 +174,7 @@ test('mark unreachable marks the client unreachable', function (): void {
 
     $this->assertDatabaseHas(Site::class, [
         'id' => $site->id,
-        'client_status' => ClientStatus::UNREACHABLE,
+        'client_status' => SiteReportStatus::UNREACHABLE,
     ]);
 });
 

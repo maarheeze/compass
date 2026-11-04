@@ -6,9 +6,9 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Support\Testing\Fakes\EventFake;
-use Maarheeze\Compass\Collector\Client\ClientStatus;
 use Maarheeze\Compass\Collector\Client\Jobs\InspectSite;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
+use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Models\Site;
 
 test('handle stores the report of a site with the client installed', function (): void {
@@ -26,7 +26,7 @@ test('handle stores the report of a site with the client installed', function ()
 
     $this->assertDatabaseHas(Site::class, [
         'id' => $site->id,
-        'client_status' => ClientStatus::INSTALLED,
+        'client_status' => SiteReportStatus::INSTALLED,
     ]);
 });
 
@@ -39,7 +39,7 @@ test('handle clears the report of a site without a client', function (): void {
 
     $this->assertDatabaseHas(Site::class, [
         'id' => $site->id,
-        'client_status' => ClientStatus::NOT_INSTALLED,
+        'client_status' => SiteReportStatus::NOT_INSTALLED,
     ]);
 });
 
@@ -57,7 +57,7 @@ test('handle marks a client that reports in another shape incompatible', functio
 
     $this->assertDatabaseHas(Site::class, [
         'id' => $site->id,
-        'client_status' => ClientStatus::INCOMPATIBLE,
+        'client_status' => SiteReportStatus::INCOMPATIBLE,
     ]);
 });
 
@@ -70,7 +70,7 @@ test('handle marks a client that refuses the key unauthorized', function (): voi
 
     $this->assertDatabaseHas(Site::class, [
         'id' => $site->id,
-        'client_status' => ClientStatus::UNAUTHORIZED,
+        'client_status' => SiteReportStatus::UNAUTHORIZED,
     ]);
 });
 
@@ -83,7 +83,7 @@ test('handle marks a site that cannot be reached unreachable', function (): void
 
     $this->assertDatabaseHas(Site::class, [
         'id' => $site->id,
-        'client_status' => ClientStatus::UNREACHABLE,
+        'client_status' => SiteReportStatus::UNREACHABLE,
     ]);
 });
 
