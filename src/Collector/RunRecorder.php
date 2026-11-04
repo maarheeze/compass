@@ -23,7 +23,7 @@ readonly class RunRecorder
     ) {
     }
 
-    public function start(
+    public function startCollector(
         Uuid $runId,
         string $sourceKey,
         CollectorType $collectorType,
@@ -36,6 +36,28 @@ readonly class RunRecorder
             'status' => RunStatus::QUEUED,
         ]);
 
+        $this->dispatch($runId, $firstJob, [
+            'source' => $sourceKey,
+            'collector' => $collectorType->value,
+        ]);
+    }
+
+    public function startTask(Uuid $runId, TaskType $taskType, ShouldQueue $firstJob): void
+    {
+        Run::query()->create([
+            'id' => $runId,
+            'task' => $taskType,
+            'status' => RunStatus::QUEUED,
+        ]);
+
+        $this->dispatch($runId, $firstJob, ['task' => $taskType->value]);
+    }
+
+    /**
+     * @param array<string, string> $runContext
+     */
+    private function dispatch(Uuid $runId, ShouldQueue $firstJob, array $runContext): void
+    {
         $pendingBatch = $this->dispatcher
             ->batch([$firstJob])
             ->allowFailures()
@@ -55,13 +77,10 @@ readonly class RunRecorder
         $collectorLogger = $this->collectorLogger;
 
         $this->context->scope(
-            static function () use ($collectorType, $collectorLogger, $pendingChain, $sourceKey): void {
+            static function () use ($collectorLogger, $pendingChain, $runContext): void {
                 $pendingChain->dispatch();
 
-                $collectorLogger->info('Run started', [
-                    'source' => $sourceKey,
-                    'collector' => $collectorType->value,
-                ]);
+                $collectorLogger->info('Run started', $runContext);
             },
             ['run_id' => $runId->toString()],
         );

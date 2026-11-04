@@ -14,6 +14,7 @@ use Maarheeze\Compass\Collections\RunCollection;
 use Maarheeze\Compass\Collections\RunFailureCollection;
 use Maarheeze\Compass\Collector\CollectorType;
 use Maarheeze\Compass\Collector\RunStatus;
+use Maarheeze\Compass\Collector\TaskType;
 use Maarheeze\Compass\Database\Factories\RunFactory;
 use Maarheeze\Compass\Models\Builders\RunBuilder;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
@@ -21,13 +22,14 @@ use Maarheeze\Uuid\Uuid;
 
 /**
  * @property ?string $batch_id
- * @property CollectorType $collector
+ * @property ?CollectorType $collector
  * @property CarbonImmutable $created_at
  * @property ?int $failed_job_count
  * @property ?CarbonImmutable $finished_at
  * @property Uuid $id
- * @property string $source
+ * @property ?string $source
  * @property RunStatus $status
+ * @property ?TaskType $task
  * @property CarbonImmutable $updated_at
  *
  * @property-read RunFailureCollection $failures
@@ -85,6 +87,7 @@ class Run extends Model
             'failed_job_count' => 'integer',
             'finished_at' => 'immutable_datetime',
             'status' => RunStatus::class,
+            'task' => TaskType::class,
             'updated_at' => 'immutable_datetime',
         ];
     }

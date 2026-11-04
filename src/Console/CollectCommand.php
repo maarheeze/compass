@@ -23,7 +23,7 @@ class CollectCommand extends Command
         $collectorType = CollectorType::from(Assert::string($this->argument('collector')));
         $job = $collectorRegistry->job($collectorType, $runId, $sourceKey);
 
-        $runRecorder->start($runId, $sourceKey, $collectorType, $job);
+        $runRecorder->startCollector($runId, $sourceKey, $collectorType, $job);
     }
 
     protected function configure(): void

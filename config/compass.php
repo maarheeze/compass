@@ -83,6 +83,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Schedule
+    |--------------------------------------------------------------------------
+    |
+    | How often the scheduler runs the tasks of Compass's own, which collect
+    | from no source: the endpoint checks. A task left out is not scheduled,
+    | but still runs when started by hand.
+    |
+    */
+
+    'schedule' => [
+        'site_endpoints' => ScheduleFrequency::EVERY_FIFTEEN_MINUTES,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Sources
     |--------------------------------------------------------------------------
     |

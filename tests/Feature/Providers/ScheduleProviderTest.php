@@ -6,11 +6,13 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Collection;
 use Maarheeze\Compass\Collector\CollectorType;
 use Maarheeze\Compass\Collector\ScheduleFrequency;
+use Maarheeze\Compass\Console\CheckSiteEndpointsCommand;
 use Maarheeze\Compass\Console\CollectCommand;
 
 test('a collector of a source is scheduled as a collect command of that source and collector', function (): void {
     $sourceKey = fake()->slug();
     $collector = fake()->randomElement(CollectorType::cases())->value;
+    $this->setConfiguration('compass.schedule', []);
     $this->setConfiguration('compass.sources', [
         $sourceKey => [
             'schedule' => [
@@ -27,6 +29,7 @@ test('a collector of a source is scheduled as a collect command of that source a
 });
 
 test('each collector in the schedule of each source is scheduled', function (): void {
+    $this->setConfiguration('compass.schedule', []);
     $this->setConfiguration('compass.sources', [
         fake()->unique()->slug() => [
             'schedule' => [
@@ -49,6 +52,7 @@ test('each collector in the schedule of each source is scheduled', function (): 
 });
 
 test('a source without a schedule is not scheduled', function (): void {
+    $this->setConfiguration('compass.schedule', []);
     $this->setConfiguration('compass.sources', [
         fake()->slug() => [
             'driver' => 'github',
@@ -66,6 +70,7 @@ test('a frequency is scheduled at its cron expression', function (
     ScheduleFrequency $scheduleFrequency,
     string $expression,
 ): void {
+    $this->setConfiguration('compass.schedule', []);
     $this->setConfiguration('compass.sources', [
         fake()->slug() => [
             'schedule' => [
@@ -87,3 +92,27 @@ test('a frequency is scheduled at its cron expression', function (
     'hourly' => [ScheduleFrequency::HOURLY, '0 * * * *'],
     'weekly' => [ScheduleFrequency::WEEKLY, '0 0 * * 0'],
 ]);
+
+test('the endpoint checks are scheduled as the endpoints check command', function (): void {
+    $this->setConfiguration('compass.schedule', [
+        'site_endpoints' => fake()->randomElement(ScheduleFrequency::cases()),
+    ]);
+    $this->setConfiguration('compass.sources', []);
+    $schedule = $this->app->make(Schedule::class);
+
+    $scheduledEvent = new Collection($schedule->events())->sole();
+
+    expect($scheduledEvent->command)
+        ->toEndWith(CheckSiteEndpointsCommand::SIGNATURE);
+});
+
+test('the endpoint checks are not scheduled when left out of the schedule', function (): void {
+    $this->setConfiguration('compass.schedule', []);
+    $this->setConfiguration('compass.sources', []);
+    $schedule = $this->app->make(Schedule::class);
+
+    $scheduledEvents = $schedule->events();
+
+    expect($scheduledEvents)
+        ->toBeEmpty();
+});

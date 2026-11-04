@@ -10,49 +10,50 @@ use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Log\LogManager;
 use Illuminate\Support\Testing\Fakes\BatchFake;
 use Illuminate\Support\Testing\Fakes\BusFake;
-use Maarheeze\Compass\Collector\Client\Jobs\InspectSites;
 use Maarheeze\Compass\Collector\CollectorType;
 use Maarheeze\Compass\Collector\Jobs\FinishRun;
 use Maarheeze\Compass\Collector\RunRecorder;
 use Maarheeze\Compass\Collector\RunStatus;
+use Maarheeze\Compass\Collector\SiteEndpoint\Jobs\CheckSiteEndpoints;
+use Maarheeze\Compass\Collector\TaskType;
 use Maarheeze\Compass\Models\Run;
 use Maarheeze\Uuid\Uuid;
 use Monolog\Handler\TestHandler;
 use Monolog\LogRecord;
 use Psr\Log\LogLevel;
 
-test('start chains the batch with the first job', function (): void {
+test('start collector chains the batch with the first job', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $runId = Uuid::generate();
 
     $runRecorder = $this->app->make(RunRecorder::class);
-    $runRecorder->start(
+    $runRecorder->startCollector(
         $runId,
         fake()->slug(),
         fake()->randomElement(CollectorType::cases()),
-        new InspectSites(),
+        new CheckSiteEndpoints(),
     );
 
     $busFake->assertChained([
         $busFake->chainedBatch(static function (PendingBatch $pendingBatch): bool {
-            return $pendingBatch->jobs->sole() instanceof InspectSites;
+            return $pendingBatch->jobs->sole() instanceof CheckSiteEndpoints;
         }),
         FinishRun::class,
     ]);
 });
 
-test('start keeps the batch going when one of its jobs fails', function (): void {
+test('start collector keeps the batch going when one of its jobs fails', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $runId = Uuid::generate();
 
     $runRecorder = $this->app->make(RunRecorder::class);
-    $runRecorder->start(
+    $runRecorder->startCollector(
         $runId,
         fake()->slug(),
         fake()->randomElement(CollectorType::cases()),
-        new InspectSites(),
+        new CheckSiteEndpoints(),
     );
 
     $busFake->assertChained([
@@ -63,14 +64,14 @@ test('start keeps the batch going when one of its jobs fails', function (): void
     ]);
 });
 
-test('start records the queued run of the collector of the source', function (): void {
+test('start collector records the queued run of the collector of the source', function (): void {
     $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
     $runId = Uuid::generate();
     $sourceKey = fake()->slug();
     $collectorType = fake()->randomElement(CollectorType::cases());
 
     $runRecorder = $this->app->make(RunRecorder::class);
-    $runRecorder->start($runId, $sourceKey, $collectorType, new InspectSites());
+    $runRecorder->startCollector($runId, $sourceKey, $collectorType, new CheckSiteEndpoints());
 
     $this->assertDatabaseHas(Run::class, [
         'id' => $runId,
@@ -81,18 +82,18 @@ test('start records the queued run of the collector of the source', function ():
     ]);
 });
 
-test('start records the run as running with its batch when the batch is stored', function (): void {
+test('start collector records the run as running with its batch when the batch is stored', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $runId = Uuid::generate();
     $batchFake = new BatchFake(fake()->uuid(), '', 1, 1, 0, [], [], CarbonImmutable::now());
 
     $runRecorder = $this->app->make(RunRecorder::class);
-    $runRecorder->start(
+    $runRecorder->startCollector(
         $runId,
         fake()->slug(),
         fake()->randomElement(CollectorType::cases()),
-        new InspectSites(),
+        new CheckSiteEndpoints(),
     );
     $busFake
         ->dispatched(ChainedBatch::class)
@@ -107,17 +108,17 @@ test('start records the run as running with its batch when the batch is stored',
     ]);
 });
 
-test('start finishes the run after the batch', function (): void {
+test('start collector finishes the run after the batch', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $runId = Uuid::generate();
 
     $runRecorder = $this->app->make(RunRecorder::class);
-    $runRecorder->start(
+    $runRecorder->startCollector(
         $runId,
         fake()->slug(),
         fake()->randomElement(CollectorType::cases()),
-        new InspectSites(),
+        new CheckSiteEndpoints(),
     );
 
     $busFake->assertChained([
@@ -128,7 +129,7 @@ test('start finishes the run after the batch', function (): void {
     ]);
 });
 
-test('start logs the start of the run with its run id in the log context', function (): void {
+test('start collector logs the start of the run with its run id in the log context', function (): void {
     $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
     $channel = fake()->slug();
     $this->app->make(Repository::class)->set(sprintf('logging.channels.%s', $channel), [
@@ -140,11 +141,11 @@ test('start logs the start of the run with its run id in the log context', funct
     $runId = Uuid::generate();
 
     $runRecorder = $this->app->make(RunRecorder::class);
-    $runRecorder->start(
+    $runRecorder->startCollector(
         $runId,
         fake()->slug(),
         fake()->randomElement(CollectorType::cases()),
-        new InspectSites(),
+        new CheckSiteEndpoints(),
     );
 
     $testHandler = $this->app
@@ -160,4 +161,39 @@ test('start logs the start of the run with its run id in the log context', funct
 
     expect($hasLoggedRunStartWithRunId)
         ->toBeTrue();
+});
+
+test('start task records the queued run of the task', function (): void {
+    $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
+    $runId = Uuid::generate();
+    $taskType = fake()->randomElement(TaskType::cases());
+
+    $runRecorder = $this->app->make(RunRecorder::class);
+    $runRecorder->startTask($runId, $taskType, new CheckSiteEndpoints());
+
+    $this->assertDatabaseHas(Run::class, [
+        'id' => $runId,
+        'source' => null,
+        'collector' => null,
+        'task' => $taskType,
+        'status' => RunStatus::QUEUED,
+    ]);
+});
+
+test('start task chains the batch of the first job before finishing the run', function (): void {
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
+    $runId = Uuid::generate();
+
+    $runRecorder = $this->app->make(RunRecorder::class);
+    $runRecorder->startTask($runId, fake()->randomElement(TaskType::cases()), new CheckSiteEndpoints());
+
+    $busFake->assertChained([
+        $busFake->chainedBatch(static function (PendingBatch $pendingBatch): bool {
+            return $pendingBatch->jobs->sole() instanceof CheckSiteEndpoints;
+        }),
+        static function (FinishRun $finishRun) use ($runId): bool {
+            return $finishRun->runId->equals($runId);
+        },
+    ]);
 });
