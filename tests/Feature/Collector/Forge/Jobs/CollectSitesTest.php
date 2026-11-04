@@ -6,7 +6,6 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Support\Testing\Fakes\EventFake;
-use Maarheeze\Compass\Collector\Client\Jobs\InspectSites;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Collector\Forge\Jobs\CollectSites;
 use Maarheeze\Compass\Models\Site;
@@ -104,31 +103,6 @@ test('handle marks the sites of another run missing on the last page', function 
 
     expect($site->refresh()->missing_at)
         ->toBeInstanceOf(CarbonImmutable::class);
-});
-
-test('handle adds the inspection of the sites to its batch', function (): void {
-    $sourceKey = fake()->slug();
-    $this->setConfiguration('compass.sources', [
-        $sourceKey => [
-            'driver' => 'forge',
-            'organization' => fake()->slug(),
-            'token' => fake()->sha1(),
-        ],
-    ]);
-    $this->app->make(HttpFactory::class)->fake([
-        '*' => HttpFactory::response([
-            'data' => [],
-            'meta' => [
-                'next_cursor' => null,
-            ],
-        ]),
-    ]);
-
-    [$collectSites, $batchFake] = new CollectSites(Uuid::generate(), $sourceKey)->withFakeBatch();
-    $this->app->call([$collectSites, 'handle']);
-
-    expect(array_map(get_class(...), $batchFake->added))
-        ->toBe([InspectSites::class]);
 });
 
 test('handle refuses a source without a sites collector', function (): void {

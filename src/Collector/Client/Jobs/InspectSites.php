@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Models\Site;
+use Maarheeze\Uuid\Uuid;
 use Webmozart\Assert\Assert;
 
 class InspectSites implements ShouldQueue
@@ -18,6 +19,12 @@ class InspectSites implements ShouldQueue
     use Batchable;
     use InteractsWithQueue;
     use Queueable;
+
+    public function __construct(
+        public readonly Uuid $runId,
+        public readonly string $sourceKey,
+    ) {
+    }
 
     public function handle(CollectorLogger $collectorLogger): void
     {
@@ -31,7 +38,7 @@ class InspectSites implements ShouldQueue
             $inspectSiteJobs = [];
 
             foreach ($collectedSites as $collectedSite) {
-                $inspectSiteJobs[] = new InspectSite($collectedSite);
+                $inspectSiteJobs[] = new InspectSite($collectedSite, $this->sourceKey);
 
                 $collectorLogger->debug('Site inspection queued', ['site' => $collectedSite->name]);
             }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Maarheeze\Compass\Collector\Client\Jobs\InspectSites;
 use Maarheeze\Compass\Collector\CollectorRegistry;
 use Maarheeze\Compass\Collector\CollectorType;
 use Maarheeze\Compass\Collector\Composer\ComposerFilesCollectorManager;
@@ -27,6 +28,7 @@ class CollectorProvider extends ServiceProvider
         $collectorRegistry->register(CollectorType::ISSUES, CollectIssues::class);
         $collectorRegistry->register(CollectorType::PULL_REQUESTS, CollectPullRequests::class);
         $collectorRegistry->register(CollectorType::REPOSITORIES, CollectRepositories::class);
+        $collectorRegistry->register(CollectorType::SITE_REPORTS, InspectSites::class);
         $collectorRegistry->register(CollectorType::SITES, CollectSites::class);
 
         $this->commands([CollectCommand::class]);

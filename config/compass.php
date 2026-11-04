@@ -67,22 +67,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Client
-    |--------------------------------------------------------------------------
-    |
-    | The key Compass sends to the maarheeze/compass-client-laravel package
-    | on the sites (the same key on every site), and the path that package
-    | answers on, unless a site overrides it.
-    |
-    */
-
-    'client' => [
-        'key' => env('COMPASS_CLIENT_KEY'),
-        'path' => env('COMPASS_CLIENT_PATH', '/_compass'),
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
     | GitHub
     |--------------------------------------------------------------------------
     |
@@ -133,6 +117,9 @@ return [
             'driver' => 'compass-client',
             'key' => env('COMPASS_CLIENT_KEY'),
             'path' => env('COMPASS_CLIENT_PATH', '/_compass'),
+            'schedule' => [
+                'site_reports' => ScheduleFrequency::HOURLY,
+            ],
         ],
     ],
 

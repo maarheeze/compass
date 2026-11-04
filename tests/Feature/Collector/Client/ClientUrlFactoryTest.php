@@ -7,10 +7,9 @@ use Maarheeze\Compass\Models\Site;
 
 test('create appends the default path to the url of a site without a path of its own', function (): void {
     $defaultPath = sprintf('/%s', fake()->slug());
-    $this->setConfiguration('compass.client.path', $defaultPath);
     $site = Site::factory()->make(['client_path' => null]);
 
-    $clientUrlFactory = $this->app->make(ClientUrlFactory::class);
+    $clientUrlFactory = new ClientUrlFactory($defaultPath);
     $clientUrl = $clientUrlFactory->create($site);
 
     expect($clientUrl)
@@ -20,7 +19,7 @@ test('create appends the default path to the url of a site without a path of its
 test('create appends the path of the site', function (): void {
     $site = Site::factory()->make(['client_path' => sprintf('/%s', fake()->slug())]);
 
-    $clientUrlFactory = $this->app->make(ClientUrlFactory::class);
+    $clientUrlFactory = new ClientUrlFactory(sprintf('/%s', fake()->slug()));
     $clientUrl = $clientUrlFactory->create($site);
 
     expect($clientUrl)
@@ -35,7 +34,7 @@ test('create joins a url ending in a slash with one slash', function (): void {
         'client_path' => sprintf('/%s', $clientPath),
     ]);
 
-    $clientUrlFactory = $this->app->make(ClientUrlFactory::class);
+    $clientUrlFactory = new ClientUrlFactory(sprintf('/%s', fake()->slug()));
     $clientUrl = $clientUrlFactory->create($site);
 
     expect($clientUrl)

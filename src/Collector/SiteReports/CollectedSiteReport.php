@@ -7,20 +7,20 @@ namespace Maarheeze\Compass\Collector\SiteReports;
 readonly class CollectedSiteReport
 {
     /**
-     * @param ?list<string> $endpoints
+     * @param list<string> $endpoints
      */
     private function __construct(
         public SiteReportStatus $status,
         public ?bool $appDebug,
         public ?string $appEnv,
         public ?string $appName,
-        public ?array $endpoints,
+        public array $endpoints,
     ) {
     }
 
     public static function incompatible(): self
     {
-        return new self(SiteReportStatus::INCOMPATIBLE, null, null, null, null);
+        return new self(SiteReportStatus::INCOMPATIBLE, null, null, null, []);
     }
 
     /**
@@ -33,11 +33,11 @@ readonly class CollectedSiteReport
 
     public static function notInstalled(): self
     {
-        return new self(SiteReportStatus::NOT_INSTALLED, null, null, null, null);
+        return new self(SiteReportStatus::NOT_INSTALLED, null, null, null, []);
     }
 
     public static function unauthorized(): self
     {
-        return new self(SiteReportStatus::UNAUTHORIZED, null, null, null, null);
+        return new self(SiteReportStatus::UNAUTHORIZED, null, null, null, []);
     }
 }

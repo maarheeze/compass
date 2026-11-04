@@ -7,11 +7,20 @@ use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Collector\Client\Jobs\InspectSite;
+use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Models\Site;
 
-test('handle stores the report of a site with the client installed', function (): void {
+test('handle stores the report the collector of its source collected', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'compass-client',
+            'key' => fake()->sha1(),
+            'path' => sprintf('/%s', fake()->slug()),
+        ],
+    ]);
     $site = Site::factory()->create();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([
         'app_debug' => fake()->boolean(),
@@ -21,7 +30,7 @@ test('handle stores the report of a site with the client installed', function ()
     ]),
     ]);
 
-    $inspectSite = new InspectSite($site);
+    $inspectSite = new InspectSite($site, $sourceKey);
     $this->app->call([$inspectSite, 'handle']);
 
     $this->assertDatabaseHas(Site::class, [
@@ -30,94 +39,55 @@ test('handle stores the report of a site with the client installed', function ()
     ]);
 });
 
-test('handle clears the report of a site without a client', function (): void {
-    $site = Site::factory()->create();
-    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, 404)]);
-
-    $inspectSite = new InspectSite($site);
-    $this->app->call([$inspectSite, 'handle']);
-
-    $this->assertDatabaseHas(Site::class, [
-        'id' => $site->id,
-        'client_status' => SiteReportStatus::NOT_INSTALLED,
+test('handle fails when the site cannot be reached', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'compass-client',
+            'key' => fake()->sha1(),
+            'path' => sprintf('/%s', fake()->slug()),
+        ],
     ]);
-});
-
-test('handle marks a client that reports in another shape incompatible', function (): void {
-    $site = Site::factory()->create();
-    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([
-        'app_debug' => fake()->boolean(),
-        'app_env' => fake()->word(),
-        'app_name' => fake()->company(),
-    ]),
-    ]);
-
-    $inspectSite = new InspectSite($site);
-    $this->app->call([$inspectSite, 'handle']);
-
-    $this->assertDatabaseHas(Site::class, [
-        'id' => $site->id,
-        'client_status' => SiteReportStatus::INCOMPATIBLE,
-    ]);
-});
-
-test('handle marks a client that refuses the key unauthorized', function (): void {
-    $site = Site::factory()->create();
-    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, 401)]);
-
-    $inspectSite = new InspectSite($site);
-    $this->app->call([$inspectSite, 'handle']);
-
-    $this->assertDatabaseHas(Site::class, [
-        'id' => $site->id,
-        'client_status' => SiteReportStatus::UNAUTHORIZED,
-    ]);
-});
-
-test('handle marks a site that cannot be reached unreachable', function (): void {
-    $site = Site::factory()->create();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::failedConnection()]);
 
-    $inspectSite = new InspectSite($site);
+    $this->expectException(CollectingFailed::class);
+
+    $inspectSite = new InspectSite(Site::factory()->create(), $sourceKey);
     $this->app->call([$inspectSite, 'handle']);
-
-    $this->assertDatabaseHas(Site::class, [
-        'id' => $site->id,
-        'client_status' => SiteReportStatus::UNREACHABLE,
-    ]);
-});
-
-test('handle leaves a site without a key alone', function (): void {
-    $site = Site::factory()->create([
-        'client_key' => null,
-        'client_status' => null,
-    ]);
-    $this->setConfiguration('compass.client.key', null);
-    $http = $this->app->make(HttpFactory::class);
-    $http->fake();
-
-    $inspectSite = new InspectSite($site);
-    $this->app->call([$inspectSite, 'handle']);
-
-    $http->assertNothingSent();
 });
 
 test('handle leaves a missing site alone', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'compass-client',
+            'key' => fake()->sha1(),
+            'path' => sprintf('/%s', fake()->slug()),
+        ],
+    ]);
     $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
     $http = $this->app->make(HttpFactory::class);
     $http->fake();
 
-    $inspectSite = new InspectSite($site);
+    $inspectSite = new InspectSite($site, $sourceKey);
     $this->app->call([$inspectSite, 'handle']);
 
     $http->assertNothingSent();
 });
 
 test('handle adds the site to the log context', function (): void {
-    $site = Site::factory()->create(['client_key' => null]);
-    $this->setConfiguration('compass.client.key', null);
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'compass-client',
+            'key' => fake()->sha1(),
+            'path' => sprintf('/%s', fake()->slug()),
+        ],
+    ]);
+    $site = Site::factory()->create();
+    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, 404)]);
 
-    $inspectSite = new InspectSite($site);
+    $inspectSite = new InspectSite($site, $sourceKey);
     $this->app->call([$inspectSite, 'handle']);
 
     expect($this->app->make(Context::class)->get('site'))
@@ -125,15 +95,37 @@ test('handle adds the site to the log context', function (): void {
 });
 
 test('handle raises site inspected with the site', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => 'compass-client',
+            'key' => fake()->sha1(),
+            'path' => sprintf('/%s', fake()->slug()),
+        ],
+    ]);
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
     $site = Site::factory()->create();
-    $this->app->make(HttpFactory::class)->fake();
+    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, 404)]);
 
-    $inspectSite = new InspectSite($site);
+    $inspectSite = new InspectSite($site, $sourceKey);
     $this->app->call([$inspectSite, 'handle']);
 
     $eventFake->assertDispatched(SiteInspected::class, static function (SiteInspected $siteInspected) use ($site): bool {
         return $siteInspected->site->is($site);
     });
+});
+
+test('handle refuses a source without a site reports collector', function (): void {
+    $sourceKey = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $sourceKey => [
+            'driver' => fake()->slug(),
+        ],
+    ]);
+
+    $this->expectException(InvalidArgumentException::class);
+
+    $inspectSite = new InspectSite(Site::factory()->create(), $sourceKey);
+    $this->app->call([$inspectSite, 'handle']);
 });

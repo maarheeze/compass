@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Collector\Client;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\ConnectionInterface;
+use Maarheeze\Compass\Collector\SiteReports\CollectedSiteReport;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Models\Site;
 use Throwable;
@@ -20,72 +21,49 @@ readonly class SiteReportSynchronizer
     /**
      * @throws Throwable
      */
-    public function clearReport(Site $site): void
+    public function storeReport(Site $site, CollectedSiteReport $collectedSiteReport): void
     {
-        $this->connection->transaction(static function () use ($site): void {
-            $site->update([
-                'client_status' => SiteReportStatus::NOT_INSTALLED,
-                'app_debug' => null,
-                'app_env' => null,
-                'app_name' => null,
-                'client_collected_at' => CarbonImmutable::now(),
-            ]);
-
-            foreach ($site->endpoints()->get() as $siteEndpoint) {
-                $siteEndpoint->delete();
-            }
-        });
-    }
-
-    public function markIncompatible(Site $site): void
-    {
-        $site->update([
-            'client_status' => SiteReportStatus::INCOMPATIBLE,
-            'client_collected_at' => CarbonImmutable::now(),
-        ]);
-    }
-
-    public function markUnauthorized(Site $site): void
-    {
-        $site->update([
-            'client_status' => SiteReportStatus::UNAUTHORIZED,
-            'client_collected_at' => CarbonImmutable::now(),
-        ]);
-    }
-
-    public function markUnreachable(Site $site): void
-    {
-        $site->update([
-            'client_status' => SiteReportStatus::UNREACHABLE,
-            'client_collected_at' => CarbonImmutable::now(),
-        ]);
+        match ($collectedSiteReport->status) {
+            SiteReportStatus::INCOMPATIBLE,
+            SiteReportStatus::UNAUTHORIZED => $this->storeStatus($site, $collectedSiteReport),
+            SiteReportStatus::INSTALLED,
+            SiteReportStatus::NOT_INSTALLED => $this->storeReportAndEndpoints($site, $collectedSiteReport),
+        };
     }
 
     /**
      * @throws Throwable
      */
-    public function storeReport(Site $site, SiteReport $siteReport): void
+    private function storeReportAndEndpoints(Site $site, CollectedSiteReport $collectedSiteReport): void
     {
-        $this->connection->transaction(static function () use ($site, $siteReport): void {
+        $this->connection->transaction(static function () use ($site, $collectedSiteReport): void {
             $site->update([
-                'client_status' => SiteReportStatus::INSTALLED,
-                'app_debug' => $siteReport->appDebug,
-                'app_env' => $siteReport->appEnv,
-                'app_name' => $siteReport->appName,
+                'client_status' => $collectedSiteReport->status,
+                'app_debug' => $collectedSiteReport->appDebug,
+                'app_env' => $collectedSiteReport->appEnv,
+                'app_name' => $collectedSiteReport->appName,
                 'client_collected_at' => CarbonImmutable::now(),
             ]);
 
             $droppedSiteEndpoints = $site->endpoints()
-                ->whereNotIn('path', $siteReport->endpoints)
+                ->whereNotIn('path', $collectedSiteReport->endpoints)
                 ->get();
 
             foreach ($droppedSiteEndpoints as $droppedSiteEndpoint) {
                 $droppedSiteEndpoint->delete();
             }
 
-            foreach ($siteReport->endpoints as $endpoint) {
+            foreach ($collectedSiteReport->endpoints as $endpoint) {
                 $site->endpoints()->firstOrCreate(['path' => $endpoint]);
             }
         });
+    }
+
+    private function storeStatus(Site $site, CollectedSiteReport $collectedSiteReport): void
+    {
+        $site->update([
+            'client_status' => $collectedSiteReport->status,
+            'client_collected_at' => CarbonImmutable::now(),
+        ]);
     }
 }

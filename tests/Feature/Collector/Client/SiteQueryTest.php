@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collector\Client\ClientIncompatible;
+use Maarheeze\Compass\Collector\Client\ClientKey;
 use Maarheeze\Compass\Collector\Client\ClientNotInstalled;
 use Maarheeze\Compass\Collector\Client\ClientUnauthorized;
 use Maarheeze\Compass\Collector\Client\ClientUnreachable;
@@ -14,7 +15,8 @@ use Maarheeze\Compass\Models\Site;
 
 test('report is sent to the client url of the site', function (): void {
     $site = Site::factory()->create();
-    $clientUrl = $this->app->make(ClientUrlFactory::class)->create($site);
+    $clientUrlFactory = new ClientUrlFactory(sprintf('/%s', fake()->slug()));
+    $clientUrl = $clientUrlFactory->create($site);
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response([
         'app_debug' => fake()->boolean(),
@@ -24,7 +26,7 @@ test('report is sent to the client url of the site', function (): void {
     ]),
     ]);
 
-    $siteQuery = $this->app->make(SiteQuery::class);
+    $siteQuery = new SiteQuery(new ClientKey(fake()->sha1()), $clientUrlFactory, $http);
     $siteQuery->report($site);
 
     $http->assertSent(static function (HttpRequest $request) use ($clientUrl): bool {
@@ -43,7 +45,7 @@ test('report is sent with the key of the site', function (): void {
     ]),
     ]);
 
-    $siteQuery = $this->app->make(SiteQuery::class);
+    $siteQuery = new SiteQuery(new ClientKey(fake()->sha1()), new ClientUrlFactory(sprintf('/%s', fake()->slug())), $http);
     $siteQuery->report($site);
 
     $http->assertSent(static function (HttpRequest $request) use ($site): bool {
@@ -56,7 +58,8 @@ test('report holds what the client reported', function (): void {
     $appEnv = fake()->word();
     $appName = fake()->company();
     $endpoints = [sprintf('/%s', fake()->unique()->slug()), sprintf('/%s', fake()->unique()->slug())];
-    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response([
         'app_debug' => $appDebug,
         'app_env' => $appEnv,
         'app_name' => $appName,
@@ -64,7 +67,7 @@ test('report holds what the client reported', function (): void {
     ]),
     ]);
 
-    $siteQuery = $this->app->make(SiteQuery::class);
+    $siteQuery = new SiteQuery(new ClientKey(fake()->sha1()), new ClientUrlFactory(sprintf('/%s', fake()->slug())), $http);
     $siteReport = $siteQuery->report(Site::factory()->create());
 
     expect($siteReport)
@@ -79,25 +82,28 @@ test('report holds what the client reported', function (): void {
 });
 
 test('report throws when the site has no client', function (): void {
-    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, 404)]);
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response(null, 404)]);
 
     $this->expectException(ClientNotInstalled::class);
 
-    $siteQuery = $this->app->make(SiteQuery::class);
+    $siteQuery = new SiteQuery(new ClientKey(fake()->sha1()), new ClientUrlFactory(sprintf('/%s', fake()->slug())), $http);
     $siteQuery->report(Site::factory()->create());
 });
 
 test('report throws when the site answers without a site report', function (): void {
-    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(fake()->randomHtml())]);
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response(fake()->randomHtml())]);
 
     $this->expectException(ClientNotInstalled::class);
 
-    $siteQuery = $this->app->make(SiteQuery::class);
+    $siteQuery = new SiteQuery(new ClientKey(fake()->sha1()), new ClientUrlFactory(sprintf('/%s', fake()->slug())), $http);
     $siteQuery->report(Site::factory()->create());
 });
 
 test('report throws when the client reports without a field', function (): void {
-    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response([
         'app_debug' => fake()->boolean(),
         'app_env' => fake()->word(),
         'app_name' => fake()->company(),
@@ -106,12 +112,13 @@ test('report throws when the client reports without a field', function (): void 
 
     $this->expectException(ClientIncompatible::class);
 
-    $siteQuery = $this->app->make(SiteQuery::class);
+    $siteQuery = new SiteQuery(new ClientKey(fake()->sha1()), new ClientUrlFactory(sprintf('/%s', fake()->slug())), $http);
     $siteQuery->report(Site::factory()->create());
 });
 
 test('report throws when the client reports a field of another type', function (): void {
-    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response([
         'app_debug' => fake()->word(),
         'app_env' => fake()->word(),
         'app_name' => fake()->company(),
@@ -121,42 +128,46 @@ test('report throws when the client reports a field of another type', function (
 
     $this->expectException(ClientIncompatible::class);
 
-    $siteQuery = $this->app->make(SiteQuery::class);
+    $siteQuery = new SiteQuery(new ClientKey(fake()->sha1()), new ClientUrlFactory(sprintf('/%s', fake()->slug())), $http);
     $siteQuery->report(Site::factory()->create());
 });
 
 test('report throws when the client refuses the key', function (): void {
-    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, 401)]);
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response(null, 401)]);
 
     $this->expectException(ClientUnauthorized::class);
 
-    $siteQuery = $this->app->make(SiteQuery::class);
+    $siteQuery = new SiteQuery(new ClientKey(fake()->sha1()), new ClientUrlFactory(sprintf('/%s', fake()->slug())), $http);
     $siteQuery->report(Site::factory()->create());
 });
 
 test('report throws when the client forbids the request', function (): void {
-    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, 403)]);
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response(null, 403)]);
 
     $this->expectException(ClientUnauthorized::class);
 
-    $siteQuery = $this->app->make(SiteQuery::class);
+    $siteQuery = new SiteQuery(new ClientKey(fake()->sha1()), new ClientUrlFactory(sprintf('/%s', fake()->slug())), $http);
     $siteQuery->report(Site::factory()->create());
 });
 
 test('report throws when the site fails', function (): void {
-    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, 500)]);
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response(null, 500)]);
 
     $this->expectException(ClientUnreachable::class);
 
-    $siteQuery = $this->app->make(SiteQuery::class);
+    $siteQuery = new SiteQuery(new ClientKey(fake()->sha1()), new ClientUrlFactory(sprintf('/%s', fake()->slug())), $http);
     $siteQuery->report(Site::factory()->create());
 });
 
 test('report throws when the site cannot be reached', function (): void {
-    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::failedConnection()]);
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::failedConnection()]);
 
     $this->expectException(ClientUnreachable::class);
 
-    $siteQuery = $this->app->make(SiteQuery::class);
+    $siteQuery = new SiteQuery(new ClientKey(fake()->sha1()), new ClientUrlFactory(sprintf('/%s', fake()->slug())), $http);
     $siteQuery->report(Site::factory()->create());
 });
