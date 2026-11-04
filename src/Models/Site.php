@@ -15,8 +15,7 @@ use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
-use Maarheeze\Compass\Collections\SiteEndpointCollection;
-use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
+use Maarheeze\Compass\Collections\SiteReportCollection;
 use Maarheeze\Compass\Collector\Sites\DeploymentStatus;
 use Maarheeze\Compass\Database\Factories\SiteFactory;
 use Maarheeze\Compass\Models\Builders\SiteBuilder;
@@ -27,14 +26,7 @@ use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
 
 /**
- * @property ?bool $app_debug
- * @property ?string $app_env
- * @property ?string $app_name
  * @property ?bool $auto_deploy
- * @property ?CarbonImmutable $client_collected_at
- * @property ?string $client_key
- * @property ?string $client_path
- * @property ?SiteReportStatus $client_status
  * @property CarbonImmutable $collected_at
  * @property CarbonImmutable $created_at
  * @property ?string $deployed_commit_hash
@@ -57,7 +49,7 @@ use Maarheeze\Uuid\Uuid;
  *
  * @property-read AlertCollection $alerts
  * @property-read SiteEndpointCheckCollection $endpointChecks
- * @property-read SiteEndpointCollection $endpoints
+ * @property-read SiteReportCollection $reports
  * @property-read ?Repository $repository
  */
 class Site extends Model implements AlertSubject
@@ -81,14 +73,7 @@ class Site extends Model implements AlertSubject
     public function getFillable(): array
     {
         return [
-            'app_debug',
-            'app_env',
-            'app_name',
             'auto_deploy',
-            'client_collected_at',
-            'client_key',
-            'client_path',
-            'client_status',
             'collected_at',
             'deployed_commit_hash',
             'deployment_ended_at',
@@ -122,11 +107,11 @@ class Site extends Model implements AlertSubject
     }
 
     /**
-     * @return HasMany<SiteEndpoint, $this>
+     * @return HasMany<SiteReport, $this>
      */
-    public function endpoints(): HasMany
+    public function reports(): HasMany
     {
-        return $this->hasMany(SiteEndpoint::class);
+        return $this->hasMany(SiteReport::class);
     }
 
     /**
@@ -148,10 +133,7 @@ class Site extends Model implements AlertSubject
     protected function casts(): array
     {
         return [
-            'app_debug' => 'boolean',
             'auto_deploy' => 'boolean',
-            'client_collected_at' => 'immutable_datetime',
-            'client_status' => SiteReportStatus::class,
             'collected_at' => 'immutable_datetime',
             'created_at' => 'immutable_datetime',
             'deployment_ended_at' => 'immutable_datetime',

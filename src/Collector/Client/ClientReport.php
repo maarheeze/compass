@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Collector\Client;
 
-readonly class SiteReport
+readonly class ClientReport
 {
     /**
      * @param list<string> $endpoints

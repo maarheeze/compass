@@ -10,5 +10,5 @@ test('display name is the site name followed by the path', function (): void {
     $displayName = $siteEndpoint->displayName();
 
     expect($displayName)
-        ->toBe(sprintf('%s%s', $siteEndpoint->site->name, $siteEndpoint->path));
+        ->toBe(sprintf('%s%s', $siteEndpoint->siteReport->site->name, $siteEndpoint->path));
 });

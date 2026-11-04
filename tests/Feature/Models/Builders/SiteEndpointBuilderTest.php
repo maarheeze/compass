@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
+use Maarheeze\Compass\Models\SiteReport;
 
 test('of collected sites keeps an endpoint of a collected site', function (): void {
-    $siteEndpoint = SiteEndpoint::factory()
+    $siteReport = SiteReport::factory()
         ->for(Site::factory()->create(['missing_at' => null]))
+        ->create();
+    $siteEndpoint = SiteEndpoint::factory()
+        ->for($siteReport)
         ->create();
 
     $siteEndpointsOfCollectedSites = SiteEndpoint::query()
@@ -19,8 +23,11 @@ test('of collected sites keeps an endpoint of a collected site', function (): vo
 });
 
 test('of collected sites leaves out an endpoint of a missing site', function (): void {
-    SiteEndpoint::factory()
+    $siteReport = SiteReport::factory()
         ->for(Site::factory()->create(['missing_at' => fake()->dateTime()]))
+        ->create();
+    SiteEndpoint::factory()
+        ->for($siteReport)
         ->create();
 
     $siteEndpointsOfCollectedSites = SiteEndpoint::query()

@@ -26,11 +26,11 @@ use function sprintf;
  * @property CarbonImmutable $created_at
  * @property Uuid $id
  * @property string $path
- * @property Uuid $site_id
+ * @property Uuid $site_report_id
  * @property CarbonImmutable $updated_at
  *
  * @property-read AlertCollection $alerts
- * @property-read Site $site
+ * @property-read SiteReport $siteReport
  */
 class SiteEndpoint extends Model implements AlertSubject
 {
@@ -53,7 +53,7 @@ class SiteEndpoint extends Model implements AlertSubject
     {
         return [
             'path',
-            'site_id',
+            'site_report_id',
         ];
     }
 
@@ -63,16 +63,16 @@ class SiteEndpoint extends Model implements AlertSubject
     }
 
     /**
-     * @return BelongsTo<Site, $this>
+     * @return BelongsTo<SiteReport, $this>
      */
-    public function site(): BelongsTo
+    public function siteReport(): BelongsTo
     {
-        return $this->belongsTo(Site::class);
+        return $this->belongsTo(SiteReport::class);
     }
 
     public function displayName(): string
     {
-        return sprintf('%s%s', $this->site->name, $this->path);
+        return sprintf('%s%s', $this->siteReport->site->name, $this->path);
     }
 
     /**
@@ -82,7 +82,7 @@ class SiteEndpoint extends Model implements AlertSubject
     {
         return [
             'created_at' => 'immutable_datetime',
-            'site_id' => UuidCast::class,
+            'site_report_id' => UuidCast::class,
             'updated_at' => 'immutable_datetime',
         ];
     }

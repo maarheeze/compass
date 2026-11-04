@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Collector\Sites\DeploymentStatus;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Uuid\Uuid;
 
 use function fake;
-use function sprintf;
 
 /**
  * @extends Factory<Site>
@@ -40,13 +38,6 @@ class SiteFactory extends Factory
             'deployed_commit_hash' => fake()->optional()->sha1(),
             'deployment_started_at' => fake()->optional()->dateTimeBetween('-2 months', '-1 month'),
             'deployment_ended_at' => fake()->optional()->dateTimeBetween('-1 month'),
-            'client_key' => fake()->optional()->sha1(),
-            'client_path' => fake()->optional()->passthrough(sprintf('/%s', fake()->slug())),
-            'client_status' => fake()->optional()->randomElement(SiteReportStatus::cases()),
-            'app_debug' => fake()->optional()->boolean(),
-            'app_env' => fake()->optional()->word(),
-            'app_name' => fake()->optional()->company(),
-            'client_collected_at' => fake()->optional()->dateTime(),
             'run_id' => Uuid::generate(),
             'collected_at' => fake()->dateTime(),
         ];

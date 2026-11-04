@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
+use Maarheeze\Compass\Models\SiteReport;
 
 use function fake;
 use function sprintf;
@@ -25,7 +25,7 @@ class SiteEndpointFactory extends Factory
     public function definition(): array
     {
         return [
-            'site_id' => Site::factory(),
+            'site_report_id' => SiteReport::factory(),
             'path' => sprintf('/%s', fake()->unique()->slug()),
         ];
     }

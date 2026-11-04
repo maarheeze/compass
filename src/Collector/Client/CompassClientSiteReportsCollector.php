@@ -27,7 +27,7 @@ readonly class CompassClientSiteReportsCollector implements SiteReportsCollector
         $siteQuery = new SiteQuery(new ClientKey($this->key), new ClientUrlFactory($this->path), $this->http);
 
         try {
-            $siteReport = $siteQuery->report($site);
+            $clientReport = $siteQuery->report($site);
         } catch (ClientIncompatible) {
             return CollectedSiteReport::incompatible();
         } catch (ClientNotInstalled) {
@@ -39,10 +39,10 @@ readonly class CompassClientSiteReportsCollector implements SiteReportsCollector
         }
 
         return CollectedSiteReport::installed(
-            $siteReport->appDebug,
-            $siteReport->appEnv,
-            $siteReport->appName,
-            $siteReport->endpoints,
+            $clientReport->appDebug,
+            $clientReport->appEnv,
+            $clientReport->appName,
+            $clientReport->endpoints,
         );
     }
 }

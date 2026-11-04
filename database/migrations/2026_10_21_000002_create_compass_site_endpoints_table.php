@@ -13,15 +13,15 @@ return new class extends Migration
         Schema::create('compass_site_endpoints', static function (Blueprint $table): void {
             $table->uuid('id')->primary();
 
-            $table->foreignUuid('site_id')
-                ->constrained('compass_sites')
+            $table->foreignUuid('site_report_id')
+                ->constrained('compass_site_reports')
                 ->cascadeOnDelete();
 
             $table->string('path');
 
             $table->timestamps();
 
-            $table->unique(['site_id', 'path']);
+            $table->unique(['site_report_id', 'path']);
         });
     }
 };

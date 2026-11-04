@@ -25,12 +25,12 @@ readonly class SiteQuery
     /**
      * @throws ClientRequestFailed
      */
-    public function report(Site $site): SiteReport
+    public function report(Site $site): ClientReport
     {
         $reportResponse = $this->getReportResponse($this->get($site));
 
         try {
-            return $this->getSiteReport($reportResponse);
+            return $this->getClientReport($reportResponse);
         } catch (InvalidArgumentException $exception) {
             throw new ClientIncompatible(previous: $exception);
         }
@@ -50,6 +50,24 @@ readonly class SiteQuery
         } catch (ConnectionException $exception) {
             throw new ClientUnreachable(previous: $exception);
         }
+    }
+
+    /**
+     * @param array<mixed> $reportResponse
+     */
+    private function getClientReport(array $reportResponse): ClientReport
+    {
+        Assert::keyExists($reportResponse, 'app_debug');
+        Assert::keyExists($reportResponse, 'app_env');
+        Assert::keyExists($reportResponse, 'app_name');
+        Assert::keyExists($reportResponse, 'endpoints');
+
+        return new ClientReport(
+            Assert::boolean($reportResponse['app_debug']),
+            Assert::string($reportResponse['app_env']),
+            Assert::string($reportResponse['app_name']),
+            $this->getEndpoints(Assert::isList($reportResponse['endpoints'])),
+        );
     }
 
     /**
@@ -94,23 +112,5 @@ readonly class SiteQuery
         }
 
         return $reportResponse;
-    }
-
-    /**
-     * @param array<mixed> $reportResponse
-     */
-    private function getSiteReport(array $reportResponse): SiteReport
-    {
-        Assert::keyExists($reportResponse, 'app_debug');
-        Assert::keyExists($reportResponse, 'app_env');
-        Assert::keyExists($reportResponse, 'app_name');
-        Assert::keyExists($reportResponse, 'endpoints');
-
-        return new SiteReport(
-            Assert::boolean($reportResponse['app_debug']),
-            Assert::string($reportResponse['app_env']),
-            Assert::string($reportResponse['app_name']),
-            $this->getEndpoints(Assert::isList($reportResponse['endpoints'])),
-        );
     }
 }

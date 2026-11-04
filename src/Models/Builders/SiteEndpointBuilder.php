@@ -14,7 +14,7 @@ class SiteEndpointBuilder extends Builder
 {
     public function ofCollectedSites(): self
     {
-        return $this->whereHas('site', static function (SiteBuilder $siteQuery): void {
+        return $this->whereHas('siteReport.site', static function (SiteBuilder $siteQuery): void {
             $siteQuery->collected();
         });
     }
