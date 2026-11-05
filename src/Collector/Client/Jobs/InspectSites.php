@@ -10,8 +10,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Maarheeze\Compass\Collector\CollectorLogger;
+use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollectorManager;
 use Maarheeze\Compass\Models\Site;
-use Maarheeze\Uuid\Uuid;
 use Webmozart\Assert\Assert;
 
 class InspectSites implements ShouldQueue
@@ -21,13 +21,16 @@ class InspectSites implements ShouldQueue
     use Queueable;
 
     public function __construct(
-        public readonly Uuid $runId,
         public readonly string $sourceKey,
     ) {
     }
 
-    public function handle(CollectorLogger $collectorLogger): void
-    {
+    public function handle(
+        CollectorLogger $collectorLogger,
+        SiteReportsCollectorManager $siteReportsCollectorManager,
+    ): void {
+        $siteReportsCollectorManager->collector($this->sourceKey);
+
         $batch = Assert::isInstanceOf($this->batch(), Batch::class);
         $collectedSiteChunks = Site::query()
             ->collected()

@@ -26,7 +26,7 @@ enum CollectorType: string
             self::ISSUES => new CollectIssues($runId, $sourceKey),
             self::PULL_REQUESTS => new CollectPullRequests($runId, $sourceKey),
             self::REPOSITORIES => new CollectRepositories($runId, $sourceKey),
-            self::SITE_REPORTS => new InspectSites($runId, $sourceKey),
+            self::SITE_REPORTS => new InspectSites($sourceKey),
             self::SITES => new CollectSites($runId, $sourceKey),
         };
     }
