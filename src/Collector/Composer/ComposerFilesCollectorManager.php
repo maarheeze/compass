@@ -6,9 +6,10 @@ namespace Maarheeze\Compass\Collector\Composer;
 
 use Closure;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Http\Client\Factory as HttpFactory;
 use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\CollectorDrivers;
-use Maarheeze\Compass\Collector\GitHub\GitHubClientFactory;
+use Maarheeze\Compass\Collector\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\GitHub\GitHubComposerFilesCollector;
 use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Collector\SourceConfigs;
@@ -20,14 +21,17 @@ readonly class ComposerFilesCollectorManager
 
     public function __construct(
         Container $container,
-        private GitHubClientFactory $gitHubClientFactory,
+        private HttpFactory $http,
         private SourceConfigs $sourceConfigs,
     ) {
         $this->collectorDrivers = new CollectorDrivers($container);
         $this->collectorDrivers->extend(
             BuiltInDriver::GITHUB,
             function (Container $container, SourceConfig $sourceConfig): GitHubComposerFilesCollector {
-                return $this->createGitHubDriver($sourceConfig);
+                return new GitHubComposerFilesCollector(
+                    new GitHubClient($this->http, $sourceConfig->setting('token')),
+                    $sourceConfig->setting('organization'),
+                );
             },
         );
     }
@@ -43,13 +47,5 @@ readonly class ComposerFilesCollectorManager
     public function extend(string $driverName, Closure $creator): void
     {
         $this->collectorDrivers->extend($driverName, $creator);
-    }
-
-    private function createGitHubDriver(SourceConfig $sourceConfig): GitHubComposerFilesCollector
-    {
-        return new GitHubComposerFilesCollector(
-            $this->gitHubClientFactory->make($sourceConfig->setting('token')),
-            $sourceConfig->setting('organization'),
-        );
     }
 }

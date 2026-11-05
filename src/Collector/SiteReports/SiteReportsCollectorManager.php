@@ -27,7 +27,11 @@ readonly class SiteReportsCollectorManager
         $this->collectorDrivers->extend(
             BuiltInDriver::COMPASS_CLIENT,
             function (Container $container, SourceConfig $sourceConfig): CompassClientSiteReportsCollector {
-                return $this->createCompassClientDriver($sourceConfig);
+                return new CompassClientSiteReportsCollector(
+                    $this->http,
+                    $sourceConfig->setting('key'),
+                    $sourceConfig->setting('path'),
+                );
             },
         );
     }
@@ -43,14 +47,5 @@ readonly class SiteReportsCollectorManager
     public function extend(string $driverName, Closure $creator): void
     {
         $this->collectorDrivers->extend($driverName, $creator);
-    }
-
-    private function createCompassClientDriver(SourceConfig $sourceConfig): CompassClientSiteReportsCollector
-    {
-        return new CompassClientSiteReportsCollector(
-            $this->http,
-            $sourceConfig->setting('key'),
-            $sourceConfig->setting('path'),
-        );
     }
 }

@@ -6,9 +6,10 @@ namespace Maarheeze\Compass\Collector\Sites;
 
 use Closure;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Http\Client\Factory as HttpFactory;
 use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\CollectorDrivers;
-use Maarheeze\Compass\Collector\Forge\ForgeClientFactory;
+use Maarheeze\Compass\Collector\Forge\ForgeClient;
 use Maarheeze\Compass\Collector\Forge\ForgeSitesCollector;
 use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Collector\SourceConfigs;
@@ -20,13 +21,19 @@ readonly class SitesCollectorManager
 
     public function __construct(
         Container $container,
-        private ForgeClientFactory $forgeClientFactory,
+        private HttpFactory $http,
         private SourceConfigs $sourceConfigs,
     ) {
         $this->collectorDrivers = new CollectorDrivers($container);
-        $this->collectorDrivers->extend(BuiltInDriver::FORGE, function (Container $container, SourceConfig $sourceConfig): ForgeSitesCollector {
-            return $this->createForgeDriver($sourceConfig);
-        });
+        $this->collectorDrivers->extend(
+            BuiltInDriver::FORGE,
+            function (Container $container, SourceConfig $sourceConfig): ForgeSitesCollector {
+                return new ForgeSitesCollector(
+                    new ForgeClient($this->http, $sourceConfig->setting('token')),
+                    $sourceConfig->setting('organization'),
+                );
+            },
+        );
     }
 
     public function collector(string $sourceKey): SitesCollector
@@ -40,13 +47,5 @@ readonly class SitesCollectorManager
     public function extend(string $driverName, Closure $creator): void
     {
         $this->collectorDrivers->extend($driverName, $creator);
-    }
-
-    private function createForgeDriver(SourceConfig $sourceConfig): ForgeSitesCollector
-    {
-        return new ForgeSitesCollector(
-            $this->forgeClientFactory->make($sourceConfig->setting('token')),
-            $sourceConfig->setting('organization'),
-        );
     }
 }

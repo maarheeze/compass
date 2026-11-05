@@ -6,9 +6,10 @@ namespace Maarheeze\Compass\Collector\Dependabot;
 
 use Closure;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Http\Client\Factory as HttpFactory;
 use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\CollectorDrivers;
-use Maarheeze\Compass\Collector\GitHub\GitHubClientFactory;
+use Maarheeze\Compass\Collector\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\GitHub\GitHubDependabotFilesCollector;
 use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Collector\SourceConfigs;
@@ -20,14 +21,17 @@ readonly class DependabotFilesCollectorManager
 
     public function __construct(
         Container $container,
-        private GitHubClientFactory $gitHubClientFactory,
+        private HttpFactory $http,
         private SourceConfigs $sourceConfigs,
     ) {
         $this->collectorDrivers = new CollectorDrivers($container);
         $this->collectorDrivers->extend(
             BuiltInDriver::GITHUB,
             function (Container $container, SourceConfig $sourceConfig): GitHubDependabotFilesCollector {
-                return $this->createGitHubDriver($sourceConfig);
+                return new GitHubDependabotFilesCollector(
+                    new GitHubClient($this->http, $sourceConfig->setting('token')),
+                    $sourceConfig->setting('organization'),
+                );
             },
         );
     }
@@ -43,13 +47,5 @@ readonly class DependabotFilesCollectorManager
     public function extend(string $driverName, Closure $creator): void
     {
         $this->collectorDrivers->extend($driverName, $creator);
-    }
-
-    private function createGitHubDriver(SourceConfig $sourceConfig): GitHubDependabotFilesCollector
-    {
-        return new GitHubDependabotFilesCollector(
-            $this->gitHubClientFactory->make($sourceConfig->setting('token')),
-            $sourceConfig->setting('organization'),
-        );
     }
 }
