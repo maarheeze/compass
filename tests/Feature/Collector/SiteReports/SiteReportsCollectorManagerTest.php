@@ -7,6 +7,7 @@ use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collector\Client\CompassClientSiteReportsCollector;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollectorManager;
+use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Models\SiteReport;
 
 test('collector of a compass client source asks a site for its report with its key at its path', function (): void {
@@ -52,7 +53,7 @@ test('collector is the collector its extension makes from its config', function 
     $siteReportsCollectorManager = $this->app->make(SiteReportsCollectorManager::class);
     $siteReportsCollectorManager->extend(
         $driverName,
-        static function (Container $container, array $sourceConfig) use ($compassClientSiteReportsCollector): CompassClientSiteReportsCollector {
+        static function (Container $container, SourceConfig $sourceConfig) use ($compassClientSiteReportsCollector): CompassClientSiteReportsCollector {
             return $compassClientSiteReportsCollector;
         },
     );

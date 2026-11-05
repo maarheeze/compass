@@ -8,6 +8,7 @@ use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collector\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\GitHub\GitHubIssuesCollector;
 use Maarheeze\Compass\Collector\Issues\IssuesCollectorManager;
+use Maarheeze\Compass\Collector\SourceConfig;
 
 test('collector of a github source collects the issues of its organization with its token', function (): void {
     $key = fake()->slug();
@@ -50,7 +51,7 @@ test('collector is the collector its extension makes from its config', function 
         $driverName,
         static function (
             Container $container,
-            array $sourceConfig,
+            SourceConfig $sourceConfig,
         ) use ($gitHubIssuesCollector): GitHubIssuesCollector {
             return $gitHubIssuesCollector;
         },

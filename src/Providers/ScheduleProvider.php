@@ -7,8 +7,11 @@ namespace Maarheeze\Compass\Providers;
 use Illuminate\Config\Repository;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use Maarheeze\Compass\Collector\ScheduleFrequency;
+use Maarheeze\Compass\Collector\SourceConfig;
+use Maarheeze\Compass\Collector\SourceConfigs;
 use Maarheeze\Compass\Console\CheckSiteEndpointsCommand;
 use Maarheeze\Compass\Console\CollectCommand;
 use Webmozart\Assert\Assert;
@@ -19,9 +22,9 @@ class ScheduleProvider extends ServiceProvider
 {
     public function boot(Repository $config): void
     {
-        $this->callAfterResolving(Schedule::class, function (Schedule $schedule) use ($config): void {
-            foreach ($config->array('compass.sources') as $sourceKey => $sourceConfig) {
-                $this->scheduleSource($schedule, Assert::stringNotEmpty($sourceKey), Assert::isMap($sourceConfig));
+        $this->callAfterResolving(Schedule::class, function (Schedule $schedule, Application $app) use ($config): void {
+            foreach ($app->make(SourceConfigs::class)->all() as $sourceConfig) {
+                $this->scheduleSource($schedule, $sourceConfig);
             }
 
             $this->scheduleSiteEndpoints($schedule, $config->array('compass.schedule'));
@@ -63,19 +66,10 @@ class ScheduleProvider extends ServiceProvider
         $this->scheduleAt($schedule->command(CheckSiteEndpointsCommand::SIGNATURE), $scheduleFrequency);
     }
 
-    /**
-     * @param array<string, mixed> $sourceConfig
-     */
-    private function scheduleSource(Schedule $schedule, string $sourceKey, array $sourceConfig): void
+    private function scheduleSource(Schedule $schedule, SourceConfig $sourceConfig): void
     {
-        if (!array_key_exists('schedule', $sourceConfig)) {
-            return;
-        }
-
-        foreach (Assert::isMap($sourceConfig['schedule']) as $collector => $scheduleFrequency) {
-            Assert::isInstanceOf($scheduleFrequency, ScheduleFrequency::class);
-
-            $this->scheduleCollector($schedule, $sourceKey, $collector, $scheduleFrequency);
+        foreach ($sourceConfig->schedule() as $collector => $scheduleFrequency) {
+            $this->scheduleCollector($schedule, $sourceConfig->key, $collector, $scheduleFrequency);
         }
     }
 }

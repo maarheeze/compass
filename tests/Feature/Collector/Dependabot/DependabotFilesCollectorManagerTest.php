@@ -8,6 +8,7 @@ use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collector\Dependabot\DependabotFilesCollectorManager;
 use Maarheeze\Compass\Collector\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\GitHub\GitHubDependabotFilesCollector;
+use Maarheeze\Compass\Collector\SourceConfig;
 
 test('collector of a github source reads the files of its organization with its token', function (): void {
     $key = fake()->slug();
@@ -60,7 +61,7 @@ test('collector is the collector its extension makes from its config', function 
         $driverName,
         static function (
             Container $container,
-            array $sourceConfig,
+            SourceConfig $sourceConfig,
         ) use ($gitHubDependabotFilesCollector): GitHubDependabotFilesCollector {
             return $gitHubDependabotFilesCollector;
         },

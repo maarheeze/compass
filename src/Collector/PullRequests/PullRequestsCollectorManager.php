@@ -5,36 +5,31 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Collector\PullRequests;
 
 use Closure;
-use Illuminate\Config\Repository;
 use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
 use Maarheeze\Compass\Collector\GitHub\GitHubClientFactory;
 use Maarheeze\Compass\Collector\GitHub\GitHubPullRequestsCollector;
-use Webmozart\Assert\Assert;
+use Maarheeze\Compass\Collector\SourceConfig;
+use Maarheeze\Compass\Collector\SourceConfigs;
 
 use function array_key_exists;
 
 class PullRequestsCollectorManager
 {
-    /** @var array<string, Closure(Container, array<string, mixed>): PullRequestsCollector> */
+    /** @var array<string, Closure(Container, SourceConfig): PullRequestsCollector> */
     private array $customCreators = [];
 
     public function __construct(
-        private readonly Repository $config,
         private readonly Container $container,
         private readonly GitHubClientFactory $gitHubClientFactory,
+        private readonly SourceConfigs $sourceConfigs,
     ) {
     }
 
     public function collector(string $sourceKey): PullRequestsCollector
     {
-        $sourceConfigs = $this->config->array('compass.sources');
-
-        Assert::keyExists($sourceConfigs, $sourceKey);
-        $sourceConfig = Assert::isMap($sourceConfigs[$sourceKey]);
-
-        Assert::keyExists($sourceConfig, 'driver');
-        $driverName = Assert::stringNotEmpty($sourceConfig['driver']);
+        $sourceConfig = $this->sourceConfigs->get($sourceKey);
+        $driverName = $sourceConfig->driver();
 
         if (array_key_exists($driverName, $this->customCreators)) {
             return $this->customCreators[$driverName]($this->container, $sourceConfig);
@@ -42,31 +37,23 @@ class PullRequestsCollectorManager
 
         return match ($driverName) {
             'github' => $this->createGitHubDriver($sourceConfig),
-            default => throw new InvalidArgumentException(
-                'A source names a driver that has no pull requests collector.',
-            ),
+            default => throw new InvalidArgumentException('unknown pull requests driver'),
         };
     }
 
     /**
-     * @param Closure(Container, array<string, mixed>): PullRequestsCollector $creator
+     * @param Closure(Container, SourceConfig): PullRequestsCollector $creator
      */
     public function extend(string $driverName, Closure $creator): void
     {
         $this->customCreators[$driverName] = $creator;
     }
 
-    /**
-     * @param array<string, mixed> $sourceConfig
-     */
-    private function createGitHubDriver(array $sourceConfig): GitHubPullRequestsCollector
+    private function createGitHubDriver(SourceConfig $sourceConfig): GitHubPullRequestsCollector
     {
-        Assert::keyExists($sourceConfig, 'organization');
-        Assert::keyExists($sourceConfig, 'token');
-
         return new GitHubPullRequestsCollector(
-            $this->gitHubClientFactory->make(Assert::stringNotEmpty($sourceConfig['token'])),
-            Assert::stringNotEmpty($sourceConfig['organization']),
+            $this->gitHubClientFactory->make($sourceConfig->setting('token')),
+            $sourceConfig->setting('organization'),
         );
     }
 }

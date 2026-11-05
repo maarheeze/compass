@@ -8,6 +8,7 @@ use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collector\Forge\ForgeClient;
 use Maarheeze\Compass\Collector\Forge\ForgeSitesCollector;
 use Maarheeze\Compass\Collector\Sites\SitesCollectorManager;
+use Maarheeze\Compass\Collector\SourceConfig;
 
 test('collector of a forge source collects the sites of its organization with its token', function (): void {
     $key = fake()->slug();
@@ -55,7 +56,7 @@ test('collector is the collector its extension makes from its config', function 
     $sitesCollectorManager = $this->app->make(SitesCollectorManager::class);
     $sitesCollectorManager->extend(
         $driverName,
-        static function (Container $container, array $sourceConfig) use ($forgeSitesCollector): ForgeSitesCollector {
+        static function (Container $container, SourceConfig $sourceConfig) use ($forgeSitesCollector): ForgeSitesCollector {
             return $forgeSitesCollector;
         },
     );

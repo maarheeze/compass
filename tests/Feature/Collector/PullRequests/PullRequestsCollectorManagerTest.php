@@ -8,6 +8,7 @@ use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collector\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\GitHub\GitHubPullRequestsCollector;
 use Maarheeze\Compass\Collector\PullRequests\PullRequestsCollectorManager;
+use Maarheeze\Compass\Collector\SourceConfig;
 
 test('collector of a github source collects the pull requests of its organization with its token', function (): void {
     $key = fake()->slug();
@@ -50,7 +51,7 @@ test('collector is the collector its extension makes from its config', function 
         $driverName,
         static function (
             Container $container,
-            array $sourceConfig,
+            SourceConfig $sourceConfig,
         ) use ($gitHubPullRequestsCollector): GitHubPullRequestsCollector {
             return $gitHubPullRequestsCollector;
         },
