@@ -58,7 +58,7 @@ class InspectSite implements ShouldQueue
         $siteReport = SiteReport::query()->firstOrNew(['site_id' => $this->site->id, 'source' => $this->sourceKey]);
         $siteReportSynchronizer->storeReport($siteReport, $siteReportsCollector->siteReport($siteReport));
 
-        $collectorLogger->debug('Site inspected', ['status' => $siteReport->status?->value]);
+        $collectorLogger->debug('Site inspected', ['status' => $siteReport->status->value]);
 
         $events->dispatch(new SiteInspected($siteReport));
     }

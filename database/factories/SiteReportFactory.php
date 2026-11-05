@@ -28,13 +28,13 @@ class SiteReportFactory extends Factory
         return [
             'site_id' => Site::factory(),
             'source' => fake()->slug(),
-            'status' => fake()->optional()->randomElement(SiteReportStatus::cases()),
+            'status' => fake()->randomElement(SiteReportStatus::cases()),
             'app_debug' => fake()->optional()->boolean(),
             'app_env' => fake()->optional()->word(),
             'app_name' => fake()->optional()->company(),
             'key' => fake()->optional()->sha1(),
             'path' => fake()->optional()->passthrough(sprintf('/%s', fake()->slug())),
-            'collected_at' => fake()->optional()->dateTime(),
+            'collected_at' => fake()->dateTime(),
         ];
     }
 }

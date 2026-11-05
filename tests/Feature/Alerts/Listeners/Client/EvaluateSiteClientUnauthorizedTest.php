@@ -39,7 +39,7 @@ test('handle observes unauthorized client now for a site that refused the key', 
     );
 });
 
-test('handle observes unauthorized client resolved now for a site with any other client status', function (?SiteReportStatus $siteReportStatus): void {
+test('handle observes unauthorized client resolved now for a site with any other client status', function (SiteReportStatus $siteReportStatus): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
@@ -64,5 +64,4 @@ test('handle observes unauthorized client resolved now for a site with any other
     SiteReportStatus::INCOMPATIBLE,
     SiteReportStatus::INSTALLED,
     SiteReportStatus::NOT_INSTALLED,
-    null,
 ]);

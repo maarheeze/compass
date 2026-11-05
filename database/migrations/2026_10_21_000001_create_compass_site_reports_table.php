@@ -18,13 +18,13 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             $table->string('source');
-            $table->string('status')->nullable();
+            $table->string('status');
             $table->boolean('app_debug')->nullable();
             $table->string('app_env')->nullable();
             $table->string('app_name')->nullable();
             $table->string('key')->nullable();
             $table->string('path')->nullable();
-            $table->timestamp('collected_at')->nullable();
+            $table->timestamp('collected_at');
 
             $table->timestamps();
 

@@ -27,14 +27,14 @@ use function sprintf;
  * @property ?bool $app_debug
  * @property ?string $app_env
  * @property ?string $app_name
- * @property ?CarbonImmutable $collected_at
+ * @property CarbonImmutable $collected_at
  * @property CarbonImmutable $created_at
  * @property Uuid $id
  * @property ?string $key
  * @property ?string $path
  * @property Uuid $site_id
  * @property string $source
- * @property ?SiteReportStatus $status
+ * @property SiteReportStatus $status
  * @property CarbonImmutable $updated_at
  *
  * @property-read AlertCollection $alerts

@@ -5,12 +5,10 @@
     <dt class="text-foreground-muted">{{ __('compass::client.status') }}</dt>
     <dd class="flex items-center gap-2 text-foreground">
         <x-compass::client-status-badge :status="$siteReport->status" />
-        @if ($siteReport->collected_at)
-            <span class="text-foreground-muted">
-                {{ __('compass::client.checked') }}
-                <x-compass::time :time="$siteReport->collected_at" />
-            </span>
-        @endif
+        <span class="text-foreground-muted">
+            {{ __('compass::client.checked') }}
+            <x-compass::time :time="$siteReport->collected_at" />
+        </span>
     </dd>
 
     @if ($siteReport->app_name !== null)
