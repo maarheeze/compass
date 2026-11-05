@@ -106,18 +106,18 @@
                 {{ __('compass::site.client') }}
             </x-compass::section-heading>
 
-            <div class="rounded-md border border-border bg-canvas px-4 py-3 text-sm">
-                <div class="flex items-start gap-4">
-                    <div class="flex-1 space-y-4">
-                        @forelse ($site->reports as $siteReport)
+            <div class="space-y-4 rounded-md border border-border bg-canvas px-4 py-3 text-sm">
+                @forelse ($site->reports as $siteReport)
+                    <div class="flex items-start gap-4">
+                        <div class="flex-1">
                             <x-compass::site-report-details :site-report="$siteReport" />
-                        @empty
-                            <x-compass::client-status-badge :status="null" />
-                        @endforelse
-                    </div>
+                        </div>
 
-                    <x-compass::site-client-edit-link :site="$site" />
-                </div>
+                        <x-compass::site-report-edit-link :site-report="$siteReport" />
+                    </div>
+                @empty
+                    <x-compass::client-status-badge :status="null" />
+                @endforelse
             </div>
         </section>
 

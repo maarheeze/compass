@@ -7,6 +7,6 @@
             <p class="text-sm text-foreground-muted">{{ __('compass::client.settings_explanation') }}</p>
         </div>
 
-        <x-compass::site-client-form :site="$site" :client-key="$clientKey" :client-path="$clientPath" />
+        <x-compass::site-report-form :site-report="$siteReport" :key="$key" :path="$path" />
     </main>
 </x-compass::layouts.app>

@@ -94,7 +94,7 @@ class Navigation extends Component
                     RouteName::FORGE_SITES->value,
                     RouteName::FORGE_SITE->value,
                     RouteName::FORGE_SITE_ENDPOINT_CHECKS->value,
-                    RouteName::FORGE_SITE_CLIENT_EDIT->value,
+                    RouteName::FORGE_SITE_REPORT_EDIT->value,
                 ),
             ),
         ]);

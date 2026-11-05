@@ -15,12 +15,12 @@ enum RouteName: string
     case ALERT_UNMUTE = 'compass.alert.unmute';
     case DASHBOARD = 'compass.dashboard';
     case FORGE_SITE = 'compass.forge.site';
-    case FORGE_SITE_CLIENT_EDIT = 'compass.forge.site.client.edit';
-    case FORGE_SITE_CLIENT_UPDATE = 'compass.forge.site.client.update';
     case FORGE_SITE_DELETE = 'compass.forge.site.delete';
     case FORGE_SITE_ENDPOINT_CHECKS = 'compass.forge.site.endpoint-checks';
     case FORGE_SITE_ENDPOINT_CHECKS_DELETE = 'compass.forge.site.endpoint-checks.delete';
     case FORGE_SITE_IGNORE = 'compass.forge.site.ignore';
+    case FORGE_SITE_REPORT_EDIT = 'compass.forge.site.report.edit';
+    case FORGE_SITE_REPORT_UPDATE = 'compass.forge.site.report.update';
     case FORGE_SITES = 'compass.forge.sites';
     case GITHUB_CALLBACK = 'compass.auth.github.callback';
     case GITHUB_ISSUES = 'compass.github.issues';

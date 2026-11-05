@@ -3,30 +3,30 @@
     @method('PATCH')
 
     <div class="space-y-1">
-        <label for="client_path" class="block font-medium text-foreground">{{ __('compass::client.path') }}</label>
+        <label for="path" class="block font-medium text-foreground">{{ __('compass::client.path') }}</label>
         <input
-            id="client_path"
-            name="client_path"
+            id="path"
+            name="path"
             type="text"
-            value="{{ $clientPath }}"
+            value="{{ $path }}"
             placeholder="{{ __('compass::client.path_placeholder') }}"
             class="w-full rounded-md border border-border bg-canvas px-2 py-1 font-mono text-sm text-foreground" />
         <p class="text-xs text-foreground-muted">{{ __('compass::client.path_hint') }}</p>
-        @error('client_path')
+        @error('path')
             <p class="text-xs text-red-700 dark:text-red-300">{{ $message }}</p>
         @enderror
     </div>
 
     <div class="space-y-1">
-        <label for="client_key" class="block font-medium text-foreground">{{ __('compass::client.key') }}</label>
+        <label for="key" class="block font-medium text-foreground">{{ __('compass::client.key') }}</label>
         <input
-            id="client_key"
-            name="client_key"
+            id="key"
+            name="key"
             type="text"
-            value="{{ $clientKey }}"
+            value="{{ $key }}"
             placeholder="{{ __('compass::client.key_placeholder') }}"
             class="w-full rounded-md border border-border bg-canvas px-2 py-1 font-mono text-sm text-foreground" />
-        @error('client_key')
+        @error('key')
             <p class="text-xs text-red-700 dark:text-red-300">{{ $message }}</p>
         @enderror
     </div>

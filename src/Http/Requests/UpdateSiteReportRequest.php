@@ -8,7 +8,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\StringRule;
 
-class UpdateClientRequest extends FormRequest
+class UpdateSiteReportRequest extends FormRequest
 {
     /**
      * @return array<string, string>
@@ -16,7 +16,7 @@ class UpdateClientRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'client_path.starts_with' => 'The path must start with a /.',
+            'path.starts_with' => 'The path must start with a /.',
         ];
     }
 
@@ -26,11 +26,11 @@ class UpdateClientRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'client_key' => [
+            'key' => [
                 Rule::nullable(),
                 Rule::string()->max(255),
             ],
-            'client_path' => [
+            'path' => [
                 Rule::nullable(),
                 Rule::string()->startsWith('/')->max(255),
             ],

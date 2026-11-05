@@ -12,9 +12,9 @@ use Maarheeze\Compass\Http\Controllers\PullRequestController;
 use Maarheeze\Compass\Http\Controllers\RepositoryController;
 use Maarheeze\Compass\Http\Controllers\RunController;
 use Maarheeze\Compass\Http\Controllers\SettingsController;
-use Maarheeze\Compass\Http\Controllers\SiteClientController;
 use Maarheeze\Compass\Http\Controllers\SiteController;
 use Maarheeze\Compass\Http\Controllers\SiteEndpointCheckController;
+use Maarheeze\Compass\Http\Controllers\SiteReportController;
 use Maarheeze\Compass\Http\Middleware\Authenticate;
 use Maarheeze\Compass\Http\Middleware\RedirectIfAuthenticated;
 use Maarheeze\Compass\Http\RouteName;
@@ -65,8 +65,10 @@ Route::middleware('web')
                     ->name(RouteName::FORGE_SITE_ENDPOINT_CHECKS);
                 Route::delete('/{site}/endpoint-checks/{endpointPathRouteKey}', [SiteEndpointCheckController::class, 'delete'])
                     ->name(RouteName::FORGE_SITE_ENDPOINT_CHECKS_DELETE);
-                Route::get('/{site}/client/edit', [SiteClientController::class, 'edit'])->name(RouteName::FORGE_SITE_CLIENT_EDIT);
-                Route::patch('/{site}/client', [SiteClientController::class, 'update'])->name(RouteName::FORGE_SITE_CLIENT_UPDATE);
+                Route::get('/reports/{siteReport}/edit', [SiteReportController::class, 'edit'])
+                    ->name(RouteName::FORGE_SITE_REPORT_EDIT);
+                Route::patch('/reports/{siteReport}', [SiteReportController::class, 'update'])
+                    ->name(RouteName::FORGE_SITE_REPORT_UPDATE);
             });
 
             Route::get('/runs', [RunController::class, 'index'])->name(RouteName::RUNS);

@@ -9,22 +9,22 @@ use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 use Maarheeze\Compass\Http\RouteName;
-use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteReport;
 
-class SiteClientEditLink extends Component
+class SiteReportEditLink extends Component
 {
     public readonly string $url;
 
     public function __construct(
-        Site $site,
+        SiteReport $siteReport,
         UrlGenerator $url,
         private readonly ViewFactory $view,
     ) {
-        $this->url = $url->route(RouteName::FORGE_SITE_CLIENT_EDIT->value, $site);
+        $this->url = $url->route(RouteName::FORGE_SITE_REPORT_EDIT->value, $siteReport);
     }
 
     public function render(): View
     {
-        return $this->view->make('compass::components.site-client-edit-link');
+        return $this->view->make('compass::components.site-report-edit-link');
     }
 }
