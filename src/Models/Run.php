@@ -60,6 +60,7 @@ class Run extends Model
             'id',
             'source',
             'status',
+            'task',
         ];
     }
 
