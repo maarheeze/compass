@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
+use Illuminate\Contracts\Cache\LockProvider;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Testing\Fakes\EventFake;
@@ -18,6 +20,7 @@ use Maarheeze\Compass\Alerts\Listeners\ObservationHandler;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\AlertHistoryEntry;
 use Maarheeze\Compass\Models\SiteEndpoint;
+use Webmozart\Assert\Assert;
 
 test('handle opens an alert for an active condition without an alert', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
@@ -483,4 +486,61 @@ test('handle records when an alert it resolves was last observed', function (): 
         'id' => $activeAlert->id,
         'last_observed_at' => $observedAt,
     ]);
+});
+
+test('handle holds the lock of the alert type and subject while it changes the alert', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $lockKey = sprintf(
+        '%s:%s:%s',
+        AlertType::SITE_ENDPOINT_DOWN->value,
+        $siteEndpoint->getMorphClass(),
+        $siteEndpoint->id->toString(),
+    );
+    $lockProvider = Assert::isInstanceOf($this->app->make(CacheRepository::class)->getStore(), LockProvider::class);
+    $isLockFree = null;
+    $this->app
+        ->make(Dispatcher::class)
+        ->listen(AlertOpened::class, static function () use ($lockKey, $lockProvider, &$isLockFree): void {
+            $isLockFree = $lockProvider->lock($lockKey)->get();
+        });
+
+    $observationHandler = $this->app->make(ObservationHandler::class);
+    $observationHandler->handle(new ConditionObserved(
+        AlertType::SITE_ENDPOINT_DOWN,
+        $siteEndpoint,
+        ConditionState::ACTIVE,
+        CarbonImmutable::now(),
+    ));
+
+    expect($isLockFree)
+        ->toBeFalse();
+});
+
+test('handle leaves the lock of another subject free', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $otherSiteEndpoint = SiteEndpoint::factory()->create();
+    $lockKey = sprintf(
+        '%s:%s:%s',
+        AlertType::SITE_ENDPOINT_DOWN->value,
+        $otherSiteEndpoint->getMorphClass(),
+        $otherSiteEndpoint->id->toString(),
+    );
+    $lockProvider = Assert::isInstanceOf($this->app->make(CacheRepository::class)->getStore(), LockProvider::class);
+    $isLockFree = null;
+    $this->app
+        ->make(Dispatcher::class)
+        ->listen(AlertOpened::class, static function () use ($lockKey, $lockProvider, &$isLockFree): void {
+            $isLockFree = $lockProvider->lock($lockKey)->get();
+        });
+
+    $observationHandler = $this->app->make(ObservationHandler::class);
+    $observationHandler->handle(new ConditionObserved(
+        AlertType::SITE_ENDPOINT_DOWN,
+        $siteEndpoint,
+        ConditionState::ACTIVE,
+        CarbonImmutable::now(),
+    ));
+
+    expect($isLockFree)
+        ->toBeTrue();
 });
