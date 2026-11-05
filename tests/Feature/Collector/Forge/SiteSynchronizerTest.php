@@ -13,19 +13,19 @@ use Maarheeze\Uuid\Uuid;
 
 test('store sites creates a site for a new collected site', function (): void {
     $collectedSite = CollectedSiteFactory::make();
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $autoDeployGraceMinutes = fake()->numberBetween(1, 60);
     $runId = Uuid::generate();
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
     $siteSynchronizer->storeSites(
         new CollectedSiteCollection([$collectedSite]),
-        new SourceConfig($sourceKey, ['auto_deploy_grace_minutes' => $autoDeployGraceMinutes]),
+        new SourceConfig($source, ['auto_deploy_grace_minutes' => $autoDeployGraceMinutes]),
         $runId,
     );
 
     $this->assertDatabaseHas(Site::class, [
-        'source' => $sourceKey,
+        'source' => $source,
         'forge_id' => $collectedSite->externalId,
         'name' => $collectedSite->name,
         'url' => $collectedSite->url,
@@ -131,17 +131,17 @@ test('store sites clears the missing marks of a known site', function (): void {
 test('store sites creates a site for a known external id of another source', function (): void {
     $site = Site::factory()->create(['source' => fake()->unique()->slug()]);
     $collectedSite = CollectedSiteFactory::forSite($site);
-    $otherSourceKey = fake()->unique()->slug();
+    $otherSource = fake()->unique()->slug();
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
     $siteSynchronizer->storeSites(
         new CollectedSiteCollection([$collectedSite]),
-        new SourceConfig($otherSourceKey, ['auto_deploy_grace_minutes' => fake()->numberBetween(1, 60)]),
+        new SourceConfig($otherSource, ['auto_deploy_grace_minutes' => fake()->numberBetween(1, 60)]),
         Uuid::generate(),
     );
 
     $this->assertDatabaseHas(Site::class, [
-        'source' => $otherSourceKey,
+        'source' => $otherSource,
         'forge_id' => $site->forge_id,
     ]);
 });

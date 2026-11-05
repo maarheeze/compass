@@ -29,7 +29,7 @@ class CollectDependabotYml implements ShouldQueue
 
     public function __construct(
         public readonly Repository $repository,
-        public readonly string $sourceKey,
+        public readonly string $source,
     ) {
     }
 
@@ -45,7 +45,7 @@ class CollectDependabotYml implements ShouldQueue
         DependabotYmlReader $dependabotYmlReader,
         DependabotYmlSynchronizer $dependabotYmlSynchronizer,
     ): void {
-        $dependabotFilesCollector = $dependabotFilesCollectorManager->collector($this->sourceKey);
+        $dependabotFilesCollector = $dependabotFilesCollectorManager->collector($this->source);
 
         $context->add('repository', $this->repository->name);
 

@@ -36,9 +36,9 @@ readonly class RepositoriesCollectorManager
         );
     }
 
-    public function collector(string $sourceKey): RepositoriesCollector
+    public function collector(string $source): RepositoriesCollector
     {
-        return $this->collectorDrivers->collector($this->sourceConfigs->get($sourceKey));
+        return $this->collectorDrivers->collector($this->sourceConfigs->get($source));
     }
 
     /**

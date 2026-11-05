@@ -22,7 +22,7 @@ class CollectPullRequests implements ShouldQueue
 
     public function __construct(
         private readonly Uuid $runId,
-        private readonly string $sourceKey,
+        private readonly string $source,
     ) {
     }
 
@@ -34,7 +34,7 @@ class CollectPullRequests implements ShouldQueue
         PullRequestSynchronizer $pullRequestSynchronizer,
         PullRequestsCollectorManager $pullRequestsCollectorManager,
     ): void {
-        $pullRequestsCollector = $pullRequestsCollectorManager->collector($this->sourceKey);
+        $pullRequestsCollector = $pullRequestsCollectorManager->collector($this->source);
 
         $collectorLogger->info('Pull requests collector started');
 

@@ -17,9 +17,9 @@ use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 
 test('handle stores the repositories of the page', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => BuiltInDriver::GITHUB,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
@@ -59,26 +59,26 @@ test('handle stores the repositories of the page', function (): void {
         ]),
     ]);
 
-    [$collectRepositories] = new CollectRepositories($runId, $sourceKey)->withFakeBatch();
+    [$collectRepositories] = new CollectRepositories($runId, $source)->withFakeBatch();
     $this->app->call([$collectRepositories, 'handle']);
 
     $this->assertDatabaseHas(Repository::class, [
-        'source' => $sourceKey,
+        'source' => $source,
         'name' => $repositoryResponse['name'],
         'run_id' => $runId,
     ]);
 });
 
 test('handle marks the repositories of another run missing on the last page', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => BuiltInDriver::GITHUB,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create(['source' => $sourceKey]);
+    $repository = Repository::factory()->create(['source' => $source]);
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             'data' => [
@@ -95,7 +95,7 @@ test('handle marks the repositories of another run missing on the last page', fu
         ]),
     ]);
 
-    [$collectRepositories] = new CollectRepositories(Uuid::generate(), $sourceKey)->withFakeBatch();
+    [$collectRepositories] = new CollectRepositories(Uuid::generate(), $source)->withFakeBatch();
     $this->app->call([$collectRepositories, 'handle']);
 
     expect($repository->refresh()->missing_at)
@@ -103,9 +103,9 @@ test('handle marks the repositories of another run missing on the last page', fu
 });
 
 test('handle adds the collection of the composer files and dependabot yml to its batch', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => BuiltInDriver::GITHUB,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
@@ -127,7 +127,7 @@ test('handle adds the collection of the composer files and dependabot yml to its
         ]),
     ]);
 
-    [$collectRepositories, $batchFake] = new CollectRepositories(Uuid::generate(), $sourceKey)->withFakeBatch();
+    [$collectRepositories, $batchFake] = new CollectRepositories(Uuid::generate(), $source)->withFakeBatch();
     $this->app->call([$collectRepositories, 'handle']);
 
     expect(array_map(get_class(...), $batchFake->added))
@@ -153,9 +153,9 @@ test('handle refuses a source without a repositories collector', function (): vo
 });
 
 test('handle raises repositories collected', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => BuiltInDriver::GITHUB,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
@@ -179,16 +179,16 @@ test('handle raises repositories collected', function (): void {
         ]),
     ]);
 
-    [$collectRepositories] = new CollectRepositories(Uuid::generate(), $sourceKey)->withFakeBatch();
+    [$collectRepositories] = new CollectRepositories(Uuid::generate(), $source)->withFakeBatch();
     $this->app->call([$collectRepositories, 'handle']);
 
     $eventFake->assertDispatched(RepositoriesCollected::class);
 });
 
 test('handle raises package json changed for a repository whose package json version changed', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => BuiltInDriver::GITHUB,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
@@ -231,7 +231,7 @@ test('handle raises package json changed for a repository whose package json ver
         ]),
     ]);
 
-    [$collectRepositories] = new CollectRepositories(Uuid::generate(), $sourceKey)->withFakeBatch();
+    [$collectRepositories] = new CollectRepositories(Uuid::generate(), $source)->withFakeBatch();
     $this->app->call([$collectRepositories, 'handle']);
 
     $eventFake->assertDispatched(PackageJsonChanged::class, static function (PackageJsonChanged $packageJsonChanged) use ($repositoryResponse): bool {

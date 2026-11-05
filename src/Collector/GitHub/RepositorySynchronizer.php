@@ -13,10 +13,10 @@ use Maarheeze\Uuid\Uuid;
 
 readonly class RepositorySynchronizer
 {
-    public function markUncollectedMissing(string $sourceKey, Uuid $runId): void
+    public function markUncollectedMissing(string $source, Uuid $runId): void
     {
         Repository::query()
-            ->ofSource($sourceKey)
+            ->ofSource($source)
             ->notReturnedByRun($runId)
             ->collected()
             ->update(['missing_at' => CarbonImmutable::now()]);
@@ -24,18 +24,18 @@ readonly class RepositorySynchronizer
 
     public function storeRepositories(
         CollectedRepositoryCollection $collectedRepositories,
-        string $sourceKey,
+        string $source,
         Uuid $runId,
     ): RepositoryCollection {
         $storedRepositories = Repository::query()
-            ->ofSource($sourceKey)
+            ->ofSource($source)
             ->ofGitHubIds($collectedRepositories->externalIds())
             ->get();
         $repositoryValues = [];
 
         foreach ($collectedRepositories as $collectedRepository) {
             $repositoryValues[] = [
-                'source' => $sourceKey,
+                'source' => $source,
                 'github_id' => $collectedRepository->externalId,
                 'name' => $collectedRepository->name,
                 'url' => $collectedRepository->url,
@@ -56,12 +56,12 @@ readonly class RepositorySynchronizer
 
         Repository::query()->upsert($repositoryValues, ['source', 'github_id']);
 
-        return $this->repositoriesWithChangedPackageJson($collectedRepositories, $sourceKey, $storedRepositories);
+        return $this->repositoriesWithChangedPackageJson($collectedRepositories, $source, $storedRepositories);
     }
 
     private function repositoriesWithChangedPackageJson(
         CollectedRepositoryCollection $collectedRepositories,
-        string $sourceKey,
+        string $source,
         RepositoryCollection $storedRepositories,
     ): RepositoryCollection {
         $collectedRepositoriesWithChangedPackageJson = $collectedRepositories->filter(
@@ -73,7 +73,7 @@ readonly class RepositorySynchronizer
         );
 
         return Repository::query()
-            ->ofSource($sourceKey)
+            ->ofSource($source)
             ->ofGitHubIds($collectedRepositoriesWithChangedPackageJson->externalIds())
             ->get();
     }

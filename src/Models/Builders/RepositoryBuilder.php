@@ -69,9 +69,9 @@ class RepositoryBuilder extends Builder
         return $this->whereIn('github_id', $gitHubIds);
     }
 
-    public function ofSource(string $sourceKey): self
+    public function ofSource(string $source): self
     {
-        return $this->where('source', $sourceKey);
+        return $this->where('source', $source);
     }
 
     public function returnedByRun(Uuid $runId): self

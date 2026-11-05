@@ -30,7 +30,7 @@ class InspectSite implements ShouldQueue
 
     public function __construct(
         public readonly Site $site,
-        public readonly string $sourceKey,
+        public readonly string $source,
     ) {
     }
 
@@ -45,7 +45,7 @@ class InspectSite implements ShouldQueue
         SiteReportsCollectorManager $siteReportsCollectorManager,
         SiteReportSynchronizer $siteReportSynchronizer,
     ): void {
-        $siteReportsCollector = $siteReportsCollectorManager->collector($this->sourceKey);
+        $siteReportsCollector = $siteReportsCollectorManager->collector($this->source);
 
         $context->add('site', $this->site->name);
 
@@ -55,7 +55,7 @@ class InspectSite implements ShouldQueue
             return;
         }
 
-        $siteReport = SiteReport::query()->firstOrNew(['site_id' => $this->site->id, 'source' => $this->sourceKey]);
+        $siteReport = SiteReport::query()->firstOrNew(['site_id' => $this->site->id, 'source' => $this->source]);
         $siteReportSynchronizer->storeReport($siteReport, $siteReportsCollector->siteReport($siteReport));
 
         $collectorLogger->debug('Site inspected', ['status' => $siteReport->status->value]);

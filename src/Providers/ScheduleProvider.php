@@ -46,11 +46,11 @@ class ScheduleProvider extends ServiceProvider
 
     private function scheduleCollector(
         Schedule $schedule,
-        string $sourceKey,
+        string $source,
         string $collector,
         ScheduleFrequency $scheduleFrequency,
     ): void {
-        $this->scheduleAt($schedule->command(CollectCommand::SIGNATURE, [$sourceKey, $collector]), $scheduleFrequency);
+        $this->scheduleAt($schedule->command(CollectCommand::SIGNATURE, [$source, $collector]), $scheduleFrequency);
     }
 
     /**

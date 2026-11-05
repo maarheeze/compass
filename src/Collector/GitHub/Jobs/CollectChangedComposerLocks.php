@@ -22,7 +22,7 @@ class CollectChangedComposerLocks implements ShouldQueue
 
     public function __construct(
         private readonly Uuid $runId,
-        private readonly string $sourceKey,
+        private readonly string $source,
     ) {
     }
 
@@ -39,7 +39,7 @@ class CollectChangedComposerLocks implements ShouldQueue
             $collectComposerLockJobs = [];
 
             foreach ($repositoriesWithComposerLockOutOfDate as $repository) {
-                $collectComposerLockJobs[] = new CollectComposerLock($repository, $this->sourceKey);
+                $collectComposerLockJobs[] = new CollectComposerLock($repository, $this->source);
 
                 $collectorLogger->debug('Composer lock collection queued', ['repository' => $repository->name]);
             }

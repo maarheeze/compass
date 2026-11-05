@@ -25,19 +25,19 @@ readonly class RunRecorder
 
     public function startCollector(
         Uuid $runId,
-        string $sourceKey,
+        string $source,
         CollectorType $collectorType,
         ShouldQueue $firstJob,
     ): void {
         Run::query()->create([
             'id' => $runId,
-            'source' => $sourceKey,
+            'source' => $source,
             'collector' => $collectorType,
             'status' => RunStatus::QUEUED,
         ]);
 
         $this->dispatch($runId, $firstJob, [
-            'source' => $sourceKey,
+            'source' => $source,
             'collector' => $collectorType->value,
         ]);
     }

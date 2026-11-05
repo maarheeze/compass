@@ -27,7 +27,7 @@ class CollectRepositories implements ShouldQueue
 
     public function __construct(
         private readonly Uuid $runId,
-        private readonly string $sourceKey,
+        private readonly string $source,
     ) {
     }
 
@@ -40,14 +40,14 @@ class CollectRepositories implements ShouldQueue
         RepositoriesCollectorManager $repositoriesCollectorManager,
         RepositorySynchronizer $repositorySynchronizer,
     ): void {
-        $repositoriesCollector = $repositoriesCollectorManager->collector($this->sourceKey);
+        $repositoriesCollector = $repositoriesCollectorManager->collector($this->source);
 
         $collectorLogger->info('Repositories collector started');
 
         foreach ($repositoriesCollector->repositories() as $collectedRepositories) {
             $repositoriesWithChangedPackageJson = $repositorySynchronizer->storeRepositories(
                 $collectedRepositories,
-                $this->sourceKey,
+                $this->source,
                 $this->runId,
             );
 
@@ -60,7 +60,7 @@ class CollectRepositories implements ShouldQueue
             ]);
         }
 
-        $repositorySynchronizer->markUncollectedMissing($this->sourceKey, $this->runId);
+        $repositorySynchronizer->markUncollectedMissing($this->source, $this->runId);
 
         $events->dispatch(new RepositoriesCollected());
 
@@ -68,9 +68,9 @@ class CollectRepositories implements ShouldQueue
 
         Assert::isInstanceOf($this->batch(), Batch::class)
             ->add([
-                new CollectChangedComposerJsons($this->runId, $this->sourceKey),
-                new CollectChangedComposerLocks($this->runId, $this->sourceKey),
-                new CollectChangedDependabotYmls($this->runId, $this->sourceKey),
+                new CollectChangedComposerJsons($this->runId, $this->source),
+                new CollectChangedComposerLocks($this->runId, $this->source),
+                new CollectChangedDependabotYmls($this->runId, $this->source),
             ]);
     }
 }

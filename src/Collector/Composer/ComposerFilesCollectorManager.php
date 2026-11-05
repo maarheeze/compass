@@ -36,9 +36,9 @@ readonly class ComposerFilesCollectorManager
         );
     }
 
-    public function collector(string $sourceKey): ComposerFilesCollector
+    public function collector(string $source): ComposerFilesCollector
     {
-        return $this->collectorDrivers->collector($this->sourceConfigs->get($sourceKey));
+        return $this->collectorDrivers->collector($this->sourceConfigs->get($source));
     }
 
     /**

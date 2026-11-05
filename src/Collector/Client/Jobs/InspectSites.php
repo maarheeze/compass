@@ -21,7 +21,7 @@ class InspectSites implements ShouldQueue
     use Queueable;
 
     public function __construct(
-        public readonly string $sourceKey,
+        public readonly string $source,
     ) {
     }
 
@@ -29,7 +29,7 @@ class InspectSites implements ShouldQueue
         CollectorLogger $collectorLogger,
         SiteReportsCollectorManager $siteReportsCollectorManager,
     ): void {
-        $siteReportsCollectorManager->collector($this->sourceKey);
+        $siteReportsCollectorManager->collector($this->source);
 
         $batch = Assert::isInstanceOf($this->batch(), Batch::class);
         $collectedSiteChunks = Site::query()
@@ -41,7 +41,7 @@ class InspectSites implements ShouldQueue
             $inspectSiteJobs = [];
 
             foreach ($collectedSites as $collectedSite) {
-                $inspectSiteJobs[] = new InspectSite($collectedSite, $this->sourceKey);
+                $inspectSiteJobs[] = new InspectSite($collectedSite, $this->source);
 
                 $collectorLogger->debug('Site inspection queued', ['site' => $collectedSite->name]);
             }

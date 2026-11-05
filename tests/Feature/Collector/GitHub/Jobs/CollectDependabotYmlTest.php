@@ -15,9 +15,9 @@ use Maarheeze\Compass\Models\Repository;
 use Symfony\Component\Yaml\Yaml;
 
 test('handle queries the blob of the current dependabot yml oid', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => BuiltInDriver::GITHUB,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
@@ -38,7 +38,7 @@ test('handle queries the blob of the current dependabot yml oid', function (): v
         ]),
     ]);
 
-    $collectDependabotYml = new CollectDependabotYml($repository, $sourceKey);
+    $collectDependabotYml = new CollectDependabotYml($repository, $source);
     $this->app->call([$collectDependabotYml, 'handle']);
 
     $http->assertSent(static function (HttpRequest $request) use ($repository): bool {
@@ -51,9 +51,9 @@ test('handle queries the blob of the current dependabot yml oid', function (): v
 });
 
 test('handle stores the package ecosystems of the dependabot yml with its oid', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => BuiltInDriver::GITHUB,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
@@ -81,7 +81,7 @@ test('handle stores the package ecosystems of the dependabot yml with its oid', 
         ]),
     ]);
 
-    $collectDependabotYml = new CollectDependabotYml($repository, $sourceKey);
+    $collectDependabotYml = new CollectDependabotYml($repository, $source);
     $this->app->call([$collectDependabotYml, 'handle']);
 
     $this->assertDatabaseHas(DependabotYml::class, [
@@ -92,9 +92,9 @@ test('handle stores the package ecosystems of the dependabot yml with its oid', 
 });
 
 test('handle removes the dependabot yml when the repository no longer has one', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => BuiltInDriver::GITHUB,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
@@ -103,16 +103,16 @@ test('handle removes the dependabot yml when the repository no longer has one', 
     $repository = Repository::factory()->create(['dependabot_yml_oid' => null]);
     $dependabotYml = DependabotYml::factory()->create(['repository_id' => $repository->id]);
 
-    $collectDependabotYml = new CollectDependabotYml($repository, $sourceKey);
+    $collectDependabotYml = new CollectDependabotYml($repository, $source);
     $this->app->call([$collectDependabotYml, 'handle']);
 
     $this->assertDatabaseMissing(DependabotYml::class, ['id' => $dependabotYml->id]);
 });
 
 test('handle adds the repository to the log context', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => BuiltInDriver::GITHUB,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
@@ -120,7 +120,7 @@ test('handle adds the repository to the log context', function (): void {
     ]);
     $repository = Repository::factory()->create(['dependabot_yml_oid' => null]);
 
-    $collectDependabotYml = new CollectDependabotYml($repository, $sourceKey);
+    $collectDependabotYml = new CollectDependabotYml($repository, $source);
     $this->app->call([$collectDependabotYml, 'handle']);
 
     expect($this->app->make(Context::class)->get('repository'))
@@ -143,9 +143,9 @@ test('handle refuses a source without a Dependabot files collector', function ()
 });
 
 test('handle raises dependabot yml changed for the repository when its file is gone', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => BuiltInDriver::GITHUB,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
@@ -155,7 +155,7 @@ test('handle raises dependabot yml changed for the repository when its file is g
     $this->app->instance(Dispatcher::class, $eventFake);
     $repository = Repository::factory()->create(['dependabot_yml_oid' => null]);
 
-    $collectDependabotYml = new CollectDependabotYml($repository, $sourceKey);
+    $collectDependabotYml = new CollectDependabotYml($repository, $source);
     $this->app->call([$collectDependabotYml, 'handle']);
 
     $eventFake->assertDispatched(DependabotYmlChanged::class, static function (DependabotYmlChanged $dependabotYmlChanged) use ($repository): bool {

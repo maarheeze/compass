@@ -36,9 +36,9 @@ readonly class SiteReportsCollectorManager
         );
     }
 
-    public function collector(string $sourceKey): SiteReportsCollector
+    public function collector(string $source): SiteReportsCollector
     {
-        return $this->collectorDrivers->collector($this->sourceConfigs->get($sourceKey));
+        return $this->collectorDrivers->collector($this->sourceConfigs->get($source));
     }
 
     /**

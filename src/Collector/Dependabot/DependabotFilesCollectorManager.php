@@ -36,9 +36,9 @@ readonly class DependabotFilesCollectorManager
         );
     }
 
-    public function collector(string $sourceKey): DependabotFilesCollector
+    public function collector(string $source): DependabotFilesCollector
     {
-        return $this->collectorDrivers->collector($this->sourceConfigs->get($sourceKey));
+        return $this->collectorDrivers->collector($this->sourceConfigs->get($source));
     }
 
     /**

@@ -20,14 +20,14 @@ enum CollectorType: string
     case SITE_REPORTS = 'site_reports';
     case SITES = 'sites';
 
-    public function job(Uuid $runId, string $sourceKey): ShouldQueue
+    public function job(Uuid $runId, string $source): ShouldQueue
     {
         return match ($this) {
-            self::ISSUES => new CollectIssues($runId, $sourceKey),
-            self::PULL_REQUESTS => new CollectPullRequests($runId, $sourceKey),
-            self::REPOSITORIES => new CollectRepositories($runId, $sourceKey),
-            self::SITE_REPORTS => new InspectSites($sourceKey),
-            self::SITES => new CollectSites($runId, $sourceKey),
+            self::ISSUES => new CollectIssues($runId, $source),
+            self::PULL_REQUESTS => new CollectPullRequests($runId, $source),
+            self::REPOSITORIES => new CollectRepositories($runId, $source),
+            self::SITE_REPORTS => new InspectSites($source),
+            self::SITES => new CollectSites($runId, $source),
         };
     }
 }

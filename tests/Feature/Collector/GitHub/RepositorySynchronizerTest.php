@@ -13,18 +13,18 @@ use Maarheeze\Uuid\Uuid;
 
 test('store repositories creates a repository for a new collected repository', function (): void {
     $collectedRepository = CollectedRepositoryFactory::make();
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $runId = Uuid::generate();
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
     $repositorySynchronizer->storeRepositories(
         new CollectedRepositoryCollection([$collectedRepository]),
-        $sourceKey,
+        $source,
         $runId,
     );
 
     $this->assertDatabaseHas(Repository::class, [
-        'source' => $sourceKey,
+        'source' => $source,
         'github_id' => $collectedRepository->externalId,
         'name' => $collectedRepository->name,
         'url' => $collectedRepository->url,
@@ -127,17 +127,17 @@ test('store repositories clears the missing marks of a known repository', functi
 test('store repositories creates a repository for a known external id of another source', function (): void {
     $repository = Repository::factory()->create(['source' => fake()->unique()->slug()]);
     $collectedRepository = CollectedRepositoryFactory::forRepository($repository);
-    $otherSourceKey = fake()->unique()->slug();
+    $otherSource = fake()->unique()->slug();
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
     $repositorySynchronizer->storeRepositories(
         new CollectedRepositoryCollection([$collectedRepository]),
-        $otherSourceKey,
+        $otherSource,
         Uuid::generate(),
     );
 
     $this->assertDatabaseHas(Repository::class, [
-        'source' => $otherSourceKey,
+        'source' => $otherSource,
         'github_id' => $repository->github_id,
     ]);
 });

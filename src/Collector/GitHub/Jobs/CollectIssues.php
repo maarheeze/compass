@@ -22,7 +22,7 @@ class CollectIssues implements ShouldQueue
 
     public function __construct(
         private readonly Uuid $runId,
-        private readonly string $sourceKey,
+        private readonly string $source,
     ) {
     }
 
@@ -34,7 +34,7 @@ class CollectIssues implements ShouldQueue
         IssueSynchronizer $issueSynchronizer,
         IssuesCollectorManager $issuesCollectorManager,
     ): void {
-        $issuesCollector = $issuesCollectorManager->collector($this->sourceKey);
+        $issuesCollector = $issuesCollectorManager->collector($this->source);
 
         $collectorLogger->info('Issues collector started');
 

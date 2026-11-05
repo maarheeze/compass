@@ -12,11 +12,11 @@ use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Models\SiteReport;
 
 test('collector of a compass client source asks a site for its report with its key at its path', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $key = fake()->sha1();
     $path = sprintf('/%s', fake()->slug());
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => BuiltInDriver::COMPASS_CLIENT,
             'key' => $key,
             'path' => $path,
@@ -26,7 +26,7 @@ test('collector of a compass client source asks a site for its report with its k
     $http->fake(['*' => HttpFactory::response(null, 404)]);
 
     $siteReportsCollectorManager = $this->app->make(SiteReportsCollectorManager::class);
-    $siteReportsCollectorManager->collector($sourceKey)->siteReport(SiteReport::factory()->create([
+    $siteReportsCollectorManager->collector($source)->siteReport(SiteReport::factory()->create([
         'key' => null,
         'path' => null,
     ]));
@@ -38,10 +38,10 @@ test('collector of a compass client source asks a site for its report with its k
 });
 
 test('collector is the collector its extension makes from its config', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $driverName = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => $driverName,
         ],
     ]);
@@ -59,7 +59,7 @@ test('collector is the collector its extension makes from its config', function 
         },
     );
 
-    expect($siteReportsCollectorManager->collector($sourceKey))
+    expect($siteReportsCollectorManager->collector($source))
         ->toBe($compassClientSiteReportsCollector);
 });
 
@@ -72,26 +72,26 @@ test('collector refuses a key no source is configured under', function (): void 
 })->throws(InvalidArgumentException::class);
 
 test('collector refuses a source naming a driver that has no site reports collector', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => fake()->randomElement([BuiltInDriver::FORGE, fake()->slug()]),
         ],
     ]);
 
     $siteReportsCollectorManager = $this->app->make(SiteReportsCollectorManager::class);
 
-    $siteReportsCollectorManager->collector($sourceKey);
+    $siteReportsCollectorManager->collector($source);
 })->throws(InvalidArgumentException::class);
 
 test('collector refuses a compass client source with a setting it needs missing or unset', function (array $sourceConfig): void {
-    $sourceKey = fake()->slug();
-    $this->setConfiguration('compass.sources', [$sourceKey => $sourceConfig]);
+    $source = fake()->slug();
+    $this->setConfiguration('compass.sources', [$source => $sourceConfig]);
 
     $this->expectException(InvalidArgumentException::class);
 
     $siteReportsCollectorManager = $this->app->make(SiteReportsCollectorManager::class);
-    $siteReportsCollectorManager->collector($sourceKey);
+    $siteReportsCollectorManager->collector($source);
 })->with([
     'without a path' => [
         function (): array {

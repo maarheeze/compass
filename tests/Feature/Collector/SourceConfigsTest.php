@@ -6,16 +6,16 @@ use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Collector\SourceConfigs;
 
 test('get is the config of the source under the key', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $driverName = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => $driverName,
         ],
     ]);
 
     $sourceConfigs = $this->app->make(SourceConfigs::class);
-    $sourceConfig = $sourceConfigs->get($sourceKey);
+    $sourceConfig = $sourceConfigs->get($source);
 
     expect($sourceConfig->driver())
         ->toBe($driverName);
@@ -32,12 +32,12 @@ test('get refuses a key no source is configured under', function (): void {
 });
 
 test('all is the config of every source, by its key', function (): void {
-    $sourceKeys = [fake()->unique()->slug(), fake()->unique()->slug()];
+    $sources = [fake()->unique()->slug(), fake()->unique()->slug()];
     $this->setConfiguration('compass.sources', [
-        $sourceKeys[0] => [
+        $sources[0] => [
             'driver' => fake()->slug(),
         ],
-        $sourceKeys[1] => [
+        $sources[1] => [
             'driver' => fake()->slug(),
         ],
     ]);
@@ -45,9 +45,9 @@ test('all is the config of every source, by its key', function (): void {
     $sourceConfigs = $this->app->make(SourceConfigs::class);
     $allSourceConfigs = $sourceConfigs->all();
 
-    $allSourceKeys = array_map(static function (SourceConfig $sourceConfig): string {
+    $allSources = array_map(static function (SourceConfig $sourceConfig): string {
         return $sourceConfig->key;
     }, $allSourceConfigs);
-    expect($allSourceKeys)
-        ->toBe($sourceKeys);
+    expect($allSources)
+        ->toBe($sources);
 });

@@ -11,9 +11,9 @@ use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 
 test('handle stores the issues of the page', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => BuiltInDriver::GITHUB,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
@@ -39,7 +39,7 @@ test('handle stores the issues of the page', function (): void {
         '*' => HttpFactory::response(['incomplete_results' => false, 'items' => [$issueResponse]]),
     ]);
 
-    $collectIssues = new CollectIssues($runId, $sourceKey);
+    $collectIssues = new CollectIssues($runId, $source);
     $this->app->call([$collectIssues, 'handle']);
 
     $this->assertDatabaseHas(Issue::class, [
@@ -49,9 +49,9 @@ test('handle stores the issues of the page', function (): void {
 });
 
 test('handle deletes the issues of another run on the last page', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => BuiltInDriver::GITHUB,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
@@ -62,16 +62,16 @@ test('handle deletes the issues of another run on the last page', function (): v
         '*' => HttpFactory::response(['incomplete_results' => false, 'items' => []]),
     ]);
 
-    $collectIssues = new CollectIssues(Uuid::generate(), $sourceKey);
+    $collectIssues = new CollectIssues(Uuid::generate(), $source);
     $this->app->call([$collectIssues, 'handle']);
 
     $this->assertModelMissing($issue);
 });
 
 test('handle keeps the issues collected on an earlier page', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => BuiltInDriver::GITHUB,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
@@ -104,16 +104,16 @@ test('handle keeps the issues collected on an earlier page', function (): void {
     $responseSequence->push(['incomplete_results' => false, 'items' => []]);
     $http->fake(['*' => $responseSequence]);
 
-    $collectIssues = new CollectIssues(Uuid::generate(), $sourceKey);
+    $collectIssues = new CollectIssues(Uuid::generate(), $source);
     $this->app->call([$collectIssues, 'handle']);
 
     $this->assertDatabaseHas(Issue::class, ['github_id' => $issueResponse['node_id']]);
 });
 
 test('handle leaves the pull requests alone', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => BuiltInDriver::GITHUB,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
@@ -124,7 +124,7 @@ test('handle leaves the pull requests alone', function (): void {
         '*' => HttpFactory::response(['incomplete_results' => false, 'items' => []]),
     ]);
 
-    $collectIssues = new CollectIssues(Uuid::generate(), $sourceKey);
+    $collectIssues = new CollectIssues(Uuid::generate(), $source);
     $this->app->call([$collectIssues, 'handle']);
 
     $this->assertModelExists($pullRequest);

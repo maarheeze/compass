@@ -22,7 +22,7 @@ class CollectChangedDependabotYmls implements ShouldQueue
 
     public function __construct(
         private readonly Uuid $runId,
-        private readonly string $sourceKey,
+        private readonly string $source,
     ) {
     }
 
@@ -39,7 +39,7 @@ class CollectChangedDependabotYmls implements ShouldQueue
             $collectDependabotYmlJobs = [];
 
             foreach ($repositoriesWithDependabotYmlOutOfDate as $repository) {
-                $collectDependabotYmlJobs[] = new CollectDependabotYml($repository, $this->sourceKey);
+                $collectDependabotYmlJobs[] = new CollectDependabotYml($repository, $this->source);
 
                 $collectorLogger->debug('Dependabot yml collection queued', ['repository' => $repository->name]);
             }

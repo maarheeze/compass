@@ -67,15 +67,15 @@ test('start collector keeps the batch going when one of its jobs fails', functio
 test('start collector records the queued run of the collector of the source', function (): void {
     $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
     $runId = Uuid::generate();
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $collectorType = fake()->randomElement(CollectorType::cases());
 
     $runRecorder = $this->app->make(RunRecorder::class);
-    $runRecorder->startCollector($runId, $sourceKey, $collectorType, new CheckSiteEndpoints());
+    $runRecorder->startCollector($runId, $source, $collectorType, new CheckSiteEndpoints());
 
     $this->assertDatabaseHas(Run::class, [
         'id' => $runId,
-        'source' => $sourceKey,
+        'source' => $source,
         'collector' => $collectorType,
         'status' => RunStatus::QUEUED,
         'batch_id' => null,

@@ -11,11 +11,11 @@ use Maarheeze\Compass\Console\CheckSiteEndpointsCommand;
 use Maarheeze\Compass\Console\CollectCommand;
 
 test('a collector of a source is scheduled as a collect command of that source and collector', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $collector = fake()->randomElement(CollectorType::cases())->value;
     $this->setConfiguration('compass.schedule', []);
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'schedule' => [
                 $collector => fake()->randomElement(ScheduleFrequency::cases()),
             ],
@@ -26,7 +26,7 @@ test('a collector of a source is scheduled as a collect command of that source a
     $scheduledEvent = new Collection($schedule->events())->sole();
 
     expect($scheduledEvent->command)
-        ->toEndWith(sprintf("%s '%s' '%s'", CollectCommand::SIGNATURE, $sourceKey, $collector));
+        ->toEndWith(sprintf("%s '%s' '%s'", CollectCommand::SIGNATURE, $source, $collector));
 });
 
 test('each collector in the schedule of each source is scheduled', function (): void {

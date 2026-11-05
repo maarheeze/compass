@@ -117,15 +117,15 @@ test('handle ignores repositories of another run', function (): void {
 
 test('handle adds collect composer json for the source of its run', function (): void {
     $runId = Uuid::generate();
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     Repository::factory()->create([
         'run_id' => $runId,
         'composer_json_oid' => fake()->sha1(),
     ]);
 
-    [$collectChangedComposerJsons, $batchFake] = new CollectChangedComposerJsons($runId, $sourceKey)->withFakeBatch();
+    [$collectChangedComposerJsons, $batchFake] = new CollectChangedComposerJsons($runId, $source)->withFakeBatch();
     $this->app->call([$collectChangedComposerJsons, 'handle']);
 
-    expect($batchFake->added[0]->sourceKey)
-        ->toBe($sourceKey);
+    expect($batchFake->added[0]->source)
+        ->toBe($source);
 });

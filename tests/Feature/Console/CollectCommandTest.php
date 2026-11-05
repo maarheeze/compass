@@ -13,17 +13,17 @@ use Maarheeze\Compass\Models\Run;
 
 test('handle starts a run of the collector of the source', function (): void {
     $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $collectorType = fake()->randomElement(CollectorType::cases());
 
     $pendingCommand = $this->artisan(CollectCommand::class, [
-        'source' => $sourceKey,
+        'source' => $source,
         'collector' => $collectorType->value,
     ]);
     $pendingCommand->assertSuccessful();
 
     $this->assertDatabaseHas(Run::class, [
-        'source' => $sourceKey,
+        'source' => $source,
         'collector' => $collectorType,
     ]);
 });

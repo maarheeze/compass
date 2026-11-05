@@ -13,9 +13,9 @@ use Maarheeze\Compass\Models\Site;
 use Maarheeze\Uuid\Uuid;
 
 test('handle stores the sites of the page', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => BuiltInDriver::FORGE,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
@@ -72,27 +72,27 @@ test('handle stores the sites of the page', function (): void {
         ]),
     ]);
 
-    [$collectSites] = new CollectSites($runId, $sourceKey)->withFakeBatch();
+    [$collectSites] = new CollectSites($runId, $source)->withFakeBatch();
     $this->app->call([$collectSites, 'handle']);
 
     $this->assertDatabaseHas(Site::class, [
-        'source' => $sourceKey,
+        'source' => $source,
         'forge_id' => $forgeId,
         'run_id' => $runId,
     ]);
 });
 
 test('handle marks the sites of another run missing on the last page', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => BuiltInDriver::FORGE,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
             'auto_deploy_grace_minutes' => fake()->numberBetween(1, 60),
         ],
     ]);
-    $site = Site::factory()->create(['source' => $sourceKey]);
+    $site = Site::factory()->create(['source' => $source]);
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             'data' => [],
@@ -102,7 +102,7 @@ test('handle marks the sites of another run missing on the last page', function 
         ]),
     ]);
 
-    [$collectSites] = new CollectSites(Uuid::generate(), $sourceKey)->withFakeBatch();
+    [$collectSites] = new CollectSites(Uuid::generate(), $source)->withFakeBatch();
     $this->app->call([$collectSites, 'handle']);
 
     expect($site->refresh()->missing_at)
@@ -124,9 +124,9 @@ test('handle refuses a source without a sites collector', function (): void {
 });
 
 test('handle raises sites collected', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => BuiltInDriver::FORGE,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
@@ -144,7 +144,7 @@ test('handle raises sites collected', function (): void {
         ]),
     ]);
 
-    [$collectSites] = new CollectSites(Uuid::generate(), $sourceKey)->withFakeBatch();
+    [$collectSites] = new CollectSites(Uuid::generate(), $source)->withFakeBatch();
     $this->app->call([$collectSites, 'handle']);
 
     $eventFake->assertDispatched(SitesCollected::class);

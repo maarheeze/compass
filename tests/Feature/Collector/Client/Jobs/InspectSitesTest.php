@@ -9,9 +9,9 @@ use Maarheeze\Compass\Models\Site;
 use Maarheeze\Uuid\Uuid;
 
 test('handle adds the inspection of a collected site to its batch', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => BuiltInDriver::COMPASS_CLIENT,
             'key' => fake()->sha1(),
             'path' => sprintf('/%s', fake()->slug()),
@@ -19,7 +19,7 @@ test('handle adds the inspection of a collected site to its batch', function ():
     ]);
     $site = Site::factory()->create();
 
-    [$inspectSites, $batchFake] = new InspectSites($sourceKey)->withFakeBatch();
+    [$inspectSites, $batchFake] = new InspectSites($source)->withFakeBatch();
     $this->app->call([$inspectSites, 'handle']);
 
     $addedSiteIds = array_map(
@@ -34,9 +34,9 @@ test('handle adds the inspection of a collected site to its batch', function ():
 });
 
 test('handle hands its source to the inspection of a site', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => BuiltInDriver::COMPASS_CLIENT,
             'key' => fake()->sha1(),
             'path' => sprintf('/%s', fake()->slug()),
@@ -44,24 +44,24 @@ test('handle hands its source to the inspection of a site', function (): void {
     ]);
     Site::factory()->create();
 
-    [$inspectSites, $batchFake] = new InspectSites($sourceKey)->withFakeBatch();
+    [$inspectSites, $batchFake] = new InspectSites($source)->withFakeBatch();
     $this->app->call([$inspectSites, 'handle']);
 
-    $addedSourceKeys = array_map(
+    $addedSources = array_map(
         static function (InspectSite $inspectSite): string {
-            return $inspectSite->sourceKey;
+            return $inspectSite->source;
         },
         $batchFake->added,
     );
 
-    expect($addedSourceKeys)
-        ->toBe([$sourceKey]);
+    expect($addedSources)
+        ->toBe([$source]);
 });
 
 test('handle leaves out a missing site', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => BuiltInDriver::COMPASS_CLIENT,
             'key' => fake()->sha1(),
             'path' => sprintf('/%s', fake()->slug()),
@@ -69,7 +69,7 @@ test('handle leaves out a missing site', function (): void {
     ]);
     Site::factory()->create(['missing_at' => fake()->dateTime()]);
 
-    [$inspectSites, $batchFake] = new InspectSites($sourceKey)->withFakeBatch();
+    [$inspectSites, $batchFake] = new InspectSites($source)->withFakeBatch();
     $this->app->call([$inspectSites, 'handle']);
 
     expect($batchFake->added)
@@ -77,9 +77,9 @@ test('handle leaves out a missing site', function (): void {
 });
 
 test('handle refuses a source without a site reports collector', function (): void {
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
-        $sourceKey => [
+        $source => [
             'driver' => fake()->slug(),
         ],
     ]);
@@ -87,6 +87,6 @@ test('handle refuses a source without a site reports collector', function (): vo
 
     $this->expectException(InvalidArgumentException::class);
 
-    [$inspectSites] = new InspectSites($sourceKey)->withFakeBatch();
+    [$inspectSites] = new InspectSites($source)->withFakeBatch();
     $this->app->call([$inspectSites, 'handle']);
 });

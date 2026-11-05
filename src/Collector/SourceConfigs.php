@@ -23,17 +23,17 @@ readonly class SourceConfigs
     {
         $sourceConfigs = [];
 
-        foreach ($this->sources as $sourceKey => $settings) {
-            $sourceConfigs[] = new SourceConfig(Assert::stringNotEmpty($sourceKey), Assert::isMap($settings));
+        foreach ($this->sources as $source => $settings) {
+            $sourceConfigs[] = new SourceConfig(Assert::stringNotEmpty($source), Assert::isMap($settings));
         }
 
         return $sourceConfigs;
     }
 
-    public function get(string $sourceKey): SourceConfig
+    public function get(string $source): SourceConfig
     {
-        Assert::keyExists($this->sources, $sourceKey);
+        Assert::keyExists($this->sources, $source);
 
-        return new SourceConfig($sourceKey, Assert::isMap($this->sources[$sourceKey]));
+        return new SourceConfig($source, Assert::isMap($this->sources[$source]));
     }
 }

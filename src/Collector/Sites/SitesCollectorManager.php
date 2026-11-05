@@ -36,9 +36,9 @@ readonly class SitesCollectorManager
         );
     }
 
-    public function collector(string $sourceKey): SitesCollector
+    public function collector(string $source): SitesCollector
     {
-        return $this->collectorDrivers->collector($this->sourceConfigs->get($sourceKey));
+        return $this->collectorDrivers->collector($this->sourceConfigs->get($source));
     }
 
     /**

@@ -36,9 +36,9 @@ readonly class IssuesCollectorManager
         );
     }
 
-    public function collector(string $sourceKey): IssuesCollector
+    public function collector(string $source): IssuesCollector
     {
-        return $this->collectorDrivers->collector($this->sourceConfigs->get($sourceKey));
+        return $this->collectorDrivers->collector($this->sourceConfigs->get($source));
     }
 
     /**

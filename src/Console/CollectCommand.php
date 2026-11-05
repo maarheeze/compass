@@ -18,11 +18,11 @@ class CollectCommand extends Command
     public function handle(RunRecorder $runRecorder): void
     {
         $runId = Uuid::generate();
-        $sourceKey = Assert::string($this->argument('source'));
+        $source = Assert::string($this->argument('source'));
         $collectorType = CollectorType::from(Assert::string($this->argument('collector')));
-        $job = $collectorType->job($runId, $sourceKey);
+        $job = $collectorType->job($runId, $source);
 
-        $runRecorder->startCollector($runId, $sourceKey, $collectorType, $job);
+        $runRecorder->startCollector($runId, $source, $collectorType, $job);
     }
 
     protected function configure(): void

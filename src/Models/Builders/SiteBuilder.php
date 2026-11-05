@@ -35,8 +35,8 @@ class SiteBuilder extends Builder
         return $this->whereNot('run_id', $runId);
     }
 
-    public function ofSource(string $sourceKey): self
+    public function ofSource(string $source): self
     {
-        return $this->where('source', $sourceKey);
+        return $this->where('source', $source);
     }
 }

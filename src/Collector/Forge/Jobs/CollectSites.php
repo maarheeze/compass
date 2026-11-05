@@ -25,7 +25,7 @@ class CollectSites implements ShouldQueue
 
     public function __construct(
         private readonly Uuid $runId,
-        private readonly string $sourceKey,
+        private readonly string $source,
     ) {
     }
 
@@ -39,8 +39,8 @@ class CollectSites implements ShouldQueue
         SiteSynchronizer $siteSynchronizer,
         SourceConfigs $sourceConfigs,
     ): void {
-        $sitesCollector = $sitesCollectorManager->collector($this->sourceKey);
-        $sourceConfig = $sourceConfigs->get($this->sourceKey);
+        $sitesCollector = $sitesCollectorManager->collector($this->source);
+        $sourceConfig = $sourceConfigs->get($this->source);
 
         $collectorLogger->info('Sites collector started');
 
@@ -52,7 +52,7 @@ class CollectSites implements ShouldQueue
             ]);
         }
 
-        $siteSynchronizer->markUncollectedMissing($this->sourceKey, $this->runId);
+        $siteSynchronizer->markUncollectedMissing($this->source, $this->runId);
 
         $events->dispatch(new SitesCollected());
 

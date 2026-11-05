@@ -12,10 +12,10 @@ use Maarheeze\Uuid\Uuid;
 
 readonly class SiteSynchronizer
 {
-    public function markUncollectedMissing(string $sourceKey, Uuid $runId): void
+    public function markUncollectedMissing(string $source, Uuid $runId): void
     {
         Site::query()
-            ->ofSource($sourceKey)
+            ->ofSource($source)
             ->notReturnedByRun($runId)
             ->collected()
             ->update(['missing_at' => CarbonImmutable::now()]);

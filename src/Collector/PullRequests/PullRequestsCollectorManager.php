@@ -36,9 +36,9 @@ readonly class PullRequestsCollectorManager
         );
     }
 
-    public function collector(string $sourceKey): PullRequestsCollector
+    public function collector(string $source): PullRequestsCollector
     {
-        return $this->collectorDrivers->collector($this->sourceConfigs->get($sourceKey));
+        return $this->collectorDrivers->collector($this->sourceConfigs->get($source));
     }
 
     /**

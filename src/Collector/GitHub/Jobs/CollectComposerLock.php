@@ -30,7 +30,7 @@ class CollectComposerLock implements ShouldQueue
 
     public function __construct(
         public readonly Repository $repository,
-        public readonly string $sourceKey,
+        public readonly string $source,
     ) {
     }
 
@@ -47,7 +47,7 @@ class CollectComposerLock implements ShouldQueue
         Context $context,
         Dispatcher $events,
     ): void {
-        $composerFilesCollector = $composerFilesCollectorManager->collector($this->sourceKey);
+        $composerFilesCollector = $composerFilesCollectorManager->collector($this->source);
 
         $context->add('repository', $this->repository->name);
 

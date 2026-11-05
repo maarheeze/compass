@@ -117,15 +117,15 @@ test('handle ignores repositories of another run', function (): void {
 
 test('handle adds collect dependabot yml for the source of its run', function (): void {
     $runId = Uuid::generate();
-    $sourceKey = fake()->slug();
+    $source = fake()->slug();
     Repository::factory()->create([
         'run_id' => $runId,
         'dependabot_yml_oid' => fake()->sha1(),
     ]);
 
-    [$collectChangedDependabotYmls, $batchFake] = new CollectChangedDependabotYmls($runId, $sourceKey)->withFakeBatch();
+    [$collectChangedDependabotYmls, $batchFake] = new CollectChangedDependabotYmls($runId, $source)->withFakeBatch();
     $this->app->call([$collectChangedDependabotYmls, 'handle']);
 
-    expect($batchFake->added[0]->sourceKey)
-        ->toBe($sourceKey);
+    expect($batchFake->added[0]->source)
+        ->toBe($source);
 });
