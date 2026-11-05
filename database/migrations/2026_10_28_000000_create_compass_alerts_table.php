@@ -22,7 +22,6 @@ return new class extends Migration
             $table->string('type');
             $table->string('condition');
             $table->timestamp('resolved_at')->nullable();
-            $table->timestamp('last_observed_at');
             $table->string('status');
             $table->timestamp('done_at')->nullable();
             $table->boolean('is_muted');

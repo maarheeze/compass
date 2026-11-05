@@ -72,12 +72,15 @@ readonly class ObservationHandler
             ->first();
         $alertAction = $this->alertActionClassifier->classify($conditionObserved->condition, $storedAlert);
 
+        if ($alertAction === null) {
+            return;
+        }
+
         $this->connection->transaction(function () use ($alertAction, $conditionObserved, $storedAlert): void {
             match ($alertAction) {
                 AlertAction::OPEN => $this->open($conditionObserved),
                 AlertAction::RECUR => $this->recur($conditionObserved, $storedAlert),
                 AlertAction::RESOLVE => $this->resolve($conditionObserved, $storedAlert),
-                null => $storedAlert?->update(['last_observed_at' => $conditionObserved->observedAt]),
             };
         });
     }
@@ -91,7 +94,6 @@ readonly class ObservationHandler
                 'condition' => ConditionState::ACTIVE,
                 'status' => AlertStatus::OPEN,
                 'is_muted' => false,
-                'last_observed_at' => $conditionObserved->observedAt,
             ]);
         $alert->historyEntries()->create([
             'type' => AlertHistoryEntryType::OPENED,
@@ -107,7 +109,6 @@ readonly class ObservationHandler
         $storedAlert->update([
             'condition' => ConditionState::ACTIVE,
             'resolved_at' => null,
-            'last_observed_at' => $conditionObserved->observedAt,
         ]);
         $storedAlert->historyEntries()->create([
             'type' => AlertHistoryEntryType::RECURRED,
@@ -123,7 +124,6 @@ readonly class ObservationHandler
         $storedAlert->update([
             'condition' => ConditionState::RESOLVED,
             'resolved_at' => $conditionObserved->observedAt,
-            'last_observed_at' => $conditionObserved->observedAt,
         ]);
         $storedAlert->historyEntries()->create([
             'type' => AlertHistoryEntryType::RESOLVED,

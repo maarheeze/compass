@@ -33,11 +33,6 @@
                     <x-compass::date-time :time="$alert->created_at" />
                 </dd>
 
-                <dt class="text-foreground-muted">{{ __('compass::alert.last_seen') }}</dt>
-                <dd class="text-foreground">
-                    <x-compass::date-time :time="$alert->last_observed_at" />
-                </dd>
-
                 <dt class="text-foreground-muted">{{ __('compass::alert.status') }}</dt>
                 <dd class="text-foreground">
                     <x-compass::enum-label :value="$alert->status" />

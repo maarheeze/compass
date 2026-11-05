@@ -10,7 +10,6 @@ return [
     'condition' => 'Condition',
     'has_alerts' => 'Has alerts',
     'history' => 'History',
-    'last_seen' => 'Last seen',
     'mark_done' => 'Mark done',
     'mute' => 'Mute',
     'muted' => 'Muted',
