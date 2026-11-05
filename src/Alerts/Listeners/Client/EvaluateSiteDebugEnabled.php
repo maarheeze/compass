@@ -27,6 +27,11 @@ readonly class EvaluateSiteDebugEnabled implements ShouldQueue
     public function handle(SiteInspected $siteInspected): void
     {
         $siteReport = $siteInspected->siteReport;
+
+        if ($siteReport->app_debug === null) {
+            return;
+        }
+
         $this->dispatcher->dispatch(new HandleConditionObservations(new ConditionObservationCollection([
             new ConditionObservation(
                 AlertType::SITE_DEBUG_ENABLED,

@@ -27,6 +27,11 @@ readonly class EvaluateSiteNotInProduction implements ShouldQueue
     public function handle(SiteInspected $siteInspected): void
     {
         $siteReport = $siteInspected->siteReport;
+
+        if ($siteReport->app_env === null) {
+            return;
+        }
+
         $this->dispatcher->dispatch(new HandleConditionObservations(new ConditionObservationCollection([
             new ConditionObservation(
                 AlertType::SITE_NOT_IN_PRODUCTION,

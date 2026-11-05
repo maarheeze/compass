@@ -12,6 +12,7 @@ use Illuminate\Support\ServiceProvider;
 use Maarheeze\Compass\Collector\ScheduleFrequency;
 use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Collector\SourceConfigs;
+use Maarheeze\Compass\Collector\TaskType;
 use Maarheeze\Compass\Console\CheckSiteEndpointsCommand;
 use Maarheeze\Compass\Console\CollectCommand;
 use Webmozart\Assert\Assert;
@@ -57,11 +58,11 @@ class ScheduleProvider extends ServiceProvider
      */
     private function scheduleSiteEndpoints(Schedule $schedule, array $taskSchedule): void
     {
-        if (!array_key_exists('site_endpoints', $taskSchedule)) {
+        if (!array_key_exists(TaskType::SITE_ENDPOINTS->value, $taskSchedule)) {
             return;
         }
 
-        $scheduleFrequency = Assert::isInstanceOf($taskSchedule['site_endpoints'], ScheduleFrequency::class);
+        $scheduleFrequency = Assert::isInstanceOf($taskSchedule[TaskType::SITE_ENDPOINTS->value], ScheduleFrequency::class);
 
         $this->scheduleAt($schedule->command(CheckSiteEndpointsCommand::SIGNATURE), $scheduleFrequency);
     }

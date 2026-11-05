@@ -162,7 +162,7 @@ test('store report stores the status of a client that is incompatible or refuses
     'unauthorized' => [CollectedSiteReport::unauthorized(), SiteReportStatus::UNAUTHORIZED],
 ]);
 
-test('store report keeps the report of a client that is incompatible or refuses the key', function (CollectedSiteReport $collectedSiteReport): void {
+test('store report clears the report of a client that is incompatible or refuses the key', function (CollectedSiteReport $collectedSiteReport): void {
     $siteReport = SiteReport::factory()->create([
         'app_debug' => fake()->boolean(),
         'app_env' => fake()->word(),
@@ -174,9 +174,9 @@ test('store report keeps the report of a client that is incompatible or refuses 
 
     $this->assertDatabaseHas(SiteReport::class, [
         'id' => $siteReport->id,
-        'app_debug' => $siteReport->app_debug,
-        'app_env' => $siteReport->app_env,
-        'app_name' => $siteReport->app_name,
+        'app_debug' => null,
+        'app_env' => null,
+        'app_name' => null,
     ]);
 })->with([
     'incompatible' => [CollectedSiteReport::incompatible()],

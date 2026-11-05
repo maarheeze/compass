@@ -15,7 +15,7 @@ use Maarheeze\Compass\Models\SiteReport;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
-test('handle observes non production now for a site that is not in production', function (?string $appEnv): void {
+test('handle observes non production now for a site that is not in production', function (string $appEnv): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
@@ -36,7 +36,7 @@ test('handle observes non production now for a site that is not in production', 
             });
         },
     );
-})->with(['local', 'staging', 'testing', null]);
+})->with(['local', 'staging', 'testing']);
 
 test('handle observes non production resolved now for a site in production', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
@@ -59,4 +59,15 @@ test('handle observes non production resolved now for a site in production', fun
             });
         },
     );
+});
+
+test('handle observes nothing for a site not checked for its environment', function (): void {
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
+    $siteReport = SiteReport::factory()->create(['app_env' => null]);
+
+    $evaluateNonProduction = $this->app->make(EvaluateSiteNotInProduction::class);
+    $evaluateNonProduction->handle(new SiteInspected($siteReport));
+
+    $busFake->assertNotDispatched(HandleConditionObservations::class);
 });

@@ -38,12 +38,12 @@ test('handle observes debug enabled now for a site in debug mode', function (): 
     );
 });
 
-test('handle observes debug enabled resolved now for a site out of debug mode', function (?bool $appDebug): void {
+test('handle observes debug enabled resolved now for a site out of debug mode', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $siteReport = SiteReport::factory()->create(['app_debug' => $appDebug]);
+    $siteReport = SiteReport::factory()->create(['app_debug' => false]);
 
     $evaluateDebugEnabled = $this->app->make(EvaluateSiteDebugEnabled::class);
     $evaluateDebugEnabled->handle(new SiteInspected($siteReport));
@@ -59,4 +59,15 @@ test('handle observes debug enabled resolved now for a site out of debug mode', 
             });
         },
     );
-})->with([false, null]);
+});
+
+test('handle observes nothing for a site not checked for debug mode', function (): void {
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
+    $siteReport = SiteReport::factory()->create(['app_debug' => null]);
+
+    $evaluateDebugEnabled = $this->app->make(EvaluateSiteDebugEnabled::class);
+    $evaluateDebugEnabled->handle(new SiteInspected($siteReport));
+
+    $busFake->assertNotDispatched(HandleConditionObservations::class);
+});

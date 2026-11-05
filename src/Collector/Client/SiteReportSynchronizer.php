@@ -63,6 +63,9 @@ readonly class SiteReportSynchronizer
     {
         $siteReport->fill([
             'status' => $collectedSiteReport->status,
+            'app_debug' => $collectedSiteReport->appDebug,
+            'app_env' => $collectedSiteReport->appEnv,
+            'app_name' => $collectedSiteReport->appName,
             'collected_at' => CarbonImmutable::now(),
         ])->save();
     }
