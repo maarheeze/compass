@@ -23,13 +23,14 @@ test('collector of a github source collects the pull requests of its organizatio
         ],
     ]);
     $http = $this->app->make(HttpFactory::class);
-    $http->fake(['*' => HttpFactory::response([])]);
+    $http->fake(['*' => HttpFactory::response(['incomplete_results' => false, 'items' => []])]);
 
     $pullRequestsCollectorManager = $this->app->make(PullRequestsCollectorManager::class);
     $pullRequestsCollectorManager->collector($key)->pullRequests()->current();
 
     $http->assertSent(static function (HttpRequest $request) use ($organization, $token): bool {
-        return str_starts_with($request->url(), sprintf('https://api.github.com/orgs/%s/issues?', $organization))
+        return str_starts_with($request->url(), 'https://api.github.com/search/issues?')
+            && str_starts_with($request['q'], sprintf('org:%s ', $organization))
             && $request->hasHeader('Authorization', sprintf('Bearer %s', $token));
     });
 });

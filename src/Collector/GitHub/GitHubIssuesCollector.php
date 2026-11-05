@@ -27,9 +27,7 @@ readonly class GitHubIssuesCollector implements IssuesCollector
         $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery($this->gitHubClient, $this->organization);
 
         try {
-            foreach ($issuesAndPullRequestsQuery->pages() as $issuesAndPullRequestsQueryResult) {
-                yield $issuesAndPullRequestsQueryResult->collectedIssues;
-            }
+            yield from $issuesAndPullRequestsQuery->issues();
         } catch (GitHubQueryFailed $gitHubQueryFailed) {
             throw CollectingFailed::fromThrowable($gitHubQueryFailed);
         }

@@ -10,18 +10,13 @@ use Maarheeze\Compass\Collector\GitHub\GitHubIssuesCollector;
 
 test('issues yields the collected issues of each page', function (): void {
     $http = $this->app->make(HttpFactory::class);
-    $responseSequence = $http->sequence();
-    $responseSequence->push([], 200, [
-        'Link' => sprintf('<%s>; rel="next"', fake()->url()),
-    ]);
-    $responseSequence->push([]);
-    $http->fake(['*' => $responseSequence]);
+    $http->fake(['*' => HttpFactory::response(['incomplete_results' => false, 'items' => []])]);
 
     $gitHubIssuesCollector = new GitHubIssuesCollector(new GitHubClient($http, fake()->sha1()), fake()->slug());
     $collectedIssuesPerPage = iterator_to_array($gitHubIssuesCollector->issues());
 
     expect($collectedIssuesPerPage)
-        ->toEqual([new CollectedIssueCollection(), new CollectedIssueCollection()]);
+        ->toEqual([new CollectedIssueCollection()]);
 });
 
 test('issues throws collecting failed when github fails', function (): void {

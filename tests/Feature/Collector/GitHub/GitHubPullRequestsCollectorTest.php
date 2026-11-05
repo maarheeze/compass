@@ -10,12 +10,7 @@ use Maarheeze\Compass\Collector\GitHub\GitHubPullRequestsCollector;
 
 test('pull requests yields the collected pull requests of each page', function (): void {
     $http = $this->app->make(HttpFactory::class);
-    $responseSequence = $http->sequence();
-    $responseSequence->push([], 200, [
-        'Link' => sprintf('<%s>; rel="next"', fake()->url()),
-    ]);
-    $responseSequence->push([]);
-    $http->fake(['*' => $responseSequence]);
+    $http->fake(['*' => HttpFactory::response(['incomplete_results' => false, 'items' => []])]);
 
     $gitHubPullRequestsCollector = new GitHubPullRequestsCollector(
         new GitHubClient($http, fake()->sha1()),
@@ -24,7 +19,7 @@ test('pull requests yields the collected pull requests of each page', function (
     $collectedPullRequestsPerPage = iterator_to_array($gitHubPullRequestsCollector->pullRequests());
 
     expect($collectedPullRequestsPerPage)
-        ->toEqual([new CollectedPullRequestCollection(), new CollectedPullRequestCollection()]);
+        ->toEqual([new CollectedPullRequestCollection()]);
 });
 
 test('pull requests throws collecting failed when github fails', function (): void {

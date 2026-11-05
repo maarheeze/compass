@@ -22,9 +22,11 @@ test('handle stores the pull requests of the page', function (): void {
     $repository = Repository::factory()->create();
     $pullRequestResponse = [
         'node_id' => fake()->sha1(),
-        'repository' => [
-            'name' => $repository->name,
-        ],
+        'repository_url' => sprintf(
+            'https://api.github.com/repos/%s/%s',
+            fake()->slug(),
+            $repository->name,
+        ),
         'number' => fake()->numberBetween(1, 9999),
         'title' => fake()->sentence(),
         'html_url' => fake()->url(),
@@ -37,7 +39,9 @@ test('handle stores the pull requests of the page', function (): void {
         ],
     ];
     $runId = Uuid::generate();
-    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([$pullRequestResponse])]);
+    $this->app->make(HttpFactory::class)->fake([
+        '*' => HttpFactory::response(['incomplete_results' => false, 'items' => [$pullRequestResponse]]),
+    ]);
 
     $collectPullRequests = new CollectPullRequests($runId, $sourceKey);
     $this->app->call([$collectPullRequests, 'handle']);
@@ -58,7 +62,9 @@ test('handle deletes the pull requests of another run on the last page', functio
         ],
     ]);
     $pullRequest = PullRequest::factory()->create();
-    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([])]);
+    $this->app->make(HttpFactory::class)->fake([
+        '*' => HttpFactory::response(['incomplete_results' => false, 'items' => []]),
+    ]);
 
     $collectPullRequests = new CollectPullRequests(Uuid::generate(), $sourceKey);
     $this->app->call([$collectPullRequests, 'handle']);
@@ -78,9 +84,11 @@ test('handle keeps the pull requests collected on an earlier page', function ():
     $repository = Repository::factory()->create();
     $pullRequestResponse = [
         'node_id' => fake()->sha1(),
-        'repository' => [
-            'name' => $repository->name,
-        ],
+        'repository_url' => sprintf(
+            'https://api.github.com/repos/%s/%s',
+            fake()->slug(),
+            $repository->name,
+        ),
         'number' => fake()->numberBetween(1, 9999),
         'title' => fake()->sentence(),
         'html_url' => fake()->url(),
@@ -92,12 +100,16 @@ test('handle keeps the pull requests collected on an earlier page', function ():
             'url' => fake()->url(),
         ],
     ];
+    $pageResponses = [$pullRequestResponse];
+
+    for ($itemIndex = 1; $itemIndex < 100; $itemIndex++) {
+        $pageResponses[] = [...$pullRequestResponse, 'node_id' => fake()->unique()->sha1()];
+    }
+
     $http = $this->app->make(HttpFactory::class);
     $responseSequence = $http->sequence();
-    $responseSequence->push([$pullRequestResponse], 200, [
-        'Link' => sprintf('<%s>; rel="next"', fake()->url()),
-    ]);
-    $responseSequence->push([]);
+    $responseSequence->push(['incomplete_results' => false, 'items' => $pageResponses]);
+    $responseSequence->push(['incomplete_results' => false, 'items' => []]);
     $http->fake(['*' => $responseSequence]);
 
     $collectPullRequests = new CollectPullRequests(Uuid::generate(), $sourceKey);
@@ -116,7 +128,9 @@ test('handle leaves the issues alone', function (): void {
         ],
     ]);
     $issue = Issue::factory()->create();
-    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response([])]);
+    $this->app->make(HttpFactory::class)->fake([
+        '*' => HttpFactory::response(['incomplete_results' => false, 'items' => []]),
+    ]);
 
     $collectPullRequests = new CollectPullRequests(Uuid::generate(), $sourceKey);
     $this->app->call([$collectPullRequests, 'handle']);

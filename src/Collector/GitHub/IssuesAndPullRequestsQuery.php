@@ -6,21 +6,24 @@ namespace Maarheeze\Compass\Collector\GitHub;
 
 use Carbon\CarbonImmutable;
 use Generator;
-use Illuminate\Http\Client\Response;
 use Maarheeze\Compass\Collections\CollectedIssueCollection;
 use Maarheeze\Compass\Collections\CollectedPullRequestCollection;
 use Maarheeze\Compass\Collector\Issues\CollectedIssue;
 use Maarheeze\Compass\Collector\PullRequests\CollectedPullRequest;
 use Webmozart\Assert\Assert;
 
-use function array_key_exists;
+use function array_key_last;
+use function basename;
+use function count;
 use function http_build_query;
-use function preg_match;
-use function rawurlencode;
+use function implode;
+use function in_array;
 use function sprintf;
 
 readonly class IssuesAndPullRequestsQuery
 {
+    private const int PAGE_SIZE = 100;
+
     public function __construct(
         private GitHubClient $gitHubClient,
         private string $organization,
@@ -28,35 +31,51 @@ readonly class IssuesAndPullRequestsQuery
     }
 
     /**
-     * @return Generator<int, IssuesAndPullRequestsQueryResult>
+     * @return Generator<int, CollectedIssueCollection>
      *
      * @throws GitHubQueryFailed
      */
-    public function pages(): Generator
+    public function issues(): Generator
     {
-        $issuesAndPullRequestsQueryResult = $this->getIssuesAndPullRequestsQueryResult(null);
+        foreach ($this->searchPages('is:issue') as $itemResponses) {
+            $collectedIssues = new CollectedIssueCollection();
 
-        yield $issuesAndPullRequestsQueryResult;
+            foreach ($itemResponses as $itemResponse) {
+                $collectedIssues->push($this->getCollectedIssue($itemResponse));
+            }
 
-        while ($issuesAndPullRequestsQueryResult->nextPageUrl !== null) {
-            $issuesAndPullRequestsQueryResult = $this->getIssuesAndPullRequestsQueryResult(
-                $issuesAndPullRequestsQueryResult->nextPageUrl,
-            );
-
-            yield $issuesAndPullRequestsQueryResult;
+            yield $collectedIssues;
         }
     }
 
     /**
-     * @param array<mixed> $issueResponse
+     * @return Generator<int, CollectedPullRequestCollection>
+     *
+     * @throws GitHubQueryFailed
+     */
+    public function pullRequests(): Generator
+    {
+        foreach ($this->searchPages('is:pr') as $itemResponses) {
+            $collectedPullRequests = new CollectedPullRequestCollection();
+
+            foreach ($itemResponses as $itemResponse) {
+                $collectedPullRequests->push($this->getCollectedPullRequest($itemResponse));
+            }
+
+            yield $collectedPullRequests;
+        }
+    }
+
+    /**
+     * @param array<mixed> $itemResponse
      *
      * @return list<string>
      */
-    private function getAssigneeLogins(array $issueResponse): array
+    private function getAssigneeLogins(array $itemResponse): array
     {
         $assigneeLogins = [];
 
-        foreach (Assert::isList($issueResponse['assignees']) as $assigneeResponse) {
+        foreach (Assert::isList($itemResponse['assignees']) as $assigneeResponse) {
             $assigneeLogins[] = Assert::string(Assert::isArray($assigneeResponse)['login']);
         }
 
@@ -73,97 +92,149 @@ readonly class IssuesAndPullRequestsQuery
     }
 
     /**
-     * @param array<mixed> $issueResponse
+     * @param array<mixed> $itemResponse
      */
-    private function getCollectedIssue(array $issueResponse): CollectedIssue
+    private function getCollectedIssue(array $itemResponse): CollectedIssue
     {
         return new CollectedIssue(
-            Assert::string($issueResponse['node_id']),
-            $this->getRepositoryName($issueResponse),
-            Assert::integer($issueResponse['number']),
-            Assert::string($issueResponse['title']),
-            Assert::string($issueResponse['html_url']),
-            $this->getAuthorLogin($issueResponse['user']),
-            CarbonImmutable::parse(Assert::string($issueResponse['created_at'])),
-            $this->getAssigneeLogins($issueResponse),
+            Assert::string($itemResponse['node_id']),
+            $this->getRepositoryName($itemResponse),
+            Assert::integer($itemResponse['number']),
+            Assert::string($itemResponse['title']),
+            Assert::string($itemResponse['html_url']),
+            $this->getAuthorLogin($itemResponse['user']),
+            CarbonImmutable::parse(Assert::string($itemResponse['created_at'])),
+            $this->getAssigneeLogins($itemResponse),
         );
     }
 
     /**
-     * @param array<mixed> $issueResponse
+     * @param array<mixed> $itemResponse
      */
-    private function getCollectedPullRequest(array $issueResponse): CollectedPullRequest
+    private function getCollectedPullRequest(array $itemResponse): CollectedPullRequest
     {
         return new CollectedPullRequest(
-            Assert::string($issueResponse['node_id']),
-            $this->getRepositoryName($issueResponse),
-            Assert::integer($issueResponse['number']),
-            Assert::string($issueResponse['title']),
-            Assert::string($issueResponse['html_url']),
-            $this->getAuthorLogin($issueResponse['user']),
-            Assert::boolean($issueResponse['draft']),
-            CarbonImmutable::parse(Assert::string($issueResponse['created_at'])),
-            $this->getAssigneeLogins($issueResponse),
+            Assert::string($itemResponse['node_id']),
+            $this->getRepositoryName($itemResponse),
+            Assert::integer($itemResponse['number']),
+            Assert::string($itemResponse['title']),
+            Assert::string($itemResponse['html_url']),
+            $this->getAuthorLogin($itemResponse['user']),
+            Assert::boolean($itemResponse['draft']),
+            CarbonImmutable::parse(Assert::string($itemResponse['created_at'])),
+            $this->getAssigneeLogins($itemResponse),
         );
     }
 
     /**
-     * @throws GitHubQueryFailed
+     * @param list<array<mixed>> $itemResponses
+     *
+     * @return list<string>
      */
-    private function getIssuesAndPullRequestsQueryResult(?string $pageUrl): IssuesAndPullRequestsQueryResult
+    private function getItemIdsCreatedAt(array $itemResponses, string $createdAt): array
     {
-        $response = $this->gitHubClient->get($this->getPageUrl($pageUrl));
-        $collectedIssues = new CollectedIssueCollection();
-        $collectedPullRequests = new CollectedPullRequestCollection();
+        $itemIds = [];
 
-        foreach (Assert::isList($response->json()) as $issueResponse) {
-            Assert::isArray($issueResponse);
-
-            if (array_key_exists('pull_request', $issueResponse)) {
-                $collectedPullRequests->push($this->getCollectedPullRequest($issueResponse));
-            } else {
-                $collectedIssues->push($this->getCollectedIssue($issueResponse));
+        foreach ($itemResponses as $itemResponse) {
+            if ($itemResponse['created_at'] === $createdAt) {
+                $itemIds[] = Assert::string($itemResponse['node_id']);
             }
         }
 
-        return new IssuesAndPullRequestsQueryResult(
-            $collectedIssues,
-            $collectedPullRequests,
-            $this->getNextPageUrl($response),
-        );
-    }
-
-    private function getNextPageUrl(Response $response): ?string
-    {
-        if (preg_match('/<([^>]+)>;\s*rel="next"/', $response->header('Link'), $matches) !== 1) {
-            return null;
-        }
-
-        return $matches[1];
-    }
-
-    private function getPageUrl(?string $pageUrl): string
-    {
-        if ($pageUrl !== null) {
-            return $pageUrl;
-        }
-
-        return sprintf(
-            'orgs/%s/issues?%s',
-            rawurlencode($this->organization),
-            http_build_query([
-                'filter' => 'all',
-                'state' => 'open',
-                'per_page' => 100,
-            ]),
-        );
+        return $itemIds;
     }
 
     /**
-     * @param array<mixed> $issueResponse
+     * @return list<array<mixed>>
+     *
+     * @throws GitHubQueryFailed
      */
-    private function getRepositoryName(array $issueResponse): string
+    private function getItemResponses(string $typeQualifier, ?string $createdFrom): array
     {
-        return Assert::string(Assert::isArray($issueResponse['repository'])['name']);
+        $response = $this->gitHubClient->get($this->getSearchUrl($typeQualifier, $createdFrom));
+        $searchResponse = Assert::isArray($response->json());
+
+        if (Assert::boolean($searchResponse['incomplete_results'])) {
+            throw new GitHubQueryFailed([], null);
+        }
+
+        $itemResponses = [];
+
+        foreach (Assert::isList($searchResponse['items']) as $itemResponse) {
+            $itemResponses[] = Assert::isArray($itemResponse);
+        }
+
+        return $itemResponses;
+    }
+
+    /**
+     * @param array<mixed> $itemResponse
+     */
+    private function getRepositoryName(array $itemResponse): string
+    {
+        return basename(Assert::string($itemResponse['repository_url']));
+    }
+
+    private function getSearchUrl(string $typeQualifier, ?string $createdFrom): string
+    {
+        $qualifiers = [sprintf('org:%s', $this->organization), $typeQualifier, 'is:open', 'archived:false'];
+
+        if ($createdFrom !== null) {
+            $qualifiers[] = sprintf('created:>=%s', $createdFrom);
+        }
+
+        return sprintf('search/issues?%s', http_build_query([
+            'q' => implode(' ', $qualifiers),
+            'sort' => 'created',
+            'order' => 'asc',
+            'per_page' => self::PAGE_SIZE,
+        ]));
+    }
+
+    /**
+     * @param list<array<mixed>> $itemResponses
+     * @param list<string> $seenItemIds
+     *
+     * @return list<array<mixed>>
+     */
+    private function getUnseenItemResponses(array $itemResponses, array $seenItemIds): array
+    {
+        $unseenItemResponses = [];
+
+        foreach ($itemResponses as $itemResponse) {
+            if (!in_array($itemResponse['node_id'], $seenItemIds, true)) {
+                $unseenItemResponses[] = $itemResponse;
+            }
+        }
+
+        return $unseenItemResponses;
+    }
+
+    /**
+     * @return Generator<int, list<array<mixed>>>
+     *
+     * @throws GitHubQueryFailed
+     */
+    private function searchPages(string $typeQualifier): Generator
+    {
+        $createdFrom = null;
+        $itemIdsSeenAtCreatedFrom = [];
+
+        do {
+            $itemResponses = $this->getItemResponses($typeQualifier, $createdFrom);
+
+            yield $this->getUnseenItemResponses($itemResponses, $itemIdsSeenAtCreatedFrom);
+
+            if (count($itemResponses) < self::PAGE_SIZE) {
+                return;
+            }
+
+            $lastCreatedAt = Assert::string($itemResponses[array_key_last($itemResponses)]['created_at']);
+            $itemIdsCreatedAtLast = $this->getItemIdsCreatedAt($itemResponses, $lastCreatedAt);
+            $itemIdsSeenAtCreatedFrom = $lastCreatedAt === $createdFrom
+                ? [...$itemIdsSeenAtCreatedFrom, ...$itemIdsCreatedAtLast]
+                : $itemIdsCreatedAtLast;
+            $createdFrom = $lastCreatedAt;
+        } while (true);
     }
 }
