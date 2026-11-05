@@ -9,62 +9,6 @@ use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteReport;
 use Maarheeze\Compass\Models\SiteReport;
 
-test('get key is the key of the site report', function (): void {
-    $siteReport = SiteReport::factory()->create(['key' => fake()->unique()->sha1()]);
-
-    $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
-        $this->app->make(HttpFactory::class),
-        fake()->unique()->sha1(),
-        sprintf('/%s', fake()->slug()),
-    );
-    $key = $compassClientSiteReportsCollector->getKey($siteReport);
-
-    expect($key)
-        ->toBe($siteReport->key);
-});
-
-test('get key is the key of the source for a site report without a key of its own', function (): void {
-    $sourceKey = fake()->sha1();
-
-    $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
-        $this->app->make(HttpFactory::class),
-        $sourceKey,
-        sprintf('/%s', fake()->slug()),
-    );
-    $key = $compassClientSiteReportsCollector->getKey(SiteReport::factory()->create(['key' => null]));
-
-    expect($key)
-        ->toBe($sourceKey);
-});
-
-test('get path is the path of the site report', function (): void {
-    $siteReport = SiteReport::factory()->create(['path' => sprintf('/%s', fake()->unique()->slug())]);
-
-    $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
-        $this->app->make(HttpFactory::class),
-        fake()->sha1(),
-        sprintf('/%s', fake()->unique()->slug()),
-    );
-    $path = $compassClientSiteReportsCollector->getPath($siteReport);
-
-    expect($path)
-        ->toBe($siteReport->path);
-});
-
-test('get path is the path of the source for a site report without a path of its own', function (): void {
-    $sourcePath = sprintf('/%s', fake()->slug());
-
-    $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
-        $this->app->make(HttpFactory::class),
-        fake()->sha1(),
-        $sourcePath,
-    );
-    $path = $compassClientSiteReportsCollector->getPath(SiteReport::factory()->create(['path' => null]));
-
-    expect($path)
-        ->toBe($sourcePath);
-});
-
 test('site report holds what the client reported', function (): void {
     $appDebug = fake()->boolean();
     $appEnv = fake()->word();

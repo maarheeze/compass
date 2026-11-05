@@ -47,17 +47,19 @@
 
     <dt class="text-foreground-muted">{{ __('compass::client.path') }}</dt>
     <dd class="font-mono text-foreground">
-        {{ $path }}
         @if ($siteReport->path === null)
             <span class="font-sans text-foreground-muted">{{ __('compass::client.default') }}</span>
+        @else
+            {{ $siteReport->path }}
         @endif
     </dd>
 
     <dt class="text-foreground-muted">{{ __('compass::client.key') }}</dt>
     <dd class="break-all font-mono text-foreground">
-        {{ $key }}
         @if ($siteReport->key === null)
             <span class="font-sans text-foreground-muted">{{ __('compass::client.default') }}</span>
+        @else
+            {{ $siteReport->key }}
         @endif
     </dd>
 </dl>

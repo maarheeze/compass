@@ -9,10 +9,6 @@ use Maarheeze\Compass\Models\SiteReport;
 
 interface SiteReportsCollector
 {
-    public function getKey(SiteReport $siteReport): string;
-
-    public function getPath(SiteReport $siteReport): string;
-
     /**
      * @throws CollectingFailed
      */

@@ -12,6 +12,7 @@ use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
+use Maarheeze\Compass\Models\SiteReport;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 
@@ -106,6 +107,15 @@ test('show contains the latest check of an endpoint path no longer reported as i
             return $viewInactiveSiteEndpointChecks->sole()->is($inactiveSiteEndpointCheck);
         },
     );
+});
+
+test('show renders a site report whose source is not configured', function (): void {
+    $siteReport = SiteReport::factory()->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::FORGE_SITE, $siteReport->site));
+
+    $response->assertOk();
 });
 
 test('delete deletes a missing site', function (): void {

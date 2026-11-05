@@ -19,16 +19,6 @@ readonly class CompassClientSiteReportsCollector implements SiteReportsCollector
     ) {
     }
 
-    public function getKey(SiteReport $siteReport): string
-    {
-        return new ClientKey($this->key)->forSiteReport($siteReport);
-    }
-
-    public function getPath(SiteReport $siteReport): string
-    {
-        return new ClientUrlFactory($this->path)->path($siteReport);
-    }
-
     /**
      * @throws CollectingFailed
      */
