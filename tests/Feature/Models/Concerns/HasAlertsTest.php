@@ -52,3 +52,32 @@ test('deleting a subject keeps the alerts of another subject', function (Model $
         return SiteReport::factory()->create();
     },
 ]);
+
+test('alerts including children keeps an alert of the subject', function (): void {
+    $repository = Repository::factory()->create();
+    $repositoryAlert = Alert::factory()
+        ->repositoryMissing()
+        ->for($repository, 'subject')
+        ->create();
+
+    $alertsIncludingChildren = $repository
+        ->alertsIncludingChildren()
+        ->get();
+
+    expect($alertsIncludingChildren->sole()->is($repositoryAlert))
+        ->toBeTrue();
+});
+
+test('alerts including children leaves out the alerts of another subject', function (): void {
+    Alert::factory()
+        ->repositoryMissing()
+        ->create();
+
+    $alertsIncludingChildren = Repository::factory()
+        ->create()
+        ->alertsIncludingChildren()
+        ->get();
+
+    expect($alertsIncludingChildren)
+        ->toBeEmpty();
+});

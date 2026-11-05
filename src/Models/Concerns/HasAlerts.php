@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Models\Concerns;
 
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Maarheeze\Compass\Models\Alert;
+use Maarheeze\Compass\Models\Builders\AlertBuilder;
 
 trait HasAlerts
 {
@@ -22,5 +23,10 @@ trait HasAlerts
     public function alerts(): MorphMany
     {
         return $this->morphMany(Alert::class, 'subject');
+    }
+
+    public function alertsIncludingChildren(): AlertBuilder
+    {
+        return Alert::query()->whereMorphedTo('subject', $this);
     }
 }

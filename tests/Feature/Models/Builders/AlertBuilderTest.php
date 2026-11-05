@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Models\Alert;
-use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteReport;
@@ -97,49 +96,6 @@ test('of site leaves out the alerts of another site, its reports and its endpoin
         ->get();
 
     expect($siteAlerts)
-        ->toBeEmpty();
-});
-
-test('of subject keeps an alert of a report of a site subject', function (): void {
-    $siteReport = SiteReport::factory()->create();
-    $siteReportAlert = Alert::factory()
-        ->siteDebugEnabled()
-        ->for($siteReport, 'subject')
-        ->create();
-
-    $subjectAlerts = Alert::query()
-        ->ofSubject($siteReport->site)
-        ->get();
-
-    expect($subjectAlerts->sole()->is($siteReportAlert))
-        ->toBeTrue();
-});
-
-test('of subject keeps an alert of a repository subject', function (): void {
-    $repository = Repository::factory()->create();
-    $repositoryAlert = Alert::factory()
-        ->repositoryMissing()
-        ->for($repository, 'subject')
-        ->create();
-
-    $subjectAlerts = Alert::query()
-        ->ofSubject($repository)
-        ->get();
-
-    expect($subjectAlerts->sole()->is($repositoryAlert))
-        ->toBeTrue();
-});
-
-test('of subject leaves out the alerts of another subject', function (): void {
-    Alert::factory()
-        ->repositoryMissing()
-        ->create();
-
-    $subjectAlerts = Alert::query()
-        ->ofSubject(Repository::factory()->create())
-        ->get();
-
-    expect($subjectAlerts)
         ->toBeEmpty();
 });
 

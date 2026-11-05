@@ -18,6 +18,7 @@ use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
 use Maarheeze\Compass\Collections\SiteReportCollection;
 use Maarheeze\Compass\Collector\Sites\DeploymentStatus;
 use Maarheeze\Compass\Database\Factories\SiteFactory;
+use Maarheeze\Compass\Models\Builders\AlertBuilder;
 use Maarheeze\Compass\Models\Builders\SiteBuilder;
 use Maarheeze\Compass\Models\Concerns\HasAlerts;
 use Maarheeze\Compass\Models\Concerns\HasMissingState;
@@ -120,6 +121,11 @@ class Site extends Model implements AlertSubject
     public function repository(): BelongsTo
     {
         return $this->belongsTo(Repository::class, 'repository_url', 'url');
+    }
+
+    public function alertsIncludingChildren(): AlertBuilder
+    {
+        return Alert::query()->ofSite($this);
     }
 
     public function displayName(): string

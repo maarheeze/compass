@@ -7,6 +7,7 @@ namespace Maarheeze\Compass\Alerts;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Maarheeze\Compass\Models\Alert;
+use Maarheeze\Compass\Models\Builders\AlertBuilder;
 
 interface AlertSubject
 {
@@ -14,6 +15,8 @@ interface AlertSubject
      * @return MorphMany<Alert, covariant Model>
      */
     public function alerts(): MorphMany;
+
+    public function alertsIncludingChildren(): AlertBuilder;
 
     public function displayName(): string;
 }
