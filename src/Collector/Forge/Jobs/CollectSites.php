@@ -14,6 +14,7 @@ use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Collector\Forge\SiteSynchronizer;
 use Maarheeze\Compass\Collector\Sites\SitesCollectorManager;
+use Maarheeze\Compass\Collector\SourceConfigs;
 use Maarheeze\Uuid\Uuid;
 
 class CollectSites implements ShouldQueue
@@ -36,20 +37,22 @@ class CollectSites implements ShouldQueue
         Dispatcher $events,
         SitesCollectorManager $sitesCollectorManager,
         SiteSynchronizer $siteSynchronizer,
+        SourceConfigs $sourceConfigs,
     ): void {
         $sitesCollector = $sitesCollectorManager->collector($this->sourceKey);
+        $sourceConfig = $sourceConfigs->get($this->sourceKey);
 
         $collectorLogger->info('Sites collector started');
 
         foreach ($sitesCollector->sites() as $collectedSites) {
-            $siteSynchronizer->storeSites($collectedSites, $this->runId);
+            $siteSynchronizer->storeSites($collectedSites, $sourceConfig, $this->runId);
 
             $collectorLogger->debug('Sites page collected', [
                 'site_count' => $collectedSites->count(),
             ]);
         }
 
-        $siteSynchronizer->markUncollectedMissing($this->runId);
+        $siteSynchronizer->markUncollectedMissing($this->sourceKey, $this->runId);
 
         $events->dispatch(new SitesCollected());
 

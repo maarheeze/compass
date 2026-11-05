@@ -13,7 +13,6 @@ readonly class DeploymentStateClassifier
 {
     public function __construct(
         private ClockInterface $clock,
-        private int $autoDeployGraceMinutes,
     ) {
     }
 
@@ -41,12 +40,12 @@ readonly class DeploymentStateClassifier
             return DeploymentState::BEHIND;
         }
 
-        return $this->classifyAutoDeployment($repository);
+        return $this->classifyAutoDeployment($site, $repository);
     }
 
-    private function classifyAutoDeployment(Repository $repository): DeploymentState
+    private function classifyAutoDeployment(Site $site, Repository $repository): DeploymentState
     {
-        $graceEndsAt = $repository->last_commit_committed_at->addMinutes($this->autoDeployGraceMinutes);
+        $graceEndsAt = $repository->last_commit_committed_at->addMinutes($site->auto_deploy_grace_minutes);
 
         if (CarbonImmutable::instance($this->clock->now())->isBefore($graceEndsAt)) {
             return DeploymentState::DEPLOYING;

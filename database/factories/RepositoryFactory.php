@@ -25,6 +25,7 @@ class RepositoryFactory extends Factory
     public function definition(): array
     {
         return [
+            'source' => fake()->slug(),
             'github_id' => fake()->unique()->sha1(),
             'name' => fake()->unique()->slug(),
             'url' => fake()->url(),

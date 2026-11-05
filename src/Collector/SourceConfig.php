@@ -24,6 +24,13 @@ readonly class SourceConfig
         return $this->setting('driver');
     }
 
+    public function integerSetting(string $settingName): int
+    {
+        Assert::keyExists($this->settings, $settingName);
+
+        return (int) Assert::integerish($this->settings[$settingName]);
+    }
+
     /**
      * @return array<string, ScheduleFrequency>
      */

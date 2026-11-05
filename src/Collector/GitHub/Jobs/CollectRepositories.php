@@ -47,6 +47,7 @@ class CollectRepositories implements ShouldQueue
         foreach ($repositoriesCollector->repositories() as $collectedRepositories) {
             $repositoriesWithChangedPackageJson = $repositorySynchronizer->storeRepositories(
                 $collectedRepositories,
+                $this->sourceKey,
                 $this->runId,
             );
 
@@ -59,7 +60,7 @@ class CollectRepositories implements ShouldQueue
             ]);
         }
 
-        $repositorySynchronizer->markUncollectedMissing($this->runId);
+        $repositorySynchronizer->markUncollectedMissing($this->sourceKey, $this->runId);
 
         $events->dispatch(new RepositoriesCollected());
 

@@ -6,6 +6,8 @@ use Maarheeze\Compass\Collector\CollectorType;
 use Maarheeze\Compass\Collector\ScheduleFrequency;
 use Maarheeze\Compass\Collector\SourceConfig;
 
+use function sprintf;
+
 test('driver is the driver the source names', function (): void {
     $driverName = fake()->slug();
     $sourceConfig = new SourceConfig(fake()->slug(), ['driver' => $driverName]);
@@ -48,6 +50,57 @@ test('setting refuses a setting that is unset, empty or not a string', function 
     'not a string' => [
         function (): int {
             return fake()->randomNumber();
+        },
+    ],
+]);
+
+test('integer setting is the setting of the source under its name as an integer', function (): void {
+    $settingName = fake()->word();
+    $settingValue = fake()->randomNumber();
+    $sourceConfig = new SourceConfig(fake()->slug(), [$settingName => $settingValue]);
+
+    $integerSetting = $sourceConfig->integerSetting($settingName);
+
+    expect($integerSetting)
+        ->toBe($settingValue);
+});
+
+test('integer setting reads a whole number given as a string, as env gives it', function (): void {
+    $settingName = fake()->word();
+    $settingValue = fake()->randomNumber();
+    $sourceConfig = new SourceConfig(fake()->slug(), [$settingName => sprintf('%d', $settingValue)]);
+
+    $integerSetting = $sourceConfig->integerSetting($settingName);
+
+    expect($integerSetting)
+        ->toBe($settingValue);
+});
+
+test('integer setting refuses a setting the source does not have', function (): void {
+    $sourceConfig = new SourceConfig(fake()->slug(), []);
+
+    $this->expectException(InvalidArgumentException::class);
+
+    $sourceConfig->integerSetting(fake()->word());
+});
+
+test('integer setting refuses a setting that is unset or not a whole number', function (mixed $settingValue): void {
+    $settingName = fake()->word();
+    $sourceConfig = new SourceConfig(fake()->slug(), [$settingName => $settingValue]);
+
+    $this->expectException(InvalidArgumentException::class);
+
+    $sourceConfig->integerSetting($settingName);
+})->with([
+    'unset' => [null],
+    'not a number' => [
+        function (): string {
+            return fake()->word();
+        },
+    ],
+    'a fraction' => [
+        function (): string {
+            return sprintf('%d.5', fake()->randomNumber());
         },
     ],
 ]);

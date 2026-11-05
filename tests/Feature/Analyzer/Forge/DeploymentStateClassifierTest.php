@@ -28,7 +28,6 @@ test('classify is behind when the deployed commit is not the last commit of the 
 
 test('classify is deploying when auto-deploy is still within its grace period for the last commit', function (): void {
     $autoDeployGraceMinutes = fake()->numberBetween(1, 60);
-    $this->setConfiguration('compass.forge.auto_deploy_grace_minutes', $autoDeployGraceMinutes);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $repository = Repository::factory()->create([
@@ -40,6 +39,7 @@ test('classify is deploying when auto-deploy is still within its grace period fo
         'repository_branch' => $repository->default_branch,
         'deployed_commit_hash' => fake()->unique()->sha1(),
         'auto_deploy' => true,
+        'auto_deploy_grace_minutes' => $autoDeployGraceMinutes,
     ]);
 
     $deploymentStateClassifier = $this->app->make(DeploymentStateClassifier::class);
@@ -51,7 +51,6 @@ test('classify is deploying when auto-deploy is still within its grace period fo
 
 test('classify is deployment overdue when auto-deploy has passed its grace period for the last commit', function (): void {
     $autoDeployGraceMinutes = fake()->numberBetween(1, 60);
-    $this->setConfiguration('compass.forge.auto_deploy_grace_minutes', $autoDeployGraceMinutes);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $repository = Repository::factory()->create([
@@ -63,6 +62,7 @@ test('classify is deployment overdue when auto-deploy has passed its grace perio
         'repository_branch' => $repository->default_branch,
         'deployed_commit_hash' => fake()->unique()->sha1(),
         'auto_deploy' => true,
+        'auto_deploy_grace_minutes' => $autoDeployGraceMinutes,
     ]);
 
     $deploymentStateClassifier = $this->app->make(DeploymentStateClassifier::class);

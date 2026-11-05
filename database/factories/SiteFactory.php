@@ -25,6 +25,7 @@ class SiteFactory extends Factory
     public function definition(): array
     {
         return [
+            'source' => fake()->slug(),
             'forge_id' => fake()->unique()->numerify('#######'),
             'name' => fake()->domainName(),
             'url' => fake()->url(),
@@ -32,6 +33,7 @@ class SiteFactory extends Factory
             'repository_url' => fake()->optional()->url(),
             'repository_branch' => fake()->optional()->word(),
             'auto_deploy' => fake()->optional()->boolean(),
+            'auto_deploy_grace_minutes' => fake()->numberBetween(1, 60),
             'server_name' => fake()->slug(),
             'server_ip_address' => fake()->optional()->ipv4(),
             'deployment_status' => fake()->optional()->randomElement(DeploymentStatus::cases()),

@@ -19,6 +19,7 @@ test('handle stores the sites of the page', function (): void {
             'driver' => BuiltInDriver::FORGE,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
+            'auto_deploy_grace_minutes' => fake()->numberBetween(1, 60),
         ],
     ]);
     $forgeId = fake()->numerify('#######');
@@ -75,6 +76,7 @@ test('handle stores the sites of the page', function (): void {
     $this->app->call([$collectSites, 'handle']);
 
     $this->assertDatabaseHas(Site::class, [
+        'source' => $sourceKey,
         'forge_id' => $forgeId,
         'run_id' => $runId,
     ]);
@@ -87,9 +89,10 @@ test('handle marks the sites of another run missing on the last page', function 
             'driver' => BuiltInDriver::FORGE,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
+            'auto_deploy_grace_minutes' => fake()->numberBetween(1, 60),
         ],
     ]);
-    $site = Site::factory()->create();
+    $site = Site::factory()->create(['source' => $sourceKey]);
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             'data' => [],
@@ -127,6 +130,7 @@ test('handle raises sites collected', function (): void {
             'driver' => BuiltInDriver::FORGE,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
+            'auto_deploy_grace_minutes' => fake()->numberBetween(1, 60),
         ],
     ]);
     $eventFake = new EventFake($this->app->make(Dispatcher::class));

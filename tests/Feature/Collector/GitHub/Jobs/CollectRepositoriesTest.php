@@ -63,6 +63,7 @@ test('handle stores the repositories of the page', function (): void {
     $this->app->call([$collectRepositories, 'handle']);
 
     $this->assertDatabaseHas(Repository::class, [
+        'source' => $sourceKey,
         'name' => $repositoryResponse['name'],
         'run_id' => $runId,
     ]);
@@ -77,7 +78,7 @@ test('handle marks the repositories of another run missing on the last page', fu
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create();
+    $repository = Repository::factory()->create(['source' => $sourceKey]);
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             'data' => [

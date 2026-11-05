@@ -20,7 +20,6 @@ test('handle observes an overdue deployment now', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $autoDeployGraceMinutes = fake()->numberBetween(1, 60);
-    $this->setConfiguration('compass.forge.auto_deploy_grace_minutes', $autoDeployGraceMinutes);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $repository = Repository::factory()->create([
@@ -32,6 +31,7 @@ test('handle observes an overdue deployment now', function (): void {
         'repository_branch' => $repository->default_branch,
         'deployed_commit_hash' => fake()->unique()->sha1(),
         'auto_deploy' => true,
+        'auto_deploy_grace_minutes' => $autoDeployGraceMinutes,
     ]);
 
     $evaluateOverdueDeployment = $this->app->make(EvaluateSiteDeploymentOverdue::class);

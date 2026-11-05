@@ -13,13 +13,15 @@ return new class extends Migration
         Schema::create('compass_sites', static function (Blueprint $table): void {
             $table->uuid('id')->primary();
 
-            $table->string('forge_id')->unique();
+            $table->string('source');
+            $table->string('forge_id');
             $table->string('name');
             $table->string('url');
             $table->string('php_version')->nullable();
             $table->string('repository_url')->nullable();
             $table->string('repository_branch')->nullable();
             $table->boolean('auto_deploy')->nullable();
+            $table->unsignedInteger('auto_deploy_grace_minutes');
             $table->string('server_name');
             $table->string('server_ip_address')->nullable();
             $table->string('deployment_status')->nullable();
@@ -32,6 +34,8 @@ return new class extends Migration
             $table->timestamp('missing_ignored_at')->nullable();
 
             $table->timestamps();
+
+            $table->unique(['source', 'forge_id']);
         });
     }
 };

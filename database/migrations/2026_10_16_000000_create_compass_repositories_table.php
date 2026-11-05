@@ -13,7 +13,8 @@ return new class extends Migration
         Schema::create('compass_repositories', static function (Blueprint $table): void {
             $table->uuid('id')->primary();
 
-            $table->string('github_id')->unique();
+            $table->string('source');
+            $table->string('github_id');
             $table->string('name');
             $table->string('url');
             $table->string('default_branch');
@@ -30,6 +31,8 @@ return new class extends Migration
             $table->timestamp('missing_ignored_at')->nullable();
 
             $table->timestamps();
+
+            $table->unique(['source', 'github_id']);
         });
     }
 };

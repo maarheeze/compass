@@ -42,6 +42,7 @@ use Maarheeze\Uuid\Uuid;
  * @property string $name
  * @property ?string $package_json_oid
  * @property Uuid $run_id
+ * @property string $source
  * @property CarbonImmutable $updated_at
  * @property string $url
  * @property RepositoryVisibility $visibility
@@ -90,6 +91,7 @@ class Repository extends Model implements AlertSubject
             'name',
             'package_json_oid',
             'run_id',
+            'source',
             'url',
             'visibility',
         ];

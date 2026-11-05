@@ -34,4 +34,9 @@ class SiteBuilder extends Builder
     {
         return $this->whereNot('run_id', $runId);
     }
+
+    public function ofSource(string $sourceKey): self
+    {
+        return $this->where('source', $sourceKey);
+    }
 }

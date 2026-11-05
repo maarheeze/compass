@@ -6,25 +6,32 @@ namespace Maarheeze\Compass\Collector\Forge;
 
 use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\CollectedSiteCollection;
+use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Uuid\Uuid;
 
 readonly class SiteSynchronizer
 {
-    public function markUncollectedMissing(Uuid $runId): void
+    public function markUncollectedMissing(string $sourceKey, Uuid $runId): void
     {
         Site::query()
+            ->ofSource($sourceKey)
             ->notReturnedByRun($runId)
             ->collected()
             ->update(['missing_at' => CarbonImmutable::now()]);
     }
 
-    public function storeSites(CollectedSiteCollection $collectedSites, Uuid $runId): void
-    {
+    public function storeSites(
+        CollectedSiteCollection $collectedSites,
+        SourceConfig $sourceConfig,
+        Uuid $runId,
+    ): void {
+        $autoDeployGraceMinutes = $sourceConfig->integerSetting('auto_deploy_grace_minutes');
         $siteValues = [];
 
         foreach ($collectedSites as $collectedSite) {
             $siteValues[] = [
+                'source' => $sourceConfig->key,
                 'forge_id' => $collectedSite->externalId,
                 'name' => $collectedSite->name,
                 'url' => $collectedSite->url,
@@ -32,6 +39,7 @@ readonly class SiteSynchronizer
                 'repository_url' => $collectedSite->repositoryUrl,
                 'repository_branch' => $collectedSite->repositoryBranch,
                 'auto_deploy' => $collectedSite->autoDeploy,
+                'auto_deploy_grace_minutes' => $autoDeployGraceMinutes,
                 'server_name' => $collectedSite->serverName,
                 'server_ip_address' => $collectedSite->serverIpAddress,
                 'deployment_status' => $collectedSite->deploymentStatus,
@@ -45,6 +53,6 @@ readonly class SiteSynchronizer
             ];
         }
 
-        Site::query()->upsert($siteValues, ['forge_id']);
+        Site::query()->upsert($siteValues, ['source', 'forge_id']);
     }
 }

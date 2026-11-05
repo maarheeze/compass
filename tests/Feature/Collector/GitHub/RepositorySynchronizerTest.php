@@ -13,12 +13,18 @@ use Maarheeze\Uuid\Uuid;
 
 test('store repositories creates a repository for a new collected repository', function (): void {
     $collectedRepository = CollectedRepositoryFactory::make();
+    $sourceKey = fake()->slug();
     $runId = Uuid::generate();
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositorySynchronizer->storeRepositories(new CollectedRepositoryCollection([$collectedRepository]), $runId);
+    $repositorySynchronizer->storeRepositories(
+        new CollectedRepositoryCollection([$collectedRepository]),
+        $sourceKey,
+        $runId,
+    );
 
     $this->assertDatabaseHas(Repository::class, [
+        'source' => $sourceKey,
         'github_id' => $collectedRepository->externalId,
         'name' => $collectedRepository->name,
         'url' => $collectedRepository->url,
@@ -41,6 +47,7 @@ test('store repositories updates the default branch of a known repository', func
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
     $repositorySynchronizer->storeRepositories(
         new CollectedRepositoryCollection([$collectedRepository]),
+        $repository->source,
         Uuid::generate(),
     );
 
@@ -57,6 +64,7 @@ test('store repositories updates the last commit sha of a known repository', fun
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
     $repositorySynchronizer->storeRepositories(
         new CollectedRepositoryCollection([$collectedRepository]),
+        $repository->source,
         Uuid::generate(),
     );
 
@@ -85,6 +93,7 @@ test('store repositories updates the name of a known repository', function (): v
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
     $repositorySynchronizer->storeRepositories(
         new CollectedRepositoryCollection([$collectedRepository]),
+        $repository->source,
         Uuid::generate(),
     );
 
@@ -104,6 +113,7 @@ test('store repositories clears the missing marks of a known repository', functi
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
     $repositorySynchronizer->storeRepositories(
         new CollectedRepositoryCollection([$collectedRepository]),
+        $repository->source,
         Uuid::generate(),
     );
 
@@ -111,6 +121,24 @@ test('store repositories clears the missing marks of a known repository', functi
         'id' => $repository->id,
         'missing_at' => null,
         'missing_ignored_at' => null,
+    ]);
+});
+
+test('store repositories creates a repository for a known external id of another source', function (): void {
+    $repository = Repository::factory()->create(['source' => fake()->unique()->slug()]);
+    $collectedRepository = CollectedRepositoryFactory::forRepository($repository);
+    $otherSourceKey = fake()->unique()->slug();
+
+    $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
+    $repositorySynchronizer->storeRepositories(
+        new CollectedRepositoryCollection([$collectedRepository]),
+        $otherSourceKey,
+        Uuid::generate(),
+    );
+
+    $this->assertDatabaseHas(Repository::class, [
+        'source' => $otherSourceKey,
+        'github_id' => $repository->github_id,
     ]);
 });
 
@@ -133,6 +161,7 @@ test('store repositories returns a known repository whose package json version c
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
     $repositoriesWithChangedPackageJson = $repositorySynchronizer->storeRepositories(
         new CollectedRepositoryCollection([$collectedRepository]),
+        $repository->source,
         Uuid::generate(),
     );
 
@@ -146,6 +175,7 @@ test('store repositories returns a new repository with a package json', function
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
     $repositoriesWithChangedPackageJson = $repositorySynchronizer->storeRepositories(
         new CollectedRepositoryCollection([$collectedRepository]),
+        fake()->slug(),
         Uuid::generate(),
     );
 
@@ -159,6 +189,7 @@ test('store repositories returns no repository whose package json version is unc
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
     $repositoriesWithChangedPackageJson = $repositorySynchronizer->storeRepositories(
         new CollectedRepositoryCollection([CollectedRepositoryFactory::forRepository($repository)]),
+        $repository->source,
         Uuid::generate(),
     );
 
@@ -170,7 +201,7 @@ test('mark uncollected missing marks a repository of another run missing', funct
     $repository = Repository::factory()->create();
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositorySynchronizer->markUncollectedMissing(Uuid::generate());
+    $repositorySynchronizer->markUncollectedMissing($repository->source, Uuid::generate());
 
     expect($repository->refresh()->missing_at)
         ->toBeInstanceOf(CarbonImmutable::class);
@@ -181,7 +212,7 @@ test('mark uncollected missing keeps the moment a repository went missing', func
     $repository = Repository::factory()->create(['missing_at' => $missingAt]);
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositorySynchronizer->markUncollectedMissing(Uuid::generate());
+    $repositorySynchronizer->markUncollectedMissing($repository->source, Uuid::generate());
 
     $this->assertDatabaseHas(Repository::class, [
         'id' => $repository->id,
@@ -194,7 +225,19 @@ test('mark uncollected missing leaves a repository of the run unmarked', functio
     $repository = Repository::factory()->create(['run_id' => $runId]);
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositorySynchronizer->markUncollectedMissing($runId);
+    $repositorySynchronizer->markUncollectedMissing($repository->source, $runId);
+
+    $this->assertDatabaseHas(Repository::class, [
+        'id' => $repository->id,
+        'missing_at' => null,
+    ]);
+});
+
+test('mark uncollected missing leaves a repository of another source unmarked', function (): void {
+    $repository = Repository::factory()->create(['source' => fake()->unique()->slug()]);
+
+    $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
+    $repositorySynchronizer->markUncollectedMissing(fake()->unique()->slug(), Uuid::generate());
 
     $this->assertDatabaseHas(Repository::class, [
         'id' => $repository->id,

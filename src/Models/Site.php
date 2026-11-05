@@ -28,6 +28,7 @@ use Maarheeze\Uuid\Uuid;
 
 /**
  * @property ?bool $auto_deploy
+ * @property int $auto_deploy_grace_minutes
  * @property CarbonImmutable $collected_at
  * @property CarbonImmutable $created_at
  * @property ?string $deployed_commit_hash
@@ -45,6 +46,7 @@ use Maarheeze\Uuid\Uuid;
  * @property Uuid $run_id
  * @property ?string $server_ip_address
  * @property string $server_name
+ * @property string $source
  * @property CarbonImmutable $updated_at
  * @property string $url
  *
@@ -75,6 +77,7 @@ class Site extends Model implements AlertSubject
     {
         return [
             'auto_deploy',
+            'auto_deploy_grace_minutes',
             'collected_at',
             'deployed_commit_hash',
             'deployment_ended_at',
@@ -90,6 +93,7 @@ class Site extends Model implements AlertSubject
             'run_id',
             'server_ip_address',
             'server_name',
+            'source',
             'url',
         ];
     }
@@ -140,6 +144,7 @@ class Site extends Model implements AlertSubject
     {
         return [
             'auto_deploy' => 'boolean',
+            'auto_deploy_grace_minutes' => 'integer',
             'collected_at' => 'immutable_datetime',
             'created_at' => 'immutable_datetime',
             'deployment_ended_at' => 'immutable_datetime',

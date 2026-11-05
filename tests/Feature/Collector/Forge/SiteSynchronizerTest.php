@@ -6,18 +6,26 @@ use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\CollectedSiteCollection;
 use Maarheeze\Compass\Collector\Forge\SiteSynchronizer;
 use Maarheeze\Compass\Collector\Sites\CollectedSite;
+use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Tests\Fixtures\CollectedSiteFactory;
 use Maarheeze\Uuid\Uuid;
 
 test('store sites creates a site for a new collected site', function (): void {
     $collectedSite = CollectedSiteFactory::make();
+    $sourceKey = fake()->slug();
+    $autoDeployGraceMinutes = fake()->numberBetween(1, 60);
     $runId = Uuid::generate();
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->storeSites(new CollectedSiteCollection([$collectedSite]), $runId);
+    $siteSynchronizer->storeSites(
+        new CollectedSiteCollection([$collectedSite]),
+        new SourceConfig($sourceKey, ['auto_deploy_grace_minutes' => $autoDeployGraceMinutes]),
+        $runId,
+    );
 
     $this->assertDatabaseHas(Site::class, [
+        'source' => $sourceKey,
         'forge_id' => $collectedSite->externalId,
         'name' => $collectedSite->name,
         'url' => $collectedSite->url,
@@ -27,6 +35,7 @@ test('store sites creates a site for a new collected site', function (): void {
         'auto_deploy' => $collectedSite->autoDeploy,
         'server_name' => $collectedSite->serverName,
         'server_ip_address' => $collectedSite->serverIpAddress,
+        'auto_deploy_grace_minutes' => $autoDeployGraceMinutes,
         'run_id' => $runId,
     ]);
 });
@@ -35,7 +44,11 @@ test('store sites stores the latest deployment of a collected site', function ()
     $collectedSite = CollectedSiteFactory::make();
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->storeSites(new CollectedSiteCollection([$collectedSite]), Uuid::generate());
+    $siteSynchronizer->storeSites(
+        new CollectedSiteCollection([$collectedSite]),
+        new SourceConfig(fake()->slug(), ['auto_deploy_grace_minutes' => fake()->numberBetween(1, 60)]),
+        Uuid::generate(),
+    );
 
     $this->assertDatabaseHas(Site::class, [
         'forge_id' => $collectedSite->externalId,
@@ -50,7 +63,11 @@ test('store sites stores no deployment for a collected site that was never deplo
     $collectedSite = CollectedSiteFactory::neverDeployed();
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->storeSites(new CollectedSiteCollection([$collectedSite]), Uuid::generate());
+    $siteSynchronizer->storeSites(
+        new CollectedSiteCollection([$collectedSite]),
+        new SourceConfig(fake()->slug(), ['auto_deploy_grace_minutes' => fake()->numberBetween(1, 60)]),
+        Uuid::generate(),
+    );
 
     $this->assertDatabaseHas(Site::class, [
         'forge_id' => $collectedSite->externalId,
@@ -78,7 +95,11 @@ test('store sites updates the name of a known site', function (): void {
     );
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->storeSites(new CollectedSiteCollection([$renamedCollectedSite]), Uuid::generate());
+    $siteSynchronizer->storeSites(
+        new CollectedSiteCollection([$renamedCollectedSite]),
+        new SourceConfig($site->source, ['auto_deploy_grace_minutes' => fake()->numberBetween(1, 60)]),
+        Uuid::generate(),
+    );
 
     $this->assertDatabaseHas(Site::class, [
         'id' => $site->id,
@@ -94,7 +115,11 @@ test('store sites clears the missing marks of a known site', function (): void {
     $collectedSite = CollectedSiteFactory::forSite($site);
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->storeSites(new CollectedSiteCollection([$collectedSite]), Uuid::generate());
+    $siteSynchronizer->storeSites(
+        new CollectedSiteCollection([$collectedSite]),
+        new SourceConfig($site->source, ['auto_deploy_grace_minutes' => fake()->numberBetween(1, 60)]),
+        Uuid::generate(),
+    );
 
     $this->assertDatabaseHas(Site::class, [
         'id' => $site->id,
@@ -103,11 +128,29 @@ test('store sites clears the missing marks of a known site', function (): void {
     ]);
 });
 
+test('store sites creates a site for a known external id of another source', function (): void {
+    $site = Site::factory()->create(['source' => fake()->unique()->slug()]);
+    $collectedSite = CollectedSiteFactory::forSite($site);
+    $otherSourceKey = fake()->unique()->slug();
+
+    $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
+    $siteSynchronizer->storeSites(
+        new CollectedSiteCollection([$collectedSite]),
+        new SourceConfig($otherSourceKey, ['auto_deploy_grace_minutes' => fake()->numberBetween(1, 60)]),
+        Uuid::generate(),
+    );
+
+    $this->assertDatabaseHas(Site::class, [
+        'source' => $otherSourceKey,
+        'forge_id' => $site->forge_id,
+    ]);
+});
+
 test('mark uncollected missing marks a site of another run missing', function (): void {
     $site = Site::factory()->create();
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->markUncollectedMissing(Uuid::generate());
+    $siteSynchronizer->markUncollectedMissing($site->source, Uuid::generate());
 
     expect($site->refresh()->missing_at)
         ->toBeInstanceOf(CarbonImmutable::class);
@@ -118,7 +161,7 @@ test('mark uncollected missing keeps the moment a site went missing', function (
     $site = Site::factory()->create(['missing_at' => $missingAt]);
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->markUncollectedMissing(Uuid::generate());
+    $siteSynchronizer->markUncollectedMissing($site->source, Uuid::generate());
 
     $this->assertDatabaseHas(Site::class, [
         'id' => $site->id,
@@ -131,7 +174,19 @@ test('mark uncollected missing leaves a site of the run unmarked', function (): 
     $site = Site::factory()->create(['run_id' => $runId]);
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
-    $siteSynchronizer->markUncollectedMissing($runId);
+    $siteSynchronizer->markUncollectedMissing($site->source, $runId);
+
+    $this->assertDatabaseHas(Site::class, [
+        'id' => $site->id,
+        'missing_at' => null,
+    ]);
+});
+
+test('mark uncollected missing leaves a site of another source unmarked', function (): void {
+    $site = Site::factory()->create(['source' => fake()->unique()->slug()]);
+
+    $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
+    $siteSynchronizer->markUncollectedMissing(fake()->unique()->slug(), Uuid::generate());
 
     $this->assertDatabaseHas(Site::class, [
         'id' => $site->id,
