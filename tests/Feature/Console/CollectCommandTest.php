@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Illuminate\Bus\PendingBatch;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Support\Testing\Fakes\BusFake;
-use Maarheeze\Compass\Collector\CollectorRegistry;
 use Maarheeze\Compass\Collector\CollectorType;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectIssues;
 use Maarheeze\Compass\Collector\Jobs\FinishRun;
@@ -29,17 +28,13 @@ test('handle starts a run of the collector of the source', function (): void {
     ]);
 });
 
-test('handle runs the job of the collector from the registry', function (): void {
+test('handle runs the job of the collector type', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
-    $collectorType = fake()->randomElement(CollectorType::cases());
-    $this->app
-        ->make(CollectorRegistry::class)
-        ->register($collectorType, CollectIssues::class);
 
     $pendingCommand = $this->artisan(CollectCommand::class, [
         'source' => fake()->slug(),
-        'collector' => $collectorType->value,
+        'collector' => CollectorType::ISSUES->value,
     ]);
     $pendingCommand->run();
 

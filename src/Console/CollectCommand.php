@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Console;
 
 use Illuminate\Console\Command;
-use Maarheeze\Compass\Collector\CollectorRegistry;
 use Maarheeze\Compass\Collector\CollectorType;
 use Maarheeze\Compass\Collector\RunRecorder;
 use Maarheeze\Uuid\Uuid;
@@ -16,12 +15,12 @@ class CollectCommand extends Command
 {
     public const string SIGNATURE = 'compass:collect';
 
-    public function handle(CollectorRegistry $collectorRegistry, RunRecorder $runRecorder): void
+    public function handle(RunRecorder $runRecorder): void
     {
         $runId = Uuid::generate();
         $sourceKey = Assert::string($this->argument('source'));
         $collectorType = CollectorType::from(Assert::string($this->argument('collector')));
-        $job = $collectorRegistry->job($collectorType, $runId, $sourceKey);
+        $job = $collectorType->job($runId, $sourceKey);
 
         $runRecorder->startCollector($runId, $sourceKey, $collectorType, $job);
     }
