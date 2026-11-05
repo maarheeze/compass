@@ -6,8 +6,8 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Support\Testing\Fakes\BusFake;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
-use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Alerts\Listeners\Composer\EvaluateComposerWarning;
 use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
@@ -40,12 +40,12 @@ test('handle observes the detected composer warning active now', function (): vo
     $busFake->assertDispatched(
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($now, $repository): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
-                return $conditionObserved->alertType === AlertType::COMPOSER_PROJECT_WITHOUT_LOCK
-                    && $conditionObserved->subject instanceof Repository
-                    && $conditionObserved->subject->is($repository)
-                    && $conditionObserved->condition === ConditionState::ACTIVE
-                    && $conditionObserved->observedAt->equalTo($now);
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($now, $repository): bool {
+                return $conditionObservation->alertType === AlertType::COMPOSER_PROJECT_WITHOUT_LOCK
+                    && $conditionObservation->subject instanceof Repository
+                    && $conditionObservation->subject->is($repository)
+                    && $conditionObservation->condition === ConditionState::ACTIVE
+                    && $conditionObservation->observedAt->equalTo($now);
             });
         },
     );
@@ -74,12 +74,12 @@ test('handle observes the composer warnings that are not detected resolved now',
     $busFake->assertDispatched(
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($alertType, $now, $repository): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($alertType, $now, $repository): bool {
-                return $conditionObserved->alertType === $alertType
-                    && $conditionObserved->subject instanceof Repository
-                    && $conditionObserved->subject->is($repository)
-                    && $conditionObserved->condition === ConditionState::RESOLVED
-                    && $conditionObserved->observedAt->equalTo($now);
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($alertType, $now, $repository): bool {
+                return $conditionObservation->alertType === $alertType
+                    && $conditionObservation->subject instanceof Repository
+                    && $conditionObservation->subject->is($repository)
+                    && $conditionObservation->condition === ConditionState::RESOLVED
+                    && $conditionObservation->observedAt->equalTo($now);
             });
         },
     );
@@ -105,12 +105,12 @@ test('handle observes every composer warning resolved now for a repository witho
     $busFake->assertDispatched(
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($alertType, $now, $repository): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($alertType, $now, $repository): bool {
-                return $conditionObserved->alertType === $alertType
-                    && $conditionObserved->subject instanceof Repository
-                    && $conditionObserved->subject->is($repository)
-                    && $conditionObserved->condition === ConditionState::RESOLVED
-                    && $conditionObserved->observedAt->equalTo($now);
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($alertType, $now, $repository): bool {
+                return $conditionObservation->alertType === $alertType
+                    && $conditionObservation->subject instanceof Repository
+                    && $conditionObservation->subject->is($repository)
+                    && $conditionObservation->condition === ConditionState::RESOLVED
+                    && $conditionObservation->observedAt->equalTo($now);
             });
         },
     );

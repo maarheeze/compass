@@ -8,10 +8,10 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
-use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
-use Maarheeze\Compass\Collections\ConditionObservedCollection;
+use Maarheeze\Compass\Collections\ConditionObservationCollection;
 use Maarheeze\Compass\Collector\Events\RepositoriesCollected;
 use Maarheeze\Compass\Collector\Events\RepositoryMissingIgnored;
 use Maarheeze\Compass\Collector\MissingState;
@@ -39,9 +39,9 @@ readonly class EvaluateRepositoryMissing implements ShouldQueue
         };
     }
 
-    private function conditionObserved(Repository $repository, CarbonImmutable $observedAt): ConditionObserved
+    private function conditionObservation(Repository $repository, CarbonImmutable $observedAt): ConditionObservation
     {
-        return new ConditionObserved(
+        return new ConditionObservation(
             AlertType::REPOSITORY_MISSING,
             $repository,
             $this->observedCondition($repository),
@@ -56,10 +56,10 @@ readonly class EvaluateRepositoryMissing implements ShouldQueue
             ->chunk(100);
 
         foreach ($repositoryChunks as $repositories) {
-            $conditionObservations = new ConditionObservedCollection();
+            $conditionObservations = new ConditionObservationCollection();
 
             foreach ($repositories as $repository) {
-                $conditionObservations->push($this->conditionObserved($repository, $observedAt));
+                $conditionObservations->push($this->conditionObservation($repository, $observedAt));
             }
 
             $this->dispatcher->dispatch(new HandleConditionObservations($conditionObservations));
@@ -70,8 +70,8 @@ readonly class EvaluateRepositoryMissing implements ShouldQueue
         RepositoryMissingIgnored $repositoryMissingIgnored,
         CarbonImmutable $observedAt,
     ): void {
-        $this->dispatcher->dispatch(new HandleConditionObservations(new ConditionObservedCollection([
-            $this->conditionObserved($repositoryMissingIgnored->repository, $observedAt),
+        $this->dispatcher->dispatch(new HandleConditionObservations(new ConditionObservationCollection([
+            $this->conditionObservation($repositoryMissingIgnored->repository, $observedAt),
         ])));
     }
 

@@ -6,8 +6,8 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Support\Testing\Fakes\BusFake;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
-use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteClientUnauthorized;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
@@ -29,11 +29,11 @@ test('handle observes unauthorized client now for a site that refused the key', 
     $busFake->assertDispatched(
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($now, $siteReport): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $siteReport): bool {
-                return $conditionObserved->alertType === AlertType::SITE_CLIENT_UNAUTHORIZED
-                    && $conditionObserved->subject === $siteReport
-                    && $conditionObserved->condition === ConditionState::ACTIVE
-                    && $conditionObserved->observedAt->equalTo($now);
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($now, $siteReport): bool {
+                return $conditionObservation->alertType === AlertType::SITE_CLIENT_UNAUTHORIZED
+                    && $conditionObservation->subject === $siteReport
+                    && $conditionObservation->condition === ConditionState::ACTIVE
+                    && $conditionObservation->observedAt->equalTo($now);
             });
         },
     );
@@ -52,11 +52,11 @@ test('handle observes unauthorized client resolved now for a site with any other
     $busFake->assertDispatched(
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($now, $siteReport): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $siteReport): bool {
-                return $conditionObserved->alertType === AlertType::SITE_CLIENT_UNAUTHORIZED
-                    && $conditionObserved->subject === $siteReport
-                    && $conditionObserved->condition === ConditionState::RESOLVED
-                    && $conditionObserved->observedAt->equalTo($now);
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($now, $siteReport): bool {
+                return $conditionObservation->alertType === AlertType::SITE_CLIENT_UNAUTHORIZED
+                    && $conditionObservation->subject === $siteReport
+                    && $conditionObservation->condition === ConditionState::RESOLVED
+                    && $conditionObservation->observedAt->equalTo($now);
             });
         },
     );

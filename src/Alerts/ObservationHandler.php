@@ -2,21 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Maarheeze\Compass\Alerts\Listeners;
+namespace Maarheeze\Compass\Alerts;
 
 use Illuminate\Contracts\Cache\LockProvider;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\ConnectionInterface;
-use Maarheeze\Compass\Alerts\AlertAction;
-use Maarheeze\Compass\Alerts\AlertActionClassifier;
-use Maarheeze\Compass\Alerts\AlertHistoryEntryType;
-use Maarheeze\Compass\Alerts\AlertStatus;
-use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\AlertOpened;
 use Maarheeze\Compass\Alerts\Events\AlertRecurred;
 use Maarheeze\Compass\Alerts\Events\AlertResolved;
-use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Uuid\UuidInterface;
 use Throwable;
@@ -37,24 +31,24 @@ readonly class ObservationHandler
     /**
      * @throws Throwable
      */
-    public function handle(ConditionObserved $conditionObserved): void
+    public function handle(ConditionObservation $conditionObservation): void
     {
         Assert::isInstanceOf($this->cache->getStore(), LockProvider::class)
-            ->lock($this->lockKey($conditionObserved), 60)
-            ->block(5, function () use ($conditionObserved): void {
-                $this->observe($conditionObserved);
+            ->lock($this->lockKey($conditionObservation), 60)
+            ->block(5, function () use ($conditionObservation): void {
+                $this->observe($conditionObservation);
             });
     }
 
-    private function lockKey(ConditionObserved $conditionObserved): string
+    private function lockKey(ConditionObservation $conditionObservation): string
     {
-        $alerts = $conditionObserved->subject->alerts();
+        $alerts = $conditionObservation->subject->alerts();
         $subjectId = $alerts->getParentKey();
         Assert::isInstanceOf($subjectId, UuidInterface::class);
 
         return sprintf(
             '%s:%s:%s',
-            $conditionObserved->alertType->value,
+            $conditionObservation->alertType->value,
             $alerts->getMorphClass(),
             $subjectId->toString(),
         );
@@ -63,47 +57,47 @@ readonly class ObservationHandler
     /**
      * @throws Throwable
      */
-    private function observe(ConditionObserved $conditionObserved): void
+    private function observe(ConditionObservation $conditionObservation): void
     {
-        $storedAlert = $conditionObserved->subject
+        $storedAlert = $conditionObservation->subject
             ->alerts()
             ->notDone()
-            ->ofType($conditionObserved->alertType)
+            ->ofType($conditionObservation->alertType)
             ->first();
-        $alertAction = $this->alertActionClassifier->classify($conditionObserved->condition, $storedAlert);
+        $alertAction = $this->alertActionClassifier->classify($conditionObservation->condition, $storedAlert);
 
         if ($alertAction === null) {
             return;
         }
 
-        $this->connection->transaction(function () use ($alertAction, $conditionObserved, $storedAlert): void {
+        $this->connection->transaction(function () use ($alertAction, $conditionObservation, $storedAlert): void {
             match ($alertAction) {
-                AlertAction::OPEN => $this->open($conditionObserved),
-                AlertAction::RECUR => $this->recur($conditionObserved, $storedAlert),
-                AlertAction::RESOLVE => $this->resolve($conditionObserved, $storedAlert),
+                AlertAction::OPEN => $this->open($conditionObservation),
+                AlertAction::RECUR => $this->recur($conditionObservation, $storedAlert),
+                AlertAction::RESOLVE => $this->resolve($conditionObservation, $storedAlert),
             };
         });
     }
 
-    private function open(ConditionObserved $conditionObserved): void
+    private function open(ConditionObservation $conditionObservation): void
     {
-        $alert = $conditionObserved->subject
+        $alert = $conditionObservation->subject
             ->alerts()
             ->create([
-                'type' => $conditionObserved->alertType,
+                'type' => $conditionObservation->alertType,
                 'condition' => ConditionState::ACTIVE,
                 'status' => AlertStatus::OPEN,
                 'is_muted' => false,
             ]);
         $alert->historyEntries()->create([
             'type' => AlertHistoryEntryType::OPENED,
-            'occurred_at' => $conditionObserved->observedAt,
+            'occurred_at' => $conditionObservation->observedAt,
         ]);
 
         $this->events->dispatch(new AlertOpened($alert));
     }
 
-    private function recur(ConditionObserved $conditionObserved, ?Alert $storedAlert): void
+    private function recur(ConditionObservation $conditionObservation, ?Alert $storedAlert): void
     {
         Assert::isInstanceOf($storedAlert, Alert::class);
         $storedAlert->update([
@@ -112,22 +106,22 @@ readonly class ObservationHandler
         ]);
         $storedAlert->historyEntries()->create([
             'type' => AlertHistoryEntryType::RECURRED,
-            'occurred_at' => $conditionObserved->observedAt,
+            'occurred_at' => $conditionObservation->observedAt,
         ]);
 
         $this->events->dispatch(new AlertRecurred($storedAlert));
     }
 
-    private function resolve(ConditionObserved $conditionObserved, ?Alert $storedAlert): void
+    private function resolve(ConditionObservation $conditionObservation, ?Alert $storedAlert): void
     {
         Assert::isInstanceOf($storedAlert, Alert::class);
         $storedAlert->update([
             'condition' => ConditionState::RESOLVED,
-            'resolved_at' => $conditionObserved->observedAt,
+            'resolved_at' => $conditionObservation->observedAt,
         ]);
         $storedAlert->historyEntries()->create([
             'type' => AlertHistoryEntryType::RESOLVED,
-            'occurred_at' => $conditionObserved->observedAt,
+            'occurred_at' => $conditionObservation->observedAt,
         ]);
 
         $this->events->dispatch(new AlertResolved($storedAlert));

@@ -8,8 +8,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\Attributes\Tries;
 use Illuminate\Queue\InteractsWithQueue;
-use Maarheeze\Compass\Alerts\Listeners\ObservationHandler;
-use Maarheeze\Compass\Collections\ConditionObservedCollection;
+use Maarheeze\Compass\Alerts\ObservationHandler;
+use Maarheeze\Compass\Collections\ConditionObservationCollection;
 use Throwable;
 
 #[Tries(5)]
@@ -19,7 +19,7 @@ class HandleConditionObservations implements ShouldQueue
     use Queueable;
 
     public function __construct(
-        public readonly ConditionObservedCollection $conditionObservations,
+        public readonly ConditionObservationCollection $conditionObservations,
     ) {
     }
 
@@ -28,8 +28,8 @@ class HandleConditionObservations implements ShouldQueue
      */
     public function handle(ObservationHandler $observationHandler): void
     {
-        foreach ($this->conditionObservations as $conditionObserved) {
-            $observationHandler->handle($conditionObserved);
+        foreach ($this->conditionObservations as $conditionObservation) {
+            $observationHandler->handle($conditionObservation);
         }
     }
 }

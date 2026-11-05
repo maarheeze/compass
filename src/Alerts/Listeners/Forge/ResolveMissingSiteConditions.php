@@ -9,10 +9,10 @@ use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
-use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
-use Maarheeze\Compass\Collections\ConditionObservedCollection;
+use Maarheeze\Compass\Collections\ConditionObservationCollection;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteReport;
@@ -43,7 +43,7 @@ readonly class ResolveMissingSiteConditions implements ShouldQueue
             ->chunk(100);
 
         foreach ($missingSiteChunks as $missingSites) {
-            $conditionObservations = new ConditionObservedCollection();
+            $conditionObservations = new ConditionObservationCollection();
 
             foreach ($missingSites as $missingSite) {
                 foreach ($missingSite->reports as $siteReport) {
@@ -61,15 +61,15 @@ readonly class ResolveMissingSiteConditions implements ShouldQueue
         AlertType $alertType,
         AlertSubject $subject,
         CarbonImmutable $observedAt,
-    ): ConditionObserved {
-        return new ConditionObserved($alertType, $subject, ConditionState::RESOLVED, $observedAt);
+    ): ConditionObservation {
+        return new ConditionObservation($alertType, $subject, ConditionState::RESOLVED, $observedAt);
     }
 
     private function resolvedSiteReportConditions(
         SiteReport $siteReport,
         CarbonImmutable $observedAt,
-    ): ConditionObservedCollection {
-        $conditionObservations = new ConditionObservedCollection();
+    ): ConditionObservationCollection {
+        $conditionObservations = new ConditionObservationCollection();
 
         foreach (self::CLIENT_ALERT_TYPES as $clientAlertType) {
             $conditionObservations->push($this->resolvedCondition($clientAlertType, $siteReport, $observedAt));

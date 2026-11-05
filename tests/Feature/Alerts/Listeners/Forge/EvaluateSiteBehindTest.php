@@ -6,8 +6,8 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Support\Testing\Fakes\BusFake;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
-use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteBehind;
 use Maarheeze\Compass\Collector\Events\RepositoriesCollected;
@@ -36,12 +36,12 @@ test('handle observes a site behind now', function (RepositoriesCollected|SitesC
     $busFake->assertDispatched(
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($now, $site): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
-                return $conditionObserved->alertType === AlertType::SITE_BEHIND
-                    && $conditionObserved->subject instanceof Site
-                    && $conditionObserved->subject->is($site)
-                    && $conditionObserved->condition === ConditionState::ACTIVE
-                    && $conditionObserved->observedAt->equalTo($now);
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($now, $site): bool {
+                return $conditionObservation->alertType === AlertType::SITE_BEHIND
+                    && $conditionObservation->subject instanceof Site
+                    && $conditionObservation->subject->is($site)
+                    && $conditionObservation->condition === ConditionState::ACTIVE
+                    && $conditionObservation->observedAt->equalTo($now);
             });
         },
     );
@@ -68,12 +68,12 @@ test('handle observes an up-to-date site no longer behind now', function (Reposi
     $busFake->assertDispatched(
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($now, $site): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
-                return $conditionObserved->alertType === AlertType::SITE_BEHIND
-                    && $conditionObserved->subject instanceof Site
-                    && $conditionObserved->subject->is($site)
-                    && $conditionObserved->condition === ConditionState::RESOLVED
-                    && $conditionObserved->observedAt->equalTo($now);
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($now, $site): bool {
+                return $conditionObservation->alertType === AlertType::SITE_BEHIND
+                    && $conditionObservation->subject instanceof Site
+                    && $conditionObservation->subject->is($site)
+                    && $conditionObservation->condition === ConditionState::RESOLVED
+                    && $conditionObservation->observedAt->equalTo($now);
             });
         },
     );

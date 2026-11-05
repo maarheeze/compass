@@ -6,8 +6,8 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Support\Testing\Fakes\BusFake;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
-use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Alerts\Listeners\Forge\ResolveMissingSiteConditions;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
@@ -32,12 +32,12 @@ test('handle observes a client condition of a report of a missing site resolved 
     $busFake->assertDispatched(
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($alertType, $now, $siteReport): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($alertType, $now, $siteReport): bool {
-                return $conditionObserved->alertType === $alertType
-                    && $conditionObserved->subject instanceof SiteReport
-                    && $conditionObserved->subject->is($siteReport)
-                    && $conditionObserved->condition === ConditionState::RESOLVED
-                    && $conditionObserved->observedAt->equalTo($now);
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($alertType, $now, $siteReport): bool {
+                return $conditionObservation->alertType === $alertType
+                    && $conditionObservation->subject instanceof SiteReport
+                    && $conditionObservation->subject->is($siteReport)
+                    && $conditionObservation->condition === ConditionState::RESOLVED
+                    && $conditionObservation->observedAt->equalTo($now);
             });
         },
     );
@@ -63,12 +63,12 @@ test('handle observes the endpoint of a missing site no longer down now', functi
     $busFake->assertDispatched(
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($now, $siteEndpoint): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $siteEndpoint): bool {
-                return $conditionObserved->alertType === AlertType::SITE_ENDPOINT_DOWN
-                    && $conditionObserved->subject instanceof SiteEndpoint
-                    && $conditionObserved->subject->is($siteEndpoint)
-                    && $conditionObserved->condition === ConditionState::RESOLVED
-                    && $conditionObserved->observedAt->equalTo($now);
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($now, $siteEndpoint): bool {
+                return $conditionObservation->alertType === AlertType::SITE_ENDPOINT_DOWN
+                    && $conditionObservation->subject instanceof SiteEndpoint
+                    && $conditionObservation->subject->is($siteEndpoint)
+                    && $conditionObservation->condition === ConditionState::RESOLVED
+                    && $conditionObservation->observedAt->equalTo($now);
             });
         },
     );

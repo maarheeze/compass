@@ -8,12 +8,12 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
-use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Analyzer\Dependabot\DependabotCoverageChecker;
 use Maarheeze\Compass\Analyzer\Dependabot\PackageEcosystem;
-use Maarheeze\Compass\Collections\ConditionObservedCollection;
+use Maarheeze\Compass\Collections\ConditionObservationCollection;
 use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
 use Maarheeze\Compass\Collector\Events\DependabotYmlChanged;
 use Maarheeze\Compass\Collector\Events\PackageJsonChanged;
@@ -34,10 +34,10 @@ readonly class EvaluateDependabotCoverage implements ShouldQueue
         $observedAt = CarbonImmutable::instance($this->clock->now());
         $repository = $changedEvent->repository->load(['composerJson', 'dependabotYml']);
 
-        $conditionObservations = new ConditionObservedCollection();
+        $conditionObservations = new ConditionObservationCollection();
 
         foreach (PackageEcosystem::cases() as $packageEcosystem) {
-            $conditionObservations->push(new ConditionObserved(
+            $conditionObservations->push(new ConditionObservation(
                 $this->alertType($packageEcosystem),
                 $repository,
                 $this->observedCondition($repository, $packageEcosystem),

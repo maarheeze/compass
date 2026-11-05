@@ -6,8 +6,8 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Support\Testing\Fakes\BusFake;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
-use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteDeploymentOverdue;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
@@ -40,12 +40,12 @@ test('handle observes an overdue deployment now', function (): void {
     $busFake->assertDispatched(
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($now, $site): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
-                return $conditionObserved->alertType === AlertType::SITE_DEPLOYMENT_OVERDUE
-                    && $conditionObserved->subject instanceof Site
-                    && $conditionObserved->subject->is($site)
-                    && $conditionObserved->condition === ConditionState::ACTIVE
-                    && $conditionObserved->observedAt->equalTo($now);
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($now, $site): bool {
+                return $conditionObservation->alertType === AlertType::SITE_DEPLOYMENT_OVERDUE
+                    && $conditionObservation->subject instanceof Site
+                    && $conditionObservation->subject->is($site)
+                    && $conditionObservation->condition === ConditionState::ACTIVE
+                    && $conditionObservation->observedAt->equalTo($now);
             });
         },
     );
@@ -69,12 +69,12 @@ test('handle observes an up-to-date site without an overdue deployment now', fun
     $busFake->assertDispatched(
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($now, $site): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
-                return $conditionObserved->alertType === AlertType::SITE_DEPLOYMENT_OVERDUE
-                    && $conditionObserved->subject instanceof Site
-                    && $conditionObserved->subject->is($site)
-                    && $conditionObserved->condition === ConditionState::RESOLVED
-                    && $conditionObserved->observedAt->equalTo($now);
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($now, $site): bool {
+                return $conditionObservation->alertType === AlertType::SITE_DEPLOYMENT_OVERDUE
+                    && $conditionObservation->subject instanceof Site
+                    && $conditionObservation->subject->is($site)
+                    && $conditionObservation->condition === ConditionState::RESOLVED
+                    && $conditionObservation->observedAt->equalTo($now);
             });
         },
     );

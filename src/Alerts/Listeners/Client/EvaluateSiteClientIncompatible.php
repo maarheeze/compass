@@ -8,10 +8,10 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
-use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
-use Maarheeze\Compass\Collections\ConditionObservedCollection;
+use Maarheeze\Compass\Collections\ConditionObservationCollection;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Models\SiteReport;
@@ -28,8 +28,8 @@ readonly class EvaluateSiteClientIncompatible implements ShouldQueue
     public function handle(SiteInspected $siteInspected): void
     {
         $siteReport = $siteInspected->siteReport;
-        $this->dispatcher->dispatch(new HandleConditionObservations(new ConditionObservedCollection([
-            new ConditionObserved(
+        $this->dispatcher->dispatch(new HandleConditionObservations(new ConditionObservationCollection([
+            new ConditionObservation(
                 AlertType::SITE_CLIENT_INCOMPATIBLE,
                 $siteReport,
                 $this->observedCondition($siteReport),

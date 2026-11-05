@@ -6,8 +6,8 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Support\Testing\Fakes\BusFake;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
-use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteMissing;
 use Maarheeze\Compass\Collector\Events\SiteMissingIgnored;
@@ -32,12 +32,12 @@ test('handle observes a missing, not ignored site missing now', function (): voi
     $busFake->assertDispatched(
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($now, $site): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
-                return $conditionObserved->alertType === AlertType::SITE_MISSING
-                    && $conditionObserved->subject instanceof Site
-                    && $conditionObserved->subject->is($site)
-                    && $conditionObserved->condition === ConditionState::ACTIVE
-                    && $conditionObserved->observedAt->equalTo($now);
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($now, $site): bool {
+                return $conditionObservation->alertType === AlertType::SITE_MISSING
+                    && $conditionObservation->subject instanceof Site
+                    && $conditionObservation->subject->is($site)
+                    && $conditionObservation->condition === ConditionState::ACTIVE
+                    && $conditionObservation->observedAt->equalTo($now);
             });
         },
     );
@@ -59,12 +59,12 @@ test('handle observes a collected site no longer missing now', function (): void
     $busFake->assertDispatched(
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($now, $site): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
-                return $conditionObserved->alertType === AlertType::SITE_MISSING
-                    && $conditionObserved->subject instanceof Site
-                    && $conditionObserved->subject->is($site)
-                    && $conditionObserved->condition === ConditionState::RESOLVED
-                    && $conditionObserved->observedAt->equalTo($now);
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($now, $site): bool {
+                return $conditionObservation->alertType === AlertType::SITE_MISSING
+                    && $conditionObservation->subject instanceof Site
+                    && $conditionObservation->subject->is($site)
+                    && $conditionObservation->condition === ConditionState::RESOLVED
+                    && $conditionObservation->observedAt->equalTo($now);
             });
         },
     );
@@ -84,10 +84,10 @@ test('handle observes a missing, ignored site no longer missing', function (): v
     $busFake->assertDispatched(
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($site): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($site): bool {
-                return $conditionObserved->subject instanceof Site
-                    && $conditionObserved->subject->is($site)
-                    && $conditionObserved->condition === ConditionState::RESOLVED;
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($site): bool {
+                return $conditionObservation->subject instanceof Site
+                    && $conditionObservation->subject->is($site)
+                    && $conditionObservation->condition === ConditionState::RESOLVED;
             });
         },
     );
@@ -109,11 +109,11 @@ test('handle observes an ignored site no longer missing now', function (): void 
     $busFake->assertDispatched(
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($now, $site): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $site): bool {
-                return $conditionObserved->alertType === AlertType::SITE_MISSING
-                    && $conditionObserved->subject === $site
-                    && $conditionObserved->condition === ConditionState::RESOLVED
-                    && $conditionObserved->observedAt->equalTo($now);
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($now, $site): bool {
+                return $conditionObservation->alertType === AlertType::SITE_MISSING
+                    && $conditionObservation->subject === $site
+                    && $conditionObservation->condition === ConditionState::RESOLVED
+                    && $conditionObservation->observedAt->equalTo($now);
             });
         },
     );

@@ -8,10 +8,10 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
-use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
-use Maarheeze\Compass\Collections\ConditionObservedCollection;
+use Maarheeze\Compass\Collections\ConditionObservationCollection;
 use Maarheeze\Compass\Collector\Events\SiteMissingIgnored;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Collector\MissingState;
@@ -39,9 +39,9 @@ readonly class EvaluateSiteMissing implements ShouldQueue
         };
     }
 
-    private function conditionObserved(Site $site, CarbonImmutable $observedAt): ConditionObserved
+    private function conditionObservation(Site $site, CarbonImmutable $observedAt): ConditionObservation
     {
-        return new ConditionObserved(
+        return new ConditionObservation(
             AlertType::SITE_MISSING,
             $site,
             $this->observedCondition($site),
@@ -56,10 +56,10 @@ readonly class EvaluateSiteMissing implements ShouldQueue
             ->chunk(100);
 
         foreach ($siteChunks as $sites) {
-            $conditionObservations = new ConditionObservedCollection();
+            $conditionObservations = new ConditionObservationCollection();
 
             foreach ($sites as $site) {
-                $conditionObservations->push($this->conditionObserved($site, $observedAt));
+                $conditionObservations->push($this->conditionObservation($site, $observedAt));
             }
 
             $this->dispatcher->dispatch(new HandleConditionObservations($conditionObservations));
@@ -68,8 +68,8 @@ readonly class EvaluateSiteMissing implements ShouldQueue
 
     private function handleSiteMissingIgnored(SiteMissingIgnored $siteMissingIgnored, CarbonImmutable $observedAt): void
     {
-        $this->dispatcher->dispatch(new HandleConditionObservations(new ConditionObservedCollection([
-            $this->conditionObserved($siteMissingIgnored->site, $observedAt),
+        $this->dispatcher->dispatch(new HandleConditionObservations(new ConditionObservationCollection([
+            $this->conditionObservation($siteMissingIgnored->site, $observedAt),
         ])));
     }
 

@@ -2,15 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Maarheeze\Compass\Alerts\Events;
+namespace Maarheeze\Compass\Alerts;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Queue\SerializesModels;
-use Maarheeze\Compass\Alerts\AlertSubject;
-use Maarheeze\Compass\Alerts\AlertType;
-use Maarheeze\Compass\Alerts\ConditionState;
 
-readonly class ConditionObserved
+readonly class ConditionObservation
 {
     use SerializesModels;
 

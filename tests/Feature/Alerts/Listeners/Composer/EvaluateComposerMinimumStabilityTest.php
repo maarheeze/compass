@@ -6,8 +6,8 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Support\Testing\Fakes\BusFake;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
-use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Alerts\Listeners\Composer\EvaluateComposerMinimumStability;
 use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
@@ -34,12 +34,12 @@ test('handle observes an unstable minimum stability active now', function (): vo
     $busFake->assertDispatched(
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($now, $repository): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
-                return $conditionObserved->alertType === AlertType::COMPOSER_MINIMUM_STABILITY_UNSTABLE
-                    && $conditionObserved->subject instanceof Repository
-                    && $conditionObserved->subject->is($repository)
-                    && $conditionObserved->condition === ConditionState::ACTIVE
-                    && $conditionObserved->observedAt->equalTo($now);
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($now, $repository): bool {
+                return $conditionObservation->alertType === AlertType::COMPOSER_MINIMUM_STABILITY_UNSTABLE
+                    && $conditionObservation->subject instanceof Repository
+                    && $conditionObservation->subject->is($repository)
+                    && $conditionObservation->condition === ConditionState::ACTIVE
+                    && $conditionObservation->observedAt->equalTo($now);
             });
         },
     );
@@ -58,12 +58,12 @@ test('handle observes a stable minimum stability resolved now', function (): voi
     $busFake->assertDispatched(
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($now, $repository): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObserved $conditionObserved) use ($now, $repository): bool {
-                return $conditionObserved->alertType === AlertType::COMPOSER_MINIMUM_STABILITY_UNSTABLE
-                    && $conditionObserved->subject instanceof Repository
-                    && $conditionObserved->subject->is($repository)
-                    && $conditionObserved->condition === ConditionState::RESOLVED
-                    && $conditionObserved->observedAt->equalTo($now);
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($now, $repository): bool {
+                return $conditionObservation->alertType === AlertType::COMPOSER_MINIMUM_STABILITY_UNSTABLE
+                    && $conditionObservation->subject instanceof Repository
+                    && $conditionObservation->subject->is($repository)
+                    && $conditionObservation->condition === ConditionState::RESOLVED
+                    && $conditionObservation->observedAt->equalTo($now);
             });
         },
     );

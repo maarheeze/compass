@@ -8,12 +8,12 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
-use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Analyzer\Composer\ComposerWarning;
 use Maarheeze\Compass\Analyzer\Composer\ComposerWarningDetector;
-use Maarheeze\Compass\Collections\ConditionObservedCollection;
+use Maarheeze\Compass\Collections\ConditionObservationCollection;
 use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
 use Maarheeze\Compass\Collector\Events\ComposerLockChanged;
 use Psr\Clock\ClockInterface;
@@ -33,10 +33,10 @@ readonly class EvaluateComposerWarning implements ShouldQueue
         $repository = $changedEvent->repository->load('composerJson');
         $detectedComposerWarning = $this->composerWarningDetector->detect($repository);
 
-        $conditionObservations = new ConditionObservedCollection();
+        $conditionObservations = new ConditionObservationCollection();
 
         foreach (ComposerWarning::cases() as $composerWarning) {
-            $conditionObservations->push(new ConditionObserved(
+            $conditionObservations->push(new ConditionObservation(
                 $this->alertType($composerWarning),
                 $repository,
                 $this->observedCondition($composerWarning, $detectedComposerWarning),

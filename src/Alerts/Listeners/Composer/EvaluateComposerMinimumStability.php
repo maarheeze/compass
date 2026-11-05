@@ -8,11 +8,11 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
-use Maarheeze\Compass\Alerts\Events\ConditionObserved;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Analyzer\Composer\MinimumStabilityChecker;
-use Maarheeze\Compass\Collections\ConditionObservedCollection;
+use Maarheeze\Compass\Collections\ConditionObservationCollection;
 use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
 use Maarheeze\Compass\Models\Repository;
 use Psr\Clock\ClockInterface;
@@ -30,8 +30,8 @@ readonly class EvaluateComposerMinimumStability implements ShouldQueue
     {
         $repository = $composerJsonChanged->repository->load('composerJson');
 
-        $this->dispatcher->dispatch(new HandleConditionObservations(new ConditionObservedCollection([
-            new ConditionObserved(
+        $this->dispatcher->dispatch(new HandleConditionObservations(new ConditionObservationCollection([
+            new ConditionObservation(
                 AlertType::COMPOSER_MINIMUM_STABILITY_UNSTABLE,
                 $repository,
                 $this->observedCondition($repository),
