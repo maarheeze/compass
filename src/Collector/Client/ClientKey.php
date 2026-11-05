@@ -15,7 +15,7 @@ readonly class ClientKey
 
     public function forSiteReport(SiteReport $siteReport): string
     {
-        if ($siteReport->key === null || $siteReport->key === '') {
+        if ($siteReport->key === null) {
             return $this->defaultKey;
         }
 

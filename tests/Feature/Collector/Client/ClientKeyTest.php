@@ -15,15 +15,12 @@ test('for site report is the key of the site report', function (): void {
         ->toBe($siteReport->key);
 });
 
-test('for site report is the default key for a site report without its own', function (?string $siteReportKey): void {
+test('for site report is the default key for a site report without its own', function (): void {
     $defaultKey = fake()->sha1();
 
     $clientKey = new ClientKey($defaultKey);
-    $keyForSiteReport = $clientKey->forSiteReport(SiteReport::factory()->make(['key' => $siteReportKey]));
+    $keyForSiteReport = $clientKey->forSiteReport(SiteReport::factory()->make(['key' => null]));
 
     expect($keyForSiteReport)
         ->toBe($defaultKey);
-})->with([
-    'without a key' => [null],
-    'with an empty key' => [''],
-]);
+});
