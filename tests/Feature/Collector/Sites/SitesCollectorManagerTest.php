@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
+use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\Forge\ForgeClient;
 use Maarheeze\Compass\Collector\Forge\ForgeSitesCollector;
 use Maarheeze\Compass\Collector\Sites\SitesCollectorManager;
@@ -16,7 +17,7 @@ test('collector of a forge source collects the sites of its organization with it
     $token = fake()->sha1();
     $this->setConfiguration('compass.sources', [
         $key => [
-            'driver' => 'forge',
+            'driver' => BuiltInDriver::FORGE,
             'organization' => $organization,
             'token' => $token,
         ],
@@ -77,7 +78,7 @@ test('collector refuses a source naming a driver that has no sites collector', f
     $key = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $key => [
-            'driver' => fake()->randomElement(['github', fake()->slug()]),
+            'driver' => fake()->randomElement([BuiltInDriver::GITHUB, fake()->slug()]),
         ],
     ]);
 
@@ -98,7 +99,7 @@ test('collector refuses a forge source with a setting it needs missing or unset'
     'without an organization' => [
         function (): array {
             return [
-                'driver' => 'forge',
+                'driver' => BuiltInDriver::FORGE,
                 'token' => fake()->sha1(),
             ];
         },
@@ -106,7 +107,7 @@ test('collector refuses a forge source with a setting it needs missing or unset'
     'with an unset token' => [
         function (): array {
             return [
-                'driver' => 'forge',
+                'driver' => BuiltInDriver::FORGE,
                 'organization' => fake()->slug(),
                 'token' => null,
             ];

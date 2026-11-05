@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
+use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\Client\CompassClientSiteReportsCollector;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollectorManager;
 use Maarheeze\Compass\Collector\SourceConfig;
@@ -16,7 +17,7 @@ test('collector of a compass client source asks a site for its report with its k
     $path = sprintf('/%s', fake()->slug());
     $this->setConfiguration('compass.sources', [
         $sourceKey => [
-            'driver' => 'compass-client',
+            'driver' => BuiltInDriver::COMPASS_CLIENT,
             'key' => $key,
             'path' => $path,
         ],
@@ -74,7 +75,7 @@ test('collector refuses a source naming a driver that has no site reports collec
     $sourceKey = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $sourceKey => [
-            'driver' => fake()->randomElement(['forge', fake()->slug()]),
+            'driver' => fake()->randomElement([BuiltInDriver::FORGE, fake()->slug()]),
         ],
     ]);
 
@@ -95,7 +96,7 @@ test('collector refuses a compass client source with a setting it needs missing 
     'without a path' => [
         function (): array {
             return [
-                'driver' => 'compass-client',
+                'driver' => BuiltInDriver::COMPASS_CLIENT,
                 'key' => fake()->sha1(),
             ];
         },
@@ -103,7 +104,7 @@ test('collector refuses a compass client source with a setting it needs missing 
     'with an unset key' => [
         function (): array {
             return [
-                'driver' => 'compass-client',
+                'driver' => BuiltInDriver::COMPASS_CLIENT,
                 'key' => null,
                 'path' => sprintf('/%s', fake()->slug()),
             ];

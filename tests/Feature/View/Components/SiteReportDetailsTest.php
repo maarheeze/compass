@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Models\SiteReport;
 use Maarheeze\Compass\View\Components\SiteReportDetails;
 
@@ -10,7 +11,7 @@ test('key is the key the source of the site report uses for the site', function 
     $siteReport = SiteReport::factory()->create(['key' => null]);
     $this->setConfiguration('compass.sources', [
         $siteReport->source => [
-            'driver' => 'compass-client',
+            'driver' => BuiltInDriver::COMPASS_CLIENT,
             'key' => $sourceKey,
             'path' => sprintf('/%s', fake()->slug()),
         ],
@@ -27,7 +28,7 @@ test('path is the path the source of the site report uses for the site', functio
     $siteReport = SiteReport::factory()->create(['path' => null]);
     $this->setConfiguration('compass.sources', [
         $siteReport->source => [
-            'driver' => 'compass-client',
+            'driver' => BuiltInDriver::COMPASS_CLIENT,
             'key' => fake()->sha1(),
             'path' => $sourcePath,
         ],
@@ -43,7 +44,7 @@ test('render renders the site report details view', function (): void {
     $siteReport = SiteReport::factory()->create();
     $this->setConfiguration('compass.sources', [
         $siteReport->source => [
-            'driver' => 'compass-client',
+            'driver' => BuiltInDriver::COMPASS_CLIENT,
             'key' => fake()->sha1(),
             'path' => sprintf('/%s', fake()->slug()),
         ],

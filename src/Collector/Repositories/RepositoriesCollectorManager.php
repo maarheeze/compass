@@ -6,39 +6,35 @@ namespace Maarheeze\Compass\Collector\Repositories;
 
 use Closure;
 use Illuminate\Contracts\Container\Container;
-use InvalidArgumentException;
+use Maarheeze\Compass\Collector\BuiltInDriver;
+use Maarheeze\Compass\Collector\CollectorDrivers;
 use Maarheeze\Compass\Collector\GitHub\GitHubClientFactory;
 use Maarheeze\Compass\Collector\GitHub\GitHubRepositoriesCollector;
 use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Collector\SourceConfigs;
 
-use function array_key_exists;
-
-class RepositoriesCollectorManager
+readonly class RepositoriesCollectorManager
 {
-    /** @var array<string, Closure(Container, SourceConfig): RepositoriesCollector> */
-    private array $customCreators = [];
+    /** @var CollectorDrivers<RepositoriesCollector> */
+    private CollectorDrivers $collectorDrivers;
 
     public function __construct(
-        private readonly Container $container,
-        private readonly GitHubClientFactory $gitHubClientFactory,
-        private readonly SourceConfigs $sourceConfigs,
+        Container $container,
+        private GitHubClientFactory $gitHubClientFactory,
+        private SourceConfigs $sourceConfigs,
     ) {
+        $this->collectorDrivers = new CollectorDrivers($container);
+        $this->collectorDrivers->extend(
+            BuiltInDriver::GITHUB,
+            function (Container $container, SourceConfig $sourceConfig): GitHubRepositoriesCollector {
+                return $this->createGitHubDriver($sourceConfig);
+            },
+        );
     }
 
     public function collector(string $sourceKey): RepositoriesCollector
     {
-        $sourceConfig = $this->sourceConfigs->get($sourceKey);
-        $driverName = $sourceConfig->driver();
-
-        if (array_key_exists($driverName, $this->customCreators)) {
-            return $this->customCreators[$driverName]($this->container, $sourceConfig);
-        }
-
-        return match ($driverName) {
-            'github' => $this->createGitHubDriver($sourceConfig),
-            default => throw new InvalidArgumentException('unknown repositories driver'),
-        };
+        return $this->collectorDrivers->collector($this->sourceConfigs->get($sourceKey));
     }
 
     /**
@@ -46,7 +42,7 @@ class RepositoriesCollectorManager
      */
     public function extend(string $driverName, Closure $creator): void
     {
-        $this->customCreators[$driverName] = $creator;
+        $this->collectorDrivers->extend($driverName, $creator);
     }
 
     private function createGitHubDriver(SourceConfig $sourceConfig): GitHubRepositoriesCollector

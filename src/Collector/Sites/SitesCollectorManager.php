@@ -6,39 +6,32 @@ namespace Maarheeze\Compass\Collector\Sites;
 
 use Closure;
 use Illuminate\Contracts\Container\Container;
-use InvalidArgumentException;
+use Maarheeze\Compass\Collector\BuiltInDriver;
+use Maarheeze\Compass\Collector\CollectorDrivers;
 use Maarheeze\Compass\Collector\Forge\ForgeClientFactory;
 use Maarheeze\Compass\Collector\Forge\ForgeSitesCollector;
 use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Collector\SourceConfigs;
 
-use function array_key_exists;
-
-class SitesCollectorManager
+readonly class SitesCollectorManager
 {
-    /** @var array<string, Closure(Container, SourceConfig): SitesCollector> */
-    private array $customCreators = [];
+    /** @var CollectorDrivers<SitesCollector> */
+    private CollectorDrivers $collectorDrivers;
 
     public function __construct(
-        private readonly Container $container,
-        private readonly ForgeClientFactory $forgeClientFactory,
-        private readonly SourceConfigs $sourceConfigs,
+        Container $container,
+        private ForgeClientFactory $forgeClientFactory,
+        private SourceConfigs $sourceConfigs,
     ) {
+        $this->collectorDrivers = new CollectorDrivers($container);
+        $this->collectorDrivers->extend(BuiltInDriver::FORGE, function (Container $container, SourceConfig $sourceConfig): ForgeSitesCollector {
+            return $this->createForgeDriver($sourceConfig);
+        });
     }
 
     public function collector(string $sourceKey): SitesCollector
     {
-        $sourceConfig = $this->sourceConfigs->get($sourceKey);
-        $driverName = $sourceConfig->driver();
-
-        if (array_key_exists($driverName, $this->customCreators)) {
-            return $this->customCreators[$driverName]($this->container, $sourceConfig);
-        }
-
-        return match ($driverName) {
-            'forge' => $this->createForgeDriver($sourceConfig),
-            default => throw new InvalidArgumentException('unknown sites driver'),
-        };
+        return $this->collectorDrivers->collector($this->sourceConfigs->get($sourceKey));
     }
 
     /**
@@ -46,7 +39,7 @@ class SitesCollectorManager
      */
     public function extend(string $driverName, Closure $creator): void
     {
-        $this->customCreators[$driverName] = $creator;
+        $this->collectorDrivers->extend($driverName, $creator);
     }
 
     private function createForgeDriver(SourceConfig $sourceConfig): ForgeSitesCollector

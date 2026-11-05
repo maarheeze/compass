@@ -6,6 +6,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Support\Testing\Fakes\EventFake;
+use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Collector\Forge\Jobs\CollectSites;
 use Maarheeze\Compass\Models\Site;
@@ -15,7 +16,7 @@ test('handle stores the sites of the page', function (): void {
     $sourceKey = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $sourceKey => [
-            'driver' => 'forge',
+            'driver' => BuiltInDriver::FORGE,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
@@ -83,7 +84,7 @@ test('handle marks the sites of another run missing on the last page', function 
     $sourceKey = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $sourceKey => [
-            'driver' => 'forge',
+            'driver' => BuiltInDriver::FORGE,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
@@ -123,7 +124,7 @@ test('handle raises sites collected', function (): void {
     $sourceKey = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $sourceKey => [
-            'driver' => 'forge',
+            'driver' => BuiltInDriver::FORGE,
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],

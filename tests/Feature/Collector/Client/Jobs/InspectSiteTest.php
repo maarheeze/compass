@@ -7,6 +7,7 @@ use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Support\Testing\Fakes\EventFake;
+use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\Client\Jobs\InspectSite;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
@@ -18,7 +19,7 @@ test('handle stores the report the collector of its source collected', function 
     $sourceKey = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $sourceKey => [
-            'driver' => 'compass-client',
+            'driver' => BuiltInDriver::COMPASS_CLIENT,
             'key' => fake()->sha1(),
             'path' => sprintf('/%s', fake()->slug()),
         ],
@@ -46,7 +47,7 @@ test('handle asks the site with the key of its report for its source', function 
     $sourceKey = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $sourceKey => [
-            'driver' => 'compass-client',
+            'driver' => BuiltInDriver::COMPASS_CLIENT,
             'key' => fake()->unique()->sha1(),
             'path' => sprintf('/%s', fake()->slug()),
         ],
@@ -70,7 +71,7 @@ test('handle fails when the site cannot be reached', function (): void {
     $sourceKey = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $sourceKey => [
-            'driver' => 'compass-client',
+            'driver' => BuiltInDriver::COMPASS_CLIENT,
             'key' => fake()->sha1(),
             'path' => sprintf('/%s', fake()->slug()),
         ],
@@ -87,7 +88,7 @@ test('handle leaves a missing site alone', function (): void {
     $sourceKey = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $sourceKey => [
-            'driver' => 'compass-client',
+            'driver' => BuiltInDriver::COMPASS_CLIENT,
             'key' => fake()->sha1(),
             'path' => sprintf('/%s', fake()->slug()),
         ],
@@ -106,7 +107,7 @@ test('handle adds the site to the log context', function (): void {
     $sourceKey = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $sourceKey => [
-            'driver' => 'compass-client',
+            'driver' => BuiltInDriver::COMPASS_CLIENT,
             'key' => fake()->sha1(),
             'path' => sprintf('/%s', fake()->slug()),
         ],
@@ -125,7 +126,7 @@ test('handle raises site inspected with the report of the site for its source', 
     $sourceKey = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $sourceKey => [
-            'driver' => 'compass-client',
+            'driver' => BuiltInDriver::COMPASS_CLIENT,
             'key' => fake()->sha1(),
             'path' => sprintf('/%s', fake()->slug()),
         ],
