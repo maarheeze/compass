@@ -22,6 +22,6 @@ class GenerateKeyCommand extends Command
     {
         $this
             ->setName(self::SIGNATURE)
-            ->setDescription('Generate the key Compass sends to the client on every site');
+            ->setDescription('Generate a key for a compass-client source or a site');
     }
 }
