@@ -10,7 +10,7 @@ use Illuminate\Http\Client\Factory as HttpFactory;
 use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\CollectorDrivers;
 use Maarheeze\Compass\Collector\GitHub\GitHubClient;
-use Maarheeze\Compass\Collector\GitHub\GitHubComposerFilesCollector;
+use Maarheeze\Compass\Collector\GitHub\GitHubRepositoryFilesCollector;
 use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Collector\SourceConfigs;
 
@@ -27,8 +27,8 @@ readonly class ComposerFilesCollectorManager
         $this->collectorDrivers = new CollectorDrivers($container);
         $this->collectorDrivers->extend(
             BuiltInDriver::GITHUB,
-            function (Container $container, SourceConfig $sourceConfig): GitHubComposerFilesCollector {
-                return new GitHubComposerFilesCollector(
+            function (Container $container, SourceConfig $sourceConfig): GitHubRepositoryFilesCollector {
+                return new GitHubRepositoryFilesCollector(
                     new GitHubClient($this->http, $sourceConfig->setting('token')),
                     $sourceConfig->setting('organization'),
                 );

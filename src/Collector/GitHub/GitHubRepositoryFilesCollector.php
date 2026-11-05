@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Collector\GitHub;
 
 use Maarheeze\Compass\Collector\CollectingFailed;
+use Maarheeze\Compass\Collector\Composer\ComposerFilesCollector;
 use Maarheeze\Compass\Collector\Dependabot\DependabotFilesCollector;
 
-readonly class GitHubDependabotFilesCollector implements DependabotFilesCollector
+readonly class GitHubRepositoryFilesCollector implements ComposerFilesCollector, DependabotFilesCollector
 {
     public function __construct(
         private GitHubClient $gitHubClient,

@@ -8,7 +8,7 @@ use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\Composer\ComposerFilesCollectorManager;
 use Maarheeze\Compass\Collector\GitHub\GitHubClient;
-use Maarheeze\Compass\Collector\GitHub\GitHubComposerFilesCollector;
+use Maarheeze\Compass\Collector\GitHub\GitHubRepositoryFilesCollector;
 use Maarheeze\Compass\Collector\SourceConfig;
 
 test('collector of a github source reads the files of its organization with its token', function (): void {
@@ -52,7 +52,7 @@ test('collector is the collector its extension makes from its config', function 
             'driver' => $driverName,
         ],
     ]);
-    $gitHubComposerFilesCollector = new GitHubComposerFilesCollector(
+    $gitHubRepositoryFilesCollector = new GitHubRepositoryFilesCollector(
         new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
         fake()->slug(),
     );
@@ -63,13 +63,13 @@ test('collector is the collector its extension makes from its config', function 
         static function (
             Container $container,
             SourceConfig $sourceConfig,
-        ) use ($gitHubComposerFilesCollector): GitHubComposerFilesCollector {
-            return $gitHubComposerFilesCollector;
+        ) use ($gitHubRepositoryFilesCollector): GitHubRepositoryFilesCollector {
+            return $gitHubRepositoryFilesCollector;
         },
     );
 
     expect($composerFilesCollectorManager->collector($key))
-        ->toBe($gitHubComposerFilesCollector);
+        ->toBe($gitHubRepositoryFilesCollector);
 });
 
 test('collector refuses a key no source is configured under', function (): void {
