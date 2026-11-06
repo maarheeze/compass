@@ -17,7 +17,7 @@ class IssueBuilder extends Builder
     public function assignedTo(string $source, string $login): self
     {
         return $this
-            ->where('source', $source)
+            ->ofSource($source)
             ->whereHas('assignees', static function (Builder $assigneeQuery) use ($login): void {
                 $assigneeQuery->where('login', $login);
             });
