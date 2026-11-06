@@ -21,8 +21,8 @@ use Psr\Clock\ClockInterface;
 readonly class ResolveMissingSiteConditions implements ShouldQueue
 {
     private const array CLIENT_ALERT_TYPES = [
-        AlertType::SITE_CLIENT_INCOMPATIBLE,
-        AlertType::SITE_CLIENT_UNAUTHORIZED,
+        AlertType::SITE_REPORT_INCOMPATIBLE,
+        AlertType::SITE_REPORT_UNAUTHORIZED,
         AlertType::SITE_DEBUG_ENABLED,
         AlertType::SITE_NOT_IN_PRODUCTION,
     ];

@@ -114,7 +114,7 @@
                         <x-compass::site-report-edit-link :site-report="$siteReport" />
                     </div>
                 @empty
-                    <x-compass::client-status-badge :status="null" />
+                    <x-compass::site-report-status-badge :status="null" />
                 @endforelse
             </div>
         </section>

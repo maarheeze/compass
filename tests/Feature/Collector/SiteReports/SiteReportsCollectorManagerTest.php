@@ -6,6 +6,7 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\CompassClientSiteReportsCollector;
+use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteClient;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollectorManager;
 use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Models\SiteReport;
@@ -44,11 +45,11 @@ test('collector is the collector its extension makes from its config', function 
             'driver' => $driverName,
         ],
     ]);
-    $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
+    $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(new SiteClient(
         $this->app->make(HttpFactory::class),
         fake()->sha1(),
         sprintf('/%s', fake()->slug()),
-    );
+    ));
 
     $siteReportsCollectorManager = $this->app->make(SiteReportsCollectorManager::class);
     $siteReportsCollectorManager->extend(

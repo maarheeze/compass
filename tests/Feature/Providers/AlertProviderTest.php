@@ -5,10 +5,6 @@ declare(strict_types=1);
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Alerts\Events\AlertOpened;
-use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteClientIncompatible;
-use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteClientUnauthorized;
-use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteDebugEnabled;
-use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteNotInProduction;
 use Maarheeze\Compass\Alerts\Listeners\Composer\EvaluateComposerMinimumStability;
 use Maarheeze\Compass\Alerts\Listeners\Composer\EvaluateComposerWarningOnComposerJsonChanged;
 use Maarheeze\Compass\Alerts\Listeners\Composer\EvaluateComposerWarningOnComposerLockChanged;
@@ -25,6 +21,10 @@ use Maarheeze\Compass\Alerts\Listeners\Site\EvaluateSiteMissingOnSiteMissingIgno
 use Maarheeze\Compass\Alerts\Listeners\Site\EvaluateSiteMissingOnSitesCollected;
 use Maarheeze\Compass\Alerts\Listeners\Site\ResolveMissingSiteConditions;
 use Maarheeze\Compass\Alerts\Listeners\SiteEndpoint\EvaluateSiteEndpointDown;
+use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteDebugEnabled;
+use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteNotInProduction;
+use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteReportIncompatible;
+use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteReportUnauthorized;
 use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
 use Maarheeze\Compass\Collector\Events\ComposerLockChanged;
 use Maarheeze\Compass\Collector\Events\DependabotYmlChanged;
@@ -63,13 +63,13 @@ test('evaluate non production listens to site inspected', function (): void {
 test('evaluate unauthorized client listens to site inspected', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(SiteInspected::class, EvaluateSiteClientUnauthorized::class);
+    $eventFake->assertListening(SiteInspected::class, EvaluateSiteReportUnauthorized::class);
 });
 
 test('evaluate incompatible client listens to site inspected', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(SiteInspected::class, EvaluateSiteClientIncompatible::class);
+    $eventFake->assertListening(SiteInspected::class, EvaluateSiteReportIncompatible::class);
 });
 
 test('evaluate repository missing on repositories collected listens to repositories collected', function (): void {

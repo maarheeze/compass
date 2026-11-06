@@ -15,11 +15,11 @@ enum AlertType: string
     case DEPENDABOT_NPM_MISSING = 'dependabot-npm-missing';
     case REPOSITORY_MISSING = 'repository-missing';
     case SITE_BEHIND = 'site-behind';
-    case SITE_CLIENT_INCOMPATIBLE = 'site-client-incompatible';
-    case SITE_CLIENT_UNAUTHORIZED = 'site-client-unauthorized';
     case SITE_DEBUG_ENABLED = 'site-debug-enabled';
     case SITE_DEPLOYMENT_OVERDUE = 'site-deployment-overdue';
     case SITE_ENDPOINT_DOWN = 'site-endpoint-down';
     case SITE_MISSING = 'site-missing';
     case SITE_NOT_IN_PRODUCTION = 'site-not-in-production';
+    case SITE_REPORT_INCOMPATIBLE = 'site-report-incompatible';
+    case SITE_REPORT_UNAUTHORIZED = 'site-report-unauthorized';
 }

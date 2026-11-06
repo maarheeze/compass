@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\View\BadgeType;
-use Maarheeze\Compass\View\Components\ClientStatusBadge;
+use Maarheeze\Compass\View\Components\SiteReportStatusBadge;
 
 test('badge type follows the client status', function (?SiteReportStatus $siteReportStatus, BadgeType $badgeType): void {
-    $clientStatusBadge = $this->app->make(ClientStatusBadge::class, ['status' => $siteReportStatus]);
+    $siteReportStatusBadge = $this->app->make(SiteReportStatusBadge::class, ['status' => $siteReportStatus]);
 
-    expect($clientStatusBadge->badgeType())
+    expect($siteReportStatusBadge->badgeType())
         ->toBe($badgeType);
 })->with([
     'incompatible' => [SiteReportStatus::INCOMPATIBLE, BadgeType::DANGER],

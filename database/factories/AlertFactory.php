@@ -55,8 +55,8 @@ class AlertFactory extends Factory
             AlertType::DEPENDABOT_NPM_MISSING => $alertFactoryWithState->dependabotNpmMissing(),
             AlertType::REPOSITORY_MISSING => $alertFactoryWithState->repositoryMissing(),
             AlertType::SITE_BEHIND => $alertFactoryWithState->siteBehind(),
-            AlertType::SITE_CLIENT_INCOMPATIBLE => $alertFactoryWithState->siteClientIncompatible(),
-            AlertType::SITE_CLIENT_UNAUTHORIZED => $alertFactoryWithState->siteClientUnauthorized(),
+            AlertType::SITE_REPORT_INCOMPATIBLE => $alertFactoryWithState->siteClientIncompatible(),
+            AlertType::SITE_REPORT_UNAUTHORIZED => $alertFactoryWithState->siteClientUnauthorized(),
             AlertType::SITE_DEBUG_ENABLED => $alertFactoryWithState->siteDebugEnabled(),
             AlertType::SITE_DEPLOYMENT_OVERDUE => $alertFactoryWithState->siteDeploymentOverdue(),
             AlertType::SITE_ENDPOINT_DOWN => $alertFactoryWithState->siteEndpointDown(),
@@ -162,12 +162,12 @@ class AlertFactory extends Factory
 
     public function siteClientIncompatible(): static
     {
-        return $this->state(['type' => AlertType::SITE_CLIENT_INCOMPATIBLE])->for(SiteReport::factory(), 'subject');
+        return $this->state(['type' => AlertType::SITE_REPORT_INCOMPATIBLE])->for(SiteReport::factory(), 'subject');
     }
 
     public function siteClientUnauthorized(): static
     {
-        return $this->state(['type' => AlertType::SITE_CLIENT_UNAUTHORIZED])->for(SiteReport::factory(), 'subject');
+        return $this->state(['type' => AlertType::SITE_REPORT_UNAUTHORIZED])->for(SiteReport::factory(), 'subject');
     }
 
     public function siteDebugEnabled(): static

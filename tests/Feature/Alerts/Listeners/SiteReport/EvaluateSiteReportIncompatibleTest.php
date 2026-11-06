@@ -9,65 +9,59 @@ use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
-use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteNotInProduction;
+use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteReportIncompatible;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
+use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Models\SiteReport;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
-test('handle observes non production now for a site that is not in production', function (string $appEnv): void {
+test('handle observes incompatible client now for a site with an outdated client', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $siteReport = SiteReport::factory()->create(['app_env' => $appEnv]);
+    $siteReport = SiteReport::factory()->create(['status' => SiteReportStatus::INCOMPATIBLE]);
 
-    $evaluateNonProduction = $this->app->make(EvaluateSiteNotInProduction::class);
-    $evaluateNonProduction->handle(new SiteInspected($siteReport));
+    $evaluateSiteReportIncompatible = $this->app->make(EvaluateSiteReportIncompatible::class);
+    $evaluateSiteReportIncompatible->handle(new SiteInspected($siteReport));
 
     $busFake->assertDispatched(
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($now, $siteReport): bool {
             return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($now, $siteReport): bool {
-                return $conditionObservation->alertType === AlertType::SITE_NOT_IN_PRODUCTION
+                return $conditionObservation->alertType === AlertType::SITE_REPORT_INCOMPATIBLE
                     && $conditionObservation->subject === $siteReport
                     && $conditionObservation->condition === ConditionState::ACTIVE
                     && $conditionObservation->observedAt->equalTo($now);
             });
         },
     );
-})->with(['local', 'staging', 'testing']);
+});
 
-test('handle observes non production resolved now for a site in production', function (): void {
+test('handle observes incompatible client resolved now for a site with any other client status', function (SiteReportStatus $siteReportStatus): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $siteReport = SiteReport::factory()->create(['app_env' => 'production']);
+    $siteReport = SiteReport::factory()->create(['status' => $siteReportStatus]);
 
-    $evaluateNonProduction = $this->app->make(EvaluateSiteNotInProduction::class);
-    $evaluateNonProduction->handle(new SiteInspected($siteReport));
+    $evaluateSiteReportIncompatible = $this->app->make(EvaluateSiteReportIncompatible::class);
+    $evaluateSiteReportIncompatible->handle(new SiteInspected($siteReport));
 
     $busFake->assertDispatched(
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($now, $siteReport): bool {
             return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($now, $siteReport): bool {
-                return $conditionObservation->alertType === AlertType::SITE_NOT_IN_PRODUCTION
+                return $conditionObservation->alertType === AlertType::SITE_REPORT_INCOMPATIBLE
                     && $conditionObservation->subject === $siteReport
                     && $conditionObservation->condition === ConditionState::RESOLVED
                     && $conditionObservation->observedAt->equalTo($now);
             });
         },
     );
-});
-
-test('handle observes nothing for a site not checked for its environment', function (): void {
-    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
-    $this->app->instance(QueueingDispatcher::class, $busFake);
-    $siteReport = SiteReport::factory()->create(['app_env' => null]);
-
-    $evaluateNonProduction = $this->app->make(EvaluateSiteNotInProduction::class);
-    $evaluateNonProduction->handle(new SiteInspected($siteReport));
-
-    $busFake->assertNotDispatched(HandleConditionObservations::class);
-});
+})->with([
+    SiteReportStatus::INSTALLED,
+    SiteReportStatus::NOT_INSTALLED,
+    SiteReportStatus::UNAUTHORIZED,
+]);

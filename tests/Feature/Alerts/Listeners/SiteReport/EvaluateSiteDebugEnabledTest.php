@@ -9,7 +9,7 @@ use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
-use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteDebugEnabled;
+use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteDebugEnabled;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Models\SiteReport;
 use Psr\Clock\ClockInterface;

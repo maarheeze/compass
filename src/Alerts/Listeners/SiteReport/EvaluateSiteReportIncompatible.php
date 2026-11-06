@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Maarheeze\Compass\Alerts\Listeners\Client;
+namespace Maarheeze\Compass\Alerts\Listeners\SiteReport;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
@@ -17,7 +17,7 @@ use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Models\SiteReport;
 use Psr\Clock\ClockInterface;
 
-readonly class EvaluateSiteClientIncompatible implements ShouldQueue
+readonly class EvaluateSiteReportIncompatible implements ShouldQueue
 {
     public function __construct(
         private ClockInterface $clock,
@@ -30,7 +30,7 @@ readonly class EvaluateSiteClientIncompatible implements ShouldQueue
         $siteReport = $siteInspected->siteReport;
         $this->dispatcher->dispatch(new HandleConditionObservations(new ConditionObservationCollection([
             new ConditionObservation(
-                AlertType::SITE_CLIENT_INCOMPATIBLE,
+                AlertType::SITE_REPORT_INCOMPATIBLE,
                 $siteReport,
                 $this->observedCondition($siteReport),
                 CarbonImmutable::instance($this->clock->now()),

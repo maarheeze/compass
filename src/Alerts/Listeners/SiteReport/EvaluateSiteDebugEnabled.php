@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Maarheeze\Compass\Alerts\Listeners\Client;
+namespace Maarheeze\Compass\Alerts\Listeners\SiteReport;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
@@ -16,7 +16,7 @@ use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Models\SiteReport;
 use Psr\Clock\ClockInterface;
 
-readonly class EvaluateSiteNotInProduction implements ShouldQueue
+readonly class EvaluateSiteDebugEnabled implements ShouldQueue
 {
     public function __construct(
         private ClockInterface $clock,
@@ -28,13 +28,13 @@ readonly class EvaluateSiteNotInProduction implements ShouldQueue
     {
         $siteReport = $siteInspected->siteReport;
 
-        if ($siteReport->app_env === null) {
+        if ($siteReport->app_debug === null) {
             return;
         }
 
         $this->dispatcher->dispatch(new HandleConditionObservations(new ConditionObservationCollection([
             new ConditionObservation(
-                AlertType::SITE_NOT_IN_PRODUCTION,
+                AlertType::SITE_DEBUG_ENABLED,
                 $siteReport,
                 $this->observedCondition($siteReport),
                 CarbonImmutable::instance($this->clock->now()),
@@ -44,7 +44,7 @@ readonly class EvaluateSiteNotInProduction implements ShouldQueue
 
     private function observedCondition(SiteReport $siteReport): ConditionState
     {
-        if ($siteReport->app_env !== 'production') {
+        if ($siteReport->app_debug === true) {
             return ConditionState::ACTIVE;
         }
 

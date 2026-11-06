@@ -4,7 +4,7 @@
 
     <dt class="text-foreground-muted">{{ __('compass::client.status') }}</dt>
     <dd class="flex items-center gap-2 text-foreground">
-        <x-compass::client-status-badge :status="$siteReport->status" />
+        <x-compass::site-report-status-badge :status="$siteReport->status" />
         <span class="text-foreground-muted">
             {{ __('compass::client.checked') }}
             <x-compass::time :time="$siteReport->collected_at" />

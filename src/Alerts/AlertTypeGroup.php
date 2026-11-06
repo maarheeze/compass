@@ -6,12 +6,12 @@ namespace Maarheeze\Compass\Alerts;
 
 enum AlertTypeGroup: string
 {
-    case CLIENT = 'client';
     case CODE_HOST = 'code_host';
     case COMPOSER = 'composer';
     case DEPENDABOT = 'dependabot';
     case ENDPOINT = 'endpoint';
     case HOSTING_PROVIDER = 'hosting_provider';
+    case SITE_REPORT = 'site_report';
 
     /**
      * @return list<AlertType>
@@ -19,12 +19,6 @@ enum AlertTypeGroup: string
     public function alertTypes(): array
     {
         return match ($this) {
-            self::CLIENT => [
-                AlertType::SITE_CLIENT_INCOMPATIBLE,
-                AlertType::SITE_CLIENT_UNAUTHORIZED,
-                AlertType::SITE_DEBUG_ENABLED,
-                AlertType::SITE_NOT_IN_PRODUCTION,
-            ],
             self::CODE_HOST => [
                 AlertType::REPOSITORY_MISSING,
             ],
@@ -46,6 +40,12 @@ enum AlertTypeGroup: string
                 AlertType::SITE_BEHIND,
                 AlertType::SITE_DEPLOYMENT_OVERDUE,
                 AlertType::SITE_MISSING,
+            ],
+            self::SITE_REPORT => [
+                AlertType::SITE_DEBUG_ENABLED,
+                AlertType::SITE_NOT_IN_PRODUCTION,
+                AlertType::SITE_REPORT_INCOMPATIBLE,
+                AlertType::SITE_REPORT_UNAUTHORIZED,
             ],
         };
     }

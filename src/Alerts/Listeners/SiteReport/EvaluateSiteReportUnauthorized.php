@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Maarheeze\Compass\Alerts\Listeners\Client;
+namespace Maarheeze\Compass\Alerts\Listeners\SiteReport;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
@@ -13,10 +13,11 @@ use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Collections\ConditionObservationCollection;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
+use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Models\SiteReport;
 use Psr\Clock\ClockInterface;
 
-readonly class EvaluateSiteDebugEnabled implements ShouldQueue
+readonly class EvaluateSiteReportUnauthorized implements ShouldQueue
 {
     public function __construct(
         private ClockInterface $clock,
@@ -27,14 +28,9 @@ readonly class EvaluateSiteDebugEnabled implements ShouldQueue
     public function handle(SiteInspected $siteInspected): void
     {
         $siteReport = $siteInspected->siteReport;
-
-        if ($siteReport->app_debug === null) {
-            return;
-        }
-
         $this->dispatcher->dispatch(new HandleConditionObservations(new ConditionObservationCollection([
             new ConditionObservation(
-                AlertType::SITE_DEBUG_ENABLED,
+                AlertType::SITE_REPORT_UNAUTHORIZED,
                 $siteReport,
                 $this->observedCondition($siteReport),
                 CarbonImmutable::instance($this->clock->now()),
@@ -44,7 +40,7 @@ readonly class EvaluateSiteDebugEnabled implements ShouldQueue
 
     private function observedCondition(SiteReport $siteReport): ConditionState
     {
-        if ($siteReport->app_debug === true) {
+        if ($siteReport->status === SiteReportStatus::UNAUTHORIZED) {
             return ConditionState::ACTIVE;
         }
 

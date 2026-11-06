@@ -10,7 +10,7 @@ use Illuminate\View\Component;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\View\BadgeType;
 
-class ClientStatusBadge extends Component
+class SiteReportStatusBadge extends Component
 {
     public function __construct(
         public readonly ?SiteReportStatus $status,
@@ -29,6 +29,6 @@ class ClientStatusBadge extends Component
 
     public function render(): View
     {
-        return $this->view->make('compass::components.client-status-badge');
+        return $this->view->make('compass::components.site-report-status-badge');
     }
 }

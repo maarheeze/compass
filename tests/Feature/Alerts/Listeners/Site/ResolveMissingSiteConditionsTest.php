@@ -43,9 +43,9 @@ test('handle observes a client condition of a report of a missing site resolved 
     );
 })->with([
     AlertType::SITE_DEBUG_ENABLED,
-    AlertType::SITE_CLIENT_INCOMPATIBLE,
+    AlertType::SITE_REPORT_INCOMPATIBLE,
     AlertType::SITE_NOT_IN_PRODUCTION,
-    AlertType::SITE_CLIENT_UNAUTHORIZED,
+    AlertType::SITE_REPORT_UNAUTHORIZED,
 ]);
 
 test('handle observes the endpoint of a missing site no longer down now', function (): void {

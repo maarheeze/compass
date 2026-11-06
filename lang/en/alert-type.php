@@ -12,11 +12,11 @@ return [
     'DEPENDABOT_NPM_MISSING' => 'Dependabot missing for npm',
     'REPOSITORY_MISSING' => 'Repository is missing',
     'SITE_BEHIND' => 'Site behind',
-    'SITE_CLIENT_INCOMPATIBLE' => 'Client imcompatible',
-    'SITE_CLIENT_UNAUTHORIZED' => 'Client key refused',
     'SITE_DEBUG_ENABLED' => 'Debug enabled',
     'SITE_DEPLOYMENT_OVERDUE' => 'Deployment overdue',
     'SITE_ENDPOINT_DOWN' => 'Endpoint down',
     'SITE_MISSING' => 'Site missing',
     'SITE_NOT_IN_PRODUCTION' => 'Site not in production',
+    'SITE_REPORT_INCOMPATIBLE' => 'Site report incompatible',
+    'SITE_REPORT_UNAUTHORIZED' => 'Site report key refused',
 ];
