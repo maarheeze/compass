@@ -11,27 +11,18 @@ use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Tests\Fixtures\CollectedIssueFactory;
 use Maarheeze\Uuid\Uuid;
 
-test('store issues stores an issue in its repository', function (): void {
-    $repository = Repository::factory()->create();
+test('store issues stores an issue of the source', function (): void {
+    $source = fake()->slug();
     $collectedIssue = CollectedIssueFactory::make();
-    $collectedIssueOfRepository = new CollectedIssue(
-        $collectedIssue->externalId,
-        $repository->name,
-        $collectedIssue->number,
-        $collectedIssue->title,
-        $collectedIssue->url,
-        $collectedIssue->authorLogin,
-        $collectedIssue->openedAt,
-        $collectedIssue->assigneeLogins,
-    );
     $runId = Uuid::generate();
 
     $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
-    $issueSynchronizer->storeIssues(new CollectedIssueCollection([$collectedIssueOfRepository]), $runId);
+    $issueSynchronizer->storeIssues(new CollectedIssueCollection([$collectedIssue]), $source, $runId);
 
     $this->assertDatabaseHas(Issue::class, [
-        'repository_id' => $repository->id,
-        'github_id' => $collectedIssue->externalId,
+        'source' => $source,
+        'external_id' => $collectedIssue->externalId,
+        'repository_lookup_key' => $collectedIssue->repositoryLookupKey,
         'number' => $collectedIssue->number,
         'title' => $collectedIssue->title,
         'url' => $collectedIssue->url,
@@ -40,21 +31,12 @@ test('store issues stores an issue in its repository', function (): void {
     ]);
 });
 
-test('store issues skips an issue of an unknown repository', function (): void {
-    $collectedIssue = CollectedIssueFactory::make();
-
-    $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
-    $issueSynchronizer->storeIssues(new CollectedIssueCollection([$collectedIssue]), Uuid::generate());
-
-    $this->assertDatabaseMissing(Issue::class, ['github_id' => $collectedIssue->externalId]);
-});
-
-test('store issues stores the assignees of the issues', function (): void {
+test('store issues links an issue to its repository of the source', function (): void {
     $repository = Repository::factory()->create();
     $collectedIssue = CollectedIssueFactory::make();
     $collectedIssueOfRepository = new CollectedIssue(
         $collectedIssue->externalId,
-        $repository->name,
+        $repository->full_name,
         $collectedIssue->number,
         $collectedIssue->title,
         $collectedIssue->url,
@@ -64,44 +46,117 @@ test('store issues stores the assignees of the issues', function (): void {
     );
 
     $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
-    $issueSynchronizer->storeIssues(new CollectedIssueCollection([$collectedIssueOfRepository]), Uuid::generate());
+    $issueSynchronizer->storeIssues(
+        new CollectedIssueCollection([$collectedIssueOfRepository]),
+        $repository->source,
+        Uuid::generate(),
+    );
+
+    $this->assertDatabaseHas(Issue::class, [
+        'source' => $repository->source,
+        'external_id' => $collectedIssue->externalId,
+        'repository_id' => $repository->id,
+    ]);
+});
+
+test('store issues leaves an issue unlinked to a repository of another source', function (): void {
+    $source = fake()->unique()->slug();
+    $repository = Repository::factory()->create(['source' => fake()->unique()->slug()]);
+    $collectedIssue = CollectedIssueFactory::make();
+    $collectedIssueOfRepository = new CollectedIssue(
+        $collectedIssue->externalId,
+        $repository->full_name,
+        $collectedIssue->number,
+        $collectedIssue->title,
+        $collectedIssue->url,
+        $collectedIssue->authorLogin,
+        $collectedIssue->openedAt,
+        $collectedIssue->assigneeLogins,
+    );
+
+    $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
+    $issueSynchronizer->storeIssues(
+        new CollectedIssueCollection([$collectedIssueOfRepository]),
+        $source,
+        Uuid::generate(),
+    );
+
+    $this->assertDatabaseHas(Issue::class, [
+        'source' => $source,
+        'external_id' => $collectedIssue->externalId,
+        'repository_id' => null,
+    ]);
+});
+
+test('store issues stores an issue of a repository not stored without a repository', function (): void {
+    $source = fake()->slug();
+    $collectedIssue = CollectedIssueFactory::make();
+
+    $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
+    $issueSynchronizer->storeIssues(new CollectedIssueCollection([$collectedIssue]), $source, Uuid::generate());
+
+    $this->assertDatabaseHas(Issue::class, [
+        'source' => $source,
+        'external_id' => $collectedIssue->externalId,
+        'repository_id' => null,
+    ]);
+});
+
+test('store issues stores the assignees of the issues', function (): void {
+    $source = fake()->slug();
+    $collectedIssue = CollectedIssueFactory::make();
+
+    $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
+    $issueSynchronizer->storeIssues(new CollectedIssueCollection([$collectedIssue]), $source, Uuid::generate());
 
     $this->assertDatabaseHas(IssueAssignee::class, [
-        'issue_id' => Issue::query()->where('github_id', $collectedIssue->externalId)->sole()->id,
+        'issue_id' => Issue::query()
+            ->ofSource($source)
+            ->where('external_id', $collectedIssue->externalId)
+            ->sole()
+            ->id,
         'login' => $collectedIssue->assigneeLogins[0],
     ]);
 });
 
 test('store issues removes the assignees collected before', function (): void {
-    $repository = Repository::factory()->create();
     $collectedIssue = CollectedIssueFactory::make();
-    $collectedIssueOfRepository = new CollectedIssue(
-        $collectedIssue->externalId,
-        $repository->name,
-        $collectedIssue->number,
-        $collectedIssue->title,
-        $collectedIssue->url,
-        $collectedIssue->authorLogin,
-        $collectedIssue->openedAt,
-        $collectedIssue->assigneeLogins,
-    );
-    $issue = Issue::factory()->create([
-        'repository_id' => $repository->id,
-        'github_id' => $collectedIssue->externalId,
-    ]);
+    $issue = Issue::factory()->create(['external_id' => $collectedIssue->externalId]);
     $assignee = IssueAssignee::factory()->create(['issue_id' => $issue->id]);
 
     $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
-    $issueSynchronizer->storeIssues(new CollectedIssueCollection([$collectedIssueOfRepository]), Uuid::generate());
+    $issueSynchronizer->storeIssues(
+        new CollectedIssueCollection([$collectedIssue]),
+        $issue->source,
+        Uuid::generate(),
+    );
 
     $this->assertModelMissing($assignee);
 });
 
-test('delete uncollected deletes an issue of another run', function (): void {
+test('store issues keeps the assignees of an issue of another source', function (): void {
+    $collectedIssue = CollectedIssueFactory::make();
+    $issue = Issue::factory()->create([
+        'source' => fake()->unique()->slug(),
+        'external_id' => $collectedIssue->externalId,
+    ]);
+    $assignee = IssueAssignee::factory()->create(['issue_id' => $issue->id]);
+
+    $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
+    $issueSynchronizer->storeIssues(
+        new CollectedIssueCollection([$collectedIssue]),
+        fake()->unique()->slug(),
+        Uuid::generate(),
+    );
+
+    $this->assertModelExists($assignee);
+});
+
+test('delete uncollected deletes an issue of the source of another run', function (): void {
     $issue = Issue::factory()->create();
 
     $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
-    $issueSynchronizer->deleteUncollected(Uuid::generate());
+    $issueSynchronizer->deleteUncollected($issue->source, Uuid::generate());
 
     $this->assertModelMissing($issue);
 });
@@ -111,7 +166,16 @@ test('delete uncollected keeps an issue of the run', function (): void {
     $issue = Issue::factory()->create(['run_id' => $runId]);
 
     $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
-    $issueSynchronizer->deleteUncollected($runId);
+    $issueSynchronizer->deleteUncollected($issue->source, $runId);
+
+    $this->assertModelExists($issue);
+});
+
+test('delete uncollected keeps an issue of another source', function (): void {
+    $issue = Issue::factory()->create(['source' => fake()->unique()->slug()]);
+
+    $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
+    $issueSynchronizer->deleteUncollected(fake()->unique()->slug(), Uuid::generate());
 
     $this->assertModelExists($issue);
 });

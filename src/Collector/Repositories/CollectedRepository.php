@@ -11,6 +11,7 @@ readonly class CollectedRepository
     public function __construct(
         public string $externalId,
         public string $name,
+        public string $fullName,
         public string $url,
         public string $defaultBranch,
         public string $lastCommitSha,

@@ -39,14 +39,14 @@ class CollectPullRequests implements ShouldQueue
         $collectorLogger->info('Pull requests collector started');
 
         foreach ($pullRequestsCollector->pullRequests() as $collectedPullRequests) {
-            $pullRequestSynchronizer->storePullRequests($collectedPullRequests, $this->runId);
+            $pullRequestSynchronizer->storePullRequests($collectedPullRequests, $this->source, $this->runId);
 
             $collectorLogger->debug('Pull requests page collected', [
                 'pull_request_count' => $collectedPullRequests->count(),
             ]);
         }
 
-        $pullRequestSynchronizer->deleteUncollected($this->runId);
+        $pullRequestSynchronizer->deleteUncollected($this->source, $this->runId);
 
         $collectorLogger->info('Pull requests collector ended');
     }

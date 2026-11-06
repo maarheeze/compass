@@ -23,19 +23,21 @@ use Maarheeze\Uuid\Uuid;
  * @property ?string $author_login
  * @property CarbonImmutable $collected_at
  * @property CarbonImmutable $created_at
- * @property string $github_id
+ * @property string $external_id
  * @property Uuid $id
  * @property bool $is_draft
  * @property int $number
  * @property CarbonImmutable $opened_at
- * @property Uuid $repository_id
+ * @property ?Uuid $repository_id
+ * @property string $repository_lookup_key
  * @property Uuid $run_id
+ * @property string $source
  * @property string $title
  * @property CarbonImmutable $updated_at
  * @property string $url
  *
  * @property-read PullRequestAssigneeCollection $assignees
- * @property-read Repository $repository
+ * @property-read ?Repository $repository
  */
 class PullRequest extends Model
 {
@@ -58,12 +60,14 @@ class PullRequest extends Model
         return [
             'author_login',
             'collected_at',
-            'github_id',
+            'external_id',
             'is_draft',
             'number',
             'opened_at',
             'repository_id',
+            'repository_lookup_key',
             'run_id',
+            'source',
             'title',
             'url',
         ];

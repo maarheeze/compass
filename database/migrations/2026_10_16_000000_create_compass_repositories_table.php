@@ -14,8 +14,9 @@ return new class extends Migration
             $table->uuid('id')->primary();
 
             $table->string('source');
-            $table->string('github_id');
+            $table->string('external_id');
             $table->string('name');
+            $table->string('full_name');
             $table->string('url');
             $table->string('default_branch');
             $table->string('last_commit_sha');
@@ -32,7 +33,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->unique(['source', 'github_id']);
+            $table->unique(['source', 'external_id']);
         });
     }
 };

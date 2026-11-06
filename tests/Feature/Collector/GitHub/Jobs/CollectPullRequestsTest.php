@@ -7,7 +7,6 @@ use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectPullRequests;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\PullRequest;
-use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 
 test('handle stores the pull requests of the page', function (): void {
@@ -19,13 +18,12 @@ test('handle stores the pull requests of the page', function (): void {
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create();
     $pullRequestResponse = [
         'node_id' => fake()->sha1(),
         'repository_url' => sprintf(
             'https://api.github.com/repos/%s/%s',
             fake()->slug(),
-            $repository->name,
+            fake()->slug(),
         ),
         'number' => fake()->numberBetween(1, 9999),
         'title' => fake()->sentence(),
@@ -47,7 +45,8 @@ test('handle stores the pull requests of the page', function (): void {
     $this->app->call([$collectPullRequests, 'handle']);
 
     $this->assertDatabaseHas(PullRequest::class, [
-        'github_id' => $pullRequestResponse['node_id'],
+        'source' => $source,
+        'external_id' => $pullRequestResponse['node_id'],
         'run_id' => $runId,
     ]);
 });
@@ -61,7 +60,7 @@ test('handle deletes the pull requests of another run on the last page', functio
             'token' => fake()->sha1(),
         ],
     ]);
-    $pullRequest = PullRequest::factory()->create();
+    $pullRequest = PullRequest::factory()->create(['source' => $source]);
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response(['incomplete_results' => false, 'items' => []]),
     ]);
@@ -81,13 +80,12 @@ test('handle keeps the pull requests collected on an earlier page', function ():
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create();
     $pullRequestResponse = [
         'node_id' => fake()->sha1(),
         'repository_url' => sprintf(
             'https://api.github.com/repos/%s/%s',
             fake()->slug(),
-            $repository->name,
+            fake()->slug(),
         ),
         'number' => fake()->numberBetween(1, 9999),
         'title' => fake()->sentence(),
@@ -115,7 +113,7 @@ test('handle keeps the pull requests collected on an earlier page', function ():
     $collectPullRequests = new CollectPullRequests(Uuid::generate(), $source);
     $this->app->call([$collectPullRequests, 'handle']);
 
-    $this->assertDatabaseHas(PullRequest::class, ['github_id' => $pullRequestResponse['node_id']]);
+    $this->assertDatabaseHas(PullRequest::class, ['external_id' => $pullRequestResponse['node_id']]);
 });
 
 test('handle leaves the issues alone', function (): void {
@@ -127,7 +125,7 @@ test('handle leaves the issues alone', function (): void {
             'token' => fake()->sha1(),
         ],
     ]);
-    $issue = Issue::factory()->create();
+    $issue = Issue::factory()->create(['source' => $source]);
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response(['incomplete_results' => false, 'items' => []]),
     ]);

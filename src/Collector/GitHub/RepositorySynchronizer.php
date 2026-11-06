@@ -29,15 +29,16 @@ readonly class RepositorySynchronizer
     ): RepositoryCollection {
         $storedRepositories = Repository::query()
             ->ofSource($source)
-            ->ofGitHubIds($collectedRepositories->externalIds())
+            ->ofExternalIds($collectedRepositories->externalIds())
             ->get();
         $repositoryValues = [];
 
         foreach ($collectedRepositories as $collectedRepository) {
             $repositoryValues[] = [
                 'source' => $source,
-                'github_id' => $collectedRepository->externalId,
+                'external_id' => $collectedRepository->externalId,
                 'name' => $collectedRepository->name,
+                'full_name' => $collectedRepository->fullName,
                 'url' => $collectedRepository->url,
                 'default_branch' => $collectedRepository->defaultBranch,
                 'last_commit_sha' => $collectedRepository->lastCommitSha,
@@ -54,7 +55,7 @@ readonly class RepositorySynchronizer
             ];
         }
 
-        Repository::query()->upsert($repositoryValues, ['source', 'github_id']);
+        Repository::query()->upsert($repositoryValues, ['source', 'external_id']);
 
         return $this->repositoriesWithChangedPackageJson($collectedRepositories, $source, $storedRepositories);
     }
@@ -66,7 +67,7 @@ readonly class RepositorySynchronizer
     ): RepositoryCollection {
         $collectedRepositoriesWithChangedPackageJson = $collectedRepositories->filter(
             static function (CollectedRepository $collectedRepository) use ($storedRepositories): bool {
-                $storedRepository = $storedRepositories->firstWhere('github_id', $collectedRepository->externalId);
+                $storedRepository = $storedRepositories->firstWhere('external_id', $collectedRepository->externalId);
 
                 return $storedRepository?->package_json_oid !== $collectedRepository->packageJsonVersion;
             },
@@ -74,7 +75,7 @@ readonly class RepositorySynchronizer
 
         return Repository::query()
             ->ofSource($source)
-            ->ofGitHubIds($collectedRepositoriesWithChangedPackageJson->externalIds())
+            ->ofExternalIds($collectedRepositoriesWithChangedPackageJson->externalIds())
             ->get();
     }
 }

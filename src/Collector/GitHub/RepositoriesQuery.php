@@ -57,6 +57,7 @@ readonly class RepositoriesQuery
             $collectedRepository = new CollectedRepository(
                 Assert::string($repositoryResponse['id']),
                 Assert::string($repositoryResponse['name']),
+                Assert::string($repositoryResponse['nameWithOwner']),
                 Assert::string($repositoryResponse['url']),
                 Assert::string($defaultBranchResponse['name']),
                 Assert::string($lastCommitResponse['oid']),
@@ -105,6 +106,7 @@ readonly class RepositoriesQuery
                   nodes {
                     id
                     name
+                    nameWithOwner
                     url
                     visibility
                     defaultBranchRef { name target { oid ... on Commit { committedDate } } }

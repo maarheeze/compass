@@ -39,14 +39,14 @@ class CollectIssues implements ShouldQueue
         $collectorLogger->info('Issues collector started');
 
         foreach ($issuesCollector->issues() as $collectedIssues) {
-            $issueSynchronizer->storeIssues($collectedIssues, $this->runId);
+            $issueSynchronizer->storeIssues($collectedIssues, $this->source, $this->runId);
 
             $collectorLogger->debug('Issues page collected', [
                 'issue_count' => $collectedIssues->count(),
             ]);
         }
 
-        $issueSynchronizer->deleteUncollected($this->runId);
+        $issueSynchronizer->deleteUncollected($this->source, $this->runId);
 
         $collectorLogger->info('Issues collector ended');
     }

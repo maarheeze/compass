@@ -33,11 +33,16 @@ class PullRequestBuilder extends Builder
     }
 
     /**
-     * @param Collection<int, string> $gitHubIds
+     * @param Collection<int, string> $externalIds
      */
 
-    public function ofGitHubIds(Collection $gitHubIds): self
+    public function ofExternalIds(Collection $externalIds): self
     {
-        return $this->whereIn('github_id', $gitHubIds);
+        return $this->whereIn('external_id', $externalIds);
+    }
+
+    public function ofSource(string $source): self
+    {
+        return $this->where('source', $source);
     }
 }

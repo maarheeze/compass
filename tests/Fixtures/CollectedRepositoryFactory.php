@@ -10,14 +10,16 @@ use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
 use Maarheeze\Compass\Models\Repository;
 
 use function fake;
+use function sprintf;
 
 class CollectedRepositoryFactory
 {
     public static function forRepository(Repository $repository): CollectedRepository
     {
         return new CollectedRepository(
-            $repository->github_id,
+            $repository->external_id,
             $repository->name,
+            $repository->full_name,
             $repository->url,
             fake()->unique()->word(),
             fake()->sha1(),
@@ -40,6 +42,7 @@ class CollectedRepositoryFactory
         return new CollectedRepository(
             fake()->sha1(),
             fake()->slug(),
+            sprintf('%s/%s', fake()->slug(), fake()->slug()),
             fake()->url(),
             fake()->word(),
             fake()->sha1(),

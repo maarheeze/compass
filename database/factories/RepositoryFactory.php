@@ -10,6 +10,7 @@ use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 
 use function fake;
+use function sprintf;
 
 /**
  * @extends Factory<Repository>
@@ -26,8 +27,9 @@ class RepositoryFactory extends Factory
     {
         return [
             'source' => fake()->slug(),
-            'github_id' => fake()->unique()->sha1(),
+            'external_id' => fake()->unique()->sha1(),
             'name' => fake()->unique()->slug(),
+            'full_name' => sprintf('%s/%s', fake()->slug(), fake()->unique()->slug()),
             'url' => fake()->url(),
             'default_branch' => fake()->word(),
             'last_commit_sha' => fake()->sha1(),

@@ -16,16 +16,22 @@ use function sprintf;
 class IssueReference extends Component
 {
     public readonly string $reference;
-    public readonly string $url;
+    public readonly ?string $url;
 
     public function __construct(
-        Repository $repository,
         int $number,
-        string $organization,
+        ?Repository $repository,
         UrlGenerator $url,
         private readonly ViewFactory $view,
     ) {
-        $this->reference = sprintf('%s/%s#%d', $organization, $repository->name, $number);
+        if ($repository === null) {
+            $this->reference = sprintf('#%d', $number);
+            $this->url = null;
+
+            return;
+        }
+
+        $this->reference = sprintf('%s#%d', $repository->full_name, $number);
         $this->url = $url->route(RouteName::GITHUB_REPOSITORY->value, $repository);
     }
 

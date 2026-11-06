@@ -154,9 +154,8 @@ test('issues hold the collected issues in the response', function (): void {
                 [
                     'node_id' => $collectedIssue->externalId,
                     'repository_url' => sprintf(
-                        'https://api.github.com/repos/%s/%s',
-                        fake()->slug(),
-                        $collectedIssue->repositoryName,
+                        'https://api.github.com/repos/%s',
+                        $collectedIssue->repositoryLookupKey,
                     ),
                     'number' => $collectedIssue->number,
                     'title' => $collectedIssue->title,
@@ -194,9 +193,8 @@ test('pull requests hold the collected pull requests in the response', function 
                 [
                     'node_id' => $collectedPullRequest->externalId,
                     'repository_url' => sprintf(
-                        'https://api.github.com/repos/%s/%s',
-                        fake()->slug(),
-                        $collectedPullRequest->repositoryName,
+                        'https://api.github.com/repos/%s',
+                        $collectedPullRequest->repositoryLookupKey,
                     ),
                     'number' => $collectedPullRequest->number,
                     'title' => $collectedPullRequest->title,

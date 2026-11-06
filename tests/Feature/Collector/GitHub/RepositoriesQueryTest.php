@@ -128,6 +128,7 @@ test('pages hold the collected repositories in the response', function (): void 
                             [
                                 'id' => $collectedRepository->externalId,
                                 'name' => $collectedRepository->name,
+                                'nameWithOwner' => $collectedRepository->fullName,
                                 'url' => $collectedRepository->url,
                                 'visibility' => 'PUBLIC',
                                 'defaultBranchRef' => [
@@ -185,6 +186,7 @@ test('pages map the visibility of github to the visibility of the collected repo
                             [
                                 'id' => fake()->sha1(),
                                 'name' => fake()->slug(),
+                                'nameWithOwner' => sprintf('%s/%s', fake()->slug(), fake()->slug()),
                                 'url' => fake()->url(),
                                 'visibility' => $gitHubVisibility,
                                 'defaultBranchRef' => [
@@ -231,6 +233,7 @@ test('pages skip repositories without a default branch', function (): void {
                             [
                                 'id' => fake()->sha1(),
                                 'name' => fake()->slug(),
+                                'nameWithOwner' => sprintf('%s/%s', fake()->slug(), fake()->slug()),
                                 'visibility' => fake()->randomElement(['INTERNAL', 'PRIVATE', 'PUBLIC']),
                                 'defaultBranchRef' => null,
                                 'composerJson' => null,

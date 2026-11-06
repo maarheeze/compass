@@ -12,7 +12,7 @@
             <div class="min-w-0">
                 <a href="{{ $pullRequest->url }}" target="_blank" rel="noopener" class="text-base font-semibold text-foreground hover:text-accent">{{ $pullRequest->title }}</a>
                 <div class="mt-0.5 text-xs text-foreground-muted">
-                    <x-compass::issue-reference :repository="$pullRequest->repository" :number="$pullRequest->number" />
+                    <x-compass::issue-reference :number="$pullRequest->number" :repository="$pullRequest->repository" />
                     ·
                     @if ($pullRequest->author_login !== null)
                         {{ $pullRequest->author_login }}

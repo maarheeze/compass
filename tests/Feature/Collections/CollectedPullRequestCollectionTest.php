@@ -15,12 +15,12 @@ test('external ids are the external ids of the pull requests', function (): void
         ->toBe([$collectedPullRequest->externalId]);
 });
 
-test('repository names are the repository names of the pull requests', function (): void {
+test('repository lookup keys are the repository lookup keys of the pull requests', function (): void {
     $collectedPullRequest = CollectedPullRequestFactory::make();
 
     $collectedPullRequestCollection = new CollectedPullRequestCollection([$collectedPullRequest]);
-    $repositoryNames = $collectedPullRequestCollection->repositoryNames();
+    $repositoryLookupKeys = $collectedPullRequestCollection->repositoryLookupKeys();
 
-    expect($repositoryNames->all())
-        ->toBe([$collectedPullRequest->repositoryName]);
+    expect($repositoryLookupKeys->all())
+        ->toBe([$collectedPullRequest->repositoryLookupKey]);
 });

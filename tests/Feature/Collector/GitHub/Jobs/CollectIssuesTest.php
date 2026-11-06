@@ -7,7 +7,6 @@ use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\GitHub\Jobs\CollectIssues;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\PullRequest;
-use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 
 test('handle stores the issues of the page', function (): void {
@@ -19,13 +18,12 @@ test('handle stores the issues of the page', function (): void {
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create();
     $issueResponse = [
         'node_id' => fake()->sha1(),
         'repository_url' => sprintf(
             'https://api.github.com/repos/%s/%s',
             fake()->slug(),
-            $repository->name,
+            fake()->slug(),
         ),
         'number' => fake()->numberBetween(1, 9999),
         'title' => fake()->sentence(),
@@ -43,7 +41,8 @@ test('handle stores the issues of the page', function (): void {
     $this->app->call([$collectIssues, 'handle']);
 
     $this->assertDatabaseHas(Issue::class, [
-        'github_id' => $issueResponse['node_id'],
+        'source' => $source,
+        'external_id' => $issueResponse['node_id'],
         'run_id' => $runId,
     ]);
 });
@@ -57,7 +56,7 @@ test('handle deletes the issues of another run on the last page', function (): v
             'token' => fake()->sha1(),
         ],
     ]);
-    $issue = Issue::factory()->create();
+    $issue = Issue::factory()->create(['source' => $source]);
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response(['incomplete_results' => false, 'items' => []]),
     ]);
@@ -77,13 +76,12 @@ test('handle keeps the issues collected on an earlier page', function (): void {
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create();
     $issueResponse = [
         'node_id' => fake()->sha1(),
         'repository_url' => sprintf(
             'https://api.github.com/repos/%s/%s',
             fake()->slug(),
-            $repository->name,
+            fake()->slug(),
         ),
         'number' => fake()->numberBetween(1, 9999),
         'title' => fake()->sentence(),
@@ -107,7 +105,7 @@ test('handle keeps the issues collected on an earlier page', function (): void {
     $collectIssues = new CollectIssues(Uuid::generate(), $source);
     $this->app->call([$collectIssues, 'handle']);
 
-    $this->assertDatabaseHas(Issue::class, ['github_id' => $issueResponse['node_id']]);
+    $this->assertDatabaseHas(Issue::class, ['external_id' => $issueResponse['node_id']]);
 });
 
 test('handle leaves the pull requests alone', function (): void {
@@ -119,7 +117,7 @@ test('handle leaves the pull requests alone', function (): void {
             'token' => fake()->sha1(),
         ],
     ]);
-    $pullRequest = PullRequest::factory()->create();
+    $pullRequest = PullRequest::factory()->create(['source' => $source]);
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response(['incomplete_results' => false, 'items' => []]),
     ]);

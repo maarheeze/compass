@@ -14,10 +14,13 @@ return new class extends Migration
             $table->uuid('id')->primary();
 
             $table->foreignUuid('repository_id')
+                ->nullable()
                 ->constrained('compass_repositories')
-                ->cascadeOnDelete();
+                ->nullOnDelete();
 
-            $table->string('github_id')->unique();
+            $table->string('source');
+            $table->string('external_id');
+            $table->string('repository_lookup_key');
             $table->unsignedInteger('number');
             $table->string('title');
             $table->string('url');
@@ -28,6 +31,8 @@ return new class extends Migration
             $table->timestamp('collected_at');
 
             $table->timestamps();
+
+            $table->unique(['source', 'external_id']);
         });
     }
 };

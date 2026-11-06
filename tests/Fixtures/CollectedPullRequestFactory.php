@@ -8,6 +8,7 @@ use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collector\PullRequests\CollectedPullRequest;
 
 use function fake;
+use function sprintf;
 
 class CollectedPullRequestFactory
 {
@@ -15,7 +16,7 @@ class CollectedPullRequestFactory
     {
         return new CollectedPullRequest(
             fake()->unique()->sha1(),
-            fake()->slug(),
+            sprintf('%s/%s', fake()->slug(), fake()->slug()),
             fake()->numberBetween(1, 9999),
             fake()->sentence(),
             fake()->url(),

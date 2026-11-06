@@ -7,7 +7,7 @@
             <div class="min-w-0">
                 <a href="{{ $issue->url }}" target="_blank" rel="noopener" class="text-base font-semibold text-foreground hover:text-accent">{{ $issue->title }}</a>
                 <div class="mt-0.5 text-xs text-foreground-muted">
-                    <x-compass::issue-reference :repository="$issue->repository" :number="$issue->number" />
+                    <x-compass::issue-reference :number="$issue->number" :repository="$issue->repository" />
                     ·
                     @if ($issue->author_login !== null)
                         {{ $issue->author_login }}

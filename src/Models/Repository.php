@@ -33,7 +33,8 @@ use Maarheeze\Uuid\Uuid;
  * @property CarbonImmutable $created_at
  * @property string $default_branch
  * @property ?string $dependabot_yml_oid
- * @property string $github_id
+ * @property string $external_id
+ * @property string $full_name
  * @property Uuid $id
  * @property CarbonImmutable $last_commit_committed_at
  * @property string $last_commit_sha
@@ -83,7 +84,8 @@ class Repository extends Model implements AlertSubject
             'composer_lock_oid',
             'default_branch',
             'dependabot_yml_oid',
-            'github_id',
+            'external_id',
+            'full_name',
             'last_commit_committed_at',
             'last_commit_sha',
             'missing_at',

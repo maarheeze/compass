@@ -43,14 +43,6 @@ class RepositoryBuilder extends Builder
             ->whereNull('missing_ignored_at');
     }
 
-    /**
-     * @param Collection<int, string> $names
-     */
-    public function named(Collection $names): self
-    {
-        return $this->whereIn('name', $names);
-    }
-
     public function notCollected(): self
     {
         return $this->whereNotNull('missing_at');
@@ -62,11 +54,19 @@ class RepositoryBuilder extends Builder
     }
 
     /**
-     * @param Collection<int, string> $gitHubIds
+     * @param Collection<int, string> $externalIds
      */
-    public function ofGitHubIds(Collection $gitHubIds): self
+    public function ofExternalIds(Collection $externalIds): self
     {
-        return $this->whereIn('github_id', $gitHubIds);
+        return $this->whereIn('external_id', $externalIds);
+    }
+
+    /**
+     * @param Collection<int, string> $fullNames
+     */
+    public function ofFullNames(Collection $fullNames): self
+    {
+        return $this->whereIn('full_name', $fullNames);
     }
 
     public function ofSource(string $source): self

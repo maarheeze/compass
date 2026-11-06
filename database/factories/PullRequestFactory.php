@@ -10,6 +10,7 @@ use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 
 use function fake;
+use function sprintf;
 
 /**
  * @extends Factory<PullRequest>
@@ -25,8 +26,10 @@ class PullRequestFactory extends Factory
     public function definition(): array
     {
         return [
-            'repository_id' => Repository::factory(),
-            'github_id' => fake()->unique()->sha1(),
+            'repository_id' => fake()->optional()->passthrough(Repository::factory()),
+            'source' => fake()->slug(),
+            'external_id' => fake()->unique()->sha1(),
+            'repository_lookup_key' => sprintf('%s/%s', fake()->slug(), fake()->slug()),
             'number' => fake()->numberBetween(1, 9999),
             'title' => fake()->sentence(),
             'url' => fake()->url(),

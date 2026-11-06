@@ -25,10 +25,10 @@ class CollectedPullRequestCollection extends Collection
     /**
      * @return Collection<int, string>
      */
-    public function repositoryNames(): Collection
+    public function repositoryLookupKeys(): Collection
     {
         return $this->toBase()->map(static function (CollectedPullRequest $collectedPullRequest): string {
-            return $collectedPullRequest->repositoryName;
+            return $collectedPullRequest->repositoryLookupKey;
         });
     }
 }

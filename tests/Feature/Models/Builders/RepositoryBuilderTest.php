@@ -312,47 +312,47 @@ test('dependabot yml out of date leaves out a repository that never had a depend
         ->toBeEmpty();
 });
 
-test('named keeps a repository with one of the names', function (): void {
+test('of external ids keeps a repository with one of the ids', function (): void {
     $repository = Repository::factory()->create();
 
-    $namedRepositories = Repository::query()
-        ->named(new Collection([$repository->name]))
+    $repositoriesOfExternalIds = Repository::query()
+        ->ofExternalIds(new Collection([$repository->external_id]))
         ->get();
 
-    expect($namedRepositories->sole()->is($repository))
+    expect($repositoriesOfExternalIds->sole()->is($repository))
         ->toBeTrue();
 });
 
-test('named leaves out a repository with another name', function (): void {
+test('of external ids leaves out a repository with another id', function (): void {
     Repository::factory()->create();
 
-    $namedRepositories = Repository::query()
-        ->named(new Collection([fake()->unique()->slug()]))
+    $repositoriesOfExternalIds = Repository::query()
+        ->ofExternalIds(new Collection([fake()->unique()->sha1()]))
         ->get();
 
-    expect($namedRepositories)
+    expect($repositoriesOfExternalIds)
         ->toBeEmpty();
 });
 
-test('of git hub ids keeps a repository with one of the ids', function (): void {
+test('of full names keeps a repository with one of the full names', function (): void {
     $repository = Repository::factory()->create();
 
-    $repositoriesOfGitHubIds = Repository::query()
-        ->ofGitHubIds(new Collection([$repository->github_id]))
+    $repositoriesOfFullNames = Repository::query()
+        ->ofFullNames(new Collection([$repository->full_name]))
         ->get();
 
-    expect($repositoriesOfGitHubIds->sole()->is($repository))
+    expect($repositoriesOfFullNames->sole()->is($repository))
         ->toBeTrue();
 });
 
-test('of git hub ids leaves out a repository with another id', function (): void {
+test('of full names leaves out a repository with another full name', function (): void {
     Repository::factory()->create();
 
-    $repositoriesOfGitHubIds = Repository::query()
-        ->ofGitHubIds(new Collection([fake()->unique()->sha1()]))
+    $repositoriesOfFullNames = Repository::query()
+        ->ofFullNames(new Collection([sprintf('%s/%s', fake()->slug(), fake()->unique()->slug())]))
         ->get();
 
-    expect($repositoriesOfGitHubIds)
+    expect($repositoriesOfFullNames)
         ->toBeEmpty();
 });
 

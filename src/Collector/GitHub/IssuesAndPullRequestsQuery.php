@@ -13,8 +13,9 @@ use Maarheeze\Compass\Collector\PullRequests\CollectedPullRequest;
 use Webmozart\Assert\Assert;
 
 use function array_key_last;
-use function basename;
+use function array_slice;
 use function count;
+use function explode;
 use function http_build_query;
 use function implode;
 use function in_array;
@@ -98,7 +99,7 @@ readonly class IssuesAndPullRequestsQuery
     {
         return new CollectedIssue(
             Assert::string($itemResponse['node_id']),
-            $this->getRepositoryName($itemResponse),
+            $this->getRepositoryFullName($itemResponse),
             Assert::integer($itemResponse['number']),
             Assert::string($itemResponse['title']),
             Assert::string($itemResponse['html_url']),
@@ -115,7 +116,7 @@ readonly class IssuesAndPullRequestsQuery
     {
         return new CollectedPullRequest(
             Assert::string($itemResponse['node_id']),
-            $this->getRepositoryName($itemResponse),
+            $this->getRepositoryFullName($itemResponse),
             Assert::integer($itemResponse['number']),
             Assert::string($itemResponse['title']),
             Assert::string($itemResponse['html_url']),
@@ -170,9 +171,11 @@ readonly class IssuesAndPullRequestsQuery
     /**
      * @param array<mixed> $itemResponse
      */
-    private function getRepositoryName(array $itemResponse): string
+    private function getRepositoryFullName(array $itemResponse): string
     {
-        return basename(Assert::string($itemResponse['repository_url']));
+        $repositoryUrlSegments = explode('/', Assert::string($itemResponse['repository_url']));
+
+        return implode('/', array_slice($repositoryUrlSegments, -2));
     }
 
     private function getSearchUrl(string $typeQualifier, ?string $createdFrom): string

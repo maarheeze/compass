@@ -15,12 +15,12 @@ test('external ids are the external ids of the issues', function (): void {
         ->toBe([$collectedIssue->externalId]);
 });
 
-test('repository names are the repository names of the issues', function (): void {
+test('repository lookup keys are the repository lookup keys of the issues', function (): void {
     $collectedIssue = CollectedIssueFactory::make();
 
     $collectedIssueCollection = new CollectedIssueCollection([$collectedIssue]);
-    $repositoryNames = $collectedIssueCollection->repositoryNames();
+    $repositoryLookupKeys = $collectedIssueCollection->repositoryLookupKeys();
 
-    expect($repositoryNames->all())
-        ->toBe([$collectedIssue->repositoryName]);
+    expect($repositoryLookupKeys->all())
+        ->toBe([$collectedIssue->repositoryLookupKey]);
 });

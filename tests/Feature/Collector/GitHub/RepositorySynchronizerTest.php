@@ -25,8 +25,9 @@ test('store repositories creates a repository for a new collected repository', f
 
     $this->assertDatabaseHas(Repository::class, [
         'source' => $source,
-        'github_id' => $collectedRepository->externalId,
+        'external_id' => $collectedRepository->externalId,
         'name' => $collectedRepository->name,
+        'full_name' => $collectedRepository->fullName,
         'url' => $collectedRepository->url,
         'default_branch' => $collectedRepository->defaultBranch,
         'last_commit_sha' => $collectedRepository->lastCommitSha,
@@ -77,8 +78,9 @@ test('store repositories updates the last commit sha of a known repository', fun
 test('store repositories updates the name of a known repository', function (): void {
     $repository = Repository::factory()->create(['name' => fake()->unique()->slug()]);
     $collectedRepository = new CollectedRepository(
-        $repository->github_id,
+        $repository->external_id,
         fake()->unique()->slug(),
+        $repository->full_name,
         fake()->url(),
         fake()->word(),
         fake()->sha1(),
@@ -100,6 +102,36 @@ test('store repositories updates the name of a known repository', function (): v
     $this->assertDatabaseHas(Repository::class, [
         'id' => $repository->id,
         'name' => $collectedRepository->name,
+    ]);
+});
+
+test('store repositories updates the full name of a known repository', function (): void {
+    $repository = Repository::factory()->create();
+    $collectedRepository = new CollectedRepository(
+        $repository->external_id,
+        $repository->name,
+        sprintf('%s/%s', fake()->slug(), fake()->unique()->slug()),
+        $repository->url,
+        fake()->word(),
+        fake()->sha1(),
+        CarbonImmutable::parse(fake()->iso8601()),
+        fake()->randomElement(RepositoryVisibility::cases()),
+        fake()->sha1(),
+        fake()->sha1(),
+        fake()->sha1(),
+        fake()->sha1(),
+    );
+
+    $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
+    $repositorySynchronizer->storeRepositories(
+        new CollectedRepositoryCollection([$collectedRepository]),
+        $repository->source,
+        Uuid::generate(),
+    );
+
+    $this->assertDatabaseHas(Repository::class, [
+        'id' => $repository->id,
+        'full_name' => $collectedRepository->fullName,
     ]);
 });
 
@@ -138,15 +170,16 @@ test('store repositories creates a repository for a known external id of another
 
     $this->assertDatabaseHas(Repository::class, [
         'source' => $otherSource,
-        'github_id' => $repository->github_id,
+        'external_id' => $repository->external_id,
     ]);
 });
 
 test('store repositories returns a known repository whose package json version changed', function (): void {
     $repository = Repository::factory()->create(['package_json_oid' => fake()->unique()->sha1()]);
     $collectedRepository = new CollectedRepository(
-        $repository->github_id,
+        $repository->external_id,
         $repository->name,
+        $repository->full_name,
         $repository->url,
         fake()->word(),
         fake()->sha1(),
@@ -179,7 +212,7 @@ test('store repositories returns a new repository with a package json', function
         Uuid::generate(),
     );
 
-    expect($repositoriesWithChangedPackageJson->sole()->github_id)
+    expect($repositoriesWithChangedPackageJson->sole()->external_id)
         ->toBe($collectedRepository->externalId);
 });
 

@@ -58,25 +58,25 @@ test('not returned by run leaves out a pullRequest returned by the run', functio
         ->toBeEmpty();
 });
 
-test('of git hub ids keeps a pullRequest with one of the ids', function (): void {
+test('of external ids keeps a pullRequest with one of the ids', function (): void {
     $pullRequest = PullRequest::factory()->create();
 
-    $pullRequestsOfGitHubIds = PullRequest::query()
-        ->ofGitHubIds(new Collection([$pullRequest->github_id]))
+    $pullRequestsOfExternalIds = PullRequest::query()
+        ->ofExternalIds(new Collection([$pullRequest->external_id]))
         ->get();
 
-    expect($pullRequestsOfGitHubIds->sole()->is($pullRequest))
+    expect($pullRequestsOfExternalIds->sole()->is($pullRequest))
         ->toBeTrue();
 });
 
-test('of git hub ids leaves out a pullRequest with another id', function (): void {
+test('of external ids leaves out a pullRequest with another id', function (): void {
     PullRequest::factory()->create();
 
-    $pullRequestsOfGitHubIds = PullRequest::query()
-        ->ofGitHubIds(new Collection([fake()->unique()->sha1()]))
+    $pullRequestsOfExternalIds = PullRequest::query()
+        ->ofExternalIds(new Collection([fake()->unique()->sha1()]))
         ->get();
 
-    expect($pullRequestsOfGitHubIds)
+    expect($pullRequestsOfExternalIds)
         ->toBeEmpty();
 });
 
@@ -90,4 +90,26 @@ test('latest opened orders the pull requests from the most recently opened', fun
 
     expect($pullRequestsLatestOpened->modelKeys())
         ->toEqual([$newerPullRequest->id, $olderPullRequest->id]);
+});
+
+test('of source keeps a pull request of the source', function (): void {
+    $pullRequestOfSource = PullRequest::factory()->create();
+
+    $pullRequestsOfSource = PullRequest::query()
+        ->ofSource($pullRequestOfSource->source)
+        ->get();
+
+    expect($pullRequestsOfSource->sole()->is($pullRequestOfSource))
+        ->toBeTrue();
+});
+
+test('of source leaves out a pull request of another source', function (): void {
+    PullRequest::factory()->create(['source' => fake()->unique()->slug()]);
+
+    $pullRequestsOfSource = PullRequest::query()
+        ->ofSource(fake()->unique()->slug())
+        ->get();
+
+    expect($pullRequestsOfSource)
+        ->toBeEmpty();
 });

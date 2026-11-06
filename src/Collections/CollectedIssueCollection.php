@@ -25,10 +25,10 @@ class CollectedIssueCollection extends Collection
     /**
      * @return Collection<int, string>
      */
-    public function repositoryNames(): Collection
+    public function repositoryLookupKeys(): Collection
     {
         return $this->toBase()->map(static function (CollectedIssue $collectedIssue): string {
-            return $collectedIssue->repositoryName;
+            return $collectedIssue->repositoryLookupKey;
         });
     }
 }

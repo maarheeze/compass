@@ -58,25 +58,25 @@ test('not returned by run leaves out a issue returned by the run', function (): 
         ->toBeEmpty();
 });
 
-test('of git hub ids keeps a issue with one of the ids', function (): void {
+test('of external ids keeps a issue with one of the ids', function (): void {
     $issue = Issue::factory()->create();
 
-    $issuesOfGitHubIds = Issue::query()
-        ->ofGitHubIds(new Collection([$issue->github_id]))
+    $issuesOfExternalIds = Issue::query()
+        ->ofExternalIds(new Collection([$issue->external_id]))
         ->get();
 
-    expect($issuesOfGitHubIds->sole()->is($issue))
+    expect($issuesOfExternalIds->sole()->is($issue))
         ->toBeTrue();
 });
 
-test('of git hub ids leaves out a issue with another id', function (): void {
+test('of external ids leaves out a issue with another id', function (): void {
     Issue::factory()->create();
 
-    $issuesOfGitHubIds = Issue::query()
-        ->ofGitHubIds(new Collection([fake()->unique()->sha1()]))
+    $issuesOfExternalIds = Issue::query()
+        ->ofExternalIds(new Collection([fake()->unique()->sha1()]))
         ->get();
 
-    expect($issuesOfGitHubIds)
+    expect($issuesOfExternalIds)
         ->toBeEmpty();
 });
 
@@ -90,4 +90,26 @@ test('latest opened orders the issues from the most recently opened', function (
 
     expect($issuesLatestOpened->modelKeys())
         ->toEqual([$newerIssue->id, $olderIssue->id]);
+});
+
+test('of source keeps a issue of the source', function (): void {
+    $issueOfSource = Issue::factory()->create();
+
+    $issuesOfSource = Issue::query()
+        ->ofSource($issueOfSource->source)
+        ->get();
+
+    expect($issuesOfSource->sole()->is($issueOfSource))
+        ->toBeTrue();
+});
+
+test('of source leaves out a issue of another source', function (): void {
+    Issue::factory()->create(['source' => fake()->unique()->slug()]);
+
+    $issuesOfSource = Issue::query()
+        ->ofSource(fake()->unique()->slug())
+        ->get();
+
+    expect($issuesOfSource)
+        ->toBeEmpty();
 });

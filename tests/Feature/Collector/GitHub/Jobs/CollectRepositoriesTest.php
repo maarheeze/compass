@@ -28,6 +28,7 @@ test('handle stores the repositories of the page', function (): void {
     $repositoryResponse = [
         'id' => fake()->sha1(),
         'name' => fake()->slug(),
+        'nameWithOwner' => sprintf('%s/%s', fake()->slug(), fake()->slug()),
         'url' => fake()->url(),
         'visibility' => fake()->randomElement(['INTERNAL', 'PRIVATE', 'PUBLIC']),
         'defaultBranchRef' => [
@@ -204,6 +205,7 @@ test('handle raises package json changed for a repository whose package json ver
     $repositoryResponse = [
         'id' => fake()->sha1(),
         'name' => fake()->slug(),
+        'nameWithOwner' => sprintf('%s/%s', fake()->slug(), fake()->slug()),
         'url' => fake()->url(),
         'visibility' => fake()->randomElement(['INTERNAL', 'PRIVATE', 'PUBLIC']),
         'defaultBranchRef' => [
@@ -240,6 +242,6 @@ test('handle raises package json changed for a repository whose package json ver
     $this->app->call([$collectRepositories, 'handle']);
 
     $eventFake->assertDispatched(PackageJsonChanged::class, static function (PackageJsonChanged $packageJsonChanged) use ($repositoryResponse): bool {
-        return $packageJsonChanged->repository->github_id === $repositoryResponse['id'];
+        return $packageJsonChanged->repository->external_id === $repositoryResponse['id'];
     });
 });

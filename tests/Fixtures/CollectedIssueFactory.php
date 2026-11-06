@@ -8,6 +8,7 @@ use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collector\Issues\CollectedIssue;
 
 use function fake;
+use function sprintf;
 
 class CollectedIssueFactory
 {
@@ -15,7 +16,7 @@ class CollectedIssueFactory
     {
         return new CollectedIssue(
             fake()->unique()->sha1(),
-            fake()->slug(),
+            sprintf('%s/%s', fake()->slug(), fake()->slug()),
             fake()->numberBetween(1, 9999),
             fake()->sentence(),
             fake()->url(),
