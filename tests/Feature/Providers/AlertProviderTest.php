@@ -10,13 +10,19 @@ use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteClientUnauthorized;
 use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteDebugEnabled;
 use Maarheeze\Compass\Alerts\Listeners\Client\EvaluateSiteNotInProduction;
 use Maarheeze\Compass\Alerts\Listeners\Composer\EvaluateComposerMinimumStability;
-use Maarheeze\Compass\Alerts\Listeners\Composer\EvaluateComposerWarning;
-use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteBehind;
+use Maarheeze\Compass\Alerts\Listeners\Composer\EvaluateComposerWarningOnComposerJsonChanged;
+use Maarheeze\Compass\Alerts\Listeners\Composer\EvaluateComposerWarningOnComposerLockChanged;
+use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteBehindOnRepositoriesCollected;
+use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteBehindOnSitesCollected;
 use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteDeploymentOverdue;
-use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteMissing;
+use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteMissingOnSiteMissingIgnored;
+use Maarheeze\Compass\Alerts\Listeners\Forge\EvaluateSiteMissingOnSitesCollected;
 use Maarheeze\Compass\Alerts\Listeners\Forge\ResolveMissingSiteConditions;
-use Maarheeze\Compass\Alerts\Listeners\GitHub\EvaluateDependabotCoverage;
-use Maarheeze\Compass\Alerts\Listeners\GitHub\EvaluateRepositoryMissing;
+use Maarheeze\Compass\Alerts\Listeners\GitHub\EvaluateDependabotCoverageOnComposerJsonChanged;
+use Maarheeze\Compass\Alerts\Listeners\GitHub\EvaluateDependabotCoverageOnDependabotYmlChanged;
+use Maarheeze\Compass\Alerts\Listeners\GitHub\EvaluateDependabotCoverageOnPackageJsonChanged;
+use Maarheeze\Compass\Alerts\Listeners\GitHub\EvaluateRepositoryMissingOnRepositoriesCollected;
+use Maarheeze\Compass\Alerts\Listeners\GitHub\EvaluateRepositoryMissingOnRepositoryMissingIgnored;
 use Maarheeze\Compass\Alerts\Listeners\SendAlertNotifications;
 use Maarheeze\Compass\Alerts\Listeners\SiteEndpoint\EvaluateSiteEndpointDown;
 use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
@@ -66,28 +72,28 @@ test('evaluate incompatible client listens to site inspected', function (): void
     $eventFake->assertListening(SiteInspected::class, EvaluateSiteClientIncompatible::class);
 });
 
-test('evaluate missing repository listens to repositories collected', function (): void {
+test('evaluate repository missing on repositories collected listens to repositories collected', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(RepositoriesCollected::class, EvaluateRepositoryMissing::class);
+    $eventFake->assertListening(RepositoriesCollected::class, EvaluateRepositoryMissingOnRepositoriesCollected::class);
 });
 
-test('evaluate missing repository listens to repository missing ignored', function (): void {
+test('evaluate repository missing on repository missing ignored listens to repository missing ignored', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(RepositoryMissingIgnored::class, EvaluateRepositoryMissing::class);
+    $eventFake->assertListening(RepositoryMissingIgnored::class, EvaluateRepositoryMissingOnRepositoryMissingIgnored::class);
 });
 
-test('evaluate composer warning listens to composer json changed', function (): void {
+test('evaluate composer warning on composer json changed listens to composer json changed', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(ComposerJsonChanged::class, EvaluateComposerWarning::class);
+    $eventFake->assertListening(ComposerJsonChanged::class, EvaluateComposerWarningOnComposerJsonChanged::class);
 });
 
-test('evaluate composer warning listens to composer lock changed', function (): void {
+test('evaluate composer warning on composer lock changed listens to composer lock changed', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(ComposerLockChanged::class, EvaluateComposerWarning::class);
+    $eventFake->assertListening(ComposerLockChanged::class, EvaluateComposerWarningOnComposerLockChanged::class);
 });
 
 test('evaluate composer minimum stability listens to composer json changed', function (): void {
@@ -96,46 +102,46 @@ test('evaluate composer minimum stability listens to composer json changed', fun
     $eventFake->assertListening(ComposerJsonChanged::class, EvaluateComposerMinimumStability::class);
 });
 
-test('evaluate dependabot coverage listens to composer json changed', function (): void {
+test('evaluate dependabot coverage on composer json changed listens to composer json changed', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(ComposerJsonChanged::class, EvaluateDependabotCoverage::class);
+    $eventFake->assertListening(ComposerJsonChanged::class, EvaluateDependabotCoverageOnComposerJsonChanged::class);
 });
 
-test('evaluate dependabot coverage listens to dependabot yml changed', function (): void {
+test('evaluate dependabot coverage on dependabot yml changed listens to dependabot yml changed', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(DependabotYmlChanged::class, EvaluateDependabotCoverage::class);
+    $eventFake->assertListening(DependabotYmlChanged::class, EvaluateDependabotCoverageOnDependabotYmlChanged::class);
 });
 
-test('evaluate dependabot coverage listens to package json changed', function (): void {
+test('evaluate dependabot coverage on package json changed listens to package json changed', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(PackageJsonChanged::class, EvaluateDependabotCoverage::class);
+    $eventFake->assertListening(PackageJsonChanged::class, EvaluateDependabotCoverageOnPackageJsonChanged::class);
 });
 
-test('evaluate missing site listens to sites collected', function (): void {
+test('evaluate site missing on sites collected listens to sites collected', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(SitesCollected::class, EvaluateSiteMissing::class);
+    $eventFake->assertListening(SitesCollected::class, EvaluateSiteMissingOnSitesCollected::class);
 });
 
-test('evaluate missing site listens to site missing ignored', function (): void {
+test('evaluate site missing on site missing ignored listens to site missing ignored', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(SiteMissingIgnored::class, EvaluateSiteMissing::class);
+    $eventFake->assertListening(SiteMissingIgnored::class, EvaluateSiteMissingOnSiteMissingIgnored::class);
 });
 
-test('evaluate site behind listens to repositories collected', function (): void {
+test('evaluate site behind on repositories collected listens to repositories collected', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(RepositoriesCollected::class, EvaluateSiteBehind::class);
+    $eventFake->assertListening(RepositoriesCollected::class, EvaluateSiteBehindOnRepositoriesCollected::class);
 });
 
-test('evaluate site behind listens to sites collected', function (): void {
+test('evaluate site behind on sites collected listens to sites collected', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
-    $eventFake->assertListening(SitesCollected::class, EvaluateSiteBehind::class);
+    $eventFake->assertListening(SitesCollected::class, EvaluateSiteBehindOnSitesCollected::class);
 });
 
 test('evaluate overdue deployment listens to sites collected', function (): void {

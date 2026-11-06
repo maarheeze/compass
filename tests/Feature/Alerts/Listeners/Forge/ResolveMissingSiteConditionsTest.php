@@ -27,7 +27,7 @@ test('handle observes a client condition of a report of a missing site resolved 
         ->create();
 
     $resolveMissingSiteConditions = $this->app->make(ResolveMissingSiteConditions::class);
-    $resolveMissingSiteConditions->handle(new SitesCollected());
+    $resolveMissingSiteConditions->handle(new SitesCollected($siteReport->site->source));
 
     $busFake->assertDispatched(
         HandleConditionObservations::class,
@@ -58,7 +58,7 @@ test('handle observes the endpoint of a missing site no longer down now', functi
         ->create();
 
     $resolveMissingSiteConditions = $this->app->make(ResolveMissingSiteConditions::class);
-    $resolveMissingSiteConditions->handle(new SitesCollected());
+    $resolveMissingSiteConditions->handle(new SitesCollected($siteEndpoint->siteReport->site->source));
 
     $busFake->assertDispatched(
         HandleConditionObservations::class,
@@ -77,12 +77,29 @@ test('handle observes the endpoint of a missing site no longer down now', functi
 test('handle observes nothing for a collected site and its endpoints', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
+    $site = Site::factory()->create(['missing_at' => null]);
     SiteEndpoint::factory()
-        ->for(SiteReport::factory()->for(Site::factory()->state(['missing_at' => null])))
+        ->for(SiteReport::factory()->for($site))
         ->create();
 
     $resolveMissingSiteConditions = $this->app->make(ResolveMissingSiteConditions::class);
-    $resolveMissingSiteConditions->handle(new SitesCollected());
+    $resolveMissingSiteConditions->handle(new SitesCollected($site->source));
+
+    $busFake->assertNothingDispatched();
+});
+
+test('handle observes nothing for a missing site of another source', function (): void {
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
+    SiteEndpoint::factory()
+        ->for(SiteReport::factory()->for(Site::factory()->state([
+            'source' => fake()->unique()->slug(),
+            'missing_at' => fake()->dateTime(),
+        ])))
+        ->create();
+
+    $resolveMissingSiteConditions = $this->app->make(ResolveMissingSiteConditions::class);
+    $resolveMissingSiteConditions->handle(new SitesCollected(fake()->unique()->slug()));
 
     $busFake->assertNothingDispatched();
 });

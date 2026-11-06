@@ -182,7 +182,12 @@ test('handle raises repositories collected', function (): void {
     [$collectRepositories] = new CollectRepositories(Uuid::generate(), $source)->withFakeBatch();
     $this->app->call([$collectRepositories, 'handle']);
 
-    $eventFake->assertDispatched(RepositoriesCollected::class);
+    $eventFake->assertDispatched(
+        RepositoriesCollected::class,
+        static function (RepositoriesCollected $repositoriesCollected) use ($source): bool {
+            return $repositoriesCollected->source === $source;
+        },
+    );
 });
 
 test('handle raises package json changed for a repository whose package json version changed', function (): void {

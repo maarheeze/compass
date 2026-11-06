@@ -35,7 +35,7 @@ test('handle observes an overdue deployment now', function (): void {
     ]);
 
     $evaluateOverdueDeployment = $this->app->make(EvaluateSiteDeploymentOverdue::class);
-    $evaluateOverdueDeployment->handle(new SitesCollected());
+    $evaluateOverdueDeployment->handle(new SitesCollected($site->source));
 
     $busFake->assertDispatched(
         HandleConditionObservations::class,
@@ -64,7 +64,7 @@ test('handle observes an up-to-date site without an overdue deployment now', fun
     ]);
 
     $evaluateOverdueDeployment = $this->app->make(EvaluateSiteDeploymentOverdue::class);
-    $evaluateOverdueDeployment->handle(new SitesCollected());
+    $evaluateOverdueDeployment->handle(new SitesCollected($site->source));
 
     $busFake->assertDispatched(
         HandleConditionObservations::class,
@@ -78,4 +78,15 @@ test('handle observes an up-to-date site without an overdue deployment now', fun
             });
         },
     );
+});
+
+test('handle observes nothing for a site of another source', function (): void {
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
+    Site::factory()->create(['source' => fake()->unique()->slug()]);
+
+    $evaluateOverdueDeployment = $this->app->make(EvaluateSiteDeploymentOverdue::class);
+    $evaluateOverdueDeployment->handle(new SitesCollected(fake()->unique()->slug()));
+
+    $busFake->assertNothingDispatched();
 });

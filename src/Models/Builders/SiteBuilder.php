@@ -35,6 +35,13 @@ class SiteBuilder extends Builder
         return $this->whereNot('run_id', $runId);
     }
 
+    public function ofRepositorySource(string $source): self
+    {
+        return $this->whereHas('repository', static function (RepositoryBuilder $repositoryQuery) use ($source): void {
+            $repositoryQuery->ofSource($source);
+        });
+    }
+
     public function ofSource(string $source): self
     {
         return $this->where('source', $source);

@@ -62,7 +62,7 @@ class CollectRepositories implements ShouldQueue
 
         $repositorySynchronizer->markUncollectedMissing($this->source, $this->runId);
 
-        $events->dispatch(new RepositoriesCollected());
+        $events->dispatch(new RepositoriesCollected($this->source));
 
         $collectorLogger->info('Repositories collector ended');
 

@@ -2,37 +2,26 @@
 
 declare(strict_types=1);
 
-namespace Maarheeze\Compass\Alerts\Listeners\GitHub;
+namespace Maarheeze\Compass\Alerts;
 
 use Carbon\CarbonImmutable;
-use Illuminate\Contracts\Bus\QueueingDispatcher;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Maarheeze\Compass\Alerts\AlertType;
-use Maarheeze\Compass\Alerts\ConditionObservation;
-use Maarheeze\Compass\Alerts\ConditionState;
-use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Analyzer\Dependabot\DependabotCoverageChecker;
 use Maarheeze\Compass\Analyzer\Dependabot\PackageEcosystem;
 use Maarheeze\Compass\Collections\ConditionObservationCollection;
-use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
-use Maarheeze\Compass\Collector\Events\DependabotYmlChanged;
-use Maarheeze\Compass\Collector\Events\PackageJsonChanged;
 use Maarheeze\Compass\Models\Repository;
 use Psr\Clock\ClockInterface;
 
-readonly class EvaluateDependabotCoverage implements ShouldQueue
+readonly class DependabotCoverageEvaluator
 {
     public function __construct(
         private ClockInterface $clock,
         private DependabotCoverageChecker $dependabotCoverageChecker,
-        private QueueingDispatcher $dispatcher,
     ) {
     }
 
-    public function handle(ComposerJsonChanged|DependabotYmlChanged|PackageJsonChanged $changedEvent): void
+    public function conditionObservations(Repository $repository): ConditionObservationCollection
     {
         $observedAt = CarbonImmutable::instance($this->clock->now());
-        $repository = $changedEvent->repository->load(['composerJson', 'dependabotYml']);
 
         $conditionObservations = new ConditionObservationCollection();
 
@@ -45,7 +34,7 @@ readonly class EvaluateDependabotCoverage implements ShouldQueue
             ));
         }
 
-        $this->dispatcher->dispatch(new HandleConditionObservations($conditionObservations));
+        return $conditionObservations;
     }
 
     private function alertType(PackageEcosystem $packageEcosystem): AlertType

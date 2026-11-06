@@ -147,5 +147,10 @@ test('handle raises sites collected', function (): void {
     [$collectSites] = new CollectSites(Uuid::generate(), $source)->withFakeBatch();
     $this->app->call([$collectSites, 'handle']);
 
-    $eventFake->assertDispatched(SitesCollected::class);
+    $eventFake->assertDispatched(
+        SitesCollected::class,
+        static function (SitesCollected $sitesCollected) use ($source): bool {
+            return $sitesCollected->source === $source;
+        },
+    );
 });

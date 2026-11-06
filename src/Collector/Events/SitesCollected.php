@@ -6,4 +6,8 @@ namespace Maarheeze\Compass\Collector\Events;
 
 readonly class SitesCollected
 {
+    public function __construct(
+        public string $source,
+    ) {
+    }
 }

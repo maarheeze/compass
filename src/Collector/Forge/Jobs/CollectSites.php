@@ -54,7 +54,7 @@ class CollectSites implements ShouldQueue
 
         $siteSynchronizer->markUncollectedMissing($this->source, $this->runId);
 
-        $events->dispatch(new SitesCollected());
+        $events->dispatch(new SitesCollected($this->source));
 
         $collectorLogger->info('Sites collector ended');
     }

@@ -355,3 +355,25 @@ test('of git hub ids leaves out a repository with another id', function (): void
     expect($repositoriesOfGitHubIds)
         ->toBeEmpty();
 });
+
+test('of source keeps a repository of the source', function (): void {
+    $repositoryOfSource = Repository::factory()->create();
+
+    $repositoriesOfSource = Repository::query()
+        ->ofSource($repositoryOfSource->source)
+        ->get();
+
+    expect($repositoriesOfSource->sole()->is($repositoryOfSource))
+        ->toBeTrue();
+});
+
+test('of source leaves out a repository of another source', function (): void {
+    Repository::factory()->create(['source' => fake()->unique()->slug()]);
+
+    $repositoriesOfSource = Repository::query()
+        ->ofSource(fake()->unique()->slug())
+        ->get();
+
+    expect($repositoriesOfSource)
+        ->toBeEmpty();
+});

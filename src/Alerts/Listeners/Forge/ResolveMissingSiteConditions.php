@@ -37,6 +37,7 @@ readonly class ResolveMissingSiteConditions implements ShouldQueue
     {
         $observedAt = CarbonImmutable::instance($this->clock->now());
         $missingSiteChunks = Site::query()
+            ->ofSource($sitesCollected->source)
             ->notCollected()
             ->with('reports.endpoints')
             ->lazyById()

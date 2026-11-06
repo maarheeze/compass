@@ -32,6 +32,7 @@ readonly class EvaluateSiteDeploymentOverdue implements ShouldQueue
         $observedAt = CarbonImmutable::instance($this->clock->now());
 
         $siteChunks = Site::query()
+            ->ofSource($sitesCollected->source)
             ->with('repository')
             ->lazyById()
             ->chunk(100);

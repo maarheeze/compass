@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Uuid\Uuid;
 
@@ -124,5 +125,51 @@ test('not returned by run leaves out a site returned by the run', function (): v
         ->get();
 
     expect($sitesNotReturnedByRun)
+        ->toBeEmpty();
+});
+
+test('of source keeps a site of the source', function (): void {
+    $siteOfSource = Site::factory()->create();
+
+    $sitesOfSource = Site::query()
+        ->ofSource($siteOfSource->source)
+        ->get();
+
+    expect($sitesOfSource->sole()->is($siteOfSource))
+        ->toBeTrue();
+});
+
+test('of source leaves out a site of another source', function (): void {
+    Site::factory()->create(['source' => fake()->unique()->slug()]);
+
+    $sitesOfSource = Site::query()
+        ->ofSource(fake()->unique()->slug())
+        ->get();
+
+    expect($sitesOfSource)
+        ->toBeEmpty();
+});
+
+test('of repository source keeps a site whose repository belongs to the source', function (): void {
+    $repository = Repository::factory()->create();
+    $siteOfRepositorySource = Site::factory()->create(['repository_url' => $repository->url]);
+
+    $sitesOfRepositorySource = Site::query()
+        ->ofRepositorySource($repository->source)
+        ->get();
+
+    expect($sitesOfRepositorySource->sole()->is($siteOfRepositorySource))
+        ->toBeTrue();
+});
+
+test('of repository source leaves out a site whose repository belongs to another source', function (): void {
+    $repository = Repository::factory()->create(['source' => fake()->unique()->slug()]);
+    Site::factory()->create(['repository_url' => $repository->url]);
+
+    $sitesOfRepositorySource = Site::query()
+        ->ofRepositorySource(fake()->unique()->slug())
+        ->get();
+
+    expect($sitesOfRepositorySource)
         ->toBeEmpty();
 });
