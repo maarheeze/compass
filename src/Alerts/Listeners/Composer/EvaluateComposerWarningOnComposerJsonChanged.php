@@ -20,10 +20,8 @@ readonly class EvaluateComposerWarningOnComposerJsonChanged implements ShouldQue
 
     public function handle(ComposerJsonChanged $composerJsonChanged): void
     {
-        $repository = $composerJsonChanged->repository->load('composerJson');
-
         $this->dispatcher->dispatch(new HandleConditionObservations(
-            $this->composerWarningEvaluator->conditionObservations($repository),
+            $this->composerWarningEvaluator->conditionObservations($composerJsonChanged->repository),
         ));
     }
 }

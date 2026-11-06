@@ -8,6 +8,7 @@ use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\DependabotCoverageEvaluator;
 use Maarheeze\Compass\Collector\BuiltInDriver;
+use Maarheeze\Compass\Models\DependabotYml;
 use Maarheeze\Compass\Models\Repository;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
@@ -69,3 +70,31 @@ test('conditionObservations observes a package ecosystem the repository does not
     AlertType::DEPENDABOT_COMPOSER_MISSING,
     AlertType::DEPENDABOT_NPM_MISSING,
 ]);
+
+test('conditionObservations judges the dependabot yml stored now, not one loaded before', function (): void {
+    $source = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $source => [
+            'driver' => BuiltInDriver::GITHUB,
+        ],
+    ]);
+    $repository = Repository::factory()->create([
+        'package_json_oid' => fake()->sha1(),
+        'source' => $source,
+    ]);
+    $repository->load('dependabotYml');
+    DependabotYml::factory()->create([
+        'repository_id' => $repository->id,
+        'package_ecosystems' => ['npm'],
+    ]);
+
+    $dependabotCoverageEvaluator = $this->app->make(DependabotCoverageEvaluator::class);
+    $conditionObservations = $dependabotCoverageEvaluator->conditionObservations($repository);
+
+    $hasResolvedObservation = $conditionObservations->contains(static function (ConditionObservation $conditionObservation): bool {
+        return $conditionObservation->alertType === AlertType::DEPENDABOT_NPM_MISSING
+            && $conditionObservation->condition === ConditionState::RESOLVED;
+    });
+    expect($hasResolvedObservation)
+        ->toBeTrue();
+});

@@ -21,6 +21,8 @@ readonly class DependabotCoverageEvaluator
 
     public function conditionObservations(Repository $repository): ConditionObservationCollection
     {
+        $repository->load(['composerJson', 'dependabotYml']);
+
         $observedAt = CarbonImmutable::instance($this->clock->now());
 
         $conditionObservations = new ConditionObservationCollection();

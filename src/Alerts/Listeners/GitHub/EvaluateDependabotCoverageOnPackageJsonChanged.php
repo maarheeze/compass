@@ -20,10 +20,8 @@ readonly class EvaluateDependabotCoverageOnPackageJsonChanged implements ShouldQ
 
     public function handle(PackageJsonChanged $packageJsonChanged): void
     {
-        $repository = $packageJsonChanged->repository->load(['composerJson', 'dependabotYml']);
-
         $this->dispatcher->dispatch(new HandleConditionObservations(
-            $this->dependabotCoverageEvaluator->conditionObservations($repository),
+            $this->dependabotCoverageEvaluator->conditionObservations($packageJsonChanged->repository),
         ));
     }
 }

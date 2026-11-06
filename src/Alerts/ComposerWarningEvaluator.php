@@ -21,6 +21,8 @@ readonly class ComposerWarningEvaluator
 
     public function conditionObservations(Repository $repository): ConditionObservationCollection
     {
+        $repository->load('composerJson');
+
         $observedAt = CarbonImmutable::instance($this->clock->now());
         $detectedComposerWarning = $this->composerWarningDetector->detect($repository);
 

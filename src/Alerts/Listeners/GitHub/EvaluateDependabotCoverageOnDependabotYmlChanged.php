@@ -20,10 +20,8 @@ readonly class EvaluateDependabotCoverageOnDependabotYmlChanged implements Shoul
 
     public function handle(DependabotYmlChanged $dependabotYmlChanged): void
     {
-        $repository = $dependabotYmlChanged->repository->load(['composerJson', 'dependabotYml']);
-
         $this->dispatcher->dispatch(new HandleConditionObservations(
-            $this->dependabotCoverageEvaluator->conditionObservations($repository),
+            $this->dependabotCoverageEvaluator->conditionObservations($dependabotYmlChanged->repository),
         ));
     }
 }

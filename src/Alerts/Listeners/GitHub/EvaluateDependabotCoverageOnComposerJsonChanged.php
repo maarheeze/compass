@@ -20,10 +20,8 @@ readonly class EvaluateDependabotCoverageOnComposerJsonChanged implements Should
 
     public function handle(ComposerJsonChanged $composerJsonChanged): void
     {
-        $repository = $composerJsonChanged->repository->load(['composerJson', 'dependabotYml']);
-
         $this->dispatcher->dispatch(new HandleConditionObservations(
-            $this->dependabotCoverageEvaluator->conditionObservations($repository),
+            $this->dependabotCoverageEvaluator->conditionObservations($composerJsonChanged->repository),
         ));
     }
 }

@@ -88,3 +88,25 @@ test('conditionObservations observes every composer warning resolved now for a r
     AlertType::COMPOSER_PROJECT_WITHOUT_LOCK,
     AlertType::COMPOSER_TYPE_UNKNOWN,
 ]);
+
+test('conditionObservations judges the composer json stored now, not one loaded before', function (): void {
+    $repository = Repository::factory()->create([
+        'composer_json_oid' => fake()->sha1(),
+        'composer_lock_oid' => null,
+    ]);
+    $repository->load('composerJson');
+    ComposerJson::factory()->create([
+        'repository_id' => $repository->id,
+        'type' => 'project',
+    ]);
+
+    $composerWarningEvaluator = $this->app->make(ComposerWarningEvaluator::class);
+    $conditionObservations = $composerWarningEvaluator->conditionObservations($repository);
+
+    $hasActiveObservation = $conditionObservations->contains(static function (ConditionObservation $conditionObservation): bool {
+        return $conditionObservation->alertType === AlertType::COMPOSER_PROJECT_WITHOUT_LOCK
+            && $conditionObservation->condition === ConditionState::ACTIVE;
+    });
+    expect($hasActiveObservation)
+        ->toBeTrue();
+});
