@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Alerts;
 
 use Carbon\CarbonImmutable;
-use Maarheeze\Compass\Analyzer\Forge\DeploymentState;
-use Maarheeze\Compass\Analyzer\Forge\DeploymentStateClassifier;
+use Maarheeze\Compass\Analyzer\Deployment\DeploymentState;
+use Maarheeze\Compass\Analyzer\Deployment\DeploymentStateClassifier;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 

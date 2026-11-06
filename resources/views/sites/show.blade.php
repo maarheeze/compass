@@ -9,7 +9,7 @@
                 <x-compass::subject-name :subject="$site">
                     <h1 class="text-lg font-semibold text-foreground">{{ $site->name }}</h1>
                 </x-compass::subject-name>
-                <x-compass::forge.deployment-state-badge :site="$site" />
+                <x-compass::deployment-state-badge :site="$site" />
             </div>
             <p class="flex flex-wrap items-center gap-x-2 text-sm text-foreground-muted">
                 <a href="{{ $site->url }}" target="_blank" rel="noopener" class="text-accent hover:underline">{{ $site->url }}</a>

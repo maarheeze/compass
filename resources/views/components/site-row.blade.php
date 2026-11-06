@@ -2,7 +2,7 @@
     <td class="px-4 py-3">
         <x-compass::subject-name :subject="$site">
             <a href="{{ $url }}" class="truncate text-base font-semibold text-foreground hover:text-accent">{{ $site->name }}</a>
-            <x-compass::forge.deployment-state-badge :site="$site" />
+            <x-compass::deployment-state-badge :site="$site" />
             @forelse ($site->reports as $siteReport)
                 <x-compass::client-status-badge :status="$siteReport->status" />
             @empty
