@@ -5,34 +5,44 @@ declare(strict_types=1);
 use Illuminate\Support\Collection;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\IssueAssignee;
-use Maarheeze\Compass\Models\User;
 use Maarheeze\Uuid\Uuid;
 
-test('assigned to keeps a issue assigned to the user', function (): void {
-    $user = User::factory()->create();
+test('assigned to keeps a issue of the source assigned to the login', function (): void {
     $issue = Issue::factory()->create();
-    IssueAssignee::factory()->create([
-        'issue_id' => $issue->id,
-        'login' => $user->nickname,
-    ]);
+    $assignee = IssueAssignee::factory()->create(['issue_id' => $issue->id]);
 
-    $issuesAssignedToUser = Issue::query()
-        ->assignedTo($user)
+    $issuesAssignedToLogin = Issue::query()
+        ->assignedTo($issue->source, $assignee->login)
         ->get();
 
-    expect($issuesAssignedToUser->sole()->is($issue))
+    expect($issuesAssignedToLogin->sole()->is($issue))
         ->toBeTrue();
 });
 
 test('assigned to leaves out a issue assigned to someone else', function (): void {
-    $user = User::factory()->create(['nickname' => fake()->unique()->userName()]);
-    IssueAssignee::factory()->create(['login' => fake()->unique()->userName()]);
+    $issue = Issue::factory()->create();
+    IssueAssignee::factory()->create([
+        'issue_id' => $issue->id,
+        'login' => fake()->unique()->userName(),
+    ]);
 
-    $issuesAssignedToUser = Issue::query()
-        ->assignedTo($user)
+    $issuesAssignedToLogin = Issue::query()
+        ->assignedTo($issue->source, fake()->unique()->userName())
         ->get();
 
-    expect($issuesAssignedToUser)
+    expect($issuesAssignedToLogin)
+        ->toBeEmpty();
+});
+
+test('assigned to leaves out a issue of another source', function (): void {
+    $issue = Issue::factory()->create(['source' => fake()->unique()->slug()]);
+    $assignee = IssueAssignee::factory()->create(['issue_id' => $issue->id]);
+
+    $issuesAssignedToLogin = Issue::query()
+        ->assignedTo(fake()->unique()->slug(), $assignee->login)
+        ->get();
+
+    expect($issuesAssignedToLogin)
         ->toBeEmpty();
 });
 

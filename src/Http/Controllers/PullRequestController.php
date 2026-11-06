@@ -6,35 +6,28 @@ namespace Maarheeze\Compass\Http\Controllers;
 
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
-use Maarheeze\Compass\Authentication\AuthenticatedUser;
+use Maarheeze\Compass\Http\Requests\AssigneeFilterRequest;
 use Maarheeze\Compass\Models\PullRequest;
 
 readonly class PullRequestController
 {
     public function __construct(
-        private AuthenticatedUser $authenticatedUser,
         private ViewFactory $view,
     ) {
     }
 
-    public function assigned(): View
+    public function index(AssigneeFilterRequest $assigneeFilterRequest): View
     {
-        return $this->view->make('compass::pull-requests.index', [
-            'pullRequests' => PullRequest::query()
-                ->with(['assignees.user', 'repository'])
-                ->assignedTo($this->authenticatedUser->user())
-                ->latestOpened()
-                ->get(),
-        ]);
-    }
+        $pullRequestQuery = PullRequest::query()
+            ->with(['assignees', 'repository'])
+            ->latestOpened();
 
-    public function index(): View
-    {
+        if ($assigneeFilterRequest->isFilteredOnAssignee()) {
+            $pullRequestQuery->assignedTo($assigneeFilterRequest->source(), $assigneeFilterRequest->assignee());
+        }
+
         return $this->view->make('compass::pull-requests.index', [
-            'pullRequests' => PullRequest::query()
-                ->with(['assignees.user', 'repository'])
-                ->latestOpened()
-                ->get(),
+            'pullRequests' => $pullRequestQuery->get(),
         ]);
     }
 }

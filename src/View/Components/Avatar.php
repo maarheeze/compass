@@ -7,18 +7,19 @@ namespace Maarheeze\Compass\View\Components;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
-use Maarheeze\Compass\Models\User;
+use Maarheeze\Compass\Models\HasAvatar;
 
-class UserAvatar extends Component
+class Avatar extends Component
 {
     public function __construct(
-        public readonly User $user,
+        public readonly HasAvatar $person,
+        public readonly ?string $url,
         private readonly ViewFactory $view,
     ) {
     }
 
     public function render(): View
     {
-        return $this->view->make('compass::components.user-avatar');
+        return $this->view->make('compass::components.avatar');
     }
 }

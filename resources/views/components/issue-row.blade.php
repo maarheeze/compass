@@ -1,5 +1,3 @@
-@props(['issue'])
-
 <tr>
     <td class="px-4 py-3">
         <div class="flex gap-2">
@@ -21,7 +19,7 @@
     <td class="w-32 px-4 py-3">
         <div class="flex justify-end -space-x-1">
             @foreach ($issue->assignees as $assignee)
-                <x-compass::assignee-avatar :assignee="$assignee" class="size-5" />
+                <x-compass::avatar :person="$assignee" :url="$assigneeUrl($assignee)" class="size-5" />
             @endforeach
         </div>
     </td>

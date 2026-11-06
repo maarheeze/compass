@@ -48,9 +48,7 @@ Route::middleware('web')
                 Route::delete('/repositories/{repository}', [RepositoryController::class, 'delete'])->name(RouteName::GITHUB_REPOSITORY_DELETE);
                 Route::post('/repositories/{repository}/ignore', [RepositoryController::class, 'ignore'])->name(RouteName::GITHUB_REPOSITORY_IGNORE);
                 Route::get('/issues', [IssueController::class, 'index'])->name(RouteName::GITHUB_ISSUES);
-                Route::get('/issues/assigned', [IssueController::class, 'assigned'])->name(RouteName::GITHUB_ISSUES_ASSIGNED);
                 Route::get('/pull-requests', [PullRequestController::class, 'index'])->name(RouteName::GITHUB_PULL_REQUESTS);
-                Route::get('/pull-requests/assigned', [PullRequestController::class, 'assigned'])->name(RouteName::GITHUB_PULL_REQUESTS_ASSIGNED);
                 Route::get('/packages/{packageName}', [PackageController::class, 'show'])
                     ->where('packageName', '.+')
                     ->name(RouteName::GITHUB_PACKAGE);

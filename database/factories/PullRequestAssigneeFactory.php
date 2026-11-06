@@ -26,6 +26,7 @@ class PullRequestAssigneeFactory extends Factory
         return [
             'pull_request_id' => PullRequest::factory(),
             'login' => fake()->userName(),
+            'avatar_url' => fake()->imageUrl(),
         ];
     }
 }

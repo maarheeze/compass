@@ -42,7 +42,7 @@ test('store issues links an issue to its repository of the source', function ():
         $collectedIssue->url,
         $collectedIssue->authorLogin,
         $collectedIssue->openedAt,
-        $collectedIssue->assigneeLogins,
+        $collectedIssue->assignees,
     );
 
     $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
@@ -71,7 +71,7 @@ test('store issues leaves an issue unlinked to a repository of another source', 
         $collectedIssue->url,
         $collectedIssue->authorLogin,
         $collectedIssue->openedAt,
-        $collectedIssue->assigneeLogins,
+        $collectedIssue->assignees,
     );
 
     $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
@@ -115,7 +115,8 @@ test('store issues stores the assignees of the issues', function (): void {
             ->where('external_id', $collectedIssue->externalId)
             ->sole()
             ->id,
-        'login' => $collectedIssue->assigneeLogins[0],
+        'login' => $collectedIssue->assignees->sole()->login,
+        'avatar_url' => $collectedIssue->assignees->sole()->avatarUrl,
     ]);
 });
 

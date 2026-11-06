@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Tests\Fixtures;
 
 use Carbon\CarbonImmutable;
+use Maarheeze\Compass\Collections\CollectedAssigneeCollection;
+use Maarheeze\Compass\Collector\CollectedAssignee;
 use Maarheeze\Compass\Collector\PullRequests\CollectedPullRequest;
 
 use function fake;
@@ -23,7 +25,9 @@ class CollectedPullRequestFactory
             fake()->userName(),
             fake()->boolean(),
             CarbonImmutable::parse(fake()->iso8601()),
-            [fake()->unique()->userName()],
+            new CollectedAssigneeCollection([
+                new CollectedAssignee(fake()->unique()->userName(), fake()->imageUrl()),
+            ]),
         );
     }
 }

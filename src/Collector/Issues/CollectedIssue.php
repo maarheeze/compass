@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Collector\Issues;
 
 use Carbon\CarbonImmutable;
+use Maarheeze\Compass\Collections\CollectedAssigneeCollection;
 
 readonly class CollectedIssue
 {
-    /**
-     * @param list<string> $assigneeLogins
-     */
     public function __construct(
         public string $externalId,
         public string $repositoryLookupKey,
@@ -19,7 +17,7 @@ readonly class CollectedIssue
         public string $url,
         public ?string $authorLogin,
         public CarbonImmutable $openedAt,
-        public array $assigneeLogins,
+        public CollectedAssigneeCollection $assignees,
     ) {
     }
 }

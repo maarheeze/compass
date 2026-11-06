@@ -62,11 +62,12 @@ readonly class IssueSynchronizer
         $assigneeValues = [];
 
         foreach ($collectedIssues as $collectedIssue) {
-            foreach ($collectedIssue->assigneeLogins as $assigneeLogin) {
+            foreach ($collectedIssue->assignees as $collectedAssignee) {
                 $assigneeValues[] = [
                     'id' => Uuid::generate(),
                     'issue_id' => $issueIds->get($collectedIssue->externalId),
-                    'login' => $assigneeLogin,
+                    'login' => $collectedAssignee->login,
+                    'avatar_url' => $collectedAssignee->avatarUrl,
                     'created_at' => CarbonImmutable::now(),
                     'updated_at' => CarbonImmutable::now(),
                 ];

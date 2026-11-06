@@ -26,7 +26,7 @@
 
                 <details x-data class="relative ml-2" @click.outside="$el.removeAttribute('open')">
                     <summary class="flex cursor-pointer list-none items-center">
-                        <x-compass::user-avatar :user="$user" class="size-8" />
+                        <x-compass::avatar :person="$user" :url="null" class="size-8" />
                     </summary>
 
                     <div class="absolute right-0 z-10 mt-2 w-56 rounded-md border border-border bg-canvas py-1 shadow-lg">

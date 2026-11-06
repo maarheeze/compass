@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\HasBuilder;
 use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Maarheeze\Compass\Collections\PullRequestAssigneeCollection;
 use Maarheeze\Compass\Database\Factories\PullRequestAssigneeFactory;
 use Maarheeze\Compass\Models\Builders\PullRequestAssigneeBuilder;
@@ -18,15 +17,14 @@ use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
 
 /**
+ * @property string $avatar_url
  * @property CarbonImmutable $created_at
  * @property Uuid $id
  * @property string $login
  * @property Uuid $pull_request_id
  * @property CarbonImmutable $updated_at
- *
- * @property-read ?User $user
  */
-class PullRequestAssignee extends Model
+class PullRequestAssignee extends Model implements HasAvatar
 {
     /** @use HasBuilder<PullRequestAssigneeBuilder> */
     use HasBuilder;
@@ -45,6 +43,7 @@ class PullRequestAssignee extends Model
     public function getFillable(): array
     {
         return [
+            'avatar_url',
             'login',
             'pull_request_id',
         ];
@@ -55,12 +54,14 @@ class PullRequestAssignee extends Model
         return 'compass_pull_request_assignees';
     }
 
-    /**
-     * @return BelongsTo<User, $this>
-     */
-    public function user(): BelongsTo
+    public function avatarName(): string
     {
-        return $this->belongsTo(User::class, 'login', 'nickname');
+        return $this->login;
+    }
+
+    public function avatarUrl(): string
+    {
+        return $this->avatar_url;
     }
 
     /**

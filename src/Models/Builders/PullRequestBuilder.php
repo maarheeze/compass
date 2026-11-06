@@ -7,7 +7,6 @@ namespace Maarheeze\Compass\Models\Builders;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Maarheeze\Compass\Models\PullRequest;
-use Maarheeze\Compass\Models\User;
 use Maarheeze\Uuid\Uuid;
 
 /**
@@ -15,11 +14,13 @@ use Maarheeze\Uuid\Uuid;
  */
 class PullRequestBuilder extends Builder
 {
-    public function assignedTo(User $user): self
+    public function assignedTo(string $source, string $login): self
     {
-        return $this->whereHas('assignees', static function (Builder $assigneeQuery) use ($user): void {
-            $assigneeQuery->where('login', $user->nickname);
-        });
+        return $this
+            ->where('source', $source)
+            ->whereHas('assignees', static function (Builder $assigneeQuery) use ($login): void {
+                $assigneeQuery->where('login', $login);
+            });
     }
 
     public function latestOpened(): self

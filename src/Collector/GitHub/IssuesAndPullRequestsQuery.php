@@ -6,8 +6,10 @@ namespace Maarheeze\Compass\Collector\GitHub;
 
 use Carbon\CarbonImmutable;
 use Generator;
+use Maarheeze\Compass\Collections\CollectedAssigneeCollection;
 use Maarheeze\Compass\Collections\CollectedIssueCollection;
 use Maarheeze\Compass\Collections\CollectedPullRequestCollection;
+use Maarheeze\Compass\Collector\CollectedAssignee;
 use Maarheeze\Compass\Collector\Issues\CollectedIssue;
 use Maarheeze\Compass\Collector\PullRequests\CollectedPullRequest;
 use Webmozart\Assert\Assert;
@@ -69,18 +71,21 @@ readonly class IssuesAndPullRequestsQuery
 
     /**
      * @param array<mixed> $itemResponse
-     *
-     * @return list<string>
      */
-    private function getAssigneeLogins(array $itemResponse): array
+    private function getAssignees(array $itemResponse): CollectedAssigneeCollection
     {
-        $assigneeLogins = [];
+        $collectedAssignees = new CollectedAssigneeCollection();
 
         foreach (Assert::isList($itemResponse['assignees']) as $assigneeResponse) {
-            $assigneeLogins[] = Assert::string(Assert::isArray($assigneeResponse)['login']);
+            $assigneeAttributes = Assert::isArray($assigneeResponse);
+
+            $collectedAssignees->push(new CollectedAssignee(
+                Assert::string($assigneeAttributes['login']),
+                Assert::string($assigneeAttributes['avatar_url']),
+            ));
         }
 
-        return $assigneeLogins;
+        return $collectedAssignees;
     }
 
     private function getAuthorLogin(mixed $userResponse): ?string
@@ -105,7 +110,7 @@ readonly class IssuesAndPullRequestsQuery
             Assert::string($itemResponse['html_url']),
             $this->getAuthorLogin($itemResponse['user']),
             CarbonImmutable::parse(Assert::string($itemResponse['created_at'])),
-            $this->getAssigneeLogins($itemResponse),
+            $this->getAssignees($itemResponse),
         );
     }
 
@@ -123,7 +128,7 @@ readonly class IssuesAndPullRequestsQuery
             $this->getAuthorLogin($itemResponse['user']),
             Assert::boolean($itemResponse['draft']),
             CarbonImmutable::parse(Assert::string($itemResponse['created_at'])),
-            $this->getAssigneeLogins($itemResponse),
+            $this->getAssignees($itemResponse),
         );
     }
 

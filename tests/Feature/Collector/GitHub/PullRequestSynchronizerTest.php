@@ -48,7 +48,7 @@ test('store pull requests links a pull request to its repository of the source',
         $collectedPullRequest->authorLogin,
         $collectedPullRequest->isDraft,
         $collectedPullRequest->openedAt,
-        $collectedPullRequest->assigneeLogins,
+        $collectedPullRequest->assignees,
     );
 
     $pullRequestSynchronizer = $this->app->make(PullRequestSynchronizer::class);
@@ -78,7 +78,7 @@ test('store pull requests leaves a pull request unlinked to a repository of anot
         $collectedPullRequest->authorLogin,
         $collectedPullRequest->isDraft,
         $collectedPullRequest->openedAt,
-        $collectedPullRequest->assigneeLogins,
+        $collectedPullRequest->assignees,
     );
 
     $pullRequestSynchronizer = $this->app->make(PullRequestSynchronizer::class);
@@ -130,7 +130,8 @@ test('store pull requests stores the assignees of the pull requests', function (
             ->where('external_id', $collectedPullRequest->externalId)
             ->sole()
             ->id,
-        'login' => $collectedPullRequest->assigneeLogins[0],
+        'login' => $collectedPullRequest->assignees->sole()->login,
+        'avatar_url' => $collectedPullRequest->assignees->sole()->avatarUrl,
     ]);
 });
 

@@ -6,35 +6,28 @@ namespace Maarheeze\Compass\Http\Controllers;
 
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
-use Maarheeze\Compass\Authentication\AuthenticatedUser;
+use Maarheeze\Compass\Http\Requests\AssigneeFilterRequest;
 use Maarheeze\Compass\Models\Issue;
 
 readonly class IssueController
 {
     public function __construct(
-        private AuthenticatedUser $authenticatedUser,
         private ViewFactory $view,
     ) {
     }
 
-    public function assigned(): View
+    public function index(AssigneeFilterRequest $assigneeFilterRequest): View
     {
-        return $this->view->make('compass::issues.index', [
-            'issues' => Issue::query()
-                ->with(['assignees.user', 'repository'])
-                ->assignedTo($this->authenticatedUser->user())
-                ->latestOpened()
-                ->get(),
-        ]);
-    }
+        $issueQuery = Issue::query()
+            ->with(['assignees', 'repository'])
+            ->latestOpened();
 
-    public function index(): View
-    {
+        if ($assigneeFilterRequest->isFilteredOnAssignee()) {
+            $issueQuery->assignedTo($assigneeFilterRequest->source(), $assigneeFilterRequest->assignee());
+        }
+
         return $this->view->make('compass::issues.index', [
-            'issues' => Issue::query()
-                ->with(['assignees.user', 'repository'])
-                ->latestOpened()
-                ->get(),
+            'issues' => $issueQuery->get(),
         ]);
     }
 }

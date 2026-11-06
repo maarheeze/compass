@@ -20,7 +20,7 @@
     </td>
     <td class="w-10 py-3 pl-4 pr-0">
         @if ($alert->assignee)
-            <x-compass::user-avatar :user="$alert->assignee" class="size-6" />
+            <x-compass::avatar :person="$alert->assignee" :url="null" class="size-6" />
         @endif
     </td>
     <td class="w-11 py-3 pl-2 pr-4">

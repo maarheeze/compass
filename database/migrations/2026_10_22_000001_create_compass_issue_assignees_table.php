@@ -18,6 +18,7 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             $table->string('login')->index();
+            $table->string('avatar_url');
 
             $table->timestamps();
         });

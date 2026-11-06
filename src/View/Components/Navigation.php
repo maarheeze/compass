@@ -72,19 +72,13 @@ class Navigation extends Component
                 $url->route(RouteName::GITHUB_ISSUES->value),
                 'compass::navigation.issues',
                 'compass::icons.issue-opened',
-                $request->routeIs(
-                    RouteName::GITHUB_ISSUES->value,
-                    RouteName::GITHUB_ISSUES_ASSIGNED->value,
-                ),
+                $request->routeIs(RouteName::GITHUB_ISSUES->value),
             ),
             new NavigationTab(
                 $url->route(RouteName::GITHUB_PULL_REQUESTS->value),
                 'compass::navigation.pull_requests',
                 'compass::icons.git-pull-request',
-                $request->routeIs(
-                    RouteName::GITHUB_PULL_REQUESTS->value,
-                    RouteName::GITHUB_PULL_REQUESTS_ASSIGNED->value,
-                ),
+                $request->routeIs(RouteName::GITHUB_PULL_REQUESTS->value),
             ),
             new NavigationTab(
                 $url->route(RouteName::FORGE_SITES->value),

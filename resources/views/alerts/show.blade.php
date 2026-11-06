@@ -41,7 +41,7 @@
                 <dt class="text-foreground-muted">{{ __('compass::alert.assigned_to') }}</dt>
                 <dd class="text-foreground">
                     @if ($alert->assignee)
-                        <x-compass::user-avatar :user="$alert->assignee" class="size-5" />
+                        <x-compass::avatar :person="$alert->assignee" :url="null" class="size-5" />
                     @endif
                 </dd>
             </dl>
@@ -69,7 +69,11 @@
                                 </td>
                                 <td class="w-16 px-4 py-3">
                                     @if ($historyEntry->user)
-                                        <x-compass::user-avatar :user="$historyEntry->user" class="ml-auto block size-5" />
+                                        <x-compass::avatar
+                                            :person="$historyEntry->user"
+                                            :url="null"
+                                            class="ml-auto block size-5"
+                                        />
                                     @endif
                                 </td>
                             </tr>

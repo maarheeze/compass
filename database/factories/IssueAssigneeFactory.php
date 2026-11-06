@@ -26,6 +26,7 @@ class IssueAssigneeFactory extends Factory
         return [
             'issue_id' => Issue::factory(),
             'login' => fake()->userName(),
+            'avatar_url' => fake()->imageUrl(),
         ];
     }
 }

@@ -20,19 +20,29 @@ test('index contains the open issues', function (): void {
     });
 });
 
-test('assigned contains the issues assigned to the signed in user', function (): void {
-    $user = User::factory()->create(['nickname' => fake()->unique()->userName()]);
+test('index on an assignee contains only the issues assigned to them', function (): void {
     $issue = Issue::factory()->create();
-    IssueAssignee::factory()->create([
-        'issue_id' => $issue->id,
-        'login' => $user->nickname,
-    ]);
+    $assignee = IssueAssignee::factory()->create(['issue_id' => $issue->id]);
     IssueAssignee::factory()->create(['login' => fake()->unique()->userName()]);
-    $this->actingAs($user, AuthenticationProvider::GUARD);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::GITHUB_ISSUES_ASSIGNED));
+    $response = $this->get(route(RouteName::GITHUB_ISSUES, [
+        'source' => $issue->source,
+        'assignee' => $assignee->login,
+    ]));
 
-    $response->assertViewHas('issues', static function (IssueCollection $viewIssues) use ($issue): bool {
-        return $viewIssues->sole()->is($issue);
-    });
+    $response->assertViewHas(
+        'issues',
+        static function (IssueCollection $viewIssues) use ($issue): bool {
+            return $viewIssues->sole()->is($issue);
+        },
+    );
+});
+
+test('index refuses an assignee without a source', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::GITHUB_ISSUES, ['assignee' => fake()->userName()]));
+
+    $response->assertInvalid('source');
 });

@@ -5,34 +5,44 @@ declare(strict_types=1);
 use Illuminate\Support\Collection;
 use Maarheeze\Compass\Models\PullRequest;
 use Maarheeze\Compass\Models\PullRequestAssignee;
-use Maarheeze\Compass\Models\User;
 use Maarheeze\Uuid\Uuid;
 
-test('assigned to keeps a pull request assigned to the user', function (): void {
-    $user = User::factory()->create();
+test('assigned to keeps a pull request of the source assigned to the login', function (): void {
     $pullRequest = PullRequest::factory()->create();
-    PullRequestAssignee::factory()->create([
-        'pull_request_id' => $pullRequest->id,
-        'login' => $user->nickname,
-    ]);
+    $assignee = PullRequestAssignee::factory()->create(['pull_request_id' => $pullRequest->id]);
 
-    $pullRequestsAssignedToUser = PullRequest::query()
-        ->assignedTo($user)
+    $pullRequestsAssignedToLogin = PullRequest::query()
+        ->assignedTo($pullRequest->source, $assignee->login)
         ->get();
 
-    expect($pullRequestsAssignedToUser->sole()->is($pullRequest))
+    expect($pullRequestsAssignedToLogin->sole()->is($pullRequest))
         ->toBeTrue();
 });
 
 test('assigned to leaves out a pull request assigned to someone else', function (): void {
-    $user = User::factory()->create(['nickname' => fake()->unique()->userName()]);
-    PullRequestAssignee::factory()->create(['login' => fake()->unique()->userName()]);
+    $pullRequest = PullRequest::factory()->create();
+    PullRequestAssignee::factory()->create([
+        'pull_request_id' => $pullRequest->id,
+        'login' => fake()->unique()->userName(),
+    ]);
 
-    $pullRequestsAssignedToUser = PullRequest::query()
-        ->assignedTo($user)
+    $pullRequestsAssignedToLogin = PullRequest::query()
+        ->assignedTo($pullRequest->source, fake()->unique()->userName())
         ->get();
 
-    expect($pullRequestsAssignedToUser)
+    expect($pullRequestsAssignedToLogin)
+        ->toBeEmpty();
+});
+
+test('assigned to leaves out a pull request of another source', function (): void {
+    $pullRequest = PullRequest::factory()->create(['source' => fake()->unique()->slug()]);
+    $assignee = PullRequestAssignee::factory()->create(['pull_request_id' => $pullRequest->id]);
+
+    $pullRequestsAssignedToLogin = PullRequest::query()
+        ->assignedTo(fake()->unique()->slug(), $assignee->login)
+        ->get();
+
+    expect($pullRequestsAssignedToLogin)
         ->toBeEmpty();
 });
 

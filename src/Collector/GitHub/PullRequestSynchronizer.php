@@ -63,11 +63,12 @@ readonly class PullRequestSynchronizer
         $assigneeValues = [];
 
         foreach ($collectedPullRequests as $collectedPullRequest) {
-            foreach ($collectedPullRequest->assigneeLogins as $assigneeLogin) {
+            foreach ($collectedPullRequest->assignees as $collectedAssignee) {
                 $assigneeValues[] = [
                     'id' => Uuid::generate(),
                     'pull_request_id' => $pullRequestIds->get($collectedPullRequest->externalId),
-                    'login' => $assigneeLogin,
+                    'login' => $collectedAssignee->login,
+                    'avatar_url' => $collectedAssignee->avatarUrl,
                     'created_at' => CarbonImmutable::now(),
                     'updated_at' => CarbonImmutable::now(),
                 ];

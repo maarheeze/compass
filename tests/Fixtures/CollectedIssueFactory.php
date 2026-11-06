@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Tests\Fixtures;
 
 use Carbon\CarbonImmutable;
+use Maarheeze\Compass\Collections\CollectedAssigneeCollection;
+use Maarheeze\Compass\Collector\CollectedAssignee;
 use Maarheeze\Compass\Collector\Issues\CollectedIssue;
 
 use function fake;
@@ -22,7 +24,9 @@ class CollectedIssueFactory
             fake()->url(),
             fake()->userName(),
             CarbonImmutable::parse(fake()->iso8601()),
-            [fake()->unique()->userName()],
+            new CollectedAssigneeCollection([
+                new CollectedAssignee(fake()->unique()->userName(), fake()->imageUrl()),
+            ]),
         );
     }
 }

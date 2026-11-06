@@ -166,7 +166,8 @@ test('issues hold the collected issues in the response', function (): void {
                     'created_at' => $collectedIssue->openedAt->toIso8601String(),
                     'assignees' => [
                         [
-                            'login' => $collectedIssue->assigneeLogins[0],
+                            'login' => $collectedIssue->assignees->sole()->login,
+                            'avatar_url' => $collectedIssue->assignees->sole()->avatarUrl,
                         ],
                     ],
                 ],
@@ -206,7 +207,8 @@ test('pull requests hold the collected pull requests in the response', function 
                     'created_at' => $collectedPullRequest->openedAt->toIso8601String(),
                     'assignees' => [
                         [
-                            'login' => $collectedPullRequest->assigneeLogins[0],
+                            'login' => $collectedPullRequest->assignees->sole()->login,
+                            'avatar_url' => $collectedPullRequest->assignees->sole()->avatarUrl,
                         ],
                     ],
                 ],
