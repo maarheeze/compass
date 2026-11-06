@@ -2,10 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Maarheeze\Compass\Collector\Client;
+namespace Maarheeze\Compass\Collector\Drivers\CompassClient;
 
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Response;
 use InvalidArgumentException;
 use Maarheeze\Compass\Models\SiteReport;
@@ -16,9 +14,7 @@ use function is_array;
 readonly class SiteQuery
 {
     public function __construct(
-        private ClientKey $clientKey,
-        private ClientUrlFactory $clientUrlFactory,
-        private HttpFactory $http,
+        private SiteClient $siteClient,
     ) {
     }
 
@@ -27,28 +23,12 @@ readonly class SiteQuery
      */
     public function report(SiteReport $siteReport): ClientReport
     {
-        $reportResponse = $this->getReportResponse($this->get($siteReport));
+        $reportResponse = $this->getReportResponse($this->siteClient->get($siteReport));
 
         try {
             return $this->getClientReport($reportResponse);
         } catch (InvalidArgumentException $exception) {
             throw new ClientIncompatible(previous: $exception);
-        }
-    }
-
-    /**
-     * @throws ClientUnreachable
-     */
-    private function get(SiteReport $siteReport): Response
-    {
-        try {
-            return $this->http
-                ->withToken($this->clientKey->forSiteReport($siteReport))
-                ->acceptJson()
-                ->timeout(10)
-                ->get($this->clientUrlFactory->create($siteReport));
-        } catch (ConnectionException $exception) {
-            throw new ClientUnreachable(previous: $exception);
         }
     }
 

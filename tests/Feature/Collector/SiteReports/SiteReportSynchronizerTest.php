@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Collector\Client\SiteReportSynchronizer;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteReport;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
+use Maarheeze\Compass\Collector\SiteReports\SiteReportSynchronizer;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteReport;

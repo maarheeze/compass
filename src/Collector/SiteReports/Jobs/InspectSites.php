@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Maarheeze\Compass\Collector\Client\Jobs;
+namespace Maarheeze\Compass\Collector\SiteReports\Jobs;
 
 use Illuminate\Bus\Batch;
 use Illuminate\Bus\Batchable;

@@ -2,12 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Maarheeze\Compass\Collector\Client;
+namespace Maarheeze\Compass\Collector\SiteReports;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\ConnectionInterface;
-use Maarheeze\Compass\Collector\SiteReports\CollectedSiteReport;
-use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Models\SiteReport;
 use Throwable;
 

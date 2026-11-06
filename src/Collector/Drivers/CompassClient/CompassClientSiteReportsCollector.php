@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Maarheeze\Compass\Collector\Client;
+namespace Maarheeze\Compass\Collector\Drivers\CompassClient;
 
-use Illuminate\Http\Client\Factory as HttpFactory;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteReport;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollector;
@@ -13,9 +12,7 @@ use Maarheeze\Compass\Models\SiteReport;
 readonly class CompassClientSiteReportsCollector implements SiteReportsCollector
 {
     public function __construct(
-        private HttpFactory $http,
-        private string $key,
-        private string $path,
+        private SiteClient $siteClient,
     ) {
     }
 
@@ -24,7 +21,7 @@ readonly class CompassClientSiteReportsCollector implements SiteReportsCollector
      */
     public function siteReport(SiteReport $siteReport): CollectedSiteReport
     {
-        $siteQuery = new SiteQuery(new ClientKey($this->key), new ClientUrlFactory($this->path), $this->http);
+        $siteQuery = new SiteQuery($this->siteClient);
 
         try {
             $clientReport = $siteQuery->report($siteReport);

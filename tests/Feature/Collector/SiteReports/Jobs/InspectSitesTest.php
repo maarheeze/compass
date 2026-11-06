@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Maarheeze\Compass\Collector\BuiltInDriver;
-use Maarheeze\Compass\Collector\Client\Jobs\InspectSite;
-use Maarheeze\Compass\Collector\Client\Jobs\InspectSites;
+use Maarheeze\Compass\Collector\SiteReports\Jobs\InspectSite;
+use Maarheeze\Compass\Collector\SiteReports\Jobs\InspectSites;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Uuid\Uuid;
 

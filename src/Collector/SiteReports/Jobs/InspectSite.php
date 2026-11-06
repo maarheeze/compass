@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Maarheeze\Compass\Collector\Client\Jobs;
+namespace Maarheeze\Compass\Collector\SiteReports\Jobs;
 
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -11,12 +11,12 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Maarheeze\Compass\Collector\Client\SiteReportSynchronizer;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Collector\MissingState;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollectorManager;
+use Maarheeze\Compass\Collector\SiteReports\SiteReportSynchronizer;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteReport;
 use Throwable;

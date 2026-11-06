@@ -8,8 +8,9 @@ use Closure;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Maarheeze\Compass\Collector\BuiltInDriver;
-use Maarheeze\Compass\Collector\Client\CompassClientSiteReportsCollector;
 use Maarheeze\Compass\Collector\CollectorDrivers;
+use Maarheeze\Compass\Collector\Drivers\CompassClient\CompassClientSiteReportsCollector;
+use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteClient;
 use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Collector\SourceConfigs;
 
@@ -27,11 +28,11 @@ readonly class SiteReportsCollectorManager
         $this->collectorDrivers->extend(
             BuiltInDriver::COMPASS_CLIENT,
             function (Container $container, SourceConfig $sourceConfig): CompassClientSiteReportsCollector {
-                return new CompassClientSiteReportsCollector(
+                return new CompassClientSiteReportsCollector(new SiteClient(
                     $this->http,
                     $sourceConfig->setting('key'),
                     $sourceConfig->setting('path'),
-                );
+                ));
             },
         );
     }
