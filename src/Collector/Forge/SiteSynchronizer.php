@@ -6,7 +6,6 @@ namespace Maarheeze\Compass\Collector\Forge;
 
 use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\CollectedSiteCollection;
-use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Uuid\Uuid;
 
@@ -23,15 +22,15 @@ readonly class SiteSynchronizer
 
     public function storeSites(
         CollectedSiteCollection $collectedSites,
-        SourceConfig $sourceConfig,
+        string $source,
+        int $autoDeployGraceMinutes,
         Uuid $runId,
     ): void {
-        $autoDeployGraceMinutes = $sourceConfig->integerSetting('auto_deploy_grace_minutes');
         $siteValues = [];
 
         foreach ($collectedSites as $collectedSite) {
             $siteValues[] = [
-                'source' => $sourceConfig->key,
+                'source' => $source,
                 'forge_id' => $collectedSite->externalId,
                 'name' => $collectedSite->name,
                 'url' => $collectedSite->url,

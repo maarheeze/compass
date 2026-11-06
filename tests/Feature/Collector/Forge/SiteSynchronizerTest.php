@@ -6,7 +6,6 @@ use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\CollectedSiteCollection;
 use Maarheeze\Compass\Collector\Forge\SiteSynchronizer;
 use Maarheeze\Compass\Collector\Sites\CollectedSite;
-use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Tests\Fixtures\CollectedSiteFactory;
 use Maarheeze\Uuid\Uuid;
@@ -20,7 +19,8 @@ test('store sites creates a site for a new collected site', function (): void {
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
     $siteSynchronizer->storeSites(
         new CollectedSiteCollection([$collectedSite]),
-        new SourceConfig($source, ['auto_deploy_grace_minutes' => $autoDeployGraceMinutes]),
+        $source,
+        $autoDeployGraceMinutes,
         $runId,
     );
 
@@ -46,7 +46,8 @@ test('store sites stores the latest deployment of a collected site', function ()
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
     $siteSynchronizer->storeSites(
         new CollectedSiteCollection([$collectedSite]),
-        new SourceConfig(fake()->slug(), ['auto_deploy_grace_minutes' => fake()->numberBetween(1, 60)]),
+        fake()->slug(),
+        fake()->numberBetween(1, 60),
         Uuid::generate(),
     );
 
@@ -65,7 +66,8 @@ test('store sites stores no deployment for a collected site that was never deplo
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
     $siteSynchronizer->storeSites(
         new CollectedSiteCollection([$collectedSite]),
-        new SourceConfig(fake()->slug(), ['auto_deploy_grace_minutes' => fake()->numberBetween(1, 60)]),
+        fake()->slug(),
+        fake()->numberBetween(1, 60),
         Uuid::generate(),
     );
 
@@ -97,7 +99,8 @@ test('store sites updates the name of a known site', function (): void {
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
     $siteSynchronizer->storeSites(
         new CollectedSiteCollection([$renamedCollectedSite]),
-        new SourceConfig($site->source, ['auto_deploy_grace_minutes' => fake()->numberBetween(1, 60)]),
+        $site->source,
+        fake()->numberBetween(1, 60),
         Uuid::generate(),
     );
 
@@ -117,7 +120,8 @@ test('store sites clears the missing marks of a known site', function (): void {
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
     $siteSynchronizer->storeSites(
         new CollectedSiteCollection([$collectedSite]),
-        new SourceConfig($site->source, ['auto_deploy_grace_minutes' => fake()->numberBetween(1, 60)]),
+        $site->source,
+        fake()->numberBetween(1, 60),
         Uuid::generate(),
     );
 
@@ -136,7 +140,8 @@ test('store sites creates a site for a known external id of another source', fun
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
     $siteSynchronizer->storeSites(
         new CollectedSiteCollection([$collectedSite]),
-        new SourceConfig($otherSource, ['auto_deploy_grace_minutes' => fake()->numberBetween(1, 60)]),
+        $otherSource,
+        fake()->numberBetween(1, 60),
         Uuid::generate(),
     );
 

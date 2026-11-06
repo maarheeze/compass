@@ -123,6 +123,23 @@ test('handle refuses a source without a sites collector', function (): void {
     $this->app->call([$collectSites, 'handle']);
 });
 
+test('handle refuses a source without auto deploy grace minutes before collecting', function (): void {
+    $source = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $source => [
+            'driver' => BuiltInDriver::FORGE,
+            'organization' => fake()->slug(),
+            'token' => fake()->sha1(),
+        ],
+    ]);
+    $this->app->make(HttpFactory::class)->preventStrayRequests();
+
+    $this->expectException(InvalidArgumentException::class);
+
+    [$collectSites] = new CollectSites(Uuid::generate(), $source)->withFakeBatch();
+    $this->app->call([$collectSites, 'handle']);
+});
+
 test('handle raises sites collected', function (): void {
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [

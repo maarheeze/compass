@@ -40,12 +40,14 @@ class CollectSites implements ShouldQueue
         SourceConfigs $sourceConfigs,
     ): void {
         $sitesCollector = $sitesCollectorManager->collector($this->source);
-        $sourceConfig = $sourceConfigs->get($this->source);
+        $autoDeployGraceMinutes = $sourceConfigs
+            ->get($this->source)
+            ->integerSetting('auto_deploy_grace_minutes');
 
         $collectorLogger->info('Sites collector started');
 
         foreach ($sitesCollector->sites() as $collectedSites) {
-            $siteSynchronizer->storeSites($collectedSites, $sourceConfig, $this->runId);
+            $siteSynchronizer->storeSites($collectedSites, $this->source, $autoDeployGraceMinutes, $this->runId);
 
             $collectorLogger->debug('Sites page collected', [
                 'site_count' => $collectedSites->count(),
