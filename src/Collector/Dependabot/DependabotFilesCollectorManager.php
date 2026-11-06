@@ -48,4 +48,9 @@ readonly class DependabotFilesCollectorManager
     {
         $this->collectorDrivers->extend($driverName, $creator);
     }
+
+    public function hasCollector(string $source): bool
+    {
+        return $this->collectorDrivers->has($this->sourceConfigs->get($source)->driver());
+    }
 }

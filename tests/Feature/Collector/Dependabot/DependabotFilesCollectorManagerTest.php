@@ -120,3 +120,58 @@ test('collector refuses a github source with a setting it needs missing or unset
         },
     ],
 ]);
+
+test('has collector is true for a github source', function (): void {
+    $key = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $key => [
+            'driver' => BuiltInDriver::GITHUB,
+        ],
+    ]);
+
+    $dependabotFilesCollectorManager = $this->app->make(DependabotFilesCollectorManager::class);
+    $hasCollector = $dependabotFilesCollectorManager->hasCollector($key);
+
+    expect($hasCollector)
+        ->toBeTrue();
+});
+
+test('has collector is true for a source whose driver is extended', function (): void {
+    $key = fake()->slug();
+    $driverName = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $key => [
+            'driver' => $driverName,
+        ],
+    ]);
+
+    $dependabotFilesCollectorManager = $this->app->make(DependabotFilesCollectorManager::class);
+    $dependabotFilesCollectorManager->extend(
+        $driverName,
+        static function (Container $container, SourceConfig $sourceConfig): GitHubRepositoryFilesCollector {
+            return new GitHubRepositoryFilesCollector(
+                new GitHubClient($container->make(HttpFactory::class), fake()->sha1()),
+                fake()->slug(),
+            );
+        },
+    );
+    $hasCollector = $dependabotFilesCollectorManager->hasCollector($key);
+
+    expect($hasCollector)
+        ->toBeTrue();
+});
+
+test('has collector is false for a source naming a driver that has no dependabot files collector', function (): void {
+    $key = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $key => [
+            'driver' => fake()->randomElement([BuiltInDriver::FORGE, fake()->slug()]),
+        ],
+    ]);
+
+    $dependabotFilesCollectorManager = $this->app->make(DependabotFilesCollectorManager::class);
+    $hasCollector = $dependabotFilesCollectorManager->hasCollector($key);
+
+    expect($hasCollector)
+        ->toBeFalse();
+});

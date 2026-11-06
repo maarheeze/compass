@@ -6,11 +6,13 @@ namespace Maarheeze\Compass\Analyzer\Dependabot;
 
 use Maarheeze\Compass\Analyzer\Composer\RepositoryKind;
 use Maarheeze\Compass\Analyzer\Composer\RepositoryKindClassifier;
+use Maarheeze\Compass\Collector\Dependabot\DependabotFilesCollectorManager;
 use Maarheeze\Compass\Models\Repository;
 
 readonly class DependabotCoverageChecker
 {
     public function __construct(
+        private DependabotFilesCollectorManager $dependabotFilesCollectorManager,
         private RepositoryKindClassifier $repositoryKindClassifier,
     ) {
     }
@@ -37,6 +39,10 @@ readonly class DependabotCoverageChecker
 
     private function isRequired(Repository $repository, PackageEcosystem $packageEcosystem): bool
     {
+        if (!$this->dependabotFilesCollectorManager->hasCollector($repository->source)) {
+            return false;
+        }
+
         return match ($packageEcosystem) {
             PackageEcosystem::COMPOSER => $this->isProject($repository),
             PackageEcosystem::NPM => $repository->package_json_oid !== null,
