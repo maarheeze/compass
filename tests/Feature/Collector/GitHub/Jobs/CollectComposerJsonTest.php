@@ -22,7 +22,7 @@ test('handle queries the blob of the current composer json oid', function (): vo
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
 
     $http = $this->app->make(HttpFactory::class);
     $http->fake([
@@ -45,7 +45,7 @@ test('handle queries the blob of the current composer json oid', function (): vo
             return false;
         }
 
-        return $request['variables']['oid'] === $repository->composer_json_oid;
+        return $request['variables']['oid'] === $repository->composer_json_version;
     });
 });
 
@@ -58,7 +58,7 @@ test('handle stores the composer json with its oid', function (): void {
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
     $type = fake()->word();
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
@@ -77,7 +77,7 @@ test('handle stores the composer json with its oid', function (): void {
 
     $this->assertDatabaseHas(ComposerJson::class, [
         'repository_id' => $repository->id,
-        'oid' => $repository->composer_json_oid,
+        'version' => $repository->composer_json_version,
         'type' => $type,
     ]);
 });
@@ -91,7 +91,7 @@ test('handle removes the composer json when the repository no longer has one', f
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create(['composer_json_oid' => null]);
+    $repository = Repository::factory()->create(['composer_json_version' => null]);
     $composerJson = ComposerJson::factory()->create(['repository_id' => $repository->id]);
 
     $collectComposerJson = new CollectComposerJson($repository, $source);
@@ -109,7 +109,7 @@ test('handle adds the repository to the log context', function (): void {
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create(['composer_json_oid' => null]);
+    $repository = Repository::factory()->create(['composer_json_version' => null]);
 
     $collectComposerJson = new CollectComposerJson($repository, $source);
     $this->app->call([$collectComposerJson, 'handle']);
@@ -144,7 +144,7 @@ test('handle raises composer json changed for the repository when its file is go
     ]);
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
-    $repository = Repository::factory()->create(['composer_json_oid' => null]);
+    $repository = Repository::factory()->create(['composer_json_version' => null]);
 
     $collectComposerJson = new CollectComposerJson($repository, $source);
     $this->app->call([$collectComposerJson, 'handle']);

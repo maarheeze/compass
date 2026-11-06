@@ -26,7 +26,7 @@ test('store sites creates a site for a new collected site', function (): void {
 
     $this->assertDatabaseHas(Site::class, [
         'source' => $source,
-        'forge_id' => $collectedSite->externalId,
+        'external_id' => $collectedSite->externalId,
         'name' => $collectedSite->name,
         'url' => $collectedSite->url,
         'php_version' => $collectedSite->phpVersion,
@@ -52,7 +52,7 @@ test('store sites stores the latest deployment of a collected site', function ()
     );
 
     $this->assertDatabaseHas(Site::class, [
-        'forge_id' => $collectedSite->externalId,
+        'external_id' => $collectedSite->externalId,
         'deployment_status' => $collectedSite->deploymentStatus,
         'deployed_commit_hash' => $collectedSite->deployedCommitHash,
         'deployment_started_at' => $collectedSite->deploymentStartedAt,
@@ -72,7 +72,7 @@ test('store sites stores no deployment for a collected site that was never deplo
     );
 
     $this->assertDatabaseHas(Site::class, [
-        'forge_id' => $collectedSite->externalId,
+        'external_id' => $collectedSite->externalId,
         'deployment_status' => null,
         'deployed_commit_hash' => null,
     ]);
@@ -81,7 +81,7 @@ test('store sites stores no deployment for a collected site that was never deplo
 test('store sites updates the name of a known site', function (): void {
     $site = Site::factory()->create(['name' => fake()->unique()->domainName()]);
     $renamedCollectedSite = new CollectedSite(
-        $site->forge_id,
+        $site->external_id,
         fake()->unique()->domainName(),
         fake()->url(),
         fake()->numerify('php8#'),
@@ -147,7 +147,7 @@ test('store sites creates a site for a known external id of another source', fun
 
     $this->assertDatabaseHas(Site::class, [
         'source' => $otherSource,
-        'forge_id' => $site->forge_id,
+        'external_id' => $site->external_id,
     ]);
 });
 

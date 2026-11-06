@@ -22,10 +22,10 @@ return new class extends Migration
             $table->string('last_commit_sha');
             $table->timestamp('last_commit_committed_at');
             $table->string('visibility');
-            $table->string('composer_json_oid')->nullable();
-            $table->string('composer_lock_oid')->nullable();
-            $table->string('package_json_oid')->nullable();
-            $table->string('dependabot_yml_oid')->nullable();
+            $table->string('composer_json_version')->nullable();
+            $table->string('composer_lock_version')->nullable();
+            $table->string('package_json_version')->nullable();
+            $table->string('dependabot_yml_version')->nullable();
             $table->string('run_id');
             $table->timestamp('collected_at');
             $table->timestamp('missing_at')->nullable();

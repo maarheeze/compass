@@ -24,11 +24,11 @@ readonly class ComposerJsonSynchronizer
     /**
      * @throws Throwable
      */
-    public function store(Repository $repository, string $oid, ComposerJsonSummary $composerJsonSummary): void
+    public function store(Repository $repository, string $version, ComposerJsonSummary $composerJsonSummary): void
     {
-        $this->connection->transaction(static function () use ($repository, $oid, $composerJsonSummary): void {
+        $this->connection->transaction(static function () use ($repository, $version, $composerJsonSummary): void {
             $composerJson = ComposerJson::query()->updateOrCreate(['repository_id' => $repository->id], [
-                'oid' => $oid,
+                'version' => $version,
                 'type' => $composerJsonSummary->type,
                 'php_constraint' => $composerJsonSummary->phpConstraint,
                 'minimum_stability' => $composerJsonSummary->minimumStability,

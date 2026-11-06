@@ -24,11 +24,11 @@ readonly class ComposerLockSynchronizer
     /**
      * @throws Throwable
      */
-    public function store(Repository $repository, string $oid, ComposerLockSummary $composerLockSummary): void
+    public function store(Repository $repository, string $version, ComposerLockSummary $composerLockSummary): void
     {
-        $this->connection->transaction(static function () use ($repository, $oid, $composerLockSummary): void {
+        $this->connection->transaction(static function () use ($repository, $version, $composerLockSummary): void {
             $composerLock = ComposerLock::query()->updateOrCreate(['repository_id' => $repository->id], [
-                'oid' => $oid,
+                'version' => $version,
                 'php_constraint' => $composerLockSummary->phpConstraint,
             ]);
 

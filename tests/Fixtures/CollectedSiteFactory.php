@@ -16,7 +16,7 @@ class CollectedSiteFactory
     public static function forSite(Site $site): CollectedSite
     {
         return new CollectedSite(
-            $site->forge_id,
+            $site->external_id,
             $site->name,
             fake()->url(),
             fake()->numerify('php8#'),

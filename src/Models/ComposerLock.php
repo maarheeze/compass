@@ -20,10 +20,10 @@ use Maarheeze\Uuid\Uuid;
 /**
  * @property CarbonImmutable $created_at
  * @property Uuid $id
- * @property string $oid
  * @property ?string $php_constraint
  * @property Uuid $repository_id
  * @property CarbonImmutable $updated_at
+ * @property string $version
  *
  * @property-read ComposerLockPackageCollection $packages
  * @property-read Repository $repository
@@ -44,9 +44,9 @@ class ComposerLock extends Model
     public function getFillable(): array
     {
         return [
-            'oid',
             'php_constraint',
             'repository_id',
+            'version',
         ];
     }
 

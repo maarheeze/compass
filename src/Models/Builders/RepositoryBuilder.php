@@ -23,17 +23,17 @@ class RepositoryBuilder extends Builder
 
     public function composerJsonOutOfDate(): self
     {
-        return $this->storedFileOutOfDate('composer_json_oid', 'composerJson');
+        return $this->storedFileOutOfDate('composer_json_version', 'composerJson');
     }
 
     public function composerLockOutOfDate(): self
     {
-        return $this->storedFileOutOfDate('composer_lock_oid', 'composerLock');
+        return $this->storedFileOutOfDate('composer_lock_version', 'composerLock');
     }
 
     public function dependabotYmlOutOfDate(): self
     {
-        return $this->storedFileOutOfDate('dependabot_yml_oid', 'dependabotYml');
+        return $this->storedFileOutOfDate('dependabot_yml_version', 'dependabotYml');
     }
 
     public function missing(): self
@@ -79,26 +79,26 @@ class RepositoryBuilder extends Builder
         return $this->where('run_id', $runId);
     }
 
-    private function storedFileOutOfDate(string $oidColumn, string $storedFileRelation): self
+    private function storedFileOutOfDate(string $versionColumn, string $storedFileRelation): self
     {
-        return $this->where(static function (self $repositoryQuery) use ($oidColumn, $storedFileRelation): void {
+        return $this->where(static function (self $repositoryQuery) use ($versionColumn, $storedFileRelation): void {
             $repositoryQuery
-                ->where(static function (self $changedFileQuery) use ($oidColumn, $storedFileRelation): void {
+                ->where(static function (self $changedFileQuery) use ($versionColumn, $storedFileRelation): void {
                     $changedFileQuery
-                        ->whereNotNull($oidColumn)
+                        ->whereNotNull($versionColumn)
                         ->whereDoesntHave(
                             $storedFileRelation,
-                            static function (Builder $storedFileQuery) use ($oidColumn): void {
+                            static function (Builder $storedFileQuery) use ($versionColumn): void {
                                 $storedFileQuery->whereColumn(
-                                    'oid',
-                                    sprintf('compass_repositories.%s', $oidColumn),
+                                    'version',
+                                    sprintf('compass_repositories.%s', $versionColumn),
                                 );
                             },
                         );
                 })
-                ->orWhere(static function (self $removedFileQuery) use ($oidColumn, $storedFileRelation): void {
+                ->orWhere(static function (self $removedFileQuery) use ($versionColumn, $storedFileRelation): void {
                     $removedFileQuery
-                        ->whereNull($oidColumn)
+                        ->whereNull($versionColumn)
                         ->has($storedFileRelation);
                 });
         });

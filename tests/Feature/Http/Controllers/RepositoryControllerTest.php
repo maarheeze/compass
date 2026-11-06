@@ -15,7 +15,7 @@ use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 
 test('index contains the projects', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
         'type' => 'project',
@@ -30,7 +30,7 @@ test('index contains the projects', function (): void {
 });
 
 test('index contains the libraries', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
         'type' => 'library',
@@ -48,7 +48,7 @@ test('index contains the libraries', function (): void {
 });
 
 test('index contains the other repositories', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => null]);
+    $repository = Repository::factory()->create(['composer_json_version' => null]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
     $response = $this->get(route(RouteName::GITHUB_REPOSITORIES));
@@ -62,7 +62,7 @@ test('index contains the other repositories', function (): void {
 });
 
 test('index counts the issues of the repositories', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => null]);
+    $repository = Repository::factory()->create(['composer_json_version' => null]);
     Issue::factory()->create(['repository_id' => $repository->id]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
@@ -77,7 +77,7 @@ test('index counts the issues of the repositories', function (): void {
 });
 
 test('index counts the pull requests of the repositories', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => null]);
+    $repository = Repository::factory()->create(['composer_json_version' => null]);
     PullRequest::factory()->create(['repository_id' => $repository->id]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
@@ -103,7 +103,7 @@ test('show contains the repository', function (): void {
 });
 
 test('show contains the kind of the repository', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
         'type' => 'library',

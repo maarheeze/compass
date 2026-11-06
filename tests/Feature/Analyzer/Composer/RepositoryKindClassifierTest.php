@@ -8,7 +8,7 @@ use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\Repository;
 
 test('classify is other for a repository without a composer json', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => null]);
+    $repository = Repository::factory()->create(['composer_json_version' => null]);
 
     $repositoryKindClassifier = $this->app->make(RepositoryKindClassifier::class);
     $repositoryKind = $repositoryKindClassifier->classify($repository);
@@ -18,7 +18,7 @@ test('classify is other for a repository without a composer json', function (): 
 });
 
 test('classify is library for a composer json of type library', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
         'type' => 'library',
@@ -32,7 +32,7 @@ test('classify is library for a composer json of type library', function (): voi
 });
 
 test('classify is project for a composer json of type project', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
         'type' => 'project',
@@ -46,7 +46,7 @@ test('classify is project for a composer json of type project', function (): voi
 });
 
 test('classify is other for a composer json of another type', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
         'type' => fake()->word(),
@@ -60,7 +60,7 @@ test('classify is other for a composer json of another type', function (): void 
 });
 
 test('classify is other for a composer json that is not collected yet', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
 
     $repositoryKindClassifier = $this->app->make(RepositoryKindClassifier::class);
     $repositoryKind = $repositoryKindClassifier->classify($repository);

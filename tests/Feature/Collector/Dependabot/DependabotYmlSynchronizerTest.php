@@ -9,29 +9,29 @@ use Maarheeze\Compass\Models\Repository;
 
 test('store stores the dependabot yml of the repository', function (): void {
     $repository = Repository::factory()->create();
-    $oid = fake()->sha1();
+    $version = fake()->sha1();
     $packageEcosystems = new Collection(fake()->randomElements(['composer', 'docker', 'github-actions', 'npm'], 2));
 
     $dependabotYmlSynchronizer = $this->app->make(DependabotYmlSynchronizer::class);
-    $dependabotYmlSynchronizer->store($repository, $oid, $packageEcosystems);
+    $dependabotYmlSynchronizer->store($repository, $version, $packageEcosystems);
 
     $this->assertDatabaseHas(DependabotYml::class, [
         'repository_id' => $repository->id,
-        'oid' => $oid,
+        'version' => $version,
         'package_ecosystems' => $packageEcosystems->toJson(),
     ]);
 });
 
 test('store replaces the dependabot yml the repository already has', function (): void {
     $dependabotYml = DependabotYml::factory()->create();
-    $oid = fake()->unique()->sha1();
+    $version = fake()->unique()->sha1();
 
     $dependabotYmlSynchronizer = $this->app->make(DependabotYmlSynchronizer::class);
-    $dependabotYmlSynchronizer->store($dependabotYml->repository, $oid, new Collection());
+    $dependabotYmlSynchronizer->store($dependabotYml->repository, $version, new Collection());
 
     $this->assertDatabaseHas(DependabotYml::class, [
         'id' => $dependabotYml->id,
-        'oid' => $oid,
+        'version' => $version,
     ]);
 });
 

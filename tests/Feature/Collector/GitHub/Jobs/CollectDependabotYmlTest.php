@@ -23,7 +23,7 @@ test('handle queries the blob of the current dependabot yml oid', function (): v
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create(['dependabot_yml_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['dependabot_yml_version' => fake()->sha1()]);
 
     $http = $this->app->make(HttpFactory::class);
     $http->fake([
@@ -46,7 +46,7 @@ test('handle queries the blob of the current dependabot yml oid', function (): v
             return false;
         }
 
-        return $request['variables']['oid'] === $repository->dependabot_yml_oid;
+        return $request['variables']['oid'] === $repository->dependabot_yml_version;
     });
 });
 
@@ -59,7 +59,7 @@ test('handle stores the package ecosystems of the dependabot yml with its oid', 
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create(['dependabot_yml_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['dependabot_yml_version' => fake()->sha1()]);
     $packageEcosystem = fake()->randomElement(['composer', 'docker', 'github-actions', 'npm']);
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
@@ -86,7 +86,7 @@ test('handle stores the package ecosystems of the dependabot yml with its oid', 
 
     $this->assertDatabaseHas(DependabotYml::class, [
         'repository_id' => $repository->id,
-        'oid' => $repository->dependabot_yml_oid,
+        'version' => $repository->dependabot_yml_version,
         'package_ecosystems' => json_encode([$packageEcosystem], JSON_THROW_ON_ERROR),
     ]);
 });
@@ -100,7 +100,7 @@ test('handle removes the dependabot yml when the repository no longer has one', 
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create(['dependabot_yml_oid' => null]);
+    $repository = Repository::factory()->create(['dependabot_yml_version' => null]);
     $dependabotYml = DependabotYml::factory()->create(['repository_id' => $repository->id]);
 
     $collectDependabotYml = new CollectDependabotYml($repository, $source);
@@ -118,7 +118,7 @@ test('handle adds the repository to the log context', function (): void {
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create(['dependabot_yml_oid' => null]);
+    $repository = Repository::factory()->create(['dependabot_yml_version' => null]);
 
     $collectDependabotYml = new CollectDependabotYml($repository, $source);
     $this->app->call([$collectDependabotYml, 'handle']);
@@ -153,7 +153,7 @@ test('handle raises dependabot yml changed for the repository when its file is g
     ]);
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
-    $repository = Repository::factory()->create(['dependabot_yml_oid' => null]);
+    $repository = Repository::factory()->create(['dependabot_yml_version' => null]);
 
     $collectDependabotYml = new CollectDependabotYml($repository, $source);
     $this->app->call([$collectDependabotYml, 'handle']);

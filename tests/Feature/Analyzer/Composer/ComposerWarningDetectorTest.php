@@ -8,7 +8,7 @@ use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\Repository;
 
 test('detect finds nothing for a repository without a composer json', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => null]);
+    $repository = Repository::factory()->create(['composer_json_version' => null]);
 
     $composerWarningDetector = $this->app->make(ComposerWarningDetector::class);
     $composerWarning = $composerWarningDetector->detect($repository);
@@ -18,7 +18,7 @@ test('detect finds nothing for a repository without a composer json', function (
 });
 
 test('detect finds nothing for a composer json that is not collected yet', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
 
     $composerWarningDetector = $this->app->make(ComposerWarningDetector::class);
     $composerWarning = $composerWarningDetector->detect($repository);
@@ -28,7 +28,7 @@ test('detect finds nothing for a composer json that is not collected yet', funct
 });
 
 test('detect finds a missing type', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
         'type' => null,
@@ -42,7 +42,7 @@ test('detect finds a missing type', function (): void {
 });
 
 test('detect finds a type other than library or project', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
         'type' => fake()->word(),
@@ -57,8 +57,8 @@ test('detect finds a type other than library or project', function (): void {
 
 test('detect finds a library with a committed composer lock', function (): void {
     $repository = Repository::factory()->create([
-        'composer_json_oid' => fake()->sha1(),
-        'composer_lock_oid' => fake()->sha1(),
+        'composer_json_version' => fake()->sha1(),
+        'composer_lock_version' => fake()->sha1(),
     ]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
@@ -74,8 +74,8 @@ test('detect finds a library with a committed composer lock', function (): void 
 
 test('detect finds nothing for a library without a composer lock', function (): void {
     $repository = Repository::factory()->create([
-        'composer_json_oid' => fake()->sha1(),
-        'composer_lock_oid' => null,
+        'composer_json_version' => fake()->sha1(),
+        'composer_lock_version' => null,
     ]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
@@ -91,8 +91,8 @@ test('detect finds nothing for a library without a composer lock', function (): 
 
 test('detect finds a project without a committed composer lock', function (): void {
     $repository = Repository::factory()->create([
-        'composer_json_oid' => fake()->sha1(),
-        'composer_lock_oid' => null,
+        'composer_json_version' => fake()->sha1(),
+        'composer_lock_version' => null,
     ]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
@@ -108,8 +108,8 @@ test('detect finds a project without a committed composer lock', function (): vo
 
 test('detect finds nothing for a project with a composer lock', function (): void {
     $repository = Repository::factory()->create([
-        'composer_json_oid' => fake()->sha1(),
-        'composer_lock_oid' => fake()->sha1(),
+        'composer_json_version' => fake()->sha1(),
+        'composer_lock_version' => fake()->sha1(),
     ]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,

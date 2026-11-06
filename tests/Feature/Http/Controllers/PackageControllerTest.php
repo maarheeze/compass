@@ -20,7 +20,7 @@ test('show contains the package name with a vendor', function (): void {
 });
 
 test('show contains the package usages', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
     $composerJson = ComposerJson::factory()->create([
         'repository_id' => $repository->id,
         'type' => 'library',

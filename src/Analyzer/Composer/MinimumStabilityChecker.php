@@ -10,7 +10,7 @@ readonly class MinimumStabilityChecker
 {
     public function isStable(Repository $repository): bool
     {
-        if ($repository->composer_json_oid === null) {
+        if ($repository->composer_json_version === null) {
             return true;
         }
 

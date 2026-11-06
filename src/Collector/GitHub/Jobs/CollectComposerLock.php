@@ -51,9 +51,9 @@ class CollectComposerLock implements ShouldQueue
 
         $context->add('repository', $this->repository->name);
 
-        $oid = $this->repository->composer_lock_oid;
+        $version = $this->repository->composer_lock_version;
 
-        if ($oid === null) {
+        if ($version === null) {
             $composerLockSynchronizer->delete($this->repository);
 
             $collectorLogger->debug('Composer lock deleted');
@@ -63,8 +63,8 @@ class CollectComposerLock implements ShouldQueue
             return;
         }
 
-        $composerLockSummary = $composerLockReader->read($composerFilesCollector->content($this->repository->name, $oid));
-        $composerLockSynchronizer->store($this->repository, $oid, $composerLockSummary);
+        $composerLockSummary = $composerLockReader->read($composerFilesCollector->content($this->repository->name, $version));
+        $composerLockSynchronizer->store($this->repository, $version, $composerLockSummary);
 
         $collectorLogger->debug('Composer lock collected');
 

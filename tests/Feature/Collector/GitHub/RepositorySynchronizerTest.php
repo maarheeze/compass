@@ -33,10 +33,10 @@ test('store repositories creates a repository for a new collected repository', f
         'last_commit_sha' => $collectedRepository->lastCommitSha,
         'last_commit_committed_at' => $collectedRepository->lastCommitCommittedAt,
         'visibility' => $collectedRepository->visibility,
-        'composer_json_oid' => $collectedRepository->composerJsonVersion,
-        'composer_lock_oid' => $collectedRepository->composerLockVersion,
-        'package_json_oid' => $collectedRepository->packageJsonVersion,
-        'dependabot_yml_oid' => $collectedRepository->dependabotYmlVersion,
+        'composer_json_version' => $collectedRepository->composerJsonVersion,
+        'composer_lock_version' => $collectedRepository->composerLockVersion,
+        'package_json_version' => $collectedRepository->packageJsonVersion,
+        'dependabot_yml_version' => $collectedRepository->dependabotYmlVersion,
         'run_id' => $runId,
     ]);
 });
@@ -175,7 +175,7 @@ test('store repositories creates a repository for a known external id of another
 });
 
 test('store repositories returns a known repository whose package json version changed', function (): void {
-    $repository = Repository::factory()->create(['package_json_oid' => fake()->unique()->sha1()]);
+    $repository = Repository::factory()->create(['package_json_version' => fake()->unique()->sha1()]);
     $collectedRepository = new CollectedRepository(
         $repository->external_id,
         $repository->name,
@@ -185,10 +185,10 @@ test('store repositories returns a known repository whose package json version c
         fake()->sha1(),
         CarbonImmutable::parse(fake()->iso8601()),
         fake()->randomElement(RepositoryVisibility::cases()),
-        $repository->composer_json_oid,
-        $repository->composer_lock_oid,
+        $repository->composer_json_version,
+        $repository->composer_lock_version,
         fake()->unique()->sha1(),
-        $repository->dependabot_yml_oid,
+        $repository->dependabot_yml_version,
     );
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);

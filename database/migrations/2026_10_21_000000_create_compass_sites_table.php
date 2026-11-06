@@ -14,7 +14,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
 
             $table->string('source');
-            $table->string('forge_id');
+            $table->string('external_id');
             $table->string('name');
             $table->string('url');
             $table->string('php_version')->nullable();
@@ -35,7 +35,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->unique(['source', 'forge_id']);
+            $table->unique(['source', 'external_id']);
         });
     }
 };

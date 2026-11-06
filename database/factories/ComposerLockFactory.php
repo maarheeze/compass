@@ -25,7 +25,7 @@ class ComposerLockFactory extends Factory
     {
         return [
             'repository_id' => Repository::factory(),
-            'oid' => fake()->sha1(),
+            'version' => fake()->sha1(),
             'php_constraint' => fake()->optional()->numerify('^#.#'),
         ];
     }

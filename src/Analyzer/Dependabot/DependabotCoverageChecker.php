@@ -45,7 +45,7 @@ readonly class DependabotCoverageChecker
 
         return match ($packageEcosystem) {
             PackageEcosystem::COMPOSER => $this->isProject($repository),
-            PackageEcosystem::NPM => $repository->package_json_oid !== null,
+            PackageEcosystem::NPM => $repository->package_json_version !== null,
         };
     }
 }

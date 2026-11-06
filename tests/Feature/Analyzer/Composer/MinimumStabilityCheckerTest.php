@@ -7,7 +7,7 @@ use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\Repository;
 
 test('is stable is false for a minimum stability below stable without prefer stable', function (string $minimumStability): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
         'minimum_stability' => $minimumStability,
@@ -22,7 +22,7 @@ test('is stable is false for a minimum stability below stable without prefer sta
 })->with(['RC', 'beta', 'alpha', 'dev']);
 
 test('is stable is true for a minimum stability below stable with prefer stable', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
         'minimum_stability' => fake()->randomElement(['RC', 'beta', 'alpha', 'dev']),
@@ -37,7 +37,7 @@ test('is stable is true for a minimum stability below stable with prefer stable'
 });
 
 test('is stable is true for a minimum stability of stable', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
         'minimum_stability' => 'stable',
@@ -52,7 +52,7 @@ test('is stable is true for a minimum stability of stable', function (): void {
 });
 
 test('is stable is true without a minimum stability', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
         'minimum_stability' => null,
@@ -67,7 +67,7 @@ test('is stable is true without a minimum stability', function (): void {
 });
 
 test('is stable is true for a repository without a composer json', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => null]);
+    $repository = Repository::factory()->create(['composer_json_version' => null]);
 
     $minimumStabilityChecker = $this->app->make(MinimumStabilityChecker::class);
     $isStable = $minimumStabilityChecker->isStable($repository);

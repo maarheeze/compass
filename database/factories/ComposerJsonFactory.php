@@ -25,7 +25,7 @@ class ComposerJsonFactory extends Factory
     {
         return [
             'repository_id' => Repository::factory(),
-            'oid' => fake()->sha1(),
+            'version' => fake()->sha1(),
             'type' => fake()->optional()->word(),
             'php_constraint' => fake()->optional()->numerify('^#.#'),
             'minimum_stability' => fake()->optional()->randomElement(['stable', 'RC', 'beta', 'alpha', 'dev']),

@@ -12,11 +12,11 @@ test('handle adds collect composer json when its oid differs from the collected 
     $runId = Uuid::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
-        'composer_json_oid' => fake()->unique()->sha1(),
+        'composer_json_version' => fake()->unique()->sha1(),
     ]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
-        'oid' => fake()->unique()->sha1(),
+        'version' => fake()->unique()->sha1(),
     ]);
 
     [$collectChangedComposerJsons, $batchFake] = new CollectChangedComposerJsons(
@@ -40,7 +40,7 @@ test('handle adds collect composer json when the composer json is gone', functio
     $runId = Uuid::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
-        'composer_json_oid' => null,
+        'composer_json_version' => null,
     ]);
     ComposerJson::factory()->create(['repository_id' => $repository->id]);
 
@@ -65,11 +65,11 @@ test('handle does not add collect composer json when its oid is the collected on
     $runId = Uuid::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
-        'composer_json_oid' => fake()->sha1(),
+        'composer_json_version' => fake()->sha1(),
     ]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
-        'oid' => $repository->composer_json_oid,
+        'version' => $repository->composer_json_version,
     ]);
 
     [$collectChangedComposerJsons, $batchFake] = new CollectChangedComposerJsons(
@@ -86,7 +86,7 @@ test('handle does not add collect composer json for a repository without one', f
     $runId = Uuid::generate();
     Repository::factory()->create([
         'run_id' => $runId,
-        'composer_json_oid' => null,
+        'composer_json_version' => null,
     ]);
 
     [$collectChangedComposerJsons, $batchFake] = new CollectChangedComposerJsons(
@@ -102,7 +102,7 @@ test('handle does not add collect composer json for a repository without one', f
 test('handle ignores repositories of another run', function (): void {
     Repository::factory()->create([
         'run_id' => Uuid::generate(),
-        'composer_json_oid' => fake()->sha1(),
+        'composer_json_version' => fake()->sha1(),
     ]);
 
     [$collectChangedComposerJsons, $batchFake] = new CollectChangedComposerJsons(
@@ -120,7 +120,7 @@ test('handle adds collect composer json for the source of its run', function ():
     $source = fake()->slug();
     Repository::factory()->create([
         'run_id' => $runId,
-        'composer_json_oid' => fake()->sha1(),
+        'composer_json_version' => fake()->sha1(),
     ]);
 
     [$collectChangedComposerJsons, $batchFake] = new CollectChangedComposerJsons($runId, $source)->withFakeBatch();

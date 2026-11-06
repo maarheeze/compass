@@ -13,7 +13,7 @@ use Maarheeze\Compass\Models\Repository;
 
 test('store stores the composer json of the repository', function (): void {
     $repository = Repository::factory()->create();
-    $oid = fake()->sha1();
+    $version = fake()->sha1();
     $composerJsonSummary = new ComposerJsonSummary(
         fake()->word(),
         fake()->numerify('^#.#'),
@@ -23,11 +23,11 @@ test('store stores the composer json of the repository', function (): void {
     );
 
     $composerJsonSynchronizer = $this->app->make(ComposerJsonSynchronizer::class);
-    $composerJsonSynchronizer->store($repository, $oid, $composerJsonSummary);
+    $composerJsonSynchronizer->store($repository, $version, $composerJsonSummary);
 
     $this->assertDatabaseHas(ComposerJson::class, [
         'repository_id' => $repository->id,
-        'oid' => $oid,
+        'version' => $version,
         'type' => $composerJsonSummary->type,
         'php_constraint' => $composerJsonSummary->phpConstraint,
         'minimum_stability' => $composerJsonSummary->minimumStability,
@@ -61,11 +61,11 @@ test('store stores the required packages', function (): void {
 });
 
 test('store replaces the composer json collected before', function (): void {
-    $composerJson = ComposerJson::factory()->create(['oid' => fake()->unique()->sha1()]);
-    $oid = fake()->unique()->sha1();
+    $composerJson = ComposerJson::factory()->create(['version' => fake()->unique()->sha1()]);
+    $version = fake()->unique()->sha1();
 
     $composerJsonSynchronizer = $this->app->make(ComposerJsonSynchronizer::class);
-    $composerJsonSynchronizer->store($composerJson->repository, $oid, new ComposerJsonSummary(
+    $composerJsonSynchronizer->store($composerJson->repository, $version, new ComposerJsonSummary(
         fake()->word(),
         fake()->numerify('^#.#'),
         fake()->optional()->word(),
@@ -75,7 +75,7 @@ test('store replaces the composer json collected before', function (): void {
 
     $this->assertDatabaseHas(ComposerJson::class, [
         'id' => $composerJson->id,
-        'oid' => $oid,
+        'version' => $version,
     ]);
 });
 

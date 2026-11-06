@@ -16,8 +16,8 @@ test('conditionObservations observes the detected composer warning active now', 
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $repository = Repository::factory()->create([
-        'composer_json_oid' => fake()->sha1(),
-        'composer_lock_oid' => null,
+        'composer_json_version' => fake()->sha1(),
+        'composer_lock_version' => null,
     ]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
@@ -41,8 +41,8 @@ test('conditionObservations observes the composer warnings that are not detected
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $repository = Repository::factory()->create([
-        'composer_json_oid' => fake()->sha1(),
-        'composer_lock_oid' => null,
+        'composer_json_version' => fake()->sha1(),
+        'composer_lock_version' => null,
     ]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
@@ -69,7 +69,7 @@ test('conditionObservations observes the composer warnings that are not detected
 test('conditionObservations observes every composer warning resolved now for a repository without a composer warning', function (AlertType $alertType): void {
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $repository = Repository::factory()->create(['composer_json_oid' => null]);
+    $repository = Repository::factory()->create(['composer_json_version' => null]);
 
     $composerWarningEvaluator = $this->app->make(ComposerWarningEvaluator::class);
     $conditionObservations = $composerWarningEvaluator->conditionObservations($repository);
@@ -91,8 +91,8 @@ test('conditionObservations observes every composer warning resolved now for a r
 
 test('conditionObservations judges the composer json stored now, not one loaded before', function (): void {
     $repository = Repository::factory()->create([
-        'composer_json_oid' => fake()->sha1(),
-        'composer_lock_oid' => null,
+        'composer_json_version' => fake()->sha1(),
+        'composer_lock_version' => null,
     ]);
     $repository->load('composerJson');
     ComposerJson::factory()->create([

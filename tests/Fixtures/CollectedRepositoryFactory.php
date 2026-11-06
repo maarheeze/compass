@@ -25,10 +25,10 @@ class CollectedRepositoryFactory
             fake()->sha1(),
             CarbonImmutable::parse(fake()->iso8601()),
             fake()->randomElement(RepositoryVisibility::cases()),
-            $repository->composer_json_oid,
-            $repository->composer_lock_oid,
-            $repository->package_json_oid,
-            $repository->dependabot_yml_oid,
+            $repository->composer_json_version,
+            $repository->composer_lock_version,
+            $repository->package_json_version,
+            $repository->dependabot_yml_version,
         );
     }
 

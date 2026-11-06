@@ -21,7 +21,7 @@ test('handle observes an unstable minimum stability active now', function (): vo
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
         'minimum_stability' => 'dev',
@@ -50,7 +50,7 @@ test('handle observes a stable minimum stability resolved now', function (): voi
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $repository = Repository::factory()->create(['composer_json_oid' => null]);
+    $repository = Repository::factory()->create(['composer_json_version' => null]);
 
     $evaluateComposerMinimumStability = $this->app->make(EvaluateComposerMinimumStability::class);
     $evaluateComposerMinimumStability->handle(new ComposerJsonChanged($repository));

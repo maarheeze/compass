@@ -77,7 +77,7 @@ test('handle stores the sites of the page', function (): void {
 
     $this->assertDatabaseHas(Site::class, [
         'source' => $source,
-        'forge_id' => $forgeId,
+        'external_id' => $forgeId,
         'run_id' => $runId,
     ]);
 });

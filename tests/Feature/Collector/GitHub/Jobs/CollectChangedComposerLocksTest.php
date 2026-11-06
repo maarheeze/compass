@@ -12,11 +12,11 @@ test('handle adds collect composer lock when its oid differs from the collected 
     $runId = Uuid::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
-        'composer_lock_oid' => fake()->unique()->sha1(),
+        'composer_lock_version' => fake()->unique()->sha1(),
     ]);
     ComposerLock::factory()->create([
         'repository_id' => $repository->id,
-        'oid' => fake()->unique()->sha1(),
+        'version' => fake()->unique()->sha1(),
     ]);
 
     [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks(
@@ -40,7 +40,7 @@ test('handle adds collect composer lock when the composer lock is gone', functio
     $runId = Uuid::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
-        'composer_lock_oid' => null,
+        'composer_lock_version' => null,
     ]);
     ComposerLock::factory()->create(['repository_id' => $repository->id]);
 
@@ -65,11 +65,11 @@ test('handle does not add collect composer lock when its oid is the collected on
     $runId = Uuid::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
-        'composer_lock_oid' => fake()->sha1(),
+        'composer_lock_version' => fake()->sha1(),
     ]);
     ComposerLock::factory()->create([
         'repository_id' => $repository->id,
-        'oid' => $repository->composer_lock_oid,
+        'version' => $repository->composer_lock_version,
     ]);
 
     [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks(
@@ -86,7 +86,7 @@ test('handle does not add collect composer lock for a repository without one', f
     $runId = Uuid::generate();
     Repository::factory()->create([
         'run_id' => $runId,
-        'composer_lock_oid' => null,
+        'composer_lock_version' => null,
     ]);
 
     [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks(
@@ -102,7 +102,7 @@ test('handle does not add collect composer lock for a repository without one', f
 test('handle ignores repositories of another run', function (): void {
     Repository::factory()->create([
         'run_id' => Uuid::generate(),
-        'composer_lock_oid' => fake()->sha1(),
+        'composer_lock_version' => fake()->sha1(),
     ]);
 
     [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks(
@@ -120,7 +120,7 @@ test('handle adds collect composer lock for the source of its run', function ():
     $source = fake()->slug();
     Repository::factory()->create([
         'run_id' => $runId,
-        'composer_lock_oid' => fake()->sha1(),
+        'composer_lock_version' => fake()->sha1(),
     ]);
 
     [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks($runId, $source)->withFakeBatch();

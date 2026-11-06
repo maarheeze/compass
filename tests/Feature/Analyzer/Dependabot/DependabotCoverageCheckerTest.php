@@ -17,7 +17,7 @@ test('is uncovered is true for composer in a project without a dependabot yml', 
         ],
     ]);
     $repository = Repository::factory()->create([
-        'composer_json_oid' => fake()->sha1(),
+        'composer_json_version' => fake()->sha1(),
         'source' => $source,
     ]);
     ComposerJson::factory()->create([
@@ -40,7 +40,7 @@ test('is uncovered is true for composer in a project whose dependabot yml leaves
         ],
     ]);
     $repository = Repository::factory()->create([
-        'composer_json_oid' => fake()->sha1(),
+        'composer_json_version' => fake()->sha1(),
         'source' => $source,
     ]);
     ComposerJson::factory()->create([
@@ -67,7 +67,7 @@ test('is uncovered is false for composer in a project whose dependabot yml lists
         ],
     ]);
     $repository = Repository::factory()->create([
-        'composer_json_oid' => fake()->sha1(),
+        'composer_json_version' => fake()->sha1(),
         'source' => $source,
     ]);
     ComposerJson::factory()->create([
@@ -94,7 +94,7 @@ test('is uncovered is false for composer in a repository that is not a project',
         ],
     ]);
     $repository = Repository::factory()->create([
-        'composer_json_oid' => fake()->sha1(),
+        'composer_json_version' => fake()->sha1(),
         'source' => $source,
     ]);
     ComposerJson::factory()->create([
@@ -117,7 +117,7 @@ test('is uncovered is true for npm in a repository with a package json and witho
         ],
     ]);
     $repository = Repository::factory()->create([
-        'package_json_oid' => fake()->sha1(),
+        'package_json_version' => fake()->sha1(),
         'source' => $source,
     ]);
 
@@ -136,7 +136,7 @@ test('is uncovered is false for npm in a repository whose dependabot yml lists i
         ],
     ]);
     $repository = Repository::factory()->create([
-        'package_json_oid' => fake()->sha1(),
+        'package_json_version' => fake()->sha1(),
         'source' => $source,
     ]);
     DependabotYml::factory()->create([
@@ -159,7 +159,7 @@ test('is uncovered is false for npm in a repository without a package json', fun
         ],
     ]);
     $repository = Repository::factory()->create([
-        'package_json_oid' => null,
+        'package_json_version' => null,
         'source' => $source,
     ]);
 
@@ -178,7 +178,7 @@ test('is uncovered is false for a repository whose source has no dependabot file
         ],
     ]);
     $repository = Repository::factory()->create([
-        'composer_json_oid' => fake()->sha1(),
+        'composer_json_version' => fake()->sha1(),
         'source' => $source,
     ]);
     ComposerJson::factory()->create([

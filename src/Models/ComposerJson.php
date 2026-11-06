@@ -22,12 +22,12 @@ use Maarheeze\Uuid\Uuid;
  * @property CarbonImmutable $created_at
  * @property Uuid $id
  * @property ?string $minimum_stability
- * @property string $oid
  * @property ?string $php_constraint
  * @property bool $prefer_stable
  * @property Uuid $repository_id
  * @property ?string $type
  * @property CarbonImmutable $updated_at
+ * @property string $version
  *
  * @property-read ComposerJsonPackageCollection $developmentPackages
  * @property-read ComposerJsonPackageCollection $packages
@@ -51,11 +51,11 @@ class ComposerJson extends Model
     {
         return [
             'minimum_stability',
-            'oid',
             'php_constraint',
             'prefer_stable',
             'repository_id',
             'type',
+            'version',
         ];
     }
 

@@ -18,7 +18,7 @@ return new class extends Migration
                 ->constrained('compass_repositories')
                 ->cascadeOnDelete();
 
-            $table->string('oid');
+            $table->string('version');
             $table->json('package_ecosystems');
 
             $table->timestamps();

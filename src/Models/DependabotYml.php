@@ -20,10 +20,10 @@ use Maarheeze\Uuid\Uuid;
 /**
  * @property CarbonImmutable $created_at
  * @property Uuid $id
- * @property string $oid
  * @property Collection<int, string> $package_ecosystems
  * @property Uuid $repository_id
  * @property CarbonImmutable $updated_at
+ * @property string $version
  *
  * @property-read Repository $repository
  */
@@ -43,9 +43,9 @@ class DependabotYml extends Model
     public function getFillable(): array
     {
         return [
-            'oid',
             'package_ecosystems',
             'repository_id',
+            'version',
         ];
     }
 

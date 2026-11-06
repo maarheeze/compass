@@ -12,11 +12,11 @@ test('handle adds collect dependabot yml when its oid differs from the collected
     $runId = Uuid::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
-        'dependabot_yml_oid' => fake()->unique()->sha1(),
+        'dependabot_yml_version' => fake()->unique()->sha1(),
     ]);
     DependabotYml::factory()->create([
         'repository_id' => $repository->id,
-        'oid' => fake()->unique()->sha1(),
+        'version' => fake()->unique()->sha1(),
     ]);
 
     [$collectChangedDependabotYmls, $batchFake] = new CollectChangedDependabotYmls(
@@ -40,7 +40,7 @@ test('handle adds collect dependabot yml when the dependabot yml is gone', funct
     $runId = Uuid::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
-        'dependabot_yml_oid' => null,
+        'dependabot_yml_version' => null,
     ]);
     DependabotYml::factory()->create(['repository_id' => $repository->id]);
 
@@ -65,11 +65,11 @@ test('handle does not add collect dependabot yml when its oid is the collected o
     $runId = Uuid::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
-        'dependabot_yml_oid' => fake()->sha1(),
+        'dependabot_yml_version' => fake()->sha1(),
     ]);
     DependabotYml::factory()->create([
         'repository_id' => $repository->id,
-        'oid' => $repository->dependabot_yml_oid,
+        'version' => $repository->dependabot_yml_version,
     ]);
 
     [$collectChangedDependabotYmls, $batchFake] = new CollectChangedDependabotYmls(
@@ -86,7 +86,7 @@ test('handle does not add collect dependabot yml for a repository without one', 
     $runId = Uuid::generate();
     Repository::factory()->create([
         'run_id' => $runId,
-        'dependabot_yml_oid' => null,
+        'dependabot_yml_version' => null,
     ]);
 
     [$collectChangedDependabotYmls, $batchFake] = new CollectChangedDependabotYmls(
@@ -102,7 +102,7 @@ test('handle does not add collect dependabot yml for a repository without one', 
 test('handle ignores repositories of another run', function (): void {
     Repository::factory()->create([
         'run_id' => Uuid::generate(),
-        'dependabot_yml_oid' => fake()->sha1(),
+        'dependabot_yml_version' => fake()->sha1(),
     ]);
 
     [$collectChangedDependabotYmls, $batchFake] = new CollectChangedDependabotYmls(
@@ -120,7 +120,7 @@ test('handle adds collect dependabot yml for the source of its run', function ()
     $source = fake()->slug();
     Repository::factory()->create([
         'run_id' => $runId,
-        'dependabot_yml_oid' => fake()->sha1(),
+        'dependabot_yml_version' => fake()->sha1(),
     ]);
 
     [$collectChangedDependabotYmls, $batchFake] = new CollectChangedDependabotYmls($runId, $source)->withFakeBatch();

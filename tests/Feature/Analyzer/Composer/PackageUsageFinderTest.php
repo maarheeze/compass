@@ -10,7 +10,7 @@ use Maarheeze\Compass\Models\ComposerLockPackage;
 use Maarheeze\Compass\Models\Repository;
 
 test('find holds the locked packages of the projects', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
         'type' => 'project',
@@ -27,7 +27,7 @@ test('find holds the locked packages of the projects', function (): void {
 });
 
 test('find leaves out the locked packages of other repositories than projects', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
         'type' => 'library',
@@ -44,7 +44,7 @@ test('find leaves out the locked packages of other repositories than projects', 
 });
 
 test('find holds the required packages of the libraries', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
     $composerJson = ComposerJson::factory()->create([
         'repository_id' => $repository->id,
         'type' => 'library',
@@ -59,7 +59,7 @@ test('find holds the required packages of the libraries', function (): void {
 });
 
 test('find leaves out the required packages of other repositories than libraries', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
     $composerJson = ComposerJson::factory()->create([
         'repository_id' => $repository->id,
         'type' => 'project',
@@ -74,7 +74,7 @@ test('find leaves out the required packages of other repositories than libraries
 });
 
 test('find leaves out other packages', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
     $composerJson = ComposerJson::factory()->create([
         'repository_id' => $repository->id,
         'type' => 'library',

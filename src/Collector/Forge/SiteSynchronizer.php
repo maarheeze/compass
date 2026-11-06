@@ -31,7 +31,7 @@ readonly class SiteSynchronizer
         foreach ($collectedSites as $collectedSite) {
             $siteValues[] = [
                 'source' => $source,
-                'forge_id' => $collectedSite->externalId,
+                'external_id' => $collectedSite->externalId,
                 'name' => $collectedSite->name,
                 'url' => $collectedSite->url,
                 'php_version' => $collectedSite->phpVersion,
@@ -52,6 +52,6 @@ readonly class SiteSynchronizer
             ];
         }
 
-        Site::query()->upsert($siteValues, ['source', 'forge_id']);
+        Site::query()->upsert($siteValues, ['source', 'external_id']);
     }
 }

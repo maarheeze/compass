@@ -28,11 +28,11 @@ use Maarheeze\Uuid\Uuid;
 
 /**
  * @property CarbonImmutable $collected_at
- * @property ?string $composer_json_oid
- * @property ?string $composer_lock_oid
+ * @property ?string $composer_json_version
+ * @property ?string $composer_lock_version
  * @property CarbonImmutable $created_at
  * @property string $default_branch
- * @property ?string $dependabot_yml_oid
+ * @property ?string $dependabot_yml_version
  * @property string $external_id
  * @property string $full_name
  * @property Uuid $id
@@ -41,7 +41,7 @@ use Maarheeze\Uuid\Uuid;
  * @property ?CarbonImmutable $missing_at
  * @property ?CarbonImmutable $missing_ignored_at
  * @property string $name
- * @property ?string $package_json_oid
+ * @property ?string $package_json_version
  * @property Uuid $run_id
  * @property string $source
  * @property CarbonImmutable $updated_at
@@ -80,10 +80,10 @@ class Repository extends Model implements AlertSubject
     {
         return [
             'collected_at',
-            'composer_json_oid',
-            'composer_lock_oid',
+            'composer_json_version',
+            'composer_lock_version',
             'default_branch',
-            'dependabot_yml_oid',
+            'dependabot_yml_version',
             'external_id',
             'full_name',
             'last_commit_committed_at',
@@ -91,7 +91,7 @@ class Repository extends Model implements AlertSubject
             'missing_at',
             'missing_ignored_at',
             'name',
-            'package_json_oid',
+            'package_json_version',
             'run_id',
             'source',
             'url',

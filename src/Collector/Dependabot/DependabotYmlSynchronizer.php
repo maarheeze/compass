@@ -18,10 +18,10 @@ readonly class DependabotYmlSynchronizer
     /**
      * @param Collection<int, string> $packageEcosystems
      */
-    public function store(Repository $repository, string $oid, Collection $packageEcosystems): void
+    public function store(Repository $repository, string $version, Collection $packageEcosystems): void
     {
         DependabotYml::query()->updateOrCreate(['repository_id' => $repository->id], [
-            'oid' => $oid,
+            'version' => $version,
             'package_ecosystems' => $packageEcosystems,
         ]);
     }

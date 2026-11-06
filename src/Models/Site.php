@@ -35,7 +35,7 @@ use Maarheeze\Uuid\Uuid;
  * @property ?CarbonImmutable $deployment_ended_at
  * @property ?CarbonImmutable $deployment_started_at
  * @property ?DeploymentStatus $deployment_status
- * @property string $forge_id
+ * @property string $external_id
  * @property Uuid $id
  * @property ?CarbonImmutable $missing_at
  * @property ?CarbonImmutable $missing_ignored_at
@@ -83,7 +83,7 @@ class Site extends Model implements AlertSubject
             'deployment_ended_at',
             'deployment_started_at',
             'deployment_status',
-            'forge_id',
+            'external_id',
             'missing_at',
             'missing_ignored_at',
             'name',

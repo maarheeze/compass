@@ -51,9 +51,9 @@ class CollectComposerJson implements ShouldQueue
 
         $context->add('repository', $this->repository->name);
 
-        $oid = $this->repository->composer_json_oid;
+        $version = $this->repository->composer_json_version;
 
-        if ($oid === null) {
+        if ($version === null) {
             $composerJsonSynchronizer->delete($this->repository);
 
             $collectorLogger->debug('Composer json deleted');
@@ -63,8 +63,8 @@ class CollectComposerJson implements ShouldQueue
             return;
         }
 
-        $composerJsonSummary = $composerJsonReader->read($composerFilesCollector->content($this->repository->name, $oid));
-        $composerJsonSynchronizer->store($this->repository, $oid, $composerJsonSummary);
+        $composerJsonSummary = $composerJsonReader->read($composerFilesCollector->content($this->repository->name, $version));
+        $composerJsonSynchronizer->store($this->repository, $version, $composerJsonSummary);
 
         $collectorLogger->debug('Composer json collected');
 

@@ -26,7 +26,7 @@ class SiteFactory extends Factory
     {
         return [
             'source' => fake()->slug(),
-            'forge_id' => fake()->unique()->numerify('#######'),
+            'external_id' => fake()->unique()->numerify('#######'),
             'name' => fake()->domainName(),
             'url' => fake()->url(),
             'php_version' => fake()->optional()->numerify('php8#'),

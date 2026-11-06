@@ -44,10 +44,10 @@ readonly class RepositorySynchronizer
                 'last_commit_sha' => $collectedRepository->lastCommitSha,
                 'last_commit_committed_at' => $collectedRepository->lastCommitCommittedAt,
                 'visibility' => $collectedRepository->visibility,
-                'composer_json_oid' => $collectedRepository->composerJsonVersion,
-                'composer_lock_oid' => $collectedRepository->composerLockVersion,
-                'package_json_oid' => $collectedRepository->packageJsonVersion,
-                'dependabot_yml_oid' => $collectedRepository->dependabotYmlVersion,
+                'composer_json_version' => $collectedRepository->composerJsonVersion,
+                'composer_lock_version' => $collectedRepository->composerLockVersion,
+                'package_json_version' => $collectedRepository->packageJsonVersion,
+                'dependabot_yml_version' => $collectedRepository->dependabotYmlVersion,
                 'run_id' => $runId,
                 'collected_at' => CarbonImmutable::now(),
                 'missing_at' => null,
@@ -69,7 +69,7 @@ readonly class RepositorySynchronizer
             static function (CollectedRepository $collectedRepository) use ($storedRepositories): bool {
                 $storedRepository = $storedRepositories->firstWhere('external_id', $collectedRepository->externalId);
 
-                return $storedRepository?->package_json_oid !== $collectedRepository->packageJsonVersion;
+                return $storedRepository?->package_json_version !== $collectedRepository->packageJsonVersion;
             },
         );
 

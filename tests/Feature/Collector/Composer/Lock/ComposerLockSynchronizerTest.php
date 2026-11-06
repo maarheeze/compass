@@ -13,18 +13,18 @@ use Maarheeze\Compass\Models\Repository;
 
 test('store stores the composer lock of the repository', function (): void {
     $repository = Repository::factory()->create();
-    $oid = fake()->sha1();
+    $version = fake()->sha1();
     $composerLockSummary = new ComposerLockSummary(
         fake()->numerify('^#.#'),
         new LockedPackageCollection(),
     );
 
     $composerLockSynchronizer = $this->app->make(ComposerLockSynchronizer::class);
-    $composerLockSynchronizer->store($repository, $oid, $composerLockSummary);
+    $composerLockSynchronizer->store($repository, $version, $composerLockSummary);
 
     $this->assertDatabaseHas(ComposerLock::class, [
         'repository_id' => $repository->id,
-        'oid' => $oid,
+        'version' => $version,
         'php_constraint' => $composerLockSummary->phpConstraint,
     ]);
 });
@@ -52,18 +52,18 @@ test('store stores the locked packages', function (): void {
 });
 
 test('store replaces the composer lock collected before', function (): void {
-    $composerLock = ComposerLock::factory()->create(['oid' => fake()->unique()->sha1()]);
-    $oid = fake()->unique()->sha1();
+    $composerLock = ComposerLock::factory()->create(['version' => fake()->unique()->sha1()]);
+    $version = fake()->unique()->sha1();
 
     $composerLockSynchronizer = $this->app->make(ComposerLockSynchronizer::class);
-    $composerLockSynchronizer->store($composerLock->repository, $oid, new ComposerLockSummary(
+    $composerLockSynchronizer->store($composerLock->repository, $version, new ComposerLockSummary(
         fake()->numerify('^#.#'),
         new LockedPackageCollection(),
     ));
 
     $this->assertDatabaseHas(ComposerLock::class, [
         'id' => $composerLock->id,
-        'oid' => $oid,
+        'version' => $version,
     ]);
 });
 

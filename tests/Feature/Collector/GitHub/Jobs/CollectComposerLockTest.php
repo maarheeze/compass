@@ -22,7 +22,7 @@ test('handle queries the blob of the current composer lock oid', function (): vo
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create(['composer_lock_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_lock_version' => fake()->sha1()]);
 
     $http = $this->app->make(HttpFactory::class);
     $http->fake([
@@ -49,7 +49,7 @@ test('handle queries the blob of the current composer lock oid', function (): vo
             return false;
         }
 
-        return $request['variables']['oid'] === $repository->composer_lock_oid;
+        return $request['variables']['oid'] === $repository->composer_lock_version;
     });
 });
 
@@ -62,7 +62,7 @@ test('handle stores the composer lock with its oid', function (): void {
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create(['composer_lock_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_lock_version' => fake()->sha1()]);
     $phpConstraint = fake()->numerify('^#.#');
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
@@ -87,7 +87,7 @@ test('handle stores the composer lock with its oid', function (): void {
 
     $this->assertDatabaseHas(ComposerLock::class, [
         'repository_id' => $repository->id,
-        'oid' => $repository->composer_lock_oid,
+        'version' => $repository->composer_lock_version,
         'php_constraint' => $phpConstraint,
     ]);
 });
@@ -101,7 +101,7 @@ test('handle removes the composer lock when the repository no longer has one', f
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create(['composer_lock_oid' => null]);
+    $repository = Repository::factory()->create(['composer_lock_version' => null]);
     $composerLock = ComposerLock::factory()->create(['repository_id' => $repository->id]);
 
     $collectComposerLock = new CollectComposerLock($repository, $source);
@@ -119,7 +119,7 @@ test('handle adds the repository to the log context', function (): void {
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create(['composer_lock_oid' => null]);
+    $repository = Repository::factory()->create(['composer_lock_version' => null]);
 
     $collectComposerLock = new CollectComposerLock($repository, $source);
     $this->app->call([$collectComposerLock, 'handle']);
@@ -154,7 +154,7 @@ test('handle raises composer lock changed for the repository when its file is go
     ]);
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
-    $repository = Repository::factory()->create(['composer_lock_oid' => null]);
+    $repository = Repository::factory()->create(['composer_lock_version' => null]);
 
     $collectComposerLock = new CollectComposerLock($repository, $source);
     $this->app->call([$collectComposerLock, 'handle']);

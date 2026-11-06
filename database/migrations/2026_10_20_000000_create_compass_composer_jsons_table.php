@@ -18,7 +18,7 @@ return new class extends Migration
                 ->constrained('compass_repositories')
                 ->cascadeOnDelete();
 
-            $table->string('oid');
+            $table->string('version');
             $table->string('type')->nullable();
             $table->string('php_constraint')->nullable();
             $table->string('minimum_stability')->nullable();

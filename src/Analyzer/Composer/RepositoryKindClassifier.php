@@ -10,7 +10,7 @@ readonly class RepositoryKindClassifier
 {
     public function classify(Repository $repository): RepositoryKind
     {
-        if ($repository->composer_json_oid === null) {
+        if ($repository->composer_json_version === null) {
             return RepositoryKind::OTHER;
         }
 

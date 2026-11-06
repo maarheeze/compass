@@ -49,9 +49,9 @@ class CollectDependabotYml implements ShouldQueue
 
         $context->add('repository', $this->repository->name);
 
-        $oid = $this->repository->dependabot_yml_oid;
+        $version = $this->repository->dependabot_yml_version;
 
-        if ($oid === null) {
+        if ($version === null) {
             $dependabotYmlSynchronizer->delete($this->repository);
 
             $collectorLogger->debug('Dependabot yml deleted');
@@ -62,9 +62,9 @@ class CollectDependabotYml implements ShouldQueue
         }
 
         $packageEcosystems = $dependabotYmlReader->packageEcosystems(
-            $dependabotFilesCollector->content($this->repository->name, $oid),
+            $dependabotFilesCollector->content($this->repository->name, $version),
         );
-        $dependabotYmlSynchronizer->store($this->repository, $oid, $packageEcosystems);
+        $dependabotYmlSynchronizer->store($this->repository, $version, $packageEcosystems);
 
         $collectorLogger->debug('Dependabot yml collected');
 

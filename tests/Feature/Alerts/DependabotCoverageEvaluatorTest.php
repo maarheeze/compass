@@ -23,7 +23,7 @@ test('conditionObservations observes an uncovered package ecosystem active now',
         ],
     ]);
     $repository = Repository::factory()->create([
-        'package_json_oid' => fake()->sha1(),
+        'package_json_version' => fake()->sha1(),
         'source' => $source,
     ]);
 
@@ -50,8 +50,8 @@ test('conditionObservations observes a package ecosystem the repository does not
         ],
     ]);
     $repository = Repository::factory()->create([
-        'composer_json_oid' => null,
-        'package_json_oid' => null,
+        'composer_json_version' => null,
+        'package_json_version' => null,
         'source' => $source,
     ]);
 
@@ -79,7 +79,7 @@ test('conditionObservations judges the dependabot yml stored now, not one loaded
         ],
     ]);
     $repository = Repository::factory()->create([
-        'package_json_oid' => fake()->sha1(),
+        'package_json_version' => fake()->sha1(),
         'source' => $source,
     ]);
     $repository->load('dependabotYml');

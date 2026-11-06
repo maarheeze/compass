@@ -154,10 +154,10 @@ test('not returned by run leaves out a repository returned by the run', function
 });
 
 test('composer json out of date keeps a repository whose composer.json changed', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->unique()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->unique()->sha1()]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
-        'oid' => fake()->unique()->sha1(),
+        'version' => fake()->unique()->sha1(),
     ]);
 
     $repositoriesWithComposerJsonOutOfDate = Repository::query()
@@ -169,7 +169,7 @@ test('composer json out of date keeps a repository whose composer.json changed',
 });
 
 test('composer json out of date keeps a repository whose composer.json was removed', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => null]);
+    $repository = Repository::factory()->create(['composer_json_version' => null]);
     ComposerJson::factory()->create(['repository_id' => $repository->id]);
 
     $repositoriesWithComposerJsonOutOfDate = Repository::query()
@@ -181,10 +181,10 @@ test('composer json out of date keeps a repository whose composer.json was remov
 });
 
 test('composer json out of date leaves out a repository whose composer.json is unchanged', function (): void {
-    $repository = Repository::factory()->create(['composer_json_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
     ComposerJson::factory()->create([
         'repository_id' => $repository->id,
-        'oid' => $repository->composer_json_oid,
+        'version' => $repository->composer_json_version,
     ]);
 
     $repositoriesWithComposerJsonOutOfDate = Repository::query()
@@ -196,7 +196,7 @@ test('composer json out of date leaves out a repository whose composer.json is u
 });
 
 test('composer json out of date leaves out a repository that never had a composer.json', function (): void {
-    Repository::factory()->create(['composer_json_oid' => null]);
+    Repository::factory()->create(['composer_json_version' => null]);
 
     $repositoriesWithComposerJsonOutOfDate = Repository::query()
         ->composerJsonOutOfDate()
@@ -207,10 +207,10 @@ test('composer json out of date leaves out a repository that never had a compose
 });
 
 test('composer lock out of date keeps a repository whose composer.lock changed', function (): void {
-    $repository = Repository::factory()->create(['composer_lock_oid' => fake()->unique()->sha1()]);
+    $repository = Repository::factory()->create(['composer_lock_version' => fake()->unique()->sha1()]);
     ComposerLock::factory()->create([
         'repository_id' => $repository->id,
-        'oid' => fake()->unique()->sha1(),
+        'version' => fake()->unique()->sha1(),
     ]);
 
     $repositoriesWithComposerLockOutOfDate = Repository::query()
@@ -222,7 +222,7 @@ test('composer lock out of date keeps a repository whose composer.lock changed',
 });
 
 test('composer lock out of date keeps a repository whose composer.lock was removed', function (): void {
-    $repository = Repository::factory()->create(['composer_lock_oid' => null]);
+    $repository = Repository::factory()->create(['composer_lock_version' => null]);
     ComposerLock::factory()->create(['repository_id' => $repository->id]);
 
     $repositoriesWithComposerLockOutOfDate = Repository::query()
@@ -234,10 +234,10 @@ test('composer lock out of date keeps a repository whose composer.lock was remov
 });
 
 test('composer lock out of date leaves out a repository whose composer.lock is unchanged', function (): void {
-    $repository = Repository::factory()->create(['composer_lock_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['composer_lock_version' => fake()->sha1()]);
     ComposerLock::factory()->create([
         'repository_id' => $repository->id,
-        'oid' => $repository->composer_lock_oid,
+        'version' => $repository->composer_lock_version,
     ]);
 
     $repositoriesWithComposerLockOutOfDate = Repository::query()
@@ -249,7 +249,7 @@ test('composer lock out of date leaves out a repository whose composer.lock is u
 });
 
 test('composer lock out of date leaves out a repository that never had a composer.lock', function (): void {
-    Repository::factory()->create(['composer_lock_oid' => null]);
+    Repository::factory()->create(['composer_lock_version' => null]);
 
     $repositoriesWithComposerLockOutOfDate = Repository::query()
         ->composerLockOutOfDate()
@@ -260,10 +260,10 @@ test('composer lock out of date leaves out a repository that never had a compose
 });
 
 test('dependabot yml out of date keeps a repository whose dependabot.yml changed', function (): void {
-    $repository = Repository::factory()->create(['dependabot_yml_oid' => fake()->unique()->sha1()]);
+    $repository = Repository::factory()->create(['dependabot_yml_version' => fake()->unique()->sha1()]);
     DependabotYml::factory()->create([
         'repository_id' => $repository->id,
-        'oid' => fake()->unique()->sha1(),
+        'version' => fake()->unique()->sha1(),
     ]);
 
     $repositoriesWithDependabotYmlOutOfDate = Repository::query()
@@ -275,7 +275,7 @@ test('dependabot yml out of date keeps a repository whose dependabot.yml changed
 });
 
 test('dependabot yml out of date keeps a repository whose dependabot.yml was removed', function (): void {
-    $repository = Repository::factory()->create(['dependabot_yml_oid' => null]);
+    $repository = Repository::factory()->create(['dependabot_yml_version' => null]);
     DependabotYml::factory()->create(['repository_id' => $repository->id]);
 
     $repositoriesWithDependabotYmlOutOfDate = Repository::query()
@@ -287,10 +287,10 @@ test('dependabot yml out of date keeps a repository whose dependabot.yml was rem
 });
 
 test('dependabot yml out of date leaves out a repository whose dependabot.yml is unchanged', function (): void {
-    $repository = Repository::factory()->create(['dependabot_yml_oid' => fake()->sha1()]);
+    $repository = Repository::factory()->create(['dependabot_yml_version' => fake()->sha1()]);
     DependabotYml::factory()->create([
         'repository_id' => $repository->id,
-        'oid' => $repository->dependabot_yml_oid,
+        'version' => $repository->dependabot_yml_version,
     ]);
 
     $repositoriesWithDependabotYmlOutOfDate = Repository::query()
@@ -302,7 +302,7 @@ test('dependabot yml out of date leaves out a repository whose dependabot.yml is
 });
 
 test('dependabot yml out of date leaves out a repository that never had a dependabot.yml', function (): void {
-    Repository::factory()->create(['dependabot_yml_oid' => null]);
+    Repository::factory()->create(['dependabot_yml_version' => null]);
 
     $repositoriesWithDependabotYmlOutOfDate = Repository::query()
         ->dependabotYmlOutOfDate()

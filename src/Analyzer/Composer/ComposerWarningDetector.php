@@ -16,7 +16,7 @@ readonly class ComposerWarningDetector
 
     public function detect(Repository $repository): ?ComposerWarning
     {
-        if ($repository->composer_json_oid === null) {
+        if ($repository->composer_json_version === null) {
             return null;
         }
 
@@ -35,7 +35,7 @@ readonly class ComposerWarningDetector
 
     private function detectLibraryWarning(Repository $repository): ?ComposerWarning
     {
-        if ($repository->composer_lock_oid === null) {
+        if ($repository->composer_lock_version === null) {
             return null;
         }
 
@@ -44,7 +44,7 @@ readonly class ComposerWarningDetector
 
     private function detectProjectWarning(Repository $repository): ?ComposerWarning
     {
-        if ($repository->composer_lock_oid !== null) {
+        if ($repository->composer_lock_version !== null) {
             return null;
         }
 
