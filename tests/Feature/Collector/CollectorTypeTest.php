@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use Maarheeze\Compass\Collector\Client\Jobs\InspectSites;
 use Maarheeze\Compass\Collector\CollectorType;
-use Maarheeze\Compass\Collector\Forge\Jobs\CollectSites;
-use Maarheeze\Compass\Collector\GitHub\Jobs\CollectIssues;
-use Maarheeze\Compass\Collector\GitHub\Jobs\CollectPullRequests;
-use Maarheeze\Compass\Collector\GitHub\Jobs\CollectRepositories;
+use Maarheeze\Compass\Collector\Issues\Jobs\CollectIssues;
+use Maarheeze\Compass\Collector\PullRequests\Jobs\CollectPullRequests;
+use Maarheeze\Compass\Collector\Repositories\Jobs\CollectRepositories;
+use Maarheeze\Compass\Collector\Sites\Jobs\CollectSites;
 use Maarheeze\Uuid\Uuid;
 
 test('job is the job that collects the collector type', function (

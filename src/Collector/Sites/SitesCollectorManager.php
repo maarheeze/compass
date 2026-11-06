@@ -9,8 +9,8 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\CollectorDrivers;
-use Maarheeze\Compass\Collector\Forge\ForgeClient;
-use Maarheeze\Compass\Collector\Forge\ForgeSitesCollector;
+use Maarheeze\Compass\Collector\Drivers\Forge\ForgeClient;
+use Maarheeze\Compass\Collector\Drivers\Forge\ForgeSitesCollector;
 use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Collector\SourceConfigs;
 

@@ -9,8 +9,8 @@ use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
-use Maarheeze\Compass\Collector\Forge\MissingSiteResolver;
 use Maarheeze\Compass\Collector\MissingState;
+use Maarheeze\Compass\Collector\Sites\MissingSiteResolver;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Site;
 

@@ -6,8 +6,8 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collector\BuiltInDriver;
-use Maarheeze\Compass\Collector\GitHub\GitHubClient;
-use Maarheeze\Compass\Collector\GitHub\GitHubRepositoriesCollector;
+use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubClient;
+use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubRepositoriesCollector;
 use Maarheeze\Compass\Collector\Repositories\RepositoriesCollectorManager;
 use Maarheeze\Compass\Collector\SourceConfig;
 

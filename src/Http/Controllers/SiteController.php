@@ -8,7 +8,7 @@ use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
-use Maarheeze\Compass\Collector\Forge\MissingSiteResolver;
+use Maarheeze\Compass\Collector\Sites\MissingSiteResolver;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Site;

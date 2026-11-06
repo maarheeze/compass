@@ -1,0 +1,171 @@
+<?php
+
+declare(strict_types=1);
+
+use Illuminate\Http\Client\Factory as HttpFactory;
+use Illuminate\Http\Client\Request as HttpRequest;
+use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubClient;
+use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubQueryFailed;
+
+test('query is posted to the github graphql api', function (): void {
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response([])]);
+
+    $gitHubClient = new GitHubClient($http, fake()->sha1());
+    $gitHubClient->query(fake()->sentence(), []);
+
+    $http->assertSent(static function (HttpRequest $request): bool {
+        if ($request->method() !== 'POST') {
+            return false;
+        }
+
+        return $request->url() === 'https://api.github.com/graphql';
+    });
+});
+
+test('query is sent with its token', function (): void {
+    $token = fake()->sha1();
+
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response([])]);
+
+    $gitHubClient = new GitHubClient($http, $token);
+    $gitHubClient->query(fake()->sentence(), []);
+
+    $http->assertSent(static function (HttpRequest $request) use ($token): bool {
+        return $request->hasHeader('Authorization', sprintf('Bearer %s', $token));
+    });
+});
+
+test('query is sent with its variables', function (): void {
+    $query = fake()->sentence();
+    $variables = [
+        fake()->unique()->word() => fake()->word(),
+        fake()->unique()->word() => null,
+    ];
+
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response([])]);
+
+    $gitHubClient = new GitHubClient($http, fake()->sha1());
+    $gitHubClient->query($query, $variables);
+
+    $http->assertSent(static function (HttpRequest $request) use ($query, $variables): bool {
+        if ($request['query'] !== $query) {
+            return false;
+        }
+
+        return $request['variables'] === $variables;
+    });
+});
+
+test('query throws when github answers with errors', function (): void {
+    $this->app->make(HttpFactory::class)->fake([
+        '*' => HttpFactory::response([
+            'errors' => [
+                [
+                    'message' => fake()->sentence(),
+                ],
+            ],
+        ]),
+    ]);
+
+    $gitHubClient = new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1());
+    $gitHubClient->query(fake()->sentence(), []);
+})->throws(GitHubQueryFailed::class);
+
+test('query throws with the error messages github answered with', function (): void {
+    $errorMessage = fake()->sentence();
+    $this->app->make(HttpFactory::class)->fake([
+        '*' => HttpFactory::response([
+            'errors' => [
+                [
+                    'message' => $errorMessage,
+                ],
+            ],
+        ]),
+    ]);
+
+    $gitHubClient = new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1());
+
+    expect(static function () use ($gitHubClient): void {
+        $gitHubClient->query(fake()->sentence(), []);
+    })->toThrow(static function (GitHubQueryFailed $gitHubQueryFailed) use ($errorMessage): void {
+        expect($gitHubQueryFailed->errorMessages)
+            ->toBe([$errorMessage]);
+    });
+});
+
+test('query throws when github refuses the request', function (): void {
+    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, 401)]);
+
+    $gitHubClient = new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1());
+    $gitHubClient->query(fake()->sentence(), []);
+})->throws(GitHubQueryFailed::class);
+
+test('query throws when github cannot be reached', function (): void {
+    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::failedConnection()]);
+
+    $gitHubClient = new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1());
+    $gitHubClient->query(fake()->sentence(), []);
+})->throws(GitHubQueryFailed::class);
+
+test('get is sent to the github api', function (): void {
+    $path = fake()->slug();
+
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response([])]);
+
+    $gitHubClient = new GitHubClient($http, fake()->sha1());
+    $gitHubClient->get($path);
+
+    $http->assertSent(static function (HttpRequest $request) use ($path): bool {
+        if ($request->method() !== 'GET') {
+            return false;
+        }
+
+        return $request->url() === sprintf('https://api.github.com/%s', $path);
+    });
+});
+
+test('get is sent to an absolute url as is', function (): void {
+    $url = fake()->url();
+
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response([])]);
+
+    $gitHubClient = new GitHubClient($http, fake()->sha1());
+    $gitHubClient->get($url);
+
+    $http->assertSent(static function (HttpRequest $request) use ($url): bool {
+        return $request->url() === $url;
+    });
+});
+
+test('get is sent with its token', function (): void {
+    $token = fake()->sha1();
+
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response([])]);
+
+    $gitHubClient = new GitHubClient($http, $token);
+    $gitHubClient->get(fake()->slug());
+
+    $http->assertSent(static function (HttpRequest $request) use ($token): bool {
+        return $request->hasHeader('Authorization', sprintf('Bearer %s', $token));
+    });
+});
+
+test('get throws when github refuses the request', function (): void {
+    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, 401)]);
+
+    $gitHubClient = new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1());
+    $gitHubClient->get(fake()->slug());
+})->throws(GitHubQueryFailed::class);
+
+test('get throws when github cannot be reached', function (): void {
+    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::failedConnection()]);
+
+    $gitHubClient = new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1());
+    $gitHubClient->get(fake()->slug());
+})->throws(GitHubQueryFailed::class);

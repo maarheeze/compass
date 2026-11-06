@@ -7,9 +7,13 @@ use Illuminate\Queue\InteractsWithQueue;
 
 $batchedJobNamespaces = [
     'Maarheeze\Compass\Collector\Client\Jobs',
-    'Maarheeze\Compass\Collector\Forge\Jobs',
-    'Maarheeze\Compass\Collector\GitHub\Jobs',
+    'Maarheeze\Compass\Collector\Composer\Jobs',
+    'Maarheeze\Compass\Collector\Dependabot\Jobs',
+    'Maarheeze\Compass\Collector\Issues\Jobs',
+    'Maarheeze\Compass\Collector\PullRequests\Jobs',
+    'Maarheeze\Compass\Collector\Repositories\Jobs',
     'Maarheeze\Compass\Collector\SiteEndpoint\Jobs',
+    'Maarheeze\Compass\Collector\Sites\Jobs',
 ];
 
 arch('batched jobs interact with the queue, so their batch records them as done')

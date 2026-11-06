@@ -9,8 +9,8 @@ use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
-use Maarheeze\Compass\Collector\GitHub\MissingRepositoryResolver;
 use Maarheeze\Compass\Collector\MissingState;
+use Maarheeze\Compass\Collector\Repositories\MissingRepositoryResolver;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Repository;
 

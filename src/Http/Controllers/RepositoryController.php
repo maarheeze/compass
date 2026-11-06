@@ -13,7 +13,7 @@ use Illuminate\Routing\Redirector;
 use Maarheeze\Compass\Analyzer\Composer\RepositoryKind;
 use Maarheeze\Compass\Analyzer\Composer\RepositoryKindClassifier;
 use Maarheeze\Compass\Collections\RepositoryCollection;
-use Maarheeze\Compass\Collector\GitHub\MissingRepositoryResolver;
+use Maarheeze\Compass\Collector\Repositories\MissingRepositoryResolver;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Repository;
 use Throwable;

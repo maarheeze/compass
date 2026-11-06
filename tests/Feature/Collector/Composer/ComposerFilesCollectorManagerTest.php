@@ -7,8 +7,8 @@ use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\Composer\ComposerFilesCollectorManager;
-use Maarheeze\Compass\Collector\GitHub\GitHubClient;
-use Maarheeze\Compass\Collector\GitHub\GitHubRepositoryFilesCollector;
+use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubClient;
+use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubRepositoryFilesCollector;
 use Maarheeze\Compass\Collector\SourceConfig;
 
 test('collector of a github source reads the files of its organization with its token', function (): void {
