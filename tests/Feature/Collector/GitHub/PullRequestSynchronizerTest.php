@@ -113,6 +113,39 @@ test('store pull requests stores a pull request of a repository not stored witho
     ]);
 });
 
+test('store pull requests links an unlinked pull request to its repository stored since', function (): void {
+    $repository = Repository::factory()->create();
+    $pullRequest = PullRequest::factory()->create([
+        'repository_id' => null,
+        'source' => $repository->source,
+        'repository_lookup_key' => $repository->full_name,
+    ]);
+    $collectedPullRequest = CollectedPullRequestFactory::make();
+    $collectedPullRequestOfRepository = new CollectedPullRequest(
+        $pullRequest->external_id,
+        $repository->full_name,
+        $collectedPullRequest->number,
+        $collectedPullRequest->title,
+        $collectedPullRequest->url,
+        $collectedPullRequest->authorLogin,
+        $collectedPullRequest->isDraft,
+        $collectedPullRequest->openedAt,
+        $collectedPullRequest->assignees,
+    );
+
+    $pullRequestSynchronizer = $this->app->make(PullRequestSynchronizer::class);
+    $pullRequestSynchronizer->storePullRequests(
+        new CollectedPullRequestCollection([$collectedPullRequestOfRepository]),
+        $repository->source,
+        Uuid::generate(),
+    );
+
+    $this->assertDatabaseHas(PullRequest::class, [
+        'id' => $pullRequest->id,
+        'repository_id' => $repository->id,
+    ]);
+});
+
 test('store pull requests stores the assignees of the pull requests', function (): void {
     $source = fake()->slug();
     $collectedPullRequest = CollectedPullRequestFactory::make();

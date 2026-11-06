@@ -102,6 +102,38 @@ test('store issues stores an issue of a repository not stored without a reposito
     ]);
 });
 
+test('store issues links an unlinked issue to its repository stored since', function (): void {
+    $repository = Repository::factory()->create();
+    $issue = Issue::factory()->create([
+        'repository_id' => null,
+        'source' => $repository->source,
+        'repository_lookup_key' => $repository->full_name,
+    ]);
+    $collectedIssue = CollectedIssueFactory::make();
+    $collectedIssueOfRepository = new CollectedIssue(
+        $issue->external_id,
+        $repository->full_name,
+        $collectedIssue->number,
+        $collectedIssue->title,
+        $collectedIssue->url,
+        $collectedIssue->authorLogin,
+        $collectedIssue->openedAt,
+        $collectedIssue->assignees,
+    );
+
+    $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
+    $issueSynchronizer->storeIssues(
+        new CollectedIssueCollection([$collectedIssueOfRepository]),
+        $repository->source,
+        Uuid::generate(),
+    );
+
+    $this->assertDatabaseHas(Issue::class, [
+        'id' => $issue->id,
+        'repository_id' => $repository->id,
+    ]);
+});
+
 test('store issues stores the assignees of the issues', function (): void {
     $source = fake()->slug();
     $collectedIssue = CollectedIssueFactory::make();
