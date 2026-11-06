@@ -9,7 +9,6 @@
                 <x-compass::subject-name :subject="$repository">
                     <h1 class="text-lg font-semibold text-foreground">{{ $repository->name }}</h1>
                 </x-compass::subject-name>
-                <a href="{{ $repository->url }}" target="_blank" rel="noopener" class="ml-auto text-sm text-foreground-muted hover:underline">GitHub &nearr;</a>
             </div>
             <p class="flex flex-wrap items-center gap-x-2 text-sm text-foreground-muted">
                 <span>

@@ -74,8 +74,6 @@
 
             <div class="rounded-md border border-border bg-canvas px-4 py-3 text-sm">
                 <p class="flex flex-wrap items-center gap-x-2 text-foreground-muted">
-                    <x-compass::commit-hash :repository="$site->repository" :commit-hash="$site->deployed_commit_hash" />
-                    <span>&middot;</span>
                     <span>
                         @if ($site->deployment_status !== null)
                             <x-compass::enum-label :value="$site->deployment_status" />
