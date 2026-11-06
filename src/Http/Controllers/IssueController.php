@@ -22,8 +22,10 @@ readonly class IssueController
             ->with(['assignees', 'repository'])
             ->latestOpened();
 
-        if ($assigneeFilterRequest->isFilteredOnAssignee()) {
-            $issueQuery->assignedTo($assigneeFilterRequest->source(), $assigneeFilterRequest->assignee());
+        $assigneeFilter = $assigneeFilterRequest->assigneeFilter();
+
+        if ($assigneeFilter !== null) {
+            $issueQuery->assignedTo($assigneeFilter->source, $assigneeFilter->login);
         }
 
         return $this->view->make('compass::issues.index', [

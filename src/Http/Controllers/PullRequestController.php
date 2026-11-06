@@ -22,8 +22,10 @@ readonly class PullRequestController
             ->with(['assignees', 'repository'])
             ->latestOpened();
 
-        if ($assigneeFilterRequest->isFilteredOnAssignee()) {
-            $pullRequestQuery->assignedTo($assigneeFilterRequest->source(), $assigneeFilterRequest->assignee());
+        $assigneeFilter = $assigneeFilterRequest->assigneeFilter();
+
+        if ($assigneeFilter !== null) {
+            $pullRequestQuery->assignedTo($assigneeFilter->source, $assigneeFilter->login);
         }
 
         return $this->view->make('compass::pull-requests.index', [

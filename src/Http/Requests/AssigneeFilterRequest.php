@@ -5,18 +5,20 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Maarheeze\Compass\Http\AssigneeFilter;
 use Webmozart\Assert\Assert;
 
 class AssigneeFilterRequest extends FormRequest
 {
-    public function assignee(): string
+    public function assigneeFilter(): ?AssigneeFilter
     {
-        return Assert::string($this->validated('assignee'));
-    }
+        $assignee = $this->validated('assignee');
 
-    public function isFilteredOnAssignee(): bool
-    {
-        return $this->has('assignee');
+        if ($assignee === null) {
+            return null;
+        }
+
+        return new AssigneeFilter(Assert::string($this->validated('source')), Assert::string($assignee));
     }
 
     /**
@@ -34,10 +36,5 @@ class AssigneeFilterRequest extends FormRequest
                 'string',
             ],
         ];
-    }
-
-    public function source(): string
-    {
-        return Assert::string($this->validated('source'));
     }
 }
