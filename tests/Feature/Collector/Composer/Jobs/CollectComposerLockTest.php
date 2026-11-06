@@ -2,84 +2,81 @@
 
 declare(strict_types=1);
 
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Http\Client\Factory as HttpFactory;
-use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Support\Testing\Fakes\EventFake;
+use Maarheeze\Compass\Collector\Composer\ComposerFilesCollectorManager;
 use Maarheeze\Compass\Collector\Composer\Jobs\CollectComposerLock;
 use Maarheeze\Compass\Collector\Events\ComposerLockChanged;
+use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Models\ComposerLock;
 use Maarheeze\Compass\Models\Repository;
+use Maarheeze\Compass\Tests\Fixtures\RecordingRepositoryFilesCollector;
 
-test('handle queries the blob of the current composer lock oid', function (): void {
+test('handle asks the collector of the source for the composer lock at the stored version', function (): void {
     $source = fake()->slug();
+    $driverName = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => 'github',
-            'organization' => fake()->slug(),
-            'token' => fake()->sha1(),
+            'driver' => $driverName,
         ],
     ]);
+    $recordingRepositoryFilesCollector = new RecordingRepositoryFilesCollector(json_encode([
+        'packages' => [],
+        'packages-dev' => [],
+    ], JSON_THROW_ON_ERROR));
+    $composerFilesCollectorManager = $this->app->make(ComposerFilesCollectorManager::class);
+    $composerFilesCollectorManager->extend(
+        $driverName,
+        static function (
+            Container $container,
+            SourceConfig $sourceConfig,
+        ) use ($recordingRepositoryFilesCollector): RecordingRepositoryFilesCollector {
+            return $recordingRepositoryFilesCollector;
+        },
+    );
     $repository = Repository::factory()->create(['composer_lock_version' => fake()->sha1()]);
-
-    $http = $this->app->make(HttpFactory::class);
-    $http->fake([
-        '*' => HttpFactory::response([
-            'data' => [
-                'repository' => [
-                    'object' => [
-                        'text' => json_encode([
-                            'packages' => [],
-                            'packages-dev' => [],
-                            'platform' => [],
-                        ], JSON_THROW_ON_ERROR),
-                    ],
-                ],
-            ],
-        ]),
-    ]);
 
     $collectComposerLock = new CollectComposerLock($repository, $source);
     $this->app->call([$collectComposerLock, 'handle']);
 
-    $http->assertSent(static function (HttpRequest $request) use ($repository): bool {
-        if ($request['variables']['name'] !== $repository->name) {
-            return false;
-        }
-
-        return $request['variables']['oid'] === $repository->composer_lock_version;
-    });
+    expect($recordingRepositoryFilesCollector->requestedFiles)
+        ->toBe([
+            [
+                'repositoryName' => $repository->name,
+                'version' => $repository->composer_lock_version,
+            ],
+        ]);
 });
 
-test('handle stores the composer lock with its oid', function (): void {
+test('handle stores the composer lock with its version', function (): void {
+    $phpConstraint = fake()->numerify('^#.#');
     $source = fake()->slug();
+    $driverName = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => 'github',
-            'organization' => fake()->slug(),
-            'token' => fake()->sha1(),
+            'driver' => $driverName,
         ],
     ]);
+    $recordingRepositoryFilesCollector = new RecordingRepositoryFilesCollector(json_encode([
+        'packages' => [],
+        'packages-dev' => [],
+        'platform' => [
+            'php' => $phpConstraint,
+        ],
+    ], JSON_THROW_ON_ERROR));
+    $composerFilesCollectorManager = $this->app->make(ComposerFilesCollectorManager::class);
+    $composerFilesCollectorManager->extend(
+        $driverName,
+        static function (
+            Container $container,
+            SourceConfig $sourceConfig,
+        ) use ($recordingRepositoryFilesCollector): RecordingRepositoryFilesCollector {
+            return $recordingRepositoryFilesCollector;
+        },
+    );
     $repository = Repository::factory()->create(['composer_lock_version' => fake()->sha1()]);
-    $phpConstraint = fake()->numerify('^#.#');
-    $this->app->make(HttpFactory::class)->fake([
-        '*' => HttpFactory::response([
-            'data' => [
-                'repository' => [
-                    'object' => [
-                        'text' => json_encode([
-                            'packages' => [],
-                            'packages-dev' => [],
-                            'platform' => [
-                                'php' => $phpConstraint,
-                            ],
-                        ], JSON_THROW_ON_ERROR),
-                    ],
-                ],
-            ],
-        ]),
-    ]);
 
     $collectComposerLock = new CollectComposerLock($repository, $source);
     $this->app->call([$collectComposerLock, 'handle']);

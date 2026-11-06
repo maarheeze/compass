@@ -8,7 +8,7 @@ use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 
-test('handle adds collect composer json when its oid differs from the collected one', function (): void {
+test('handle adds collect composer json when its version differs from the collected one', function (): void {
     $runId = Uuid::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
@@ -61,7 +61,7 @@ test('handle adds collect composer json when the composer json is gone', functio
         ->toEqual([$repository->id]);
 });
 
-test('handle does not add collect composer json when its oid is the collected one', function (): void {
+test('handle does not add collect composer json when its version is the collected one', function (): void {
     $runId = Uuid::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,

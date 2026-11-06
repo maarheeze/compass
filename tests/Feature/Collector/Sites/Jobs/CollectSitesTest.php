@@ -21,14 +21,14 @@ test('handle stores the sites of the page', function (): void {
             'auto_deploy_grace_minutes' => fake()->numberBetween(1, 60),
         ],
     ]);
-    $forgeId = fake()->numerify('#######');
+    $externalId = fake()->numerify('#######');
     $serverId = fake()->numerify('####');
     $runId = Uuid::generate();
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             'data' => [
                 [
-                    'id' => $forgeId,
+                    'id' => $externalId,
                     'type' => 'sites',
                     'attributes' => [
                         'name' => fake()->domainName(),
@@ -76,7 +76,7 @@ test('handle stores the sites of the page', function (): void {
 
     $this->assertDatabaseHas(Site::class, [
         'source' => $source,
-        'external_id' => $forgeId,
+        'external_id' => $externalId,
         'run_id' => $runId,
     ]);
 });

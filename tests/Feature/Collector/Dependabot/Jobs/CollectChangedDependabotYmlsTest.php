@@ -8,7 +8,7 @@ use Maarheeze\Compass\Models\DependabotYml;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 
-test('handle adds collect dependabot yml when its oid differs from the collected one', function (): void {
+test('handle adds collect dependabot yml when its version differs from the collected one', function (): void {
     $runId = Uuid::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,
@@ -61,7 +61,7 @@ test('handle adds collect dependabot yml when the dependabot yml is gone', funct
         ->toEqual([$repository->id]);
 });
 
-test('handle does not add collect dependabot yml when its oid is the collected one', function (): void {
+test('handle does not add collect dependabot yml when its version is the collected one', function (): void {
     $runId = Uuid::generate();
     $repository = Repository::factory()->create([
         'run_id' => $runId,

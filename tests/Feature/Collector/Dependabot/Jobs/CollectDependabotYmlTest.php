@@ -2,83 +2,81 @@
 
 declare(strict_types=1);
 
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Http\Client\Factory as HttpFactory;
-use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Support\Testing\Fakes\EventFake;
+use Maarheeze\Compass\Collector\Dependabot\DependabotFilesCollectorManager;
 use Maarheeze\Compass\Collector\Dependabot\Jobs\CollectDependabotYml;
 use Maarheeze\Compass\Collector\Events\DependabotYmlChanged;
+use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Models\DependabotYml;
 use Maarheeze\Compass\Models\Repository;
+use Maarheeze\Compass\Tests\Fixtures\RecordingRepositoryFilesCollector;
 use Symfony\Component\Yaml\Yaml;
 
-test('handle queries the blob of the current dependabot yml oid', function (): void {
+test('handle asks the collector of the source for the dependabot yml at the stored version', function (): void {
     $source = fake()->slug();
+    $driverName = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => 'github',
-            'organization' => fake()->slug(),
-            'token' => fake()->sha1(),
+            'driver' => $driverName,
         ],
     ]);
+    $recordingRepositoryFilesCollector = new RecordingRepositoryFilesCollector(Yaml::dump(['version' => 2]));
+    $dependabotFilesCollectorManager = $this->app->make(DependabotFilesCollectorManager::class);
+    $dependabotFilesCollectorManager->extend(
+        $driverName,
+        static function (
+            Container $container,
+            SourceConfig $sourceConfig,
+        ) use ($recordingRepositoryFilesCollector): RecordingRepositoryFilesCollector {
+            return $recordingRepositoryFilesCollector;
+        },
+    );
     $repository = Repository::factory()->create(['dependabot_yml_version' => fake()->sha1()]);
-
-    $http = $this->app->make(HttpFactory::class);
-    $http->fake([
-        '*' => HttpFactory::response([
-            'data' => [
-                'repository' => [
-                    'object' => [
-                        'text' => Yaml::dump(['version' => 2]),
-                    ],
-                ],
-            ],
-        ]),
-    ]);
 
     $collectDependabotYml = new CollectDependabotYml($repository, $source);
     $this->app->call([$collectDependabotYml, 'handle']);
 
-    $http->assertSent(static function (HttpRequest $request) use ($repository): bool {
-        if ($request['variables']['name'] !== $repository->name) {
-            return false;
-        }
-
-        return $request['variables']['oid'] === $repository->dependabot_yml_version;
-    });
+    expect($recordingRepositoryFilesCollector->requestedFiles)
+        ->toBe([
+            [
+                'repositoryName' => $repository->name,
+                'version' => $repository->dependabot_yml_version,
+            ],
+        ]);
 });
 
-test('handle stores the package ecosystems of the dependabot yml with its oid', function (): void {
+test('handle stores the package ecosystems of the dependabot yml with its version', function (): void {
+    $packageEcosystem = fake()->randomElement(['composer', 'docker', 'github-actions', 'npm']);
     $source = fake()->slug();
+    $driverName = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => 'github',
-            'organization' => fake()->slug(),
-            'token' => fake()->sha1(),
+            'driver' => $driverName,
         ],
     ]);
-    $repository = Repository::factory()->create(['dependabot_yml_version' => fake()->sha1()]);
-    $packageEcosystem = fake()->randomElement(['composer', 'docker', 'github-actions', 'npm']);
-    $this->app->make(HttpFactory::class)->fake([
-        '*' => HttpFactory::response([
-            'data' => [
-                'repository' => [
-                    'object' => [
-                        'text' => Yaml::dump([
-                            'version' => 2,
-                            'updates' => [
-                                [
-                                    'package-ecosystem' => $packageEcosystem,
-                                    'directory' => '/',
-                                ],
-                            ],
-                        ]),
-                    ],
-                ],
+    $recordingRepositoryFilesCollector = new RecordingRepositoryFilesCollector(Yaml::dump([
+        'version' => 2,
+        'updates' => [
+            [
+                'package-ecosystem' => $packageEcosystem,
+                'directory' => '/',
             ],
-        ]),
-    ]);
+        ],
+    ]));
+    $dependabotFilesCollectorManager = $this->app->make(DependabotFilesCollectorManager::class);
+    $dependabotFilesCollectorManager->extend(
+        $driverName,
+        static function (
+            Container $container,
+            SourceConfig $sourceConfig,
+        ) use ($recordingRepositoryFilesCollector): RecordingRepositoryFilesCollector {
+            return $recordingRepositoryFilesCollector;
+        },
+    );
+    $repository = Repository::factory()->create(['dependabot_yml_version' => fake()->sha1()]);
 
     $collectDependabotYml = new CollectDependabotYml($repository, $source);
     $this->app->call([$collectDependabotYml, 'handle']);
