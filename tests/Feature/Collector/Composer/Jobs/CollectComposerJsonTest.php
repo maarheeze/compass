@@ -7,7 +7,6 @@ use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Support\Testing\Fakes\EventFake;
-use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\Composer\Jobs\CollectComposerJson;
 use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
 use Maarheeze\Compass\Models\ComposerJson;
@@ -17,7 +16,7 @@ test('handle queries the blob of the current composer json oid', function (): vo
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
@@ -53,7 +52,7 @@ test('handle stores the composer json with its oid', function (): void {
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
@@ -86,7 +85,7 @@ test('handle removes the composer json when the repository no longer has one', f
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
@@ -104,7 +103,7 @@ test('handle adds the repository to the log context', function (): void {
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
@@ -137,7 +136,7 @@ test('handle raises composer json changed for the repository when its file is go
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],

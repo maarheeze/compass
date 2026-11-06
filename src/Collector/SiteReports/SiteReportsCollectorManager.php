@@ -7,7 +7,6 @@ namespace Maarheeze\Compass\Collector\SiteReports;
 use Closure;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Client\Factory as HttpFactory;
-use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\CollectorDrivers;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\CompassClientSiteReportsCollector;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteClient;
@@ -26,7 +25,7 @@ readonly class SiteReportsCollectorManager
     ) {
         $this->collectorDrivers = new CollectorDrivers($container);
         $this->collectorDrivers->extend(
-            BuiltInDriver::COMPASS_CLIENT,
+            'compass-client',
             function (Container $container, SourceConfig $sourceConfig): CompassClientSiteReportsCollector {
                 return new CompassClientSiteReportsCollector(new SiteClient(
                     $this->http,

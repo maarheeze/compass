@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\SiteReports\Jobs\InspectSite;
 use Maarheeze\Compass\Collector\SiteReports\Jobs\InspectSites;
 use Maarheeze\Compass\Models\Site;
@@ -12,7 +11,7 @@ test('handle adds the inspection of a collected site to its batch', function ():
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::COMPASS_CLIENT,
+            'driver' => 'compass-client',
             'key' => fake()->sha1(),
             'path' => sprintf('/%s', fake()->slug()),
         ],
@@ -37,7 +36,7 @@ test('handle hands its source to the inspection of a site', function (): void {
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::COMPASS_CLIENT,
+            'driver' => 'compass-client',
             'key' => fake()->sha1(),
             'path' => sprintf('/%s', fake()->slug()),
         ],
@@ -62,7 +61,7 @@ test('handle leaves out a missing site', function (): void {
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::COMPASS_CLIENT,
+            'driver' => 'compass-client',
             'key' => fake()->sha1(),
             'path' => sprintf('/%s', fake()->slug()),
         ],

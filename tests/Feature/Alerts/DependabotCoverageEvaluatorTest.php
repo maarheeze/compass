@@ -7,7 +7,6 @@ use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\DependabotCoverageEvaluator;
-use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Models\DependabotYml;
 use Maarheeze\Compass\Models\Repository;
 use Psr\Clock\ClockInterface;
@@ -19,7 +18,7 @@ test('conditionObservations observes an uncovered package ecosystem active now',
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
         ],
     ]);
     $repository = Repository::factory()->create([
@@ -46,7 +45,7 @@ test('conditionObservations observes a package ecosystem the repository does not
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
         ],
     ]);
     $repository = Repository::factory()->create([
@@ -75,7 +74,7 @@ test('conditionObservations judges the dependabot yml stored now, not one loaded
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
         ],
     ]);
     $repository = Repository::factory()->create([

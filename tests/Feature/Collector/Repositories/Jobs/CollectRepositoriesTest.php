@@ -6,7 +6,6 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Support\Testing\Fakes\EventFake;
-use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\Composer\Jobs\CollectChangedComposerJsons;
 use Maarheeze\Compass\Collector\Composer\Jobs\CollectChangedComposerLocks;
 use Maarheeze\Compass\Collector\Dependabot\Jobs\CollectChangedDependabotYmls;
@@ -20,7 +19,7 @@ test('handle stores the repositories of the page', function (): void {
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
@@ -74,7 +73,7 @@ test('handle marks the repositories of another run missing on the last page', fu
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
@@ -107,7 +106,7 @@ test('handle adds the collection of the composer files and dependabot yml to its
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
@@ -157,7 +156,7 @@ test('handle raises repositories collected', function (): void {
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
@@ -195,7 +194,7 @@ test('handle raises package json changed for a repository whose package json ver
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],

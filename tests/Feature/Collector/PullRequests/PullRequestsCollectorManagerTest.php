@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
-use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubPullRequestsCollector;
 use Maarheeze\Compass\Collector\PullRequests\PullRequestsCollectorManager;
@@ -17,7 +16,7 @@ test('collector of a github source collects the pull requests of its organizatio
     $token = fake()->sha1();
     $this->setConfiguration('compass.sources', [
         $key => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
             'organization' => $organization,
             'token' => $token,
         ],
@@ -75,7 +74,7 @@ test('collector refuses a source naming a driver that has no pull requests colle
     $key = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $key => [
-            'driver' => fake()->randomElement([BuiltInDriver::FORGE, fake()->slug()]),
+            'driver' => fake()->randomElement(['forge', fake()->slug()]),
         ],
     ]);
 
@@ -96,7 +95,7 @@ test('collector refuses a github source with a setting it needs missing or unset
     'without an organization' => [
         function (): array {
             return [
-                'driver' => BuiltInDriver::GITHUB,
+                'driver' => 'github',
                 'token' => fake()->sha1(),
             ];
         },
@@ -104,7 +103,7 @@ test('collector refuses a github source with a setting it needs missing or unset
     'with an unset token' => [
         function (): array {
             return [
-                'driver' => BuiltInDriver::GITHUB,
+                'driver' => 'github',
                 'organization' => fake()->slug(),
                 'token' => null,
             ];

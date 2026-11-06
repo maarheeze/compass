@@ -7,7 +7,6 @@ namespace Maarheeze\Compass\Collector\Repositories;
 use Closure;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Client\Factory as HttpFactory;
-use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\CollectorDrivers;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubRepositoriesCollector;
@@ -26,7 +25,7 @@ readonly class RepositoriesCollectorManager
     ) {
         $this->collectorDrivers = new CollectorDrivers($container);
         $this->collectorDrivers->extend(
-            BuiltInDriver::GITHUB,
+            'github',
             function (Container $container, SourceConfig $sourceConfig): GitHubRepositoriesCollector {
                 return new GitHubRepositoriesCollector(
                     new GitHubClient($this->http, $sourceConfig->setting('token')),

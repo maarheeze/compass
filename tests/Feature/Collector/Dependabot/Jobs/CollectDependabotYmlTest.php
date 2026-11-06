@@ -7,7 +7,6 @@ use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Support\Testing\Fakes\EventFake;
-use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\Dependabot\Jobs\CollectDependabotYml;
 use Maarheeze\Compass\Collector\Events\DependabotYmlChanged;
 use Maarheeze\Compass\Models\DependabotYml;
@@ -18,7 +17,7 @@ test('handle queries the blob of the current dependabot yml oid', function (): v
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
@@ -54,7 +53,7 @@ test('handle stores the package ecosystems of the dependabot yml with its oid', 
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
@@ -95,7 +94,7 @@ test('handle removes the dependabot yml when the repository no longer has one', 
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
@@ -113,7 +112,7 @@ test('handle adds the repository to the log context', function (): void {
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
@@ -146,7 +145,7 @@ test('handle raises dependabot yml changed for the repository when its file is g
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],

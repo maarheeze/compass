@@ -6,7 +6,6 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Support\Testing\Fakes\EventFake;
-use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Collector\Sites\Jobs\CollectSites;
 use Maarheeze\Compass\Models\Site;
@@ -16,7 +15,7 @@ test('handle stores the sites of the page', function (): void {
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::FORGE,
+            'driver' => 'forge',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
             'auto_deploy_grace_minutes' => fake()->numberBetween(1, 60),
@@ -86,7 +85,7 @@ test('handle marks the sites of another run missing on the last page', function 
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::FORGE,
+            'driver' => 'forge',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
             'auto_deploy_grace_minutes' => fake()->numberBetween(1, 60),
@@ -127,7 +126,7 @@ test('handle refuses a source without auto deploy grace minutes before collectin
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::FORGE,
+            'driver' => 'forge',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
@@ -144,7 +143,7 @@ test('handle raises sites collected', function (): void {
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::FORGE,
+            'driver' => 'forge',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
             'auto_deploy_grace_minutes' => fake()->numberBetween(1, 60),

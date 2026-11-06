@@ -7,7 +7,6 @@ namespace Maarheeze\Compass\Collector\Issues;
 use Closure;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Client\Factory as HttpFactory;
-use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\CollectorDrivers;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubIssuesCollector;
@@ -26,7 +25,7 @@ readonly class IssuesCollectorManager
     ) {
         $this->collectorDrivers = new CollectorDrivers($container);
         $this->collectorDrivers->extend(
-            BuiltInDriver::GITHUB,
+            'github',
             function (Container $container, SourceConfig $sourceConfig): GitHubIssuesCollector {
                 return new GitHubIssuesCollector(
                     new GitHubClient($this->http, $sourceConfig->setting('token')),

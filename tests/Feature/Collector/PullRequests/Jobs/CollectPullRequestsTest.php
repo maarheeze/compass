@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Illuminate\Http\Client\Factory as HttpFactory;
-use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\PullRequests\Jobs\CollectPullRequests;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\PullRequest;
@@ -13,7 +12,7 @@ test('handle stores the pull requests of the page', function (): void {
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
@@ -55,7 +54,7 @@ test('handle deletes the pull requests of another run on the last page', functio
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
@@ -75,7 +74,7 @@ test('handle keeps the pull requests collected on an earlier page', function ():
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
@@ -120,7 +119,7 @@ test('handle leaves the issues alone', function (): void {
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
         ],

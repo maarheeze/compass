@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
-use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\Dependabot\DependabotFilesCollectorManager;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubRepositoryFilesCollector;
@@ -17,7 +16,7 @@ test('collector of a github source reads the files of its organization with its 
     $token = fake()->sha1();
     $this->setConfiguration('compass.sources', [
         $key => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
             'organization' => $organization,
             'token' => $token,
         ],
@@ -84,7 +83,7 @@ test('collector refuses a source naming a driver that has no dependabot files co
     $key = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $key => [
-            'driver' => fake()->randomElement([BuiltInDriver::FORGE, fake()->slug()]),
+            'driver' => fake()->randomElement(['forge', fake()->slug()]),
         ],
     ]);
 
@@ -105,7 +104,7 @@ test('collector refuses a github source with a setting it needs missing or unset
     'without an organization' => [
         function (): array {
             return [
-                'driver' => BuiltInDriver::GITHUB,
+                'driver' => 'github',
                 'token' => fake()->sha1(),
             ];
         },
@@ -113,7 +112,7 @@ test('collector refuses a github source with a setting it needs missing or unset
     'with an unset token' => [
         function (): array {
             return [
-                'driver' => BuiltInDriver::GITHUB,
+                'driver' => 'github',
                 'organization' => fake()->slug(),
                 'token' => null,
             ];
@@ -125,7 +124,7 @@ test('has collector is true for a github source', function (): void {
     $key = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $key => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
         ],
     ]);
 
@@ -165,7 +164,7 @@ test('has collector is false for a source naming a driver that has no dependabot
     $key = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $key => [
-            'driver' => fake()->randomElement([BuiltInDriver::FORGE, fake()->slug()]),
+            'driver' => fake()->randomElement(['forge', fake()->slug()]),
         ],
     ]);
 

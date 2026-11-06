@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Collection;
-use Maarheeze\Compass\Collector\BuiltInDriver;
 use Maarheeze\Compass\Collector\CollectorType;
 use Maarheeze\Compass\Collector\ScheduleFrequency;
 use Maarheeze\Compass\Console\CheckSiteEndpointsCommand;
@@ -56,7 +55,7 @@ test('a source without a schedule is not scheduled', function (): void {
     $this->setConfiguration('compass.schedule', []);
     $this->setConfiguration('compass.sources', [
         fake()->slug() => [
-            'driver' => BuiltInDriver::GITHUB,
+            'driver' => 'github',
         ],
     ]);
     $schedule = $this->app->make(Schedule::class);
