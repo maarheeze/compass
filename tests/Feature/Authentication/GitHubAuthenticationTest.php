@@ -88,7 +88,7 @@ test('callback stores the github user', function (): void {
 
 test('callback checks the membership of the organization with the user token', function (): void {
     $organization = fake()->slug();
-    $this->setConfiguration('compass.github.organization', $organization);
+    $this->setConfiguration('compass.authentication.github.organization', $organization);
 
     $oauthUser = new OAuthUser()
         ->setToken(fake()->sha1())

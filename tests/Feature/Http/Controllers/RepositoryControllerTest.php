@@ -22,7 +22,7 @@ test('index contains the projects', function (): void {
     ]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::GITHUB_REPOSITORIES));
+    $response = $this->get(route(RouteName::REPOSITORIES));
 
     $response->assertViewHas('projects', static function (RepositoryCollection $viewProjects) use ($repository): bool {
         return $viewProjects->sole()->is($repository);
@@ -37,7 +37,7 @@ test('index contains the libraries', function (): void {
     ]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::GITHUB_REPOSITORIES));
+    $response = $this->get(route(RouteName::REPOSITORIES));
 
     $response->assertViewHas(
         'libraries',
@@ -51,7 +51,7 @@ test('index contains the other repositories', function (): void {
     $repository = Repository::factory()->create(['composer_json_version' => null]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::GITHUB_REPOSITORIES));
+    $response = $this->get(route(RouteName::REPOSITORIES));
 
     $response->assertViewHas(
         'otherRepositories',
@@ -66,7 +66,7 @@ test('index counts the issues of the repositories', function (): void {
     Issue::factory()->create(['repository_id' => $repository->id]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::GITHUB_REPOSITORIES));
+    $response = $this->get(route(RouteName::REPOSITORIES));
 
     $response->assertViewHas(
         'otherRepositories',
@@ -81,7 +81,7 @@ test('index counts the pull requests of the repositories', function (): void {
     PullRequest::factory()->create(['repository_id' => $repository->id]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::GITHUB_REPOSITORIES));
+    $response = $this->get(route(RouteName::REPOSITORIES));
 
     $response->assertViewHas(
         'otherRepositories',
@@ -95,7 +95,7 @@ test('show contains the repository', function (): void {
     $repository = Repository::factory()->create();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::GITHUB_REPOSITORY, $repository));
+    $response = $this->get(route(RouteName::REPOSITORY, $repository));
 
     $response->assertViewHas('repository', static function (Repository $viewRepository) use ($repository): bool {
         return $viewRepository->is($repository);
@@ -110,7 +110,7 @@ test('show contains the kind of the repository', function (): void {
     ]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::GITHUB_REPOSITORY, $repository));
+    $response = $this->get(route(RouteName::REPOSITORY, $repository));
 
     $response->assertViewHas('kind', RepositoryKind::LIBRARY);
 });
@@ -132,7 +132,7 @@ test('show contains the alerts of the repository newest first', function (): voi
         ->create();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::GITHUB_REPOSITORY, $repository));
+    $response = $this->get(route(RouteName::REPOSITORY, $repository));
 
     $response->assertViewHas(
         'repository',
@@ -150,7 +150,7 @@ test('show loads the assignee of the alerts of the repository', function (): voi
         ->create();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::GITHUB_REPOSITORY, $alert->subject_id));
+    $response = $this->get(route(RouteName::REPOSITORY, $alert->subject_id));
 
     $response->assertViewHas('repository', static function (Repository $viewRepository): bool {
         return $viewRepository->alerts->sole()->relationLoaded('assignee');
@@ -169,7 +169,7 @@ test('show contains the issues of the repository newest first', function (): voi
     ]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::GITHUB_REPOSITORY, $repository));
+    $response = $this->get(route(RouteName::REPOSITORY, $repository));
 
     $response->assertViewHas(
         'repository',
@@ -192,7 +192,7 @@ test('show contains the pull requests of the repository newest first', function 
     ]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::GITHUB_REPOSITORY, $repository));
+    $response = $this->get(route(RouteName::REPOSITORY, $repository));
 
     $response->assertViewHas(
         'repository',
@@ -207,7 +207,7 @@ test('delete deletes a missing repository', function (): void {
     $repository = Repository::factory()->create(['missing_at' => fake()->dateTime()]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $this->delete(route(RouteName::GITHUB_REPOSITORY_DELETE, $repository));
+    $this->delete(route(RouteName::REPOSITORY_DELETE, $repository));
 
     $this->assertModelMissing($repository);
 });
@@ -216,7 +216,7 @@ test('delete sends the user back to the dashboard', function (): void {
     $repository = Repository::factory()->create(['missing_at' => fake()->dateTime()]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->delete(route(RouteName::GITHUB_REPOSITORY_DELETE, $repository));
+    $response = $this->delete(route(RouteName::REPOSITORY_DELETE, $repository));
 
     $response->assertRedirect(route(RouteName::DASHBOARD));
 });
@@ -225,7 +225,7 @@ test('delete is not found for a collected repository', function (): void {
     $repository = Repository::factory()->create();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->delete(route(RouteName::GITHUB_REPOSITORY_DELETE, $repository));
+    $response = $this->delete(route(RouteName::REPOSITORY_DELETE, $repository));
 
     $response->assertNotFound();
 });
@@ -234,7 +234,7 @@ test('ignore marks a missing repository ignored', function (): void {
     $repository = Repository::factory()->create(['missing_at' => fake()->dateTime()]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $this->post(route(RouteName::GITHUB_REPOSITORY_IGNORE, $repository));
+    $this->post(route(RouteName::REPOSITORY_IGNORE, $repository));
 
     expect($repository->refresh()->missing_ignored_at)
         ->toBeInstanceOf(CarbonImmutable::class);
@@ -244,7 +244,7 @@ test('ignore sends the user back to the dashboard', function (): void {
     $repository = Repository::factory()->create(['missing_at' => fake()->dateTime()]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->post(route(RouteName::GITHUB_REPOSITORY_IGNORE, $repository));
+    $response = $this->post(route(RouteName::REPOSITORY_IGNORE, $repository));
 
     $response->assertRedirect(route(RouteName::DASHBOARD));
 });

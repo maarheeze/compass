@@ -23,8 +23,8 @@ class SiteReportForm extends Component
         UrlGenerator $url,
         private readonly ViewFactory $view,
     ) {
-        $this->cancelUrl = $url->route(RouteName::FORGE_SITE->value, $siteReport->site);
-        $this->updateUrl = $url->route(RouteName::FORGE_SITE_REPORT_UPDATE->value, $siteReport);
+        $this->cancelUrl = $url->route(RouteName::SITE->value, $siteReport->site);
+        $this->updateUrl = $url->route(RouteName::SITE_REPORT_UPDATE->value, $siteReport);
     }
 
     public function render(): View

@@ -40,7 +40,7 @@ test('url is the compass page of the repository', function (): void {
     ]);
 
     expect($issueReference->url)
-        ->toBe(route(RouteName::GITHUB_REPOSITORY, $repository));
+        ->toBe(route(RouteName::REPOSITORY, $repository));
 });
 
 test('url is empty without a repository', function (): void {

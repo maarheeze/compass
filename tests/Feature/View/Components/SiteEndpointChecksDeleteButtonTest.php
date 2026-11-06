@@ -17,5 +17,5 @@ test('delete url deletes the checks of the endpoint of the site', function (): v
     ]);
 
     expect($siteEndpointChecksDeleteButton->deleteUrl)
-        ->toBe(route(RouteName::FORGE_SITE_ENDPOINT_CHECKS_DELETE, [$site, $endpointPath->routeKey()]));
+        ->toBe(route(RouteName::SITE_ENDPOINT_CHECKS_DELETE, [$site, $endpointPath->routeKey()]));
 });

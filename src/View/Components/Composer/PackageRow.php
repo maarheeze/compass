@@ -19,7 +19,7 @@ class PackageRow extends Component
         UrlGenerator $url,
         private readonly ViewFactory $view,
     ) {
-        $this->url = $url->route(RouteName::GITHUB_PACKAGE->value, $packageName);
+        $this->url = $url->route(RouteName::PACKAGE->value, $packageName);
     }
 
     public function render(): View

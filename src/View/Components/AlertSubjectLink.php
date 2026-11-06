@@ -27,13 +27,13 @@ class AlertSubjectLink extends Component
     ) {
         $this->name = $subject->displayName();
         $this->url = match (true) {
-            $subject instanceof Repository => $url->route(RouteName::GITHUB_REPOSITORY->value, $subject),
-            $subject instanceof Site => $url->route(RouteName::FORGE_SITE->value, $subject),
+            $subject instanceof Repository => $url->route(RouteName::REPOSITORY->value, $subject),
+            $subject instanceof Site => $url->route(RouteName::SITE->value, $subject),
             $subject instanceof SiteEndpoint => $url->route(
-                RouteName::FORGE_SITE_ENDPOINT_CHECKS->value,
+                RouteName::SITE_ENDPOINT_CHECKS->value,
                 [$subject->siteReport->site, new EndpointPath($subject->path)->routeKey()],
             ),
-            $subject instanceof SiteReport => $url->route(RouteName::FORGE_SITE->value, $subject->site),
+            $subject instanceof SiteReport => $url->route(RouteName::SITE->value, $subject->site),
         };
     }
 

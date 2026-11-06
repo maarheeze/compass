@@ -13,7 +13,7 @@ test('index contains the open pull requests', function (): void {
     $pullRequest = PullRequest::factory()->create();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::GITHUB_PULL_REQUESTS));
+    $response = $this->get(route(RouteName::PULL_REQUESTS));
 
     $response->assertViewHas(
         'pullRequests',
@@ -29,7 +29,7 @@ test('index on an assignee contains only the pull requests assigned to them', fu
     PullRequestAssignee::factory()->create(['login' => fake()->unique()->userName()]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::GITHUB_PULL_REQUESTS, [
+    $response = $this->get(route(RouteName::PULL_REQUESTS, [
         'source' => $pullRequest->source,
         'assignee' => $assignee->login,
     ]));
@@ -45,7 +45,7 @@ test('index on an assignee contains only the pull requests assigned to them', fu
 test('index refuses an assignee without a source', function (): void {
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::GITHUB_PULL_REQUESTS, ['assignee' => fake()->userName()]));
+    $response = $this->get(route(RouteName::PULL_REQUESTS, ['assignee' => fake()->userName()]));
 
     $response->assertInvalid('source');
 });

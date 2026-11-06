@@ -23,7 +23,7 @@ class PullRequestRow extends Component
 
     public function assigneeUrl(PullRequestAssignee $assignee): string
     {
-        return $this->url->route(RouteName::GITHUB_PULL_REQUESTS->value, [
+        return $this->url->route(RouteName::PULL_REQUESTS->value, [
             'source' => $this->pullRequest->source,
             'assignee' => $assignee->login,
         ]);

@@ -17,5 +17,5 @@ test('url is the checks page of the endpoint of the site', function (): void {
     ]);
 
     expect($siteEndpointChecksLink->url)
-        ->toBe(route(RouteName::FORGE_SITE_ENDPOINT_CHECKS, [$site, $endpointPath->routeKey()]));
+        ->toBe(route(RouteName::SITE_ENDPOINT_CHECKS, [$site, $endpointPath->routeKey()]));
 });

@@ -11,7 +11,7 @@ test('edit contains the site report', function (): void {
     $siteReport = SiteReport::factory()->create();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::FORGE_SITE_REPORT_EDIT, $siteReport));
+    $response = $this->get(route(RouteName::SITE_REPORT_EDIT, $siteReport));
 
     $response->assertViewHas('siteReport', static function (SiteReport $viewSiteReport) use ($siteReport): bool {
         return $viewSiteReport->is($siteReport);
@@ -24,7 +24,7 @@ test('update stores the path and key of the site report', function (): void {
     $key = fake()->sha1();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $this->patch(route(RouteName::FORGE_SITE_REPORT_UPDATE, $siteReport), [
+    $this->patch(route(RouteName::SITE_REPORT_UPDATE, $siteReport), [
         'path' => $path,
         'key' => $key,
     ]);
@@ -43,7 +43,7 @@ test('update clears the path and key of the site report when left empty', functi
     ]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $this->patch(route(RouteName::FORGE_SITE_REPORT_UPDATE, $siteReport), [
+    $this->patch(route(RouteName::SITE_REPORT_UPDATE, $siteReport), [
         'path' => '',
         'key' => '',
     ]);
@@ -60,7 +60,7 @@ test('update refuses a path without a leading slash', function (): void {
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
     $response = $this->patch(
-        route(RouteName::FORGE_SITE_REPORT_UPDATE, $siteReport),
+        route(RouteName::SITE_REPORT_UPDATE, $siteReport),
         ['path' => fake()->slug()],
     );
 
@@ -71,9 +71,9 @@ test('update sends the user back to the site', function (): void {
     $siteReport = SiteReport::factory()->create();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->patch(route(RouteName::FORGE_SITE_REPORT_UPDATE, $siteReport), []);
+    $response = $this->patch(route(RouteName::SITE_REPORT_UPDATE, $siteReport), []);
 
-    $response->assertRedirect(route(RouteName::FORGE_SITE, $siteReport->site));
+    $response->assertRedirect(route(RouteName::SITE, $siteReport->site));
 });
 
 test('edit contains the path that was entered before a refusal', function (): void {
@@ -82,7 +82,7 @@ test('edit contains the path that was entered before a refusal', function (): vo
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
     $response = $this->withSession(['_old_input' => ['path' => $enteredPath]])
-        ->get(route(RouteName::FORGE_SITE_REPORT_EDIT, $siteReport));
+        ->get(route(RouteName::SITE_REPORT_EDIT, $siteReport));
 
     $response->assertViewHas('path', $enteredPath);
 });
@@ -92,8 +92,8 @@ test('edit shows why a path was refused', function (): void {
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
     $response = $this->followingRedirects()
-        ->from(route(RouteName::FORGE_SITE_REPORT_EDIT, $siteReport))
-        ->patch(route(RouteName::FORGE_SITE_REPORT_UPDATE, $siteReport), ['path' => fake()->slug()]);
+        ->from(route(RouteName::SITE_REPORT_EDIT, $siteReport))
+        ->patch(route(RouteName::SITE_REPORT_UPDATE, $siteReport), ['path' => fake()->slug()]);
 
     $response->assertSeeText('The path must start with a /.');
 });

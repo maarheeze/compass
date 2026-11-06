@@ -33,7 +33,7 @@ test('delete url is the delete action of the site', function (): void {
     $siteMissingNotice = $this->app->make(SiteMissingNotice::class, ['site' => $site]);
 
     expect($siteMissingNotice->deleteUrl)
-        ->toBe(route(RouteName::FORGE_SITE_DELETE, $site));
+        ->toBe(route(RouteName::SITE_DELETE, $site));
 });
 
 test('ignore url is the ignore action of the site', function (): void {
@@ -42,7 +42,7 @@ test('ignore url is the ignore action of the site', function (): void {
     $siteMissingNotice = $this->app->make(SiteMissingNotice::class, ['site' => $site]);
 
     expect($siteMissingNotice->ignoreUrl)
-        ->toBe(route(RouteName::FORGE_SITE_IGNORE, $site));
+        ->toBe(route(RouteName::SITE_IGNORE, $site));
 });
 
 test('should render when the site is missing', function (): void {

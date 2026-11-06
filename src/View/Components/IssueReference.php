@@ -32,7 +32,7 @@ class IssueReference extends Component
         }
 
         $this->reference = sprintf('%s#%d', $repository->full_name, $number);
-        $this->url = $url->route(RouteName::GITHUB_REPOSITORY->value, $repository);
+        $this->url = $url->route(RouteName::REPOSITORY->value, $repository);
     }
 
     public function render(): View

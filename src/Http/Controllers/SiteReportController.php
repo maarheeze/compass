@@ -35,6 +35,6 @@ readonly class SiteReportController
     {
         $siteReport->update($updateSiteReportRequest->validated());
 
-        return $this->redirector->route(RouteName::FORGE_SITE, $siteReport->site);
+        return $this->redirector->route(RouteName::SITE, $siteReport->site);
     }
 }

@@ -14,7 +14,7 @@ test('show contains the package name with a vendor', function (): void {
     $packageName = sprintf('%s/%s', fake()->slug(), fake()->slug());
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::GITHUB_PACKAGE, $packageName));
+    $response = $this->get(route(RouteName::PACKAGE, $packageName));
 
     $response->assertViewHas('packageName', $packageName);
 });
@@ -28,7 +28,7 @@ test('show contains the package usages', function (): void {
     $requiredPackage = ComposerJsonPackage::factory()->create(['composer_json_id' => $composerJson->id]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::GITHUB_PACKAGE, $requiredPackage->name));
+    $response = $this->get(route(RouteName::PACKAGE, $requiredPackage->name));
 
     $response->assertViewHas('packageUsages', static function (PackageUsages $packageUsages) use ($requiredPackage): bool {
         return $packageUsages->requiredPackages->sole()->is($requiredPackage);

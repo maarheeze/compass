@@ -11,7 +11,7 @@ test('url is the compass page of the package', function (): void {
     $packageRow = $this->app->make(PackageRow::class, ['packageName' => $packageName]);
 
     expect($packageRow->url)
-        ->toBe(route(RouteName::GITHUB_PACKAGE, $packageName));
+        ->toBe(route(RouteName::PACKAGE, $packageName));
 });
 
 test('render renders the package row view', function (): void {

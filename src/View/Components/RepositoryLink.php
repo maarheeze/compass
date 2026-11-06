@@ -20,7 +20,7 @@ class RepositoryLink extends Component
         UrlGenerator $url,
         private readonly ViewFactory $view,
     ) {
-        $this->url = $url->route(RouteName::GITHUB_REPOSITORY->value, $repository);
+        $this->url = $url->route(RouteName::REPOSITORY->value, $repository);
     }
 
     public function render(): View

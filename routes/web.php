@@ -42,31 +42,29 @@ Route::middleware('web')
                 Route::post('/unmute', [AlertController::class, 'unmute'])->name(RouteName::ALERT_UNMUTE);
             });
 
-            Route::prefix('/github')->group(static function (): void {
-                Route::get('/repositories', [RepositoryController::class, 'index'])->name(RouteName::GITHUB_REPOSITORIES);
-                Route::get('/repositories/{repository}', [RepositoryController::class, 'show'])->name(RouteName::GITHUB_REPOSITORY);
-                Route::delete('/repositories/{repository}', [RepositoryController::class, 'delete'])->name(RouteName::GITHUB_REPOSITORY_DELETE);
-                Route::post('/repositories/{repository}/ignore', [RepositoryController::class, 'ignore'])->name(RouteName::GITHUB_REPOSITORY_IGNORE);
-                Route::get('/issues', [IssueController::class, 'index'])->name(RouteName::GITHUB_ISSUES);
-                Route::get('/pull-requests', [PullRequestController::class, 'index'])->name(RouteName::GITHUB_PULL_REQUESTS);
-                Route::get('/packages/{packageName}', [PackageController::class, 'show'])
-                    ->where('packageName', '.+')
-                    ->name(RouteName::GITHUB_PACKAGE);
-            });
+            Route::get('/repositories', [RepositoryController::class, 'index'])->name(RouteName::REPOSITORIES);
+            Route::get('/repositories/{repository}', [RepositoryController::class, 'show'])->name(RouteName::REPOSITORY);
+            Route::delete('/repositories/{repository}', [RepositoryController::class, 'delete'])->name(RouteName::REPOSITORY_DELETE);
+            Route::post('/repositories/{repository}/ignore', [RepositoryController::class, 'ignore'])->name(RouteName::REPOSITORY_IGNORE);
+            Route::get('/issues', [IssueController::class, 'index'])->name(RouteName::ISSUES);
+            Route::get('/pull-requests', [PullRequestController::class, 'index'])->name(RouteName::PULL_REQUESTS);
+            Route::get('/packages/{packageName}', [PackageController::class, 'show'])
+                ->where('packageName', '.+')
+                ->name(RouteName::PACKAGE);
 
-            Route::prefix('/forge/sites')->group(static function (): void {
-                Route::get('/', [SiteController::class, 'index'])->name(RouteName::FORGE_SITES);
-                Route::get('/{site}', [SiteController::class, 'show'])->name(RouteName::FORGE_SITE);
-                Route::delete('/{site}', [SiteController::class, 'delete'])->name(RouteName::FORGE_SITE_DELETE);
-                Route::post('/{site}/ignore', [SiteController::class, 'ignore'])->name(RouteName::FORGE_SITE_IGNORE);
+            Route::prefix('/sites')->group(static function (): void {
+                Route::get('/', [SiteController::class, 'index'])->name(RouteName::SITES);
+                Route::get('/{site}', [SiteController::class, 'show'])->name(RouteName::SITE);
+                Route::delete('/{site}', [SiteController::class, 'delete'])->name(RouteName::SITE_DELETE);
+                Route::post('/{site}/ignore', [SiteController::class, 'ignore'])->name(RouteName::SITE_IGNORE);
                 Route::get('/{site}/endpoint-checks/{endpointPathRouteKey}', [SiteEndpointCheckController::class, 'index'])
-                    ->name(RouteName::FORGE_SITE_ENDPOINT_CHECKS);
+                    ->name(RouteName::SITE_ENDPOINT_CHECKS);
                 Route::delete('/{site}/endpoint-checks/{endpointPathRouteKey}', [SiteEndpointCheckController::class, 'delete'])
-                    ->name(RouteName::FORGE_SITE_ENDPOINT_CHECKS_DELETE);
+                    ->name(RouteName::SITE_ENDPOINT_CHECKS_DELETE);
                 Route::get('/reports/{siteReport}/edit', [SiteReportController::class, 'edit'])
-                    ->name(RouteName::FORGE_SITE_REPORT_EDIT);
+                    ->name(RouteName::SITE_REPORT_EDIT);
                 Route::patch('/reports/{siteReport}', [SiteReportController::class, 'update'])
-                    ->name(RouteName::FORGE_SITE_REPORT_UPDATE);
+                    ->name(RouteName::SITE_REPORT_UPDATE);
             });
 
             Route::get('/runs', [RunController::class, 'index'])->name(RouteName::RUNS);

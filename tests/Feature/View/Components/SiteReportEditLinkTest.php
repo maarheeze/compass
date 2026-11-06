@@ -12,5 +12,5 @@ test('url is the edit page of the site report', function (): void {
     $siteReportEditLink = $this->app->make(SiteReportEditLink::class, ['siteReport' => $siteReport]);
 
     expect($siteReportEditLink->url)
-        ->toBe(route(RouteName::FORGE_SITE_REPORT_EDIT, $siteReport));
+        ->toBe(route(RouteName::SITE_REPORT_EDIT, $siteReport));
 });

@@ -23,7 +23,7 @@ class IssueRow extends Component
 
     public function assigneeUrl(IssueAssignee $assignee): string
     {
-        return $this->url->route(RouteName::GITHUB_ISSUES->value, [
+        return $this->url->route(RouteName::ISSUES->value, [
             'source' => $this->issue->source,
             'assignee' => $assignee->login,
         ]);

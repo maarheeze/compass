@@ -22,7 +22,7 @@ class SiteEndpointChecksDeleteButton extends Component
         UrlGenerator $url,
         private readonly ViewFactory $view,
     ) {
-        $this->deleteUrl = $url->route(RouteName::FORGE_SITE_ENDPOINT_CHECKS_DELETE->value, [$site, $path->routeKey()]);
+        $this->deleteUrl = $url->route(RouteName::SITE_ENDPOINT_CHECKS_DELETE->value, [$site, $path->routeKey()]);
     }
 
     public function render(): View

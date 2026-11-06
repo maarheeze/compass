@@ -20,7 +20,7 @@ class SiteLink extends Component
         UrlGenerator $url,
         private readonly ViewFactory $view,
     ) {
-        $this->url = $url->route(RouteName::FORGE_SITE->value, $site);
+        $this->url = $url->route(RouteName::SITE->value, $site);
     }
 
     public function render(): View

@@ -13,7 +13,7 @@ test('index contains the open issues', function (): void {
     $issue = Issue::factory()->create();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::GITHUB_ISSUES));
+    $response = $this->get(route(RouteName::ISSUES));
 
     $response->assertViewHas('issues', static function (IssueCollection $viewIssues) use ($issue): bool {
         return $viewIssues->sole()->is($issue);
@@ -26,7 +26,7 @@ test('index on an assignee contains only the issues assigned to them', function 
     IssueAssignee::factory()->create(['login' => fake()->unique()->userName()]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::GITHUB_ISSUES, [
+    $response = $this->get(route(RouteName::ISSUES, [
         'source' => $issue->source,
         'assignee' => $assignee->login,
     ]));
@@ -42,7 +42,7 @@ test('index on an assignee contains only the issues assigned to them', function 
 test('index refuses an assignee without a source', function (): void {
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::GITHUB_ISSUES, ['assignee' => fake()->userName()]));
+    $response = $this->get(route(RouteName::ISSUES, ['assignee' => fake()->userName()]));
 
     $response->assertInvalid('source');
 });

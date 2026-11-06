@@ -15,7 +15,7 @@ test('assignee url is the pull requests list filtered on the assignee in the sou
     $assigneeUrl = $pullRequestRow->assigneeUrl($assignee);
 
     expect($assigneeUrl)
-        ->toBe(route(RouteName::GITHUB_PULL_REQUESTS, [
+        ->toBe(route(RouteName::PULL_REQUESTS, [
             'source' => $pullRequest->source,
             'assignee' => $assignee->login,
         ]));

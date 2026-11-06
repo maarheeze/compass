@@ -16,7 +16,7 @@ test('url is the compass page of a repository subject', function (): void {
     $alertSubjectLink = $this->app->make(AlertSubjectLink::class, ['subject' => $repository]);
 
     expect($alertSubjectLink->url)
-        ->toBe(route(RouteName::GITHUB_REPOSITORY, $repository));
+        ->toBe(route(RouteName::REPOSITORY, $repository));
 });
 
 test('url is the compass page of a site subject', function (): void {
@@ -25,7 +25,7 @@ test('url is the compass page of a site subject', function (): void {
     $alertSubjectLink = $this->app->make(AlertSubjectLink::class, ['subject' => $site]);
 
     expect($alertSubjectLink->url)
-        ->toBe(route(RouteName::FORGE_SITE, $site));
+        ->toBe(route(RouteName::SITE, $site));
 });
 
 test('name is the display name of the subject', function (): void {
@@ -43,7 +43,7 @@ test('url is the check history of a site endpoint subject', function (): void {
     $alertSubjectLink = $this->app->make(AlertSubjectLink::class, ['subject' => $siteEndpoint]);
 
     expect($alertSubjectLink->url)
-        ->toBe(route(RouteName::FORGE_SITE_ENDPOINT_CHECKS, [
+        ->toBe(route(RouteName::SITE_ENDPOINT_CHECKS, [
             $siteEndpoint->siteReport->site,
             new EndpointPath($siteEndpoint->path)->routeKey(),
         ]));
@@ -55,7 +55,7 @@ test('url is the compass page of the site of a site report subject', function ()
     $alertSubjectLink = $this->app->make(AlertSubjectLink::class, ['subject' => $siteReport]);
 
     expect($alertSubjectLink->url)
-        ->toBe(route(RouteName::FORGE_SITE, $siteReport->site));
+        ->toBe(route(RouteName::SITE, $siteReport->site));
 });
 
 test('render renders the alert subject link view', function (): void {

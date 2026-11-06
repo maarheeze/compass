@@ -20,7 +20,7 @@ class SiteReportEditLink extends Component
         UrlGenerator $url,
         private readonly ViewFactory $view,
     ) {
-        $this->url = $url->route(RouteName::FORGE_SITE_REPORT_EDIT->value, $siteReport);
+        $this->url = $url->route(RouteName::SITE_REPORT_EDIT->value, $siteReport);
     }
 
     public function render(): View

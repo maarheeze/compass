@@ -23,7 +23,7 @@ test('user is the signed in user', function (): void {
 
 test('tabs mark the tab of the current page as the only active one', function (): void {
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
-    $request = Request::create(route(RouteName::FORGE_SITE_ENDPOINT_CHECKS, [fake()->uuid(), fake()->slug()]));
+    $request = Request::create(route(RouteName::SITE_ENDPOINT_CHECKS, [fake()->uuid(), fake()->slug()]));
     $request->setRouteResolver(function () use ($request): Route {
         return $this->app
             ->make(Router::class)
@@ -34,7 +34,7 @@ test('tabs mark the tab of the current page as the only active one', function ()
     $navigation = $this->app->make(Navigation::class, ['request' => $request]);
 
     expect($navigation->tabs->where('isActive', true)->sole()->url)
-        ->toBe(route(RouteName::FORGE_SITES));
+        ->toBe(route(RouteName::SITES));
 });
 
 test('dashboard url is the url of the dashboard', function (): void {

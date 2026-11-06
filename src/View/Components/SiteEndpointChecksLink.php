@@ -22,7 +22,7 @@ class SiteEndpointChecksLink extends Component
         UrlGenerator $url,
         private readonly ViewFactory $view,
     ) {
-        $this->url = $url->route(RouteName::FORGE_SITE_ENDPOINT_CHECKS->value, [$site, $path->routeKey()]);
+        $this->url = $url->route(RouteName::SITE_ENDPOINT_CHECKS->value, [$site, $path->routeKey()]);
     }
 
     public function render(): View

@@ -28,5 +28,5 @@ test('url is the compass page of the repository', function (): void {
     ]);
 
     expect($packageUsageRow->url)
-        ->toBe(route(RouteName::GITHUB_REPOSITORY, $repository));
+        ->toBe(route(RouteName::REPOSITORY, $repository));
 });

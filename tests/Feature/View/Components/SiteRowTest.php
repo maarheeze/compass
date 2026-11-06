@@ -21,5 +21,5 @@ test('url is the compass page of the site', function (): void {
     $siteRow = $this->app->make(SiteRow::class, ['site' => $site]);
 
     expect($siteRow->url)
-        ->toBe(route(RouteName::FORGE_SITE, $site));
+        ->toBe(route(RouteName::SITE, $site));
 });

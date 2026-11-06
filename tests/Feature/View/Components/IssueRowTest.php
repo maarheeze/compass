@@ -15,7 +15,7 @@ test('assignee url is the issues list filtered on the assignee in the source', f
     $assigneeUrl = $issueRow->assigneeUrl($assignee);
 
     expect($assigneeUrl)
-        ->toBe(route(RouteName::GITHUB_ISSUES, [
+        ->toBe(route(RouteName::ISSUES, [
             'source' => $issue->source,
             'assignee' => $assignee->login,
         ]));

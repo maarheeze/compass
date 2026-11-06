@@ -16,7 +16,7 @@ test('update url is the update action of the site report', function (): void {
     ]);
 
     expect($siteReportForm->updateUrl)
-        ->toBe(route(RouteName::FORGE_SITE_REPORT_UPDATE, $siteReport));
+        ->toBe(route(RouteName::SITE_REPORT_UPDATE, $siteReport));
 });
 
 test('cancel url is the page of the site', function (): void {
@@ -29,5 +29,5 @@ test('cancel url is the page of the site', function (): void {
     ]);
 
     expect($siteReportForm->cancelUrl)
-        ->toBe(route(RouteName::FORGE_SITE, $siteReport->site));
+        ->toBe(route(RouteName::SITE, $siteReport->site));
 });

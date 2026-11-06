@@ -67,7 +67,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | GitHub
+    | Signing in
     |--------------------------------------------------------------------------
     |
     | Credentials of the GitHub OAuth App people sign in with, and the
@@ -75,10 +75,12 @@ return [
     |
     */
 
-    'github' => [
-        'client_id' => env('GITHUB_CLIENT_ID'),
-        'client_secret' => env('GITHUB_CLIENT_SECRET'),
-        'organization' => env('COMPASS_GITHUB_ORGANIZATION'),
+    'authentication' => [
+        'github' => [
+            'client_id' => env('GITHUB_CLIENT_ID'),
+            'client_secret' => env('GITHUB_CLIENT_SECRET'),
+            'organization' => env('COMPASS_GITHUB_ORGANIZATION'),
+        ],
     ],
 
     /*

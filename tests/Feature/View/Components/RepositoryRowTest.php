@@ -21,5 +21,5 @@ test('url is the compass page of the repository', function (): void {
     $repositoryRow = $this->app->make(RepositoryRow::class, ['repository' => $repository]);
 
     expect($repositoryRow->url)
-        ->toBe(route(RouteName::GITHUB_REPOSITORY, $repository));
+        ->toBe(route(RouteName::REPOSITORY, $repository));
 });

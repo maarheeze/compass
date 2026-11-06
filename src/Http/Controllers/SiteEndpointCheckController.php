@@ -28,7 +28,7 @@ readonly class SiteEndpointCheckController
             ->ofPath(EndpointPath::fromRouteKey($endpointPathRouteKey))
             ->delete();
 
-        return $this->redirector->route(RouteName::FORGE_SITE, $site);
+        return $this->redirector->route(RouteName::SITE, $site);
     }
 
     public function index(Site $site, string $endpointPathRouteKey): View

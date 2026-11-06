@@ -28,8 +28,8 @@ class RepositoryMissingNotice extends Component
         UrlGenerator $url,
         private readonly ViewFactory $view,
     ) {
-        $this->deleteUrl = $url->route(RouteName::GITHUB_REPOSITORY_DELETE->value, $repository);
-        $this->ignoreUrl = $url->route(RouteName::GITHUB_REPOSITORY_IGNORE->value, $repository);
+        $this->deleteUrl = $url->route(RouteName::REPOSITORY_DELETE->value, $repository);
+        $this->ignoreUrl = $url->route(RouteName::REPOSITORY_IGNORE->value, $repository);
         $this->missingAt = $repository->missing_at;
         $this->missingState = $repository->missingState();
         $this->canIgnore = $missingRepositoryResolver->canIgnore($repository);
