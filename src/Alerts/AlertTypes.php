@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Alerts;
 
 use InvalidArgumentException;
 use LogicException;
+use Maarheeze\Compass\Collections\AlertTypeCollection;
 
 use function array_key_exists;
 use function array_keys;
@@ -25,12 +26,9 @@ class AlertTypes
         return $this->alertTypes[$identifier];
     }
 
-    /**
-     * @return list<AlertType>
-     */
-    public function alertTypes(): array
+    public function alertTypes(): AlertTypeCollection
     {
-        return array_values($this->alertTypes);
+        return new AlertTypeCollection(array_values($this->alertTypes));
     }
 
     /**

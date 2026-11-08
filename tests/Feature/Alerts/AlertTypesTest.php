@@ -31,7 +31,7 @@ test('alert types are the registered alert types', function (): void {
 
     $registeredAlertTypes = $alertTypes->alertTypes();
 
-    expect($registeredAlertTypes)
+    expect($registeredAlertTypes->all())
         ->toBe([$repositoryMissing]);
 });
 

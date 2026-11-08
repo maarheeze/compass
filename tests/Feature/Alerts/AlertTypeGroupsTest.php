@@ -10,6 +10,7 @@ use Maarheeze\Compass\Alerts\GroupedAlertTypes;
 use Maarheeze\Compass\Alerts\Types\RepositoryMissing;
 use Maarheeze\Compass\Alerts\Types\SiteBehind;
 use Maarheeze\Compass\Alerts\Types\SiteMissing;
+use Maarheeze\Compass\Collections\AlertTypeCollection;
 
 test('grouped puts each registered alert type under its group', function (): void {
     $siteBehind = new SiteBehind();
@@ -21,8 +22,9 @@ test('grouped puts each registered alert type under its group', function (): voi
     $alertTypeGroups = new AlertTypeGroups($alertTypes);
     $groupedAlertTypes = $alertTypeGroups->grouped();
 
+    $hostingProviderAlertTypes = new AlertTypeCollection([$siteBehind, $siteMissing]);
     expect($groupedAlertTypes)
-        ->toEqual([new GroupedAlertTypes(AlertTypeGroup::HOSTING_PROVIDER, [$siteBehind, $siteMissing])]);
+        ->toEqual([new GroupedAlertTypes(AlertTypeGroup::HOSTING_PROVIDER, $hostingProviderAlertTypes)]);
 });
 
 test('grouped orders the groups by their first registered alert type', function (): void {
@@ -52,8 +54,8 @@ test('grouped orders the groups by their first registered alert type', function 
 
     expect($groupedAlertTypes)
         ->toEqual([
-            new GroupedAlertTypes(AlertTypeGroup::CUSTOM, [$customAlertType]),
-            new GroupedAlertTypes(AlertTypeGroup::CODE_HOST, [$repositoryMissing]),
+            new GroupedAlertTypes(AlertTypeGroup::CUSTOM, new AlertTypeCollection([$customAlertType])),
+            new GroupedAlertTypes(AlertTypeGroup::CODE_HOST, new AlertTypeCollection([$repositoryMissing])),
         ]);
 });
 
