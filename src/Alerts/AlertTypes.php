@@ -40,6 +40,11 @@ class AlertTypes
         return array_keys($this->alertTypes);
     }
 
+    public function isRegistered(AlertType $alertType): bool
+    {
+        return array_key_exists($alertType->identifier(), $this->alertTypes);
+    }
+
     public function register(AlertType $alertType): void
     {
         $this->alertTypes[$alertType->identifier()] = $alertType;

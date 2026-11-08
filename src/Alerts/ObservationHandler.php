@@ -8,6 +8,7 @@ use Illuminate\Contracts\Cache\LockProvider;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\ConnectionInterface;
+use LogicException;
 use Maarheeze\Compass\Alerts\Events\AlertOpened;
 use Maarheeze\Compass\Alerts\Events\AlertRecurred;
 use Maarheeze\Compass\Alerts\Events\AlertResolved;
@@ -22,6 +23,7 @@ readonly class ObservationHandler
 {
     public function __construct(
         private AlertActionClassifier $alertActionClassifier,
+        private AlertTypes $alertTypes,
         private CacheRepository $cache,
         private ConnectionInterface $connection,
         private Dispatcher $events,
@@ -33,6 +35,10 @@ readonly class ObservationHandler
      */
     public function handle(ConditionObservation $conditionObservation): void
     {
+        if (!$this->alertTypes->isRegistered($conditionObservation->alertType)) {
+            throw new LogicException('unregistered alert type');
+        }
+
         Assert::isInstanceOf($this->cache->getStore(), LockProvider::class)
             ->lock($this->lockKey($conditionObservation), 60)
             ->block(5, function () use ($conditionObservation): void {

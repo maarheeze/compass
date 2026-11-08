@@ -10,6 +10,8 @@ use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Alerts\AlertHistoryEntryType;
 use Maarheeze\Compass\Alerts\AlertStatus;
+use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\AlertTypeGroup;
 use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\AlertOpened;
@@ -41,6 +43,36 @@ test('handle opens an alert for an active condition without an alert', function 
         'status' => AlertStatus::OPEN,
         'is_muted' => false,
     ]);
+});
+
+test('handle refuses an observation of an alert type that is not registered', function (): void {
+    $unregisteredAlertType = new readonly class implements AlertType {
+        public function group(): AlertTypeGroup
+        {
+            return AlertTypeGroup::CUSTOM;
+        }
+
+        public function identifier(): string
+        {
+            return 'unregistered-alert-type';
+        }
+
+        public function translationKey(): string
+        {
+            return 'custom::alert-type.UNREGISTERED_ALERT_TYPE';
+        }
+    };
+
+    $observationHandler = $this->app->make(ObservationHandler::class);
+
+    $this->expectException(LogicException::class);
+
+    $observationHandler->handle(new ConditionObservation(
+        $unregisteredAlertType,
+        SiteEndpoint::factory()->create(),
+        ConditionState::ACTIVE,
+        CarbonImmutable::now(),
+    ));
 });
 
 test('handle raises alert opened with the opened alert', function (): void {

@@ -45,3 +45,23 @@ test('identifiers are the identifiers of the registered alert types', function (
     expect($identifiers)
         ->toBe([$repositoryMissing->identifier()]);
 });
+
+test('is registered is true for a registered alert type', function (): void {
+    $repositoryMissing = new RepositoryMissing();
+    $alertTypes = new AlertTypes();
+    $alertTypes->register($repositoryMissing);
+
+    $isRegistered = $alertTypes->isRegistered($repositoryMissing);
+
+    expect($isRegistered)
+        ->toBeTrue();
+});
+
+test('is registered is false for an alert type that is not registered', function (): void {
+    $alertTypes = new AlertTypes();
+
+    $isRegistered = $alertTypes->isRegistered(new RepositoryMissing());
+
+    expect($isRegistered)
+        ->toBeFalse();
+});
