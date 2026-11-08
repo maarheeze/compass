@@ -8,6 +8,7 @@ use InvalidArgumentException;
 
 use function array_key_exists;
 use function array_keys;
+use function array_values;
 
 class AlertTypes
 {
@@ -21,6 +22,14 @@ class AlertTypes
         }
 
         return $this->alertTypes[$identifier];
+    }
+
+    /**
+     * @return list<AlertType>
+     */
+    public function alertTypes(): array
+    {
+        return array_values($this->alertTypes);
     }
 
     /**

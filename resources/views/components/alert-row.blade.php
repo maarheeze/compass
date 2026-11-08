@@ -1,7 +1,7 @@
 <tr>
     <td class="px-4 py-3">
         <a href="{{ $url }}" class="text-base font-semibold text-foreground hover:text-accent">
-            <x-compass::alert-type-label :alert="$alert" />
+            <x-compass::alert-type-label :identifier="$alert->alert_type_identifier" />
         </a>
         <div class="mt-0.5 text-xs text-foreground-muted">
             <x-compass::alert-subject-link :subject="$alert->subject" />

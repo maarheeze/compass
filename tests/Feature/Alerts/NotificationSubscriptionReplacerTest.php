@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\AlertTypes;
 use Maarheeze\Compass\Alerts\NotificationChannel;
 use Maarheeze\Compass\Alerts\NotificationSubscriptionReplacer;
 use Maarheeze\Compass\Collections\NotificationSubscriptionCollection;
@@ -11,17 +11,20 @@ use Maarheeze\Compass\Models\User;
 
 test('replace stores the notification subscriptions of the user', function (): void {
     $user = User::factory()->create();
-    $alertType = fake()->randomElement(AlertType::cases());
+    $alertTypeIdentifier = fake()->randomElement($this->app->make(AlertTypes::class)->identifiers());
     $notificationChannel = fake()->randomElement(NotificationChannel::cases());
 
     $notificationSubscriptionReplacer = $this->app->make(NotificationSubscriptionReplacer::class);
     $notificationSubscriptionReplacer->replace($user, new NotificationSubscriptionCollection([
-        new NotificationSubscription(['alert_type' => $alertType, 'channel' => $notificationChannel]),
+        new NotificationSubscription([
+            'alert_type_identifier' => $alertTypeIdentifier,
+            'channel' => $notificationChannel,
+        ]),
     ]));
 
     $this->assertDatabaseHas(NotificationSubscription::class, [
         'user_id' => $user->id,
-        'alert_type' => $alertType,
+        'alert_type_identifier' => $alertTypeIdentifier,
         'channel' => $notificationChannel,
     ]);
 });

@@ -62,6 +62,7 @@ class AlertProvider extends ServiceProvider
 {
     public function boot(AlertTypes $alertTypes, Dispatcher $events): void
     {
+        $alertTypes->register(new RepositoryMissing());
         $alertTypes->register(new ComposerLibraryWithLock());
         $alertTypes->register(new ComposerMinimumStabilityUnstable());
         $alertTypes->register(new ComposerProjectWithoutLock());
@@ -69,12 +70,11 @@ class AlertProvider extends ServiceProvider
         $alertTypes->register(new ComposerTypeUnknown());
         $alertTypes->register(new DependabotComposerMissing());
         $alertTypes->register(new DependabotNpmMissing());
-        $alertTypes->register(new RepositoryMissing());
-        $alertTypes->register(new SiteBehind());
-        $alertTypes->register(new SiteDebugEnabled());
-        $alertTypes->register(new SiteDeploymentOverdue());
         $alertTypes->register(new SiteEndpointDown());
+        $alertTypes->register(new SiteBehind());
+        $alertTypes->register(new SiteDeploymentOverdue());
         $alertTypes->register(new SiteMissing());
+        $alertTypes->register(new SiteDebugEnabled());
         $alertTypes->register(new SiteNotInProduction());
         $alertTypes->register(new SiteReportIncompatible());
         $alertTypes->register(new SiteReportUnauthorized());

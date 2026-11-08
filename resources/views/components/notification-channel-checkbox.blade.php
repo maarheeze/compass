@@ -1,7 +1,7 @@
 <label class="flex cursor-pointer items-center gap-2 text-foreground-muted">
     <input
         type="checkbox"
-        name="notification_channels[{{ $alertType->value }}][]"
+        name="notification_channels[{{ $alertType->identifier() }}][]"
         value="{{ $notificationChannel->value }}"
         @checked($isChosen)
         class="size-4 cursor-pointer" />

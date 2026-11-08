@@ -8,7 +8,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\ArrayRule;
 use Illuminate\Validation\Rules\Enum;
-use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\AlertTypes;
 use Maarheeze\Compass\Alerts\NotificationChannel;
 use Maarheeze\Compass\Collections\NotificationSubscriptionCollection;
 use Maarheeze\Compass\Models\NotificationSubscription;
@@ -23,15 +23,15 @@ class UpdateSettingsRequest extends FormRequest
 
         $notificationSubscriptions = new NotificationSubscriptionCollection();
 
-        foreach ($notificationChannelsByAlertType as $alertTypeValue => $notificationChannelValues) {
-            Assert::string($alertTypeValue);
+        foreach ($notificationChannelsByAlertType as $alertTypeIdentifier => $notificationChannelValues) {
+            Assert::string($alertTypeIdentifier);
             Assert::isArray($notificationChannelValues);
 
             foreach ($notificationChannelValues as $notificationChannelValue) {
                 Assert::string($notificationChannelValue);
 
                 $notificationSubscriptions->push(new NotificationSubscription([
-                    'alert_type' => AlertType::from($alertTypeValue),
+                    'alert_type_identifier' => $alertTypeIdentifier,
                     'channel' => NotificationChannel::from($notificationChannelValue),
                 ]));
             }
@@ -43,11 +43,11 @@ class UpdateSettingsRequest extends FormRequest
     /**
      * @return array<string, list<ArrayRule|Enum|string>>
      */
-    public function rules(): array
+    public function rules(AlertTypes $alertTypes): array
     {
         return [
             'notification_channels' => [
-                Rule::array(AlertType::cases()),
+                Rule::array($alertTypes->identifiers()),
             ],
             'notification_channels.*' => [
                 'list',

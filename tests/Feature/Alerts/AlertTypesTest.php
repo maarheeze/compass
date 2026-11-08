@@ -24,6 +24,17 @@ test('alert type refuses an identifier no registered alert type has', function (
     $alertTypes->alertType(fake()->slug());
 });
 
+test('alert types are the registered alert types', function (): void {
+    $repositoryMissing = new RepositoryMissing();
+    $alertTypes = new AlertTypes();
+    $alertTypes->register($repositoryMissing);
+
+    $registeredAlertTypes = $alertTypes->alertTypes();
+
+    expect($registeredAlertTypes)
+        ->toBe([$repositoryMissing]);
+});
+
 test('identifiers are the identifiers of the registered alert types', function (): void {
     $repositoryMissing = new RepositoryMissing();
     $alertTypes = new AlertTypes();

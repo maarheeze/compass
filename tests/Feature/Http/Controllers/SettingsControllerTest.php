@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Alerts\AlertType;
-use Maarheeze\Compass\Alerts\AlertTypeGroup;
+use Maarheeze\Compass\Alerts\AlertTypeGroups;
+use Maarheeze\Compass\Alerts\AlertTypes;
 use Maarheeze\Compass\Alerts\NotificationChannel;
 use Maarheeze\Compass\Collections\NotificationSubscriptionCollection;
 use Maarheeze\Compass\Http\RouteName;
@@ -11,12 +11,12 @@ use Maarheeze\Compass\Models\NotificationSubscription;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 
-test('edit contains every alert type group', function (): void {
+test('edit contains the registered alert types grouped', function (): void {
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
     $response = $this->get(route(RouteName::SETTINGS_EDIT));
 
-    $response->assertViewHas('alertTypeGroups', AlertTypeGroup::cases());
+    $response->assertViewHas('groupedAlertTypes', $this->app->make(AlertTypeGroups::class)->grouped());
 });
 
 test('edit contains every notification channel', function (): void {
@@ -47,17 +47,17 @@ test('edit contains the notification subscriptions of the signed in user', funct
 
 test('update stores the chosen notification channels of the signed in user', function (): void {
     $user = User::factory()->create();
-    $alertType = fake()->randomElement(AlertType::cases());
+    $alertTypeIdentifier = fake()->randomElement($this->app->make(AlertTypes::class)->identifiers());
     $notificationChannel = fake()->randomElement(NotificationChannel::cases());
     $this->actingAs($user, AuthenticationProvider::GUARD);
 
     $this->patch(route(RouteName::SETTINGS_UPDATE), [
-        'notification_channels' => [$alertType->value => [$notificationChannel->value]],
+        'notification_channels' => [$alertTypeIdentifier => [$notificationChannel->value]],
     ]);
 
     $this->assertDatabaseHas(NotificationSubscription::class, [
         'user_id' => $user->id,
-        'alert_type' => $alertType,
+        'alert_type_identifier' => $alertTypeIdentifier,
         'channel' => $notificationChannel,
     ]);
 });
@@ -85,26 +85,26 @@ test('update refuses an unknown alert type', function (): void {
 });
 
 test('update refuses an unknown notification channel', function (): void {
-    $alertType = fake()->randomElement(AlertType::cases());
+    $alertTypeIdentifier = fake()->randomElement($this->app->make(AlertTypes::class)->identifiers());
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
     $response = $this->patch(route(RouteName::SETTINGS_UPDATE), [
-        'notification_channels' => [$alertType->value => [fake()->slug()]],
+        'notification_channels' => [$alertTypeIdentifier => [fake()->slug()]],
     ]);
 
-    $response->assertSessionHasErrors(sprintf('notification_channels.%s.0', $alertType->value));
+    $response->assertSessionHasErrors(sprintf('notification_channels.%s.0', $alertTypeIdentifier));
 });
 
 test('update refuses a notification channel chosen twice for one alert type', function (): void {
-    $alertType = fake()->randomElement(AlertType::cases());
+    $alertTypeIdentifier = fake()->randomElement($this->app->make(AlertTypes::class)->identifiers());
     $notificationChannel = fake()->randomElement(NotificationChannel::cases());
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
     $response = $this->patch(route(RouteName::SETTINGS_UPDATE), [
-        'notification_channels' => [$alertType->value => [$notificationChannel->value, $notificationChannel->value]],
+        'notification_channels' => [$alertTypeIdentifier => [$notificationChannel->value, $notificationChannel->value]],
     ]);
 
-    $response->assertSessionHasErrors(sprintf('notification_channels.%s.0', $alertType->value));
+    $response->assertSessionHasErrors(sprintf('notification_channels.%s.0', $alertTypeIdentifier));
 });
 
 test('edit shows that the notification settings were refused', function (): void {

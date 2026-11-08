@@ -9,7 +9,7 @@ use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
-use Maarheeze\Compass\Alerts\AlertTypeGroup;
+use Maarheeze\Compass\Alerts\AlertTypeGroups;
 use Maarheeze\Compass\Alerts\NotificationChannel;
 use Maarheeze\Compass\Alerts\NotificationSubscriptionReplacer;
 use Maarheeze\Compass\Authentication\AuthenticatedUser;
@@ -20,6 +20,7 @@ use Throwable;
 readonly class SettingsController
 {
     public function __construct(
+        private AlertTypeGroups $alertTypeGroups,
         private AuthenticatedUser $authenticatedUser,
         private NotificationSubscriptionReplacer $notificationSubscriptionReplacer,
         private Redirector $redirector,
@@ -31,7 +32,7 @@ readonly class SettingsController
     public function edit(): View
     {
         return $this->view->make('compass::settings.edit', [
-            'alertTypeGroups' => AlertTypeGroup::cases(),
+            'groupedAlertTypes' => $this->alertTypeGroups->grouped(),
             'notificationChannels' => NotificationChannel::cases(),
             'notificationSubscriptions' => $this->authenticatedUser->user()->notificationSubscriptions,
             'updateUrl' => $this->url->route(RouteName::SETTINGS_UPDATE->value),
