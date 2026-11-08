@@ -7,10 +7,10 @@ namespace Maarheeze\Compass\Alerts\Listeners\SiteReport;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
+use Maarheeze\Compass\Alerts\Types\SiteReportIncompatible;
 use Maarheeze\Compass\Collections\ConditionObservationCollection;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
@@ -30,7 +30,7 @@ readonly class EvaluateSiteReportIncompatible implements ShouldQueue
         $siteReport = $siteInspected->siteReport;
         $this->dispatcher->dispatch(new HandleConditionObservations(new ConditionObservationCollection([
             new ConditionObservation(
-                AlertType::SITE_REPORT_INCOMPATIBLE,
+                new SiteReportIncompatible(),
                 $siteReport,
                 $this->observedCondition($siteReport),
                 CarbonImmutable::instance($this->clock->now()),

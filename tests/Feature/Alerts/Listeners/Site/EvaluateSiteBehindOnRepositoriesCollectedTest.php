@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Support\Testing\Fakes\BusFake;
-use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Alerts\Listeners\Site\EvaluateSiteBehindOnRepositoriesCollected;
+use Maarheeze\Compass\Alerts\Types\SiteBehind;
 use Maarheeze\Compass\Collector\Events\RepositoriesCollected;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
@@ -25,7 +25,7 @@ test('handle observes a site whose repository belongs to the source', function (
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($site): bool {
             return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($site): bool {
-                return $conditionObservation->alertType === AlertType::SITE_BEHIND
+                return $conditionObservation->alertType instanceof SiteBehind
                     && $conditionObservation->subject instanceof Site
                     && $conditionObservation->subject->is($site);
             });

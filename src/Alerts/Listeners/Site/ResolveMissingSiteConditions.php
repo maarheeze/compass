@@ -12,6 +12,11 @@ use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
+use Maarheeze\Compass\Alerts\Types\SiteDebugEnabled;
+use Maarheeze\Compass\Alerts\Types\SiteEndpointDown;
+use Maarheeze\Compass\Alerts\Types\SiteNotInProduction;
+use Maarheeze\Compass\Alerts\Types\SiteReportIncompatible;
+use Maarheeze\Compass\Alerts\Types\SiteReportUnauthorized;
 use Maarheeze\Compass\Collections\ConditionObservationCollection;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Models\Site;
@@ -20,13 +25,6 @@ use Psr\Clock\ClockInterface;
 
 readonly class ResolveMissingSiteConditions implements ShouldQueue
 {
-    private const array CLIENT_ALERT_TYPES = [
-        AlertType::SITE_REPORT_INCOMPATIBLE,
-        AlertType::SITE_REPORT_UNAUTHORIZED,
-        AlertType::SITE_DEBUG_ENABLED,
-        AlertType::SITE_NOT_IN_PRODUCTION,
-    ];
-
     public function __construct(
         private ClockInterface $clock,
         private QueueingDispatcher $dispatcher,
@@ -58,6 +56,19 @@ readonly class ResolveMissingSiteConditions implements ShouldQueue
         }
     }
 
+    /**
+     * @return list<AlertType>
+     */
+    private function clientAlertTypes(): array
+    {
+        return [
+            new SiteReportIncompatible(),
+            new SiteReportUnauthorized(),
+            new SiteDebugEnabled(),
+            new SiteNotInProduction(),
+        ];
+    }
+
     private function resolvedCondition(
         AlertType $alertType,
         AlertSubject $subject,
@@ -72,13 +83,13 @@ readonly class ResolveMissingSiteConditions implements ShouldQueue
     ): ConditionObservationCollection {
         $conditionObservations = new ConditionObservationCollection();
 
-        foreach (self::CLIENT_ALERT_TYPES as $clientAlertType) {
+        foreach ($this->clientAlertTypes() as $clientAlertType) {
             $conditionObservations->push($this->resolvedCondition($clientAlertType, $siteReport, $observedAt));
         }
 
         foreach ($siteReport->endpoints as $siteEndpoint) {
             $conditionObservations->push(
-                $this->resolvedCondition(AlertType::SITE_ENDPOINT_DOWN, $siteEndpoint, $observedAt),
+                $this->resolvedCondition(new SiteEndpointDown(), $siteEndpoint, $observedAt),
             );
         }
 

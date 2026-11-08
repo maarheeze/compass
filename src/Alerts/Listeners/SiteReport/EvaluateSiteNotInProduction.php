@@ -7,10 +7,10 @@ namespace Maarheeze\Compass\Alerts\Listeners\SiteReport;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
+use Maarheeze\Compass\Alerts\Types\SiteNotInProduction;
 use Maarheeze\Compass\Collections\ConditionObservationCollection;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Models\SiteReport;
@@ -34,7 +34,7 @@ readonly class EvaluateSiteNotInProduction implements ShouldQueue
 
         $this->dispatcher->dispatch(new HandleConditionObservations(new ConditionObservationCollection([
             new ConditionObservation(
-                AlertType::SITE_NOT_IN_PRODUCTION,
+                new SiteNotInProduction(),
                 $siteReport,
                 $this->observedCondition($siteReport),
                 CarbonImmutable::instance($this->clock->now()),

@@ -3,10 +3,13 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
-use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ComposerWarningEvaluator;
 use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
+use Maarheeze\Compass\Alerts\Types\ComposerLibraryWithLock;
+use Maarheeze\Compass\Alerts\Types\ComposerProjectWithoutLock;
+use Maarheeze\Compass\Alerts\Types\ComposerTypeMissing;
+use Maarheeze\Compass\Alerts\Types\ComposerTypeUnknown;
 use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\Repository;
 use Psr\Clock\ClockInterface;
@@ -28,7 +31,7 @@ test('conditionObservations observes the detected composer warning active now', 
     $conditionObservations = $composerWarningEvaluator->conditionObservations($repository);
 
     $hasActiveObservation = $conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($now, $repository): bool {
-        return $conditionObservation->alertType === AlertType::COMPOSER_PROJECT_WITHOUT_LOCK
+        return $conditionObservation->alertType instanceof ComposerProjectWithoutLock
             && $conditionObservation->subject === $repository
             && $conditionObservation->condition === ConditionState::ACTIVE
             && $conditionObservation->observedAt->equalTo($now);
@@ -37,7 +40,7 @@ test('conditionObservations observes the detected composer warning active now', 
         ->toBeTrue();
 });
 
-test('conditionObservations observes the composer warnings that are not detected resolved now', function (AlertType $alertType): void {
+test('conditionObservations observes the composer warnings that are not detected resolved now', function (string $alertTypeClass): void {
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $repository = Repository::factory()->create([
@@ -52,8 +55,8 @@ test('conditionObservations observes the composer warnings that are not detected
     $composerWarningEvaluator = $this->app->make(ComposerWarningEvaluator::class);
     $conditionObservations = $composerWarningEvaluator->conditionObservations($repository);
 
-    $hasResolvedObservation = $conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($alertType, $now, $repository): bool {
-        return $conditionObservation->alertType === $alertType
+    $hasResolvedObservation = $conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($alertTypeClass, $now, $repository): bool {
+        return $conditionObservation->alertType instanceof $alertTypeClass
             && $conditionObservation->subject === $repository
             && $conditionObservation->condition === ConditionState::RESOLVED
             && $conditionObservation->observedAt->equalTo($now);
@@ -61,12 +64,12 @@ test('conditionObservations observes the composer warnings that are not detected
     expect($hasResolvedObservation)
         ->toBeTrue();
 })->with([
-    AlertType::COMPOSER_LIBRARY_WITH_LOCK,
-    AlertType::COMPOSER_TYPE_MISSING,
-    AlertType::COMPOSER_TYPE_UNKNOWN,
+    ComposerLibraryWithLock::class,
+    ComposerTypeMissing::class,
+    ComposerTypeUnknown::class,
 ]);
 
-test('conditionObservations observes every composer warning resolved now for a repository without a composer warning', function (AlertType $alertType): void {
+test('conditionObservations observes every composer warning resolved now for a repository without a composer warning', function (string $alertTypeClass): void {
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $repository = Repository::factory()->create(['composer_json_version' => null]);
@@ -74,8 +77,8 @@ test('conditionObservations observes every composer warning resolved now for a r
     $composerWarningEvaluator = $this->app->make(ComposerWarningEvaluator::class);
     $conditionObservations = $composerWarningEvaluator->conditionObservations($repository);
 
-    $hasResolvedObservation = $conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($alertType, $now, $repository): bool {
-        return $conditionObservation->alertType === $alertType
+    $hasResolvedObservation = $conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($alertTypeClass, $now, $repository): bool {
+        return $conditionObservation->alertType instanceof $alertTypeClass
             && $conditionObservation->subject === $repository
             && $conditionObservation->condition === ConditionState::RESOLVED
             && $conditionObservation->observedAt->equalTo($now);
@@ -83,10 +86,10 @@ test('conditionObservations observes every composer warning resolved now for a r
     expect($hasResolvedObservation)
         ->toBeTrue();
 })->with([
-    AlertType::COMPOSER_LIBRARY_WITH_LOCK,
-    AlertType::COMPOSER_TYPE_MISSING,
-    AlertType::COMPOSER_PROJECT_WITHOUT_LOCK,
-    AlertType::COMPOSER_TYPE_UNKNOWN,
+    ComposerLibraryWithLock::class,
+    ComposerTypeMissing::class,
+    ComposerProjectWithoutLock::class,
+    ComposerTypeUnknown::class,
 ]);
 
 test('conditionObservations judges the composer json stored now, not one loaded before', function (): void {
@@ -104,7 +107,7 @@ test('conditionObservations judges the composer json stored now, not one loaded 
     $conditionObservations = $composerWarningEvaluator->conditionObservations($repository);
 
     $hasActiveObservation = $conditionObservations->contains(static function (ConditionObservation $conditionObservation): bool {
-        return $conditionObservation->alertType === AlertType::COMPOSER_PROJECT_WITHOUT_LOCK
+        return $conditionObservation->alertType instanceof ComposerProjectWithoutLock
             && $conditionObservation->condition === ConditionState::ACTIVE;
     });
     expect($hasActiveObservation)

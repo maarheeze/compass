@@ -7,10 +7,10 @@ namespace Maarheeze\Compass\Alerts\Listeners\Site;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
+use Maarheeze\Compass\Alerts\Types\SiteDeploymentOverdue;
 use Maarheeze\Compass\Analyzer\Deployment\DeploymentState;
 use Maarheeze\Compass\Analyzer\Deployment\DeploymentStateClassifier;
 use Maarheeze\Compass\Collections\ConditionObservationCollection;
@@ -42,7 +42,7 @@ readonly class EvaluateSiteDeploymentOverdue implements ShouldQueue
 
             foreach ($sites as $site) {
                 $conditionObservations->push(new ConditionObservation(
-                    AlertType::SITE_DEPLOYMENT_OVERDUE,
+                    new SiteDeploymentOverdue(),
                     $site,
                     $this->observedCondition($site),
                     $observedAt,

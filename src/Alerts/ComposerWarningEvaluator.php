@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Alerts;
 
 use Carbon\CarbonImmutable;
+use Maarheeze\Compass\Alerts\Types\ComposerLibraryWithLock;
+use Maarheeze\Compass\Alerts\Types\ComposerProjectWithoutLock;
+use Maarheeze\Compass\Alerts\Types\ComposerTypeMissing;
+use Maarheeze\Compass\Alerts\Types\ComposerTypeUnknown;
 use Maarheeze\Compass\Analyzer\Composer\ComposerWarning;
 use Maarheeze\Compass\Analyzer\Composer\ComposerWarningDetector;
 use Maarheeze\Compass\Collections\ConditionObservationCollection;
@@ -43,10 +47,10 @@ readonly class ComposerWarningEvaluator
     private function alertType(ComposerWarning $composerWarning): AlertType
     {
         return match ($composerWarning) {
-            ComposerWarning::LIBRARY_WITH_LOCK => AlertType::COMPOSER_LIBRARY_WITH_LOCK,
-            ComposerWarning::MISSING_TYPE => AlertType::COMPOSER_TYPE_MISSING,
-            ComposerWarning::PROJECT_WITHOUT_LOCK => AlertType::COMPOSER_PROJECT_WITHOUT_LOCK,
-            ComposerWarning::UNKNOWN_TYPE => AlertType::COMPOSER_TYPE_UNKNOWN,
+            ComposerWarning::LIBRARY_WITH_LOCK => new ComposerLibraryWithLock(),
+            ComposerWarning::MISSING_TYPE => new ComposerTypeMissing(),
+            ComposerWarning::PROJECT_WITHOUT_LOCK => new ComposerProjectWithoutLock(),
+            ComposerWarning::UNKNOWN_TYPE => new ComposerTypeUnknown(),
         };
     }
 

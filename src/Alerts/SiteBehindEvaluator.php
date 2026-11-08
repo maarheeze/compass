@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Alerts;
 
 use Carbon\CarbonImmutable;
+use Maarheeze\Compass\Alerts\Types\SiteBehind;
 use Maarheeze\Compass\Analyzer\Deployment\DeploymentState;
 use Maarheeze\Compass\Analyzer\Deployment\DeploymentStateClassifier;
 use Maarheeze\Compass\Models\Site;
@@ -21,7 +22,7 @@ readonly class SiteBehindEvaluator
     public function conditionObservation(Site $site): ConditionObservation
     {
         return new ConditionObservation(
-            AlertType::SITE_BEHIND,
+            new SiteBehind(),
             $site,
             $this->observedCondition($site),
             CarbonImmutable::instance($this->clock->now()),

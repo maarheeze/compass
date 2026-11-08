@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Alerts;
 
 use Carbon\CarbonImmutable;
+use Maarheeze\Compass\Alerts\Types\SiteMissing;
 use Maarheeze\Compass\Collector\MissingState;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
@@ -19,7 +20,7 @@ readonly class SiteMissingEvaluator
     public function conditionObservation(Site $site): ConditionObservation
     {
         return new ConditionObservation(
-            AlertType::SITE_MISSING,
+            new SiteMissing(),
             $site,
             $this->observedCondition($site),
             CarbonImmutable::instance($this->clock->now()),

@@ -5,11 +5,15 @@ declare(strict_types=1);
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Support\Testing\Fakes\BusFake;
-use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Alerts\Listeners\Site\ResolveMissingSiteConditions;
+use Maarheeze\Compass\Alerts\Types\SiteDebugEnabled;
+use Maarheeze\Compass\Alerts\Types\SiteEndpointDown;
+use Maarheeze\Compass\Alerts\Types\SiteNotInProduction;
+use Maarheeze\Compass\Alerts\Types\SiteReportIncompatible;
+use Maarheeze\Compass\Alerts\Types\SiteReportUnauthorized;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
@@ -17,7 +21,7 @@ use Maarheeze\Compass\Models\SiteReport;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
-test('handle observes a client condition of a report of a missing site resolved now', function (AlertType $alertType): void {
+test('handle observes a client condition of a report of a missing site resolved now', function (string $alertTypeClass): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
@@ -31,9 +35,9 @@ test('handle observes a client condition of a report of a missing site resolved 
 
     $busFake->assertDispatched(
         HandleConditionObservations::class,
-        static function (HandleConditionObservations $handleConditionObservations) use ($alertType, $now, $siteReport): bool {
-            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($alertType, $now, $siteReport): bool {
-                return $conditionObservation->alertType === $alertType
+        static function (HandleConditionObservations $handleConditionObservations) use ($alertTypeClass, $now, $siteReport): bool {
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($alertTypeClass, $now, $siteReport): bool {
+                return $conditionObservation->alertType instanceof $alertTypeClass
                     && $conditionObservation->subject instanceof SiteReport
                     && $conditionObservation->subject->is($siteReport)
                     && $conditionObservation->condition === ConditionState::RESOLVED
@@ -42,10 +46,10 @@ test('handle observes a client condition of a report of a missing site resolved 
         },
     );
 })->with([
-    AlertType::SITE_DEBUG_ENABLED,
-    AlertType::SITE_REPORT_INCOMPATIBLE,
-    AlertType::SITE_NOT_IN_PRODUCTION,
-    AlertType::SITE_REPORT_UNAUTHORIZED,
+    SiteDebugEnabled::class,
+    SiteReportIncompatible::class,
+    SiteNotInProduction::class,
+    SiteReportUnauthorized::class,
 ]);
 
 test('handle observes the endpoint of a missing site no longer down now', function (): void {
@@ -64,7 +68,7 @@ test('handle observes the endpoint of a missing site no longer down now', functi
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($now, $siteEndpoint): bool {
             return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($now, $siteEndpoint): bool {
-                return $conditionObservation->alertType === AlertType::SITE_ENDPOINT_DOWN
+                return $conditionObservation->alertType instanceof SiteEndpointDown
                     && $conditionObservation->subject instanceof SiteEndpoint
                     && $conditionObservation->subject->is($siteEndpoint)
                     && $conditionObservation->condition === ConditionState::RESOLVED

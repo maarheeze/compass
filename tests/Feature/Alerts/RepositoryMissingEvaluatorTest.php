@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
-use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\RepositoryMissingEvaluator;
+use Maarheeze\Compass\Alerts\Types\RepositoryMissing;
 use Maarheeze\Compass\Models\Repository;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
@@ -22,7 +22,7 @@ test('conditionObservation observes a missing, not ignored repository missing no
     $conditionObservation = $repositoryMissingEvaluator->conditionObservation($repository);
 
     expect($conditionObservation->alertType)
-        ->toBe(AlertType::REPOSITORY_MISSING)
+        ->toBeInstanceOf(RepositoryMissing::class)
         ->and($conditionObservation->subject)
         ->toBe($repository)
         ->and($conditionObservation->condition)
@@ -43,7 +43,7 @@ test('conditionObservation observes a collected repository no longer missing now
     $conditionObservation = $repositoryMissingEvaluator->conditionObservation($repository);
 
     expect($conditionObservation->alertType)
-        ->toBe(AlertType::REPOSITORY_MISSING)
+        ->toBeInstanceOf(RepositoryMissing::class)
         ->and($conditionObservation->subject)
         ->toBe($repository)
         ->and($conditionObservation->condition)

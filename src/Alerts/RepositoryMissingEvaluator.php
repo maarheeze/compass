@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Alerts;
 
 use Carbon\CarbonImmutable;
+use Maarheeze\Compass\Alerts\Types\RepositoryMissing;
 use Maarheeze\Compass\Collector\MissingState;
 use Maarheeze\Compass\Models\Repository;
 use Psr\Clock\ClockInterface;
@@ -19,7 +20,7 @@ readonly class RepositoryMissingEvaluator
     public function conditionObservation(Repository $repository): ConditionObservation
     {
         return new ConditionObservation(
-            AlertType::REPOSITORY_MISSING,
+            new RepositoryMissing(),
             $repository,
             $this->observedCondition($repository),
             CarbonImmutable::instance($this->clock->now()),

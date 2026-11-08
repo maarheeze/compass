@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Support\Testing\Fakes\BusFake;
-use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Alerts\Listeners\Dependabot\EvaluateDependabotCoverageOnDependabotYmlChanged;
+use Maarheeze\Compass\Alerts\Types\DependabotComposerMissing;
 use Maarheeze\Compass\Collector\Events\DependabotYmlChanged;
 use Maarheeze\Compass\Models\Repository;
 
@@ -29,7 +29,7 @@ test('handle observes the changed repository', function (): void {
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($repository): bool {
             return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($repository): bool {
-                return $conditionObservation->alertType === AlertType::DEPENDABOT_COMPOSER_MISSING
+                return $conditionObservation->alertType instanceof DependabotComposerMissing
                     && $conditionObservation->subject instanceof Repository
                     && $conditionObservation->subject->is($repository);
             });

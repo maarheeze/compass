@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Support\Testing\Fakes\BusFake;
-use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Alerts\Listeners\Repository\EvaluateRepositoryMissingOnRepositoriesCollected;
+use Maarheeze\Compass\Alerts\Types\RepositoryMissing;
 use Maarheeze\Compass\Collector\Events\RepositoriesCollected;
 use Maarheeze\Compass\Models\Repository;
 
@@ -23,7 +23,7 @@ test('handle observes a repository of the source', function (): void {
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($repository): bool {
             return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($repository): bool {
-                return $conditionObservation->alertType === AlertType::REPOSITORY_MISSING
+                return $conditionObservation->alertType instanceof RepositoryMissing
                     && $conditionObservation->subject instanceof Repository
                     && $conditionObservation->subject->is($repository);
             });

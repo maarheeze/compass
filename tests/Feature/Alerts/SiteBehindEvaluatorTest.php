@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
-use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\SiteBehindEvaluator;
+use Maarheeze\Compass\Alerts\Types\SiteBehind;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
@@ -26,7 +26,7 @@ test('conditionObservation observes a site behind now', function (): void {
     $conditionObservation = $siteBehindEvaluator->conditionObservation($site);
 
     expect($conditionObservation->alertType)
-        ->toBe(AlertType::SITE_BEHIND)
+        ->toBeInstanceOf(SiteBehind::class)
         ->and($conditionObservation->subject)
         ->toBe($site)
         ->and($conditionObservation->condition)
@@ -49,7 +49,7 @@ test('conditionObservation observes an up-to-date site no longer behind now', fu
     $conditionObservation = $siteBehindEvaluator->conditionObservation($site);
 
     expect($conditionObservation->alertType)
-        ->toBe(AlertType::SITE_BEHIND)
+        ->toBeInstanceOf(SiteBehind::class)
         ->and($conditionObservation->subject)
         ->toBe($site)
         ->and($conditionObservation->condition)

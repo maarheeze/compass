@@ -5,11 +5,11 @@ declare(strict_types=1);
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Support\Testing\Fakes\BusFake;
-use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Alerts\Listeners\Site\EvaluateSiteDeploymentOverdue;
+use Maarheeze\Compass\Alerts\Types\SiteDeploymentOverdue;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
@@ -41,7 +41,7 @@ test('handle observes an overdue deployment now', function (): void {
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($now, $site): bool {
             return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($now, $site): bool {
-                return $conditionObservation->alertType === AlertType::SITE_DEPLOYMENT_OVERDUE
+                return $conditionObservation->alertType instanceof SiteDeploymentOverdue
                     && $conditionObservation->subject instanceof Site
                     && $conditionObservation->subject->is($site)
                     && $conditionObservation->condition === ConditionState::ACTIVE
@@ -70,7 +70,7 @@ test('handle observes an up-to-date site without an overdue deployment now', fun
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($now, $site): bool {
             return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($now, $site): bool {
-                return $conditionObservation->alertType === AlertType::SITE_DEPLOYMENT_OVERDUE
+                return $conditionObservation->alertType instanceof SiteDeploymentOverdue
                     && $conditionObservation->subject instanceof Site
                     && $conditionObservation->subject->is($site)
                     && $conditionObservation->condition === ConditionState::RESOLVED

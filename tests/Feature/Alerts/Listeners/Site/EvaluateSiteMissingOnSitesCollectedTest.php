@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Support\Testing\Fakes\BusFake;
-use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Alerts\Listeners\Site\EvaluateSiteMissingOnSitesCollected;
+use Maarheeze\Compass\Alerts\Types\SiteMissing;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Models\Site;
 
@@ -23,7 +23,7 @@ test('handle observes a site of the source', function (): void {
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($site): bool {
             return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($site): bool {
-                return $conditionObservation->alertType === AlertType::SITE_MISSING
+                return $conditionObservation->alertType instanceof SiteMissing
                     && $conditionObservation->subject instanceof Site
                     && $conditionObservation->subject->is($site);
             });

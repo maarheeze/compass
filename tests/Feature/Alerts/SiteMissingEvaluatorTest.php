@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
-use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\SiteMissingEvaluator;
+use Maarheeze\Compass\Alerts\Types\SiteMissing;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
@@ -22,7 +22,7 @@ test('conditionObservation observes a missing, not ignored site missing now', fu
     $conditionObservation = $siteMissingEvaluator->conditionObservation($site);
 
     expect($conditionObservation->alertType)
-        ->toBe(AlertType::SITE_MISSING)
+        ->toBeInstanceOf(SiteMissing::class)
         ->and($conditionObservation->subject)
         ->toBe($site)
         ->and($conditionObservation->condition)
@@ -43,7 +43,7 @@ test('conditionObservation observes a collected site no longer missing now', fun
     $conditionObservation = $siteMissingEvaluator->conditionObservation($site);
 
     expect($conditionObservation->alertType)
-        ->toBe(AlertType::SITE_MISSING)
+        ->toBeInstanceOf(SiteMissing::class)
         ->and($conditionObservation->subject)
         ->toBe($site)
         ->and($conditionObservation->condition)

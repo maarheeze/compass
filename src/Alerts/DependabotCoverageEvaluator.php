@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Alerts;
 
 use Carbon\CarbonImmutable;
+use Maarheeze\Compass\Alerts\Types\DependabotComposerMissing;
+use Maarheeze\Compass\Alerts\Types\DependabotNpmMissing;
 use Maarheeze\Compass\Analyzer\Dependabot\DependabotCoverageChecker;
 use Maarheeze\Compass\Analyzer\Dependabot\PackageEcosystem;
 use Maarheeze\Compass\Collections\ConditionObservationCollection;
@@ -42,8 +44,8 @@ readonly class DependabotCoverageEvaluator
     private function alertType(PackageEcosystem $packageEcosystem): AlertType
     {
         return match ($packageEcosystem) {
-            PackageEcosystem::COMPOSER => AlertType::DEPENDABOT_COMPOSER_MISSING,
-            PackageEcosystem::NPM => AlertType::DEPENDABOT_NPM_MISSING,
+            PackageEcosystem::COMPOSER => new DependabotComposerMissing(),
+            PackageEcosystem::NPM => new DependabotNpmMissing(),
         };
     }
 

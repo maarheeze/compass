@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Support\Testing\Fakes\BusFake;
-use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Alerts\Listeners\SiteEndpoint\EvaluateSiteEndpointDown;
+use Maarheeze\Compass\Alerts\Types\SiteEndpointDown;
 use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
@@ -26,7 +26,7 @@ test('handle observes the endpoint down at the check for a failed check', functi
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($siteEndpoint, $siteEndpointCheck): bool {
             return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($siteEndpoint, $siteEndpointCheck): bool {
-                return $conditionObservation->alertType === AlertType::SITE_ENDPOINT_DOWN
+                return $conditionObservation->alertType instanceof SiteEndpointDown
                     && $conditionObservation->subject === $siteEndpoint
                     && $conditionObservation->condition === ConditionState::ACTIVE
                     && $conditionObservation->observedAt->equalTo($siteEndpointCheck->created_at);
@@ -48,7 +48,7 @@ test('handle observes the endpoint no longer down at the check for a successful 
         HandleConditionObservations::class,
         static function (HandleConditionObservations $handleConditionObservations) use ($siteEndpoint, $siteEndpointCheck): bool {
             return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($siteEndpoint, $siteEndpointCheck): bool {
-                return $conditionObservation->alertType === AlertType::SITE_ENDPOINT_DOWN
+                return $conditionObservation->alertType instanceof SiteEndpointDown
                     && $conditionObservation->subject === $siteEndpoint
                     && $conditionObservation->condition === ConditionState::RESOLVED
                     && $conditionObservation->observedAt->equalTo($siteEndpointCheck->created_at);
