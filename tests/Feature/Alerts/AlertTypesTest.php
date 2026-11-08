@@ -65,3 +65,12 @@ test('is registered is false for an alert type that is not registered', function
     expect($isRegistered)
         ->toBeFalse();
 });
+
+test('register refuses an alert type whose identifier is already registered', function (): void {
+    $alertTypes = new AlertTypes();
+    $alertTypes->register(new RepositoryMissing());
+
+    $this->expectException(LogicException::class);
+
+    $alertTypes->register(new RepositoryMissing());
+});

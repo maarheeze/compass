@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Alerts;
 
 use InvalidArgumentException;
+use LogicException;
 
 use function array_key_exists;
 use function array_keys;
@@ -47,6 +48,10 @@ class AlertTypes
 
     public function register(AlertType $alertType): void
     {
+        if ($this->isRegistered($alertType)) {
+            throw new LogicException('alert type already registered');
+        }
+
         $this->alertTypes[$alertType->identifier()] = $alertType;
     }
 }
