@@ -41,6 +41,18 @@ test('replace removes the previous notification subscriptions of the user', func
     $this->assertModelMissing($previousNotificationSubscription);
 });
 
+test('replace keeps a subscription of the user to an alert type that is not registered', function (): void {
+    $user = User::factory()->create();
+    $unregisteredNotificationSubscription = NotificationSubscription::factory()
+        ->for($user)
+        ->create(['alert_type_identifier' => fake()->slug()]);
+
+    $notificationSubscriptionReplacer = $this->app->make(NotificationSubscriptionReplacer::class);
+    $notificationSubscriptionReplacer->replace($user, new NotificationSubscriptionCollection());
+
+    $this->assertModelExists($unregisteredNotificationSubscription);
+});
+
 test('replace keeps the notification subscriptions of other users', function (): void {
     $otherNotificationSubscription = NotificationSubscription::factory()->create();
 
