@@ -3,13 +3,7 @@
 <tr>
     <td class="px-4 py-3">
         <div class="flex min-w-0 items-center gap-2">
-            <span class="text-base font-semibold text-foreground">
-                @if ($run->collector !== null)
-                    {{ $run->source }} &middot; <x-compass::enum-label :value="$run->collector" />
-                @else
-                    <x-compass::enum-label :value="$run->task" />
-                @endif
-            </span>
+            <span class="text-base font-semibold text-foreground">{{ $label() }}</span>
             <x-compass::run-status-badge :status="$run->status" />
         </div>
         <div class="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-foreground-muted">
