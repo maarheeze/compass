@@ -16,7 +16,7 @@ class UserBuilder extends Builder
     public function subscribedTo(AlertType $alertType): self
     {
         return $this->whereHas('notificationSubscriptions', static function (Builder $notificationSubscriptionQuery) use ($alertType): void {
-            $notificationSubscriptionQuery->where('alert_type', $alertType);
+            $notificationSubscriptionQuery->where('alert_type_identifier', $alertType->identifier());
         });
     }
 }

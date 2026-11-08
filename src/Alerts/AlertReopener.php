@@ -54,7 +54,7 @@ readonly class AlertReopener
             ->whereNotExists(
                 Alert::query()
                     ->ofSameSubjectAs($alert)
-                    ->ofType($alert->type)
+                    ->ofSameTypeAs($alert)
                     ->notDone(),
             );
     }

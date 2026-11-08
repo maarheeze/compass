@@ -5,6 +5,6 @@
         @if ($tab->icon !== null)
             <x-dynamic-component :component="$tab->icon" class="text-foreground-muted" />
         @endif
-        {{ __($tab->labelKey) }}
+        {{ $tab->label }}
     </x-compass::tab>
 @endforeach

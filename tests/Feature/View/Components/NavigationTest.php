@@ -37,6 +37,15 @@ test('tabs mark the tab of the current page as the only active one', function ()
         ->toBe(route(RouteName::SITES));
 });
 
+test('tabs label each tab with its translated label', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $navigation = $this->app->make(Navigation::class);
+
+    expect($navigation->tabs->pluck('label')->all())
+        ->toBe(['Dashboard', 'Repositories', 'Issues', 'Pull requests', 'Sites']);
+});
+
 test('dashboard url is the url of the dashboard', function (): void {
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 

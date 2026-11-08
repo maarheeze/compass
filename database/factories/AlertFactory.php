@@ -4,10 +4,26 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Database\Factories;
 
+use function fake;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Maarheeze\Compass\Alerts\AlertStatus;
-use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
+use Maarheeze\Compass\Alerts\Types\ComposerLibraryWithLock;
+use Maarheeze\Compass\Alerts\Types\ComposerMinimumStabilityUnstable;
+use Maarheeze\Compass\Alerts\Types\ComposerProjectWithoutLock;
+use Maarheeze\Compass\Alerts\Types\ComposerTypeMissing;
+use Maarheeze\Compass\Alerts\Types\ComposerTypeUnknown;
+use Maarheeze\Compass\Alerts\Types\DependabotComposerMissing;
+use Maarheeze\Compass\Alerts\Types\DependabotNpmMissing;
+use Maarheeze\Compass\Alerts\Types\RepositoryMissing;
+use Maarheeze\Compass\Alerts\Types\SiteBehind;
+use Maarheeze\Compass\Alerts\Types\SiteDebugEnabled;
+use Maarheeze\Compass\Alerts\Types\SiteDeploymentOverdue;
+use Maarheeze\Compass\Alerts\Types\SiteEndpointDown;
+use Maarheeze\Compass\Alerts\Types\SiteMissing;
+use Maarheeze\Compass\Alerts\Types\SiteNotInProduction;
+use Maarheeze\Compass\Alerts\Types\SiteReportIncompatible;
+use Maarheeze\Compass\Alerts\Types\SiteReportUnauthorized;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
@@ -41,28 +57,27 @@ class AlertFactory extends Factory
             },
         };
 
-        $type = fake()->randomElement(AlertType::cases());
-        Assert::isInstanceOf($type, AlertType::class);
+        $alertFactoryWithType = fake()->randomElement([
+            $alertFactoryWithState->composerLibraryWithLock(),
+            $alertFactoryWithState->composerMinimumStabilityUnstable(),
+            $alertFactoryWithState->composerProjectWithoutLock(),
+            $alertFactoryWithState->composerTypeMissing(),
+            $alertFactoryWithState->composerTypeUnknown(),
+            $alertFactoryWithState->dependabotComposerMissing(),
+            $alertFactoryWithState->dependabotNpmMissing(),
+            $alertFactoryWithState->repositoryMissing(),
+            $alertFactoryWithState->siteBehind(),
+            $alertFactoryWithState->siteClientIncompatible(),
+            $alertFactoryWithState->siteClientUnauthorized(),
+            $alertFactoryWithState->siteDebugEnabled(),
+            $alertFactoryWithState->siteDeploymentOverdue(),
+            $alertFactoryWithState->siteEndpointDown(),
+            $alertFactoryWithState->siteMissing(),
+            $alertFactoryWithState->siteNotInProduction(),
+        ]);
+        Assert::isInstanceOf($alertFactoryWithType, static::class);
 
-        return match ($type) {
-            AlertType::COMPOSER_LIBRARY_WITH_LOCK => $alertFactoryWithState->composerLibraryWithLock(),
-            AlertType::COMPOSER_MINIMUM_STABILITY_UNSTABLE =>
-                $alertFactoryWithState->composerMinimumStabilityUnstable(),
-            AlertType::COMPOSER_PROJECT_WITHOUT_LOCK => $alertFactoryWithState->composerProjectWithoutLock(),
-            AlertType::COMPOSER_TYPE_MISSING => $alertFactoryWithState->composerTypeMissing(),
-            AlertType::COMPOSER_TYPE_UNKNOWN => $alertFactoryWithState->composerTypeUnknown(),
-            AlertType::DEPENDABOT_COMPOSER_MISSING => $alertFactoryWithState->dependabotComposerMissing(),
-            AlertType::DEPENDABOT_NPM_MISSING => $alertFactoryWithState->dependabotNpmMissing(),
-            AlertType::REPOSITORY_MISSING => $alertFactoryWithState->repositoryMissing(),
-            AlertType::SITE_BEHIND => $alertFactoryWithState->siteBehind(),
-            AlertType::SITE_REPORT_INCOMPATIBLE => $alertFactoryWithState->siteClientIncompatible(),
-            AlertType::SITE_REPORT_UNAUTHORIZED => $alertFactoryWithState->siteClientUnauthorized(),
-            AlertType::SITE_DEBUG_ENABLED => $alertFactoryWithState->siteDebugEnabled(),
-            AlertType::SITE_DEPLOYMENT_OVERDUE => $alertFactoryWithState->siteDeploymentOverdue(),
-            AlertType::SITE_ENDPOINT_DOWN => $alertFactoryWithState->siteEndpointDown(),
-            AlertType::SITE_MISSING => $alertFactoryWithState->siteMissing(),
-            AlertType::SITE_NOT_IN_PRODUCTION => $alertFactoryWithState->siteNotInProduction(),
-        };
+        return $alertFactoryWithType;
     }
 
     public function active(): static
@@ -77,31 +92,37 @@ class AlertFactory extends Factory
 
     public function composerLibraryWithLock(): static
     {
-        return $this->state(['type' => AlertType::COMPOSER_LIBRARY_WITH_LOCK])->for(Repository::factory(), 'subject');
+        return $this
+            ->state(['alert_type_identifier' => new ComposerLibraryWithLock()->identifier()])
+            ->for(Repository::factory(), 'subject');
     }
 
     public function composerMinimumStabilityUnstable(): static
     {
         return $this
-            ->state(['type' => AlertType::COMPOSER_MINIMUM_STABILITY_UNSTABLE])
+            ->state(['alert_type_identifier' => new ComposerMinimumStabilityUnstable()->identifier()])
             ->for(Repository::factory(), 'subject');
     }
 
     public function composerProjectWithoutLock(): static
     {
         return $this
-            ->state(['type' => AlertType::COMPOSER_PROJECT_WITHOUT_LOCK])
+            ->state(['alert_type_identifier' => new ComposerProjectWithoutLock()->identifier()])
             ->for(Repository::factory(), 'subject');
     }
 
     public function composerTypeMissing(): static
     {
-        return $this->state(['type' => AlertType::COMPOSER_TYPE_MISSING])->for(Repository::factory(), 'subject');
+        return $this
+            ->state(['alert_type_identifier' => new ComposerTypeMissing()->identifier()])
+            ->for(Repository::factory(), 'subject');
     }
 
     public function composerTypeUnknown(): static
     {
-        return $this->state(['type' => AlertType::COMPOSER_TYPE_UNKNOWN])->for(Repository::factory(), 'subject');
+        return $this
+            ->state(['alert_type_identifier' => new ComposerTypeUnknown()->identifier()])
+            ->for(Repository::factory(), 'subject');
     }
 
     /**
@@ -117,12 +138,16 @@ class AlertFactory extends Factory
 
     public function dependabotComposerMissing(): static
     {
-        return $this->state(['type' => AlertType::DEPENDABOT_COMPOSER_MISSING])->for(Repository::factory(), 'subject');
+        return $this
+            ->state(['alert_type_identifier' => new DependabotComposerMissing()->identifier()])
+            ->for(Repository::factory(), 'subject');
     }
 
     public function dependabotNpmMissing(): static
     {
-        return $this->state(['type' => AlertType::DEPENDABOT_NPM_MISSING])->for(Repository::factory(), 'subject');
+        return $this
+            ->state(['alert_type_identifier' => new DependabotNpmMissing()->identifier()])
+            ->for(Repository::factory(), 'subject');
     }
 
     public function done(): static
@@ -142,7 +167,9 @@ class AlertFactory extends Factory
 
     public function repositoryMissing(): static
     {
-        return $this->state(['type' => AlertType::REPOSITORY_MISSING])->for(Repository::factory(), 'subject');
+        return $this
+            ->state(['alert_type_identifier' => new RepositoryMissing()->identifier()])
+            ->for(Repository::factory(), 'subject');
     }
 
     public function resolved(): static
@@ -157,41 +184,57 @@ class AlertFactory extends Factory
 
     public function siteBehind(): static
     {
-        return $this->state(['type' => AlertType::SITE_BEHIND])->for(Site::factory(), 'subject');
+        return $this
+            ->state(['alert_type_identifier' => new SiteBehind()->identifier()])
+            ->for(Site::factory(), 'subject');
     }
 
     public function siteClientIncompatible(): static
     {
-        return $this->state(['type' => AlertType::SITE_REPORT_INCOMPATIBLE])->for(SiteReport::factory(), 'subject');
+        return $this
+            ->state(['alert_type_identifier' => new SiteReportIncompatible()->identifier()])
+            ->for(SiteReport::factory(), 'subject');
     }
 
     public function siteClientUnauthorized(): static
     {
-        return $this->state(['type' => AlertType::SITE_REPORT_UNAUTHORIZED])->for(SiteReport::factory(), 'subject');
+        return $this
+            ->state(['alert_type_identifier' => new SiteReportUnauthorized()->identifier()])
+            ->for(SiteReport::factory(), 'subject');
     }
 
     public function siteDebugEnabled(): static
     {
-        return $this->state(['type' => AlertType::SITE_DEBUG_ENABLED])->for(SiteReport::factory(), 'subject');
+        return $this
+            ->state(['alert_type_identifier' => new SiteDebugEnabled()->identifier()])
+            ->for(SiteReport::factory(), 'subject');
     }
 
     public function siteDeploymentOverdue(): static
     {
-        return $this->state(['type' => AlertType::SITE_DEPLOYMENT_OVERDUE])->for(Site::factory(), 'subject');
+        return $this
+            ->state(['alert_type_identifier' => new SiteDeploymentOverdue()->identifier()])
+            ->for(Site::factory(), 'subject');
     }
 
     public function siteEndpointDown(): static
     {
-        return $this->state(['type' => AlertType::SITE_ENDPOINT_DOWN])->for(SiteEndpoint::factory(), 'subject');
+        return $this
+            ->state(['alert_type_identifier' => new SiteEndpointDown()->identifier()])
+            ->for(SiteEndpoint::factory(), 'subject');
     }
 
     public function siteMissing(): static
     {
-        return $this->state(['type' => AlertType::SITE_MISSING])->for(Site::factory(), 'subject');
+        return $this
+            ->state(['alert_type_identifier' => new SiteMissing()->identifier()])
+            ->for(Site::factory(), 'subject');
     }
 
     public function siteNotInProduction(): static
     {
-        return $this->state(['type' => AlertType::SITE_NOT_IN_PRODUCTION])->for(SiteReport::factory(), 'subject');
+        return $this
+            ->state(['alert_type_identifier' => new SiteNotInProduction()->identifier()])
+            ->for(SiteReport::factory(), 'subject');
     }
 }

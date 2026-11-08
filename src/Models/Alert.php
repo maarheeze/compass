@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Maarheeze\Compass\Alerts\AlertStatus;
 use Maarheeze\Compass\Alerts\AlertSubject;
-use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\AlertHistoryEntryCollection;
@@ -25,6 +24,7 @@ use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
 
 /**
+ * @property string $alert_type_identifier
  * @property ?Uuid $assignee_id
  * @property ConditionState $condition
  * @property CarbonImmutable $created_at
@@ -35,7 +35,6 @@ use Maarheeze\Uuid\Uuid;
  * @property AlertStatus $status
  * @property Uuid $subject_id
  * @property string $subject_type
- * @property AlertType $type
  * @property CarbonImmutable $updated_at
  *
  * @property-read ?User $assignee
@@ -61,6 +60,7 @@ class Alert extends Model
     public function getFillable(): array
     {
         return [
+            'alert_type_identifier',
             'assignee_id',
             'condition',
             'done_at',
@@ -69,7 +69,6 @@ class Alert extends Model
             'status',
             'subject_id',
             'subject_type',
-            'type',
         ];
     }
 
@@ -116,7 +115,6 @@ class Alert extends Model
             'resolved_at' => 'immutable_datetime',
             'status' => AlertStatus::class,
             'subject_id' => UuidCast::class,
-            'type' => AlertType::class,
             'updated_at' => 'immutable_datetime',
         ];
     }

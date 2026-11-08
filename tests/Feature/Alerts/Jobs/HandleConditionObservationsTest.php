@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
-use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
+use Maarheeze\Compass\Alerts\Types\SiteEndpointDown;
 use Maarheeze\Compass\Collections\ConditionObservationCollection;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\SiteEndpoint;
@@ -17,13 +17,13 @@ test('handle handles each of its condition observations', function (): void {
 
     $handleConditionObservations = new HandleConditionObservations(new ConditionObservationCollection([
         new ConditionObservation(
-            AlertType::SITE_ENDPOINT_DOWN,
+            new SiteEndpointDown(),
             $firstSiteEndpoint,
             ConditionState::ACTIVE,
             CarbonImmutable::now(),
         ),
         new ConditionObservation(
-            AlertType::SITE_ENDPOINT_DOWN,
+            new SiteEndpointDown(),
             $secondSiteEndpoint,
             ConditionState::ACTIVE,
             CarbonImmutable::now(),
@@ -34,11 +34,11 @@ test('handle handles each of its condition observations', function (): void {
     $this->assertDatabaseHas(Alert::class, [
         'subject_type' => $firstSiteEndpoint->getMorphClass(),
         'subject_id' => $firstSiteEndpoint->id,
-        'type' => AlertType::SITE_ENDPOINT_DOWN,
+        'alert_type_identifier' => new SiteEndpointDown()->identifier(),
     ]);
     $this->assertDatabaseHas(Alert::class, [
         'subject_type' => $secondSiteEndpoint->getMorphClass(),
         'subject_id' => $secondSiteEndpoint->id,
-        'type' => AlertType::SITE_ENDPOINT_DOWN,
+        'alert_type_identifier' => new SiteEndpointDown()->identifier(),
     ]);
 });

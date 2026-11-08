@@ -48,7 +48,7 @@ readonly class ObservationHandler
 
         return sprintf(
             '%s:%s:%s',
-            $conditionObservation->alertType->value,
+            $conditionObservation->alertType->identifier(),
             $alerts->getMorphClass(),
             $subjectId->toString(),
         );
@@ -84,7 +84,7 @@ readonly class ObservationHandler
         $alert = $conditionObservation->subject
             ->alerts()
             ->create([
-                'type' => $conditionObservation->alertType,
+                'alert_type_identifier' => $conditionObservation->alertType->identifier(),
                 'condition' => ConditionState::ACTIVE,
                 'status' => AlertStatus::OPEN,
                 'is_muted' => false,

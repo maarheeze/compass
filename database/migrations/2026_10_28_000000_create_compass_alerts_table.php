@@ -19,7 +19,7 @@ return new class extends Migration
                 ->nullOnDelete();
             $table->uuidMorphs('subject');
 
-            $table->string('type');
+            $table->string('alert_type_identifier');
             $table->string('condition');
             $table->timestamp('resolved_at')->nullable();
             $table->string('status');

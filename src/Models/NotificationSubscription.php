@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\NotificationChannel;
 use Maarheeze\Compass\Collections\NotificationSubscriptionCollection;
 use Maarheeze\Compass\Database\Factories\NotificationSubscriptionFactory;
@@ -18,7 +17,7 @@ use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
 
 /**
- * @property AlertType $alert_type
+ * @property string $alert_type_identifier
  * @property NotificationChannel $channel
  * @property CarbonImmutable $created_at
  * @property Uuid $id
@@ -43,7 +42,7 @@ class NotificationSubscription extends Model
     public function getFillable(): array
     {
         return [
-            'alert_type',
+            'alert_type_identifier',
             'channel',
             'user_id',
         ];
@@ -68,7 +67,6 @@ class NotificationSubscription extends Model
     protected function casts(): array
     {
         return [
-            'alert_type' => AlertType::class,
             'channel' => NotificationChannel::class,
             'created_at' => 'immutable_datetime',
             'updated_at' => 'immutable_datetime',

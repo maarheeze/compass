@@ -19,7 +19,7 @@ class NotificationSubscriptionCollection extends Collection
     public function hasSubscription(AlertType $alertType, NotificationChannel $notificationChannel): bool
     {
         return $this
-            ->where('alert_type', $alertType)
+            ->where('alert_type_identifier', $alertType->identifier())
             ->where('channel', $notificationChannel)
             ->isNotEmpty();
     }
@@ -30,7 +30,7 @@ class NotificationSubscriptionCollection extends Collection
     public function notificationChannels(AlertType $alertType): array
     {
         return array_values($this
-            ->where('alert_type', $alertType)
+            ->where('alert_type_identifier', $alertType->identifier())
             ->map(static function (NotificationSubscription $notificationSubscription): NotificationChannel {
                 return $notificationSubscription->channel;
             })

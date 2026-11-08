@@ -60,6 +60,11 @@ class AlertBuilder extends Builder
             ->where('subject_id', $alert->subject_id);
     }
 
+    public function ofSameTypeAs(Alert $alert): self
+    {
+        return $this->where('alert_type_identifier', $alert->alert_type_identifier);
+    }
+
     public function ofSite(Site $site): self
     {
         return $this->where(static function (self $alertQuery) use ($site): void {
@@ -84,6 +89,6 @@ class AlertBuilder extends Builder
 
     public function ofType(AlertType $alertType): self
     {
-        return $this->where('type', $alertType);
+        return $this->where('alert_type_identifier', $alertType->identifier());
     }
 }

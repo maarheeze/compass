@@ -10,13 +10,13 @@ use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Alerts\AlertHistoryEntryType;
 use Maarheeze\Compass\Alerts\AlertStatus;
-use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Events\AlertOpened;
 use Maarheeze\Compass\Alerts\Events\AlertRecurred;
 use Maarheeze\Compass\Alerts\Events\AlertResolved;
 use Maarheeze\Compass\Alerts\ObservationHandler;
+use Maarheeze\Compass\Alerts\Types\SiteEndpointDown;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\AlertHistoryEntry;
 use Maarheeze\Compass\Models\SiteEndpoint;
@@ -27,7 +27,7 @@ test('handle opens an alert for an active condition without an alert', function 
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObservation(
-        AlertType::SITE_ENDPOINT_DOWN,
+        new SiteEndpointDown(),
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -36,7 +36,7 @@ test('handle opens an alert for an active condition without an alert', function 
     $this->assertDatabaseHas(Alert::class, [
         'subject_type' => $siteEndpoint->getMorphClass(),
         'subject_id' => $siteEndpoint->id,
-        'type' => AlertType::SITE_ENDPOINT_DOWN,
+        'alert_type_identifier' => new SiteEndpointDown()->identifier(),
         'condition' => ConditionState::ACTIVE,
         'status' => AlertStatus::OPEN,
         'is_muted' => false,
@@ -50,7 +50,7 @@ test('handle raises alert opened with the opened alert', function (): void {
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObservation(
-        AlertType::SITE_ENDPOINT_DOWN,
+        new SiteEndpointDown(),
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -58,7 +58,7 @@ test('handle raises alert opened with the opened alert', function (): void {
 
     $openedAlert = Alert::query()
         ->whereMorphedTo('subject', $siteEndpoint)
-        ->where('type', AlertType::SITE_ENDPOINT_DOWN)
+        ->where('alert_type_identifier', new SiteEndpointDown()->identifier())
         ->sole();
     $eventFake->assertDispatched(AlertOpened::class, static function (AlertOpened $alertOpened) use ($openedAlert): bool {
         return $alertOpened->alert->is($openedAlert);
@@ -71,7 +71,7 @@ test('handle writes an opened history entry for the opened alert', function (): 
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObservation(
-        AlertType::SITE_ENDPOINT_DOWN,
+        new SiteEndpointDown(),
         $siteEndpoint,
         ConditionState::ACTIVE,
         $observedAt,
@@ -79,7 +79,7 @@ test('handle writes an opened history entry for the opened alert', function (): 
 
     $openedAlert = Alert::query()
         ->whereMorphedTo('subject', $siteEndpoint)
-        ->where('type', AlertType::SITE_ENDPOINT_DOWN)
+        ->where('alert_type_identifier', new SiteEndpointDown()->identifier())
         ->sole();
     $this->assertDatabaseHas(AlertHistoryEntry::class, [
         'alert_id' => $openedAlert->id,
@@ -97,7 +97,7 @@ test('handle raises no alert opened when its change is rolled back', function ()
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObservation(
-        AlertType::SITE_ENDPOINT_DOWN,
+        new SiteEndpointDown(),
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -115,7 +115,7 @@ test('handle opens an alert for an active condition when another subject has an 
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObservation(
-        AlertType::SITE_ENDPOINT_DOWN,
+        new SiteEndpointDown(),
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -135,7 +135,7 @@ test('handle opens no second alert for an active condition with an active alert'
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObservation(
-        AlertType::SITE_ENDPOINT_DOWN,
+        new SiteEndpointDown(),
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -155,7 +155,7 @@ test('handle opens a new alert for an active condition with only a done alert', 
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObservation(
-        AlertType::SITE_ENDPOINT_DOWN,
+        new SiteEndpointDown(),
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -182,7 +182,7 @@ test('handle opens a new alert for an active condition with an alert marked done
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObservation(
-        AlertType::SITE_ENDPOINT_DOWN,
+        new SiteEndpointDown(),
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -208,7 +208,7 @@ test('handle raises nothing for an active condition with an active alert', funct
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObservation(
-        AlertType::SITE_ENDPOINT_DOWN,
+        new SiteEndpointDown(),
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -228,7 +228,7 @@ test('handle resolves an active alert for a resolved condition', function (): vo
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObservation(
-        AlertType::SITE_ENDPOINT_DOWN,
+        new SiteEndpointDown(),
         $siteEndpoint,
         ConditionState::RESOLVED,
         $observedAt,
@@ -253,7 +253,7 @@ test('handle raises alert resolved with the resolved alert', function (): void {
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObservation(
-        AlertType::SITE_ENDPOINT_DOWN,
+        new SiteEndpointDown(),
         $siteEndpoint,
         ConditionState::RESOLVED,
         CarbonImmutable::now(),
@@ -275,7 +275,7 @@ test('handle writes a resolved history entry for the resolved alert', function (
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObservation(
-        AlertType::SITE_ENDPOINT_DOWN,
+        new SiteEndpointDown(),
         $siteEndpoint,
         ConditionState::RESOLVED,
         $observedAt,
@@ -302,7 +302,7 @@ test('handle raises no alert resolved when its change is rolled back', function 
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObservation(
-        AlertType::SITE_ENDPOINT_DOWN,
+        new SiteEndpointDown(),
         $siteEndpoint,
         ConditionState::RESOLVED,
         CarbonImmutable::now(),
@@ -319,7 +319,7 @@ test('handle raises nothing for a resolved condition without an alert', function
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObservation(
-        AlertType::SITE_ENDPOINT_DOWN,
+        new SiteEndpointDown(),
         $siteEndpoint,
         ConditionState::RESOLVED,
         CarbonImmutable::now(),
@@ -338,7 +338,7 @@ test('handle recurs a resolved alert for an active condition', function (): void
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObservation(
-        AlertType::SITE_ENDPOINT_DOWN,
+        new SiteEndpointDown(),
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -363,7 +363,7 @@ test('handle raises alert recurred with the recurred alert', function (): void {
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObservation(
-        AlertType::SITE_ENDPOINT_DOWN,
+        new SiteEndpointDown(),
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -385,7 +385,7 @@ test('handle writes a recurred history entry for the recurred alert', function (
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObservation(
-        AlertType::SITE_ENDPOINT_DOWN,
+        new SiteEndpointDown(),
         $siteEndpoint,
         ConditionState::ACTIVE,
         $observedAt,
@@ -412,7 +412,7 @@ test('handle raises no alert recurred when its change is rolled back', function 
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObservation(
-        AlertType::SITE_ENDPOINT_DOWN,
+        new SiteEndpointDown(),
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -426,7 +426,7 @@ test('handle holds the lock of the alert type and subject while it changes the a
     $siteEndpoint = SiteEndpoint::factory()->create();
     $lockKey = sprintf(
         '%s:%s:%s',
-        AlertType::SITE_ENDPOINT_DOWN->value,
+        new SiteEndpointDown()->identifier(),
         $siteEndpoint->getMorphClass(),
         $siteEndpoint->id->toString(),
     );
@@ -440,7 +440,7 @@ test('handle holds the lock of the alert type and subject while it changes the a
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObservation(
-        AlertType::SITE_ENDPOINT_DOWN,
+        new SiteEndpointDown(),
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
@@ -455,7 +455,7 @@ test('handle leaves the lock of another subject free', function (): void {
     $otherSiteEndpoint = SiteEndpoint::factory()->create();
     $lockKey = sprintf(
         '%s:%s:%s',
-        AlertType::SITE_ENDPOINT_DOWN->value,
+        new SiteEndpointDown()->identifier(),
         $otherSiteEndpoint->getMorphClass(),
         $otherSiteEndpoint->id->toString(),
     );
@@ -469,7 +469,7 @@ test('handle leaves the lock of another subject free', function (): void {
 
     $observationHandler = $this->app->make(ObservationHandler::class);
     $observationHandler->handle(new ConditionObservation(
-        AlertType::SITE_ENDPOINT_DOWN,
+        new SiteEndpointDown(),
         $siteEndpoint,
         ConditionState::ACTIVE,
         CarbonImmutable::now(),

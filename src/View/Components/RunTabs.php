@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\View\Components;
 
 use Illuminate\Contracts\Routing\UrlGenerator;
+use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -14,6 +15,7 @@ use Maarheeze\Compass\Collector\RunType;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\View\EnumLabels;
 use Maarheeze\Compass\View\NavigationTab;
+use Webmozart\Assert\Assert;
 
 class RunTabs extends Component
 {
@@ -22,16 +24,22 @@ class RunTabs extends Component
     public function __construct(
         EnumLabels $enumLabels,
         Request $request,
+        Translator $translator,
         UrlGenerator $url,
         private readonly ViewFactory $view,
     ) {
         $allRunsUrl = $url->route(RouteName::RUNS->value);
 
         $this->tabs = new NavigationTabCollection([
-            new NavigationTab($allRunsUrl, 'compass::run.all_runs', null, $request->url() === $allRunsUrl),
-            $this->runTypeTab($enumLabels, $request, $url, RunType::GITHUB_SYNC),
-            $this->runTypeTab($enumLabels, $request, $url, RunType::FORGE_SYNC),
-            $this->runTypeTab($enumLabels, $request, $url, RunType::ENDPOINT_CHECK),
+            new NavigationTab(
+                $allRunsUrl,
+                Assert::string($translator->get('compass::run.all_runs')),
+                null,
+                $request->url() === $allRunsUrl,
+            ),
+            $this->runTypeTab($enumLabels, $request, $translator, $url, RunType::GITHUB_SYNC),
+            $this->runTypeTab($enumLabels, $request, $translator, $url, RunType::FORGE_SYNC),
+            $this->runTypeTab($enumLabels, $request, $translator, $url, RunType::ENDPOINT_CHECK),
         ]);
     }
 
@@ -43,6 +51,7 @@ class RunTabs extends Component
     private function runTypeTab(
         EnumLabels $enumLabels,
         Request $request,
+        Translator $translator,
         UrlGenerator $url,
         RunType $runType,
     ): NavigationTab {
@@ -50,7 +59,7 @@ class RunTabs extends Component
 
         return new NavigationTab(
             $runTypeUrl,
-            $enumLabels->labelKey($runType),
+            Assert::string($translator->get($enumLabels->labelKey($runType))),
             null,
             $request->url() === $runTypeUrl,
         );

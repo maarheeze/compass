@@ -5,7 +5,7 @@
         <div class="flex items-start gap-3">
             <div class="space-y-1">
                 <h1 class="text-lg font-semibold text-foreground">
-                    <x-compass::enum-label :value="$alert->type" />
+                    <x-compass::alert-type-label :alert="$alert" />
                 </h1>
                 <p class="text-sm">
                     <x-compass::alert-subject-link :subject="$alert->subject" />

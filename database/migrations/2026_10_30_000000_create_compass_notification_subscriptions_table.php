@@ -17,12 +17,15 @@ return new class extends Migration
                 ->constrained('compass_users')
                 ->cascadeOnDelete();
 
-            $table->string('alert_type');
+            $table->string('alert_type_identifier');
             $table->string('channel');
 
             $table->timestamps();
 
-            $table->unique(['user_id', 'alert_type', 'channel'], 'compass_notification_subscriptions_unique');
+            $table->unique(
+                ['user_id', 'alert_type_identifier', 'channel'],
+                'compass_notification_subscriptions_unique',
+            );
         });
     }
 };

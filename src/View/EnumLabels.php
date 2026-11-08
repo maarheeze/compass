@@ -7,7 +7,6 @@ namespace Maarheeze\Compass\View;
 use InvalidArgumentException;
 use Maarheeze\Compass\Alerts\AlertHistoryEntryType;
 use Maarheeze\Compass\Alerts\AlertStatus;
-use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\AlertTypeGroup;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\NotificationChannel;
@@ -33,7 +32,6 @@ readonly class EnumLabels
         $translationFile = match ($value::class) {
             AlertHistoryEntryType::class => 'alert-history-entry-type',
             AlertStatus::class => 'alert-status',
-            AlertType::class => 'alert-type',
             AlertTypeGroup::class => 'alert-type-group',
             CollectorType::class => 'collector-type',
             ConditionState::class => 'condition-state',

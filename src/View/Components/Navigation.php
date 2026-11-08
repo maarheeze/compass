@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\View\Components;
 
 use Illuminate\Contracts\Routing\UrlGenerator;
+use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -15,6 +16,7 @@ use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\View\NavigationTab;
+use Webmozart\Assert\Assert;
 
 class Navigation extends Component
 {
@@ -29,6 +31,7 @@ class Navigation extends Component
     public function __construct(
         AuthenticatedUser $authenticatedUser,
         Request $request,
+        Translator $translator,
         UrlGenerator $url,
         private readonly ViewFactory $view,
     ) {
@@ -40,7 +43,7 @@ class Navigation extends Component
             ->exists();
         $this->logoutUrl = $url->route(RouteName::LOGOUT->value);
         $this->settingsUrl = $url->route(RouteName::SETTINGS_EDIT->value);
-        $this->tabs = $this->navigationTabs($request, $url);
+        $this->tabs = $this->navigationTabs($request, $translator, $url);
         $this->user = $authenticatedUser->user();
     }
 
@@ -49,18 +52,21 @@ class Navigation extends Component
         return $this->view->make('compass::components.navigation');
     }
 
-    private function navigationTabs(Request $request, UrlGenerator $url): NavigationTabCollection
-    {
+    private function navigationTabs(
+        Request $request,
+        Translator $translator,
+        UrlGenerator $url,
+    ): NavigationTabCollection {
         return new NavigationTabCollection([
             new NavigationTab(
                 $url->route(RouteName::DASHBOARD->value),
-                'compass::navigation.dashboard',
+                Assert::string($translator->get('compass::navigation.dashboard')),
                 'compass::icons.home',
                 $request->routeIs(RouteName::DASHBOARD->value),
             ),
             new NavigationTab(
                 $url->route(RouteName::REPOSITORIES->value),
-                'compass::navigation.repositories',
+                Assert::string($translator->get('compass::navigation.repositories')),
                 'compass::icons.repo',
                 $request->routeIs(
                     RouteName::REPOSITORIES->value,
@@ -70,19 +76,19 @@ class Navigation extends Component
             ),
             new NavigationTab(
                 $url->route(RouteName::ISSUES->value),
-                'compass::navigation.issues',
+                Assert::string($translator->get('compass::navigation.issues')),
                 'compass::icons.issue-opened',
                 $request->routeIs(RouteName::ISSUES->value),
             ),
             new NavigationTab(
                 $url->route(RouteName::PULL_REQUESTS->value),
-                'compass::navigation.pull_requests',
+                Assert::string($translator->get('compass::navigation.pull_requests')),
                 'compass::icons.git-pull-request',
                 $request->routeIs(RouteName::PULL_REQUESTS->value),
             ),
             new NavigationTab(
                 $url->route(RouteName::SITES->value),
-                'compass::navigation.sites',
+                Assert::string($translator->get('compass::navigation.sites')),
                 'compass::icons.server',
                 $request->routeIs(
                     RouteName::SITES->value,

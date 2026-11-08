@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Alerts\AlertTypes;
+use Maarheeze\Compass\Alerts\Types\SiteNotInProduction;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
@@ -204,11 +205,39 @@ test('of same subject as leaves out an alert of another subject', function (): v
         ->toBeTrue();
 });
 
-test('of type keeps an alert of the type', function (): void {
+test('of same type as keeps an alert of the same type', function (): void {
     $alert = Alert::factory()->create();
 
+    $alertsOfSameType = Alert::query()
+        ->ofSameTypeAs($alert)
+        ->get();
+
+    expect($alertsOfSameType->sole()->is($alert))
+        ->toBeTrue();
+});
+
+test('of same type as leaves out an alert of another type', function (): void {
+    Alert::factory()
+        ->siteDebugEnabled()
+        ->create();
+    $alertOfAnotherType = Alert::factory()
+        ->siteNotInProduction()
+        ->create();
+
+    $alertsOfSameType = Alert::query()
+        ->ofSameTypeAs($alertOfAnotherType)
+        ->get();
+
+    expect($alertsOfSameType->sole()->is($alertOfAnotherType))
+        ->toBeTrue();
+});
+
+test('of type keeps an alert of the type', function (): void {
+    $alert = Alert::factory()->create();
+    $alertType = $this->app->make(AlertTypes::class)->alertType($alert->alert_type_identifier);
+
     $alertsOfType = Alert::query()
-        ->ofType($alert->type)
+        ->ofType($alertType)
         ->get();
 
     expect($alertsOfType->sole()->is($alert))
@@ -221,7 +250,7 @@ test('of type leaves out an alert of another type', function (): void {
         ->create();
 
     $alertsOfType = Alert::query()
-        ->ofType(AlertType::SITE_NOT_IN_PRODUCTION)
+        ->ofType(new SiteNotInProduction())
         ->get();
 
     expect($alertsOfType)

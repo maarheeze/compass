@@ -2,15 +2,12 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Collector\RunType;
+use Maarheeze\Compass\Collector\RunStatus;
 use Maarheeze\Compass\View\Components\EnumLabel;
-use Maarheeze\Compass\View\EnumLabels;
 
-test('label key is the label key of the enum value', function (): void {
-    $runType = fake()->randomElement(RunType::cases());
+test('label is the translated label of the enum value', function (): void {
+    $enumLabel = $this->app->make(EnumLabel::class, ['value' => RunStatus::FAILED]);
 
-    $enumLabel = $this->app->make(EnumLabel::class, ['value' => $runType]);
-
-    expect($enumLabel->labelKey)
-        ->toBe($this->app->make(EnumLabels::class)->labelKey($runType));
+    expect($enumLabel->label)
+        ->toBe('Failed');
 });
