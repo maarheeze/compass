@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Alerts\AlertTypeGroups;
 use Maarheeze\Compass\Alerts\AlertTypes;
 use Maarheeze\Compass\Alerts\NotificationChannel;
 use Maarheeze\Compass\Collections\NotificationSubscriptionCollection;
@@ -11,12 +10,12 @@ use Maarheeze\Compass\Models\NotificationSubscription;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 
-test('edit contains the registered alert types grouped', function (): void {
+test('edit contains the registered alert types', function (): void {
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
     $response = $this->get(route(RouteName::SETTINGS_EDIT));
 
-    $response->assertViewHas('groupedAlertTypes', $this->app->make(AlertTypeGroups::class)->grouped());
+    $response->assertViewHas('alertTypes', $this->app->make(AlertTypes::class)->alertTypes());
 });
 
 test('edit contains every notification channel', function (): void {
