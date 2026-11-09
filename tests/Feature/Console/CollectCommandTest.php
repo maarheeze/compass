@@ -57,3 +57,22 @@ test('handle refuses a collector that does not exist', function (): void {
     ]);
     $pendingCommand->run();
 });
+
+test('handle refuses a collector that does not exist', function (): void {
+    $pendingCommand = $this->artisan(CollectCommand::class, [
+        'source' => fake()->slug(),
+        'collector' => fake()->slug(),
+    ]);
+
+    $pendingCommand->assertFailed();
+});
+
+test('handle starts no run for a collector that does not exist', function (): void {
+    $pendingCommand = $this->artisan(CollectCommand::class, [
+        'source' => fake()->slug(),
+        'collector' => fake()->slug(),
+    ]);
+    $pendingCommand->run();
+
+    $this->assertDatabaseEmpty(Run::class);
+});

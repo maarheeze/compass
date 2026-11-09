@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
+use Illuminate\Cache\Repository as CacheRepository;
+use Illuminate\Contracts\Cache\Repository;
 use Maarheeze\Compass\Collector\JobLock;
 use Maarheeze\Compass\Collector\Sites\Jobs\CollectSites;
+use Maarheeze\Compass\Tests\Fixtures\RecordingLockStore;
 use Maarheeze\Uuid\Uuid;
 
 test('handle runs the job while no other job holds its lock', function (): void {
@@ -53,4 +56,19 @@ test('handle runs a job with another lock key while a job holds its lock', funct
 
     expect($ranOtherCollectSites)
         ->toBe($otherCollectSites);
+});
+
+test('handle holds the lock for the configured minutes', function (): void {
+    $lockExpiryMinutes = fake()->numberBetween(1, 60);
+    $this->setConfiguration('compass.lock_expiry_minutes', $lockExpiryMinutes);
+    $recordingLockStore = new RecordingLockStore();
+    $this->app->instance(Repository::class, new CacheRepository($recordingLockStore));
+    $collectSites = new CollectSites(Uuid::generate(), fake()->slug());
+
+    $jobLock = $this->app->make(JobLock::class);
+    $jobLock->handle($collectSites, static function (): void {
+    });
+
+    expect($recordingLockStore->lockedSeconds)
+        ->toBe([$lockExpiryMinutes * 60]);
 });

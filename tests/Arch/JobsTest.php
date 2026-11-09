@@ -11,7 +11,7 @@ arch('batched jobs interact with the queue, so their batch records them as done'
     ->expect('Maarheeze\Compass\Collector\*\Jobs')
     ->toUseTraits([Batchable::class, InteractsWithQueue::class]);
 
-arch('collector and task jobs say what they lock on, so whatever queues them can protect them')
+arch('collector and task jobs say what they lock on, so their own middleware can lock them')
     ->expect('Maarheeze\Compass\Collector\*\Jobs')
     ->toImplement(LockedJob::class);
 

@@ -15,14 +15,23 @@ class CollectCommand extends Command
 {
     public const string SIGNATURE = 'compass:collect';
 
-    public function handle(RunRecorder $runRecorder): void
+    public function handle(RunRecorder $runRecorder): int
     {
+        $collectorType = CollectorType::tryFrom(Assert::string($this->argument('collector')));
+
+        if ($collectorType === null) {
+            $this->error('The collector does not exist.');
+
+            return self::FAILURE;
+        }
+
         $runId = Uuid::generate();
         $source = Assert::string($this->argument('source'));
-        $collectorType = CollectorType::from(Assert::string($this->argument('collector')));
         $job = $collectorType->job($runId, $source);
 
         $runRecorder->startCollector($runId, $source, $collectorType, $job);
+
+        return self::SUCCESS;
     }
 
     protected function configure(): void
