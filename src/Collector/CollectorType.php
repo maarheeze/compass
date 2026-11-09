@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Collector;
 
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Maarheeze\Compass\Collector\Issues\Jobs\CollectIssues;
 use Maarheeze\Compass\Collector\PullRequests\Jobs\CollectPullRequests;
 use Maarheeze\Compass\Collector\Repositories\Jobs\CollectRepositories;
@@ -20,7 +19,7 @@ enum CollectorType: string
     case SITE_REPORTS = 'site_reports';
     case SITES = 'sites';
 
-    public function job(Uuid $runId, string $source): ShouldQueue
+    public function job(Uuid $runId, string $source): LockedJob
     {
         return match ($this) {
             self::ISSUES => new CollectIssues($runId, $source),

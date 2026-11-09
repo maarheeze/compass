@@ -148,3 +148,13 @@ test('handle refuses a source without a pull requests collector', function (): v
     $collectPullRequests = new CollectPullRequests(Uuid::generate(), $key);
     $this->app->call([$collectPullRequests, 'handle']);
 });
+
+test('lock key is the source', function (): void {
+    $source = fake()->slug();
+
+    $collectPullRequests = new CollectPullRequests(Uuid::generate(), $source);
+    $lockKey = $collectPullRequests->lockKey();
+
+    expect($lockKey)
+        ->toBe($source);
+});

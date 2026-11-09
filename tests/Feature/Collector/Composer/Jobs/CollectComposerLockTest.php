@@ -159,3 +159,13 @@ test('handle raises composer lock changed for the repository when its file is go
         return $composerLockChanged->repository->is($repository);
     });
 });
+
+test('lock key is the repository', function (): void {
+    $repository = Repository::factory()->create();
+
+    $collectComposerLock = new CollectComposerLock($repository, fake()->slug());
+    $lockKey = $collectComposerLock->lockKey();
+
+    expect($lockKey)
+        ->toBe($repository->id->toString());
+});

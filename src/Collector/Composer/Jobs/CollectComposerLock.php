@@ -7,7 +7,6 @@ namespace Maarheeze\Compass\Collector\Composer\Jobs;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -17,15 +16,18 @@ use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Composer\ComposerFilesCollectorManager;
 use Maarheeze\Compass\Collector\Composer\Lock\ComposerLockReader;
 use Maarheeze\Compass\Collector\Composer\Lock\ComposerLockSynchronizer;
+use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\Events\ComposerLockChanged;
+use Maarheeze\Compass\Collector\LockedJob;
 use Maarheeze\Compass\Models\Repository;
 use Throwable;
 
-class CollectComposerLock implements ShouldQueue
+class CollectComposerLock implements LockedJob
 {
     use Batchable;
     use InteractsWithQueue;
     use Queueable;
+    use RetriesWhileLocked;
     use SerializesModels;
 
     public function __construct(
@@ -69,5 +71,10 @@ class CollectComposerLock implements ShouldQueue
         $collectorLogger->debug('Composer lock collected');
 
         $events->dispatch(new ComposerLockChanged($this->repository));
+    }
+
+    public function lockKey(): string
+    {
+        return $this->repository->id->toString();
     }
 }

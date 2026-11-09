@@ -7,17 +7,20 @@ namespace Maarheeze\Compass\Collector\SiteEndpoint\Jobs;
 use Illuminate\Bus\Batch;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Maarheeze\Compass\Collector\CollectorLogger;
+use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
+use Maarheeze\Compass\Collector\LockedJob;
+use Maarheeze\Compass\Collector\TaskType;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Webmozart\Assert\Assert;
 
-class CheckSiteEndpoints implements ShouldQueue
+class CheckSiteEndpoints implements LockedJob
 {
     use Batchable;
     use InteractsWithQueue;
     use Queueable;
+    use RetriesWhileLocked;
 
     public function handle(CollectorLogger $collectorLogger): void
     {
@@ -42,5 +45,10 @@ class CheckSiteEndpoints implements ShouldQueue
 
             $batch->add($checkSiteEndpointJobs);
         }
+    }
+
+    public function lockKey(): string
+    {
+        return TaskType::SITE_ENDPOINTS->value;
     }
 }

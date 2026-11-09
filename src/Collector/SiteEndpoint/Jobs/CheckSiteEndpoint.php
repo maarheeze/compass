@@ -7,7 +7,6 @@ namespace Maarheeze\Compass\Collector\SiteEndpoint\Jobs;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Response;
@@ -15,7 +14,9 @@ use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Maarheeze\Compass\Collector\CollectorLogger;
+use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
+use Maarheeze\Compass\Collector\LockedJob;
 use Maarheeze\Compass\Http\EndpointPath;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
@@ -24,11 +25,12 @@ use function ltrim;
 use function rtrim;
 use function sprintf;
 
-class CheckSiteEndpoint implements ShouldQueue
+class CheckSiteEndpoint implements LockedJob
 {
     use Batchable;
     use InteractsWithQueue;
     use Queueable;
+    use RetriesWhileLocked;
     use SerializesModels;
 
     public bool $deleteWhenMissingModels = true;
@@ -66,6 +68,11 @@ class CheckSiteEndpoint implements ShouldQueue
         ]);
 
         $events->dispatch(new SiteEndpointChecked($this->siteEndpoint, $siteEndpointCheck));
+    }
+
+    public function lockKey(): string
+    {
+        return $this->siteEndpoint->id->toString();
     }
 
     private function getResponse(HttpFactory $http, string $url): ?Response

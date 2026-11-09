@@ -154,3 +154,13 @@ test('handle raises composer json changed for the repository when its file is go
         return $composerJsonChanged->repository->is($repository);
     });
 });
+
+test('lock key is the repository', function (): void {
+    $repository = Repository::factory()->create();
+
+    $collectComposerJson = new CollectComposerJson($repository, fake()->slug());
+    $lockKey = $collectComposerJson->lockKey();
+
+    expect($lockKey)
+        ->toBe($repository->id->toString());
+});

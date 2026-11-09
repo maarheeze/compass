@@ -140,3 +140,13 @@ test('handle refuses a source without an issues collector', function (): void {
     $collectIssues = new CollectIssues(Uuid::generate(), $key);
     $this->app->call([$collectIssues, 'handle']);
 });
+
+test('lock key is the source', function (): void {
+    $source = fake()->slug();
+
+    $collectIssues = new CollectIssues(Uuid::generate(), $source);
+    $lockKey = $collectIssues->lockKey();
+
+    expect($lockKey)
+        ->toBe($source);
+});

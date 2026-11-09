@@ -170,3 +170,13 @@ test('handle raises sites collected', function (): void {
         },
     );
 });
+
+test('lock key is the source', function (): void {
+    $source = fake()->slug();
+
+    $collectSites = new CollectSites(Uuid::generate(), $source);
+    $lockKey = $collectSites->lockKey();
+
+    expect($lockKey)
+        ->toBe($source);
+});

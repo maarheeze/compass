@@ -6,19 +6,21 @@ namespace Maarheeze\Compass\Collector\Issues\Jobs;
 
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
+use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\Issues\IssuesCollectorManager;
 use Maarheeze\Compass\Collector\Issues\IssueSynchronizer;
+use Maarheeze\Compass\Collector\LockedJob;
 use Maarheeze\Uuid\Uuid;
 
-class CollectIssues implements ShouldQueue
+class CollectIssues implements LockedJob
 {
     use Batchable;
     use InteractsWithQueue;
     use Queueable;
+    use RetriesWhileLocked;
 
     public function __construct(
         private readonly Uuid $runId,
@@ -49,5 +51,10 @@ class CollectIssues implements ShouldQueue
         $issueSynchronizer->deleteUncollected($this->source, $this->runId);
 
         $collectorLogger->info('Issues collector ended');
+    }
+
+    public function lockKey(): string
+    {
+        return $this->source;
     }
 }

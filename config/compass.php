@@ -67,6 +67,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Job locks
+    |--------------------------------------------------------------------------
+    |
+    | A collector or task job waits while another job writes the same rows.
+    | It tries again after the retry seconds, and the lock of a job whose
+    | worker died is freed after the expiry minutes.
+    |
+    */
+
+    'lock_retry_seconds' => env('COMPASS_LOCK_RETRY_SECONDS', 60),
+
+    'lock_expiry_minutes' => env('COMPASS_LOCK_EXPIRY_MINUTES', 15),
+
+    /*
+    |--------------------------------------------------------------------------
     | Signing in
     |--------------------------------------------------------------------------
     |

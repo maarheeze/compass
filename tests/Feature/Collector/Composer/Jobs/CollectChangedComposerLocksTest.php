@@ -129,3 +129,13 @@ test('handle adds collect composer lock for the source of its run', function ():
     expect($batchFake->added[0]->source)
         ->toBe($source);
 });
+
+test('lock key is the source', function (): void {
+    $source = fake()->slug();
+
+    $collectChangedComposerLocks = new CollectChangedComposerLocks(Uuid::generate(), $source);
+    $lockKey = $collectChangedComposerLocks->lockKey();
+
+    expect($lockKey)
+        ->toBe($source);
+});

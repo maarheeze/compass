@@ -159,3 +159,13 @@ test('handle raises dependabot yml changed for the repository when its file is g
         return $dependabotYmlChanged->repository->is($repository);
     });
 });
+
+test('lock key is the repository', function (): void {
+    $repository = Repository::factory()->create();
+
+    $collectDependabotYml = new CollectDependabotYml($repository, fake()->slug());
+    $lockKey = $collectDependabotYml->lockKey();
+
+    expect($lockKey)
+        ->toBe($repository->id->toString());
+});

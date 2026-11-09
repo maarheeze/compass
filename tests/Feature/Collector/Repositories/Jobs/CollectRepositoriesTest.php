@@ -244,3 +244,13 @@ test('handle raises package json changed for a repository whose package json ver
         return $packageJsonChanged->repository->external_id === $repositoryResponse['id'];
     });
 });
+
+test('lock key is the source', function (): void {
+    $source = fake()->slug();
+
+    $collectRepositories = new CollectRepositories(Uuid::generate(), $source);
+    $lockKey = $collectRepositories->lockKey();
+
+    expect($lockKey)
+        ->toBe($source);
+});

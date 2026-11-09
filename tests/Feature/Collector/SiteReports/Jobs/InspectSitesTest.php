@@ -89,3 +89,13 @@ test('handle refuses a source without a site reports collector', function (): vo
     [$inspectSites] = new InspectSites($source)->withFakeBatch();
     $this->app->call([$inspectSites, 'handle']);
 });
+
+test('lock key is the source', function (): void {
+    $source = fake()->slug();
+
+    $inspectSites = new InspectSites($source);
+    $lockKey = $inspectSites->lockKey();
+
+    expect($lockKey)
+        ->toBe($source);
+});

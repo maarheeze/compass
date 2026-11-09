@@ -157,3 +157,14 @@ test('handle refuses a source without a site reports collector', function (): vo
     $inspectSite = new InspectSite(Site::factory()->create(), $source);
     $this->app->call([$inspectSite, 'handle']);
 });
+
+test('lock key is the site and the source', function (): void {
+    $site = Site::factory()->create();
+    $source = fake()->slug();
+
+    $inspectSite = new InspectSite($site, $source);
+    $lockKey = $inspectSite->lockKey();
+
+    expect($lockKey)
+        ->toBe(sprintf('%s:%s', $site->id->toString(), $source));
+});

@@ -129,3 +129,13 @@ test('handle adds collect dependabot yml for the source of its run', function ()
     expect($batchFake->added[0]->source)
         ->toBe($source);
 });
+
+test('lock key is the source', function (): void {
+    $source = fake()->slug();
+
+    $collectChangedDependabotYmls = new CollectChangedDependabotYmls(Uuid::generate(), $source);
+    $lockKey = $collectChangedDependabotYmls->lockKey();
+
+    expect($lockKey)
+        ->toBe($source);
+});

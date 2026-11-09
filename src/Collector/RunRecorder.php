@@ -6,7 +6,6 @@ namespace Maarheeze\Compass\Collector;
 
 use Illuminate\Bus\Batch;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\PendingChain;
 use Illuminate\Log\Context\Repository as Context;
 use Maarheeze\Compass\Collector\Jobs\FinishRun;
@@ -27,7 +26,7 @@ readonly class RunRecorder
         Uuid $runId,
         string $source,
         CollectorType $collectorType,
-        ShouldQueue $firstJob,
+        LockedJob $firstJob,
     ): void {
         Run::query()->create([
             'id' => $runId,
@@ -42,7 +41,7 @@ readonly class RunRecorder
         ]);
     }
 
-    public function startTask(Uuid $runId, TaskType $taskType, ShouldQueue $firstJob): void
+    public function startTask(Uuid $runId, TaskType $taskType, LockedJob $firstJob): void
     {
         Run::query()->create([
             'id' => $runId,
@@ -56,7 +55,7 @@ readonly class RunRecorder
     /**
      * @param array<string, string> $runContext
      */
-    private function dispatch(Uuid $runId, ShouldQueue $firstJob, array $runContext): void
+    private function dispatch(Uuid $runId, LockedJob $firstJob, array $runContext): void
     {
         $pendingBatch = $this->dispatcher
             ->batch([$firstJob])

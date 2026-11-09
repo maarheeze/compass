@@ -7,18 +7,20 @@ namespace Maarheeze\Compass\Collector\Composer\Jobs;
 use Illuminate\Bus\Batch;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Maarheeze\Compass\Collector\CollectorLogger;
+use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
+use Maarheeze\Compass\Collector\LockedJob;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 use Webmozart\Assert\Assert;
 
-class CollectChangedComposerLocks implements ShouldQueue
+class CollectChangedComposerLocks implements LockedJob
 {
     use Batchable;
     use InteractsWithQueue;
     use Queueable;
+    use RetriesWhileLocked;
 
     public function __construct(
         private readonly Uuid $runId,
@@ -46,5 +48,10 @@ class CollectChangedComposerLocks implements ShouldQueue
 
             $batch->add($collectComposerLockJobs);
         }
+    }
+
+    public function lockKey(): string
+    {
+        return $this->source;
     }
 }

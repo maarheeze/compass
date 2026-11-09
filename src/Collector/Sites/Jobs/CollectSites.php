@@ -7,21 +7,23 @@ namespace Maarheeze\Compass\Collector\Sites\Jobs;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
+use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
+use Maarheeze\Compass\Collector\LockedJob;
 use Maarheeze\Compass\Collector\Sites\SitesCollectorManager;
 use Maarheeze\Compass\Collector\Sites\SiteSynchronizer;
 use Maarheeze\Compass\Collector\SourceConfigs;
 use Maarheeze\Uuid\Uuid;
 
-class CollectSites implements ShouldQueue
+class CollectSites implements LockedJob
 {
     use Batchable;
     use InteractsWithQueue;
     use Queueable;
+    use RetriesWhileLocked;
 
     public function __construct(
         private readonly Uuid $runId,
@@ -59,5 +61,10 @@ class CollectSites implements ShouldQueue
         $events->dispatch(new SitesCollected($this->source));
 
         $collectorLogger->info('Sites collector ended');
+    }
+
+    public function lockKey(): string
+    {
+        return $this->source;
     }
 }

@@ -7,13 +7,14 @@ namespace Maarheeze\Compass\Collector\SiteReports\Jobs;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
+use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
+use Maarheeze\Compass\Collector\LockedJob;
 use Maarheeze\Compass\Collector\MissingState;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollectorManager;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportSynchronizer;
@@ -21,11 +22,14 @@ use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteReport;
 use Throwable;
 
-class InspectSite implements ShouldQueue
+use function sprintf;
+
+class InspectSite implements LockedJob
 {
     use Batchable;
     use InteractsWithQueue;
     use Queueable;
+    use RetriesWhileLocked;
     use SerializesModels;
 
     public function __construct(
@@ -61,5 +65,10 @@ class InspectSite implements ShouldQueue
         $collectorLogger->debug('Site inspected', ['status' => $siteReport->status->value]);
 
         $events->dispatch(new SiteInspected($siteReport));
+    }
+
+    public function lockKey(): string
+    {
+        return sprintf('%s:%s', $this->site->id->toString(), $this->source);
     }
 }

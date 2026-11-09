@@ -8,25 +8,27 @@ use Illuminate\Bus\Batch;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Composer\Jobs\CollectChangedComposerJsons;
 use Maarheeze\Compass\Collector\Composer\Jobs\CollectChangedComposerLocks;
+use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\Dependabot\Jobs\CollectChangedDependabotYmls;
 use Maarheeze\Compass\Collector\Events\PackageJsonChanged;
 use Maarheeze\Compass\Collector\Events\RepositoriesCollected;
+use Maarheeze\Compass\Collector\LockedJob;
 use Maarheeze\Compass\Collector\Repositories\RepositoriesCollectorManager;
 use Maarheeze\Compass\Collector\Repositories\RepositorySynchronizer;
 use Maarheeze\Uuid\Uuid;
 use Webmozart\Assert\Assert;
 
-class CollectRepositories implements ShouldQueue
+class CollectRepositories implements LockedJob
 {
     use Batchable;
     use InteractsWithQueue;
     use Queueable;
+    use RetriesWhileLocked;
 
     public function __construct(
         private readonly Uuid $runId,
@@ -75,5 +77,10 @@ class CollectRepositories implements ShouldQueue
                 new CollectChangedComposerLocks($this->runId, $this->source),
                 new CollectChangedDependabotYmls($this->runId, $this->source),
             ]);
+    }
+
+    public function lockKey(): string
+    {
+        return $this->source;
     }
 }

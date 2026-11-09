@@ -143,3 +143,13 @@ test('handle raises site endpoint checked with the endpoint and the stored check
             && $siteEndpointChecked->siteEndpointCheck->is($siteEndpointCheck);
     });
 });
+
+test('lock key is the site endpoint', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+
+    $checkSiteEndpoint = new CheckSiteEndpoint($siteEndpoint);
+    $lockKey = $checkSiteEndpoint->lockKey();
+
+    expect($lockKey)
+        ->toBe($siteEndpoint->id->toString());
+});
