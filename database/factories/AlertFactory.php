@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Database\Factories;
 
-use function fake;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Maarheeze\Compass\Alerts\AlertStatus;
 use Maarheeze\Compass\Alerts\ConditionState;

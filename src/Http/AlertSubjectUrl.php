@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Http;
 
 use Illuminate\Contracts\Routing\UrlGenerator;
+use LogicException;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
@@ -34,6 +35,7 @@ readonly class AlertSubjectUrl
                 RouteName::SITE->value,
                 $alertSubject->site,
             ),
+            default => throw new LogicException('alert subject without url'),
         };
     }
 }

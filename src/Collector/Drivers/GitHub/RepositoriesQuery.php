@@ -9,6 +9,7 @@ use Generator;
 use Maarheeze\Compass\Collections\CollectedRepositoryCollection;
 use Maarheeze\Compass\Collector\Repositories\CollectedRepository;
 use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
+use UnexpectedValueException;
 use Webmozart\Assert\Assert;
 
 readonly class RepositoriesQuery
@@ -144,6 +145,7 @@ readonly class RepositoriesQuery
             'INTERNAL' => RepositoryVisibility::INTERNAL,
             'PRIVATE' => RepositoryVisibility::PRIVATE,
             'PUBLIC' => RepositoryVisibility::PUBLIC,
+            default => throw new UnexpectedValueException('unknown repository visibility'),
         };
     }
 }

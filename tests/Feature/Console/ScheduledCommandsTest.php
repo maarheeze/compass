@@ -37,6 +37,18 @@ test('all leaves out a scheduled command that is not of compass', function (): v
         ->toBeEmpty();
 });
 
+test('all leaves out a scheduled event that is not an artisan command', function (): void {
+    $schedule = new Schedule();
+    $schedule->exec(CheckSiteEndpointsCommand::SIGNATURE);
+    $this->app->instance(Schedule::class, $schedule);
+
+    $scheduledCommands = $this->app->make(ScheduledCommands::class);
+    $allScheduledCommands = $scheduledCommands->all();
+
+    expect($allScheduledCommands)
+        ->toBeEmpty();
+});
+
 test('all names a scheduled command by the mutex name of its event', function (): void {
     $schedule = new Schedule();
     $event = $schedule->command(CheckSiteEndpointsCommand::SIGNATURE);
@@ -62,7 +74,9 @@ test('all gives the next run of a scheduled command after the current time', fun
     $allScheduledCommands = $scheduledCommands->all();
 
     expect($allScheduledCommands->sole()->nextRunAt->getTimestamp())
-        ->toBe($now->addDay()->startOfDay()->getTimestamp());
+        ->toBe($now->addDay()
+            ->startOfDay()
+            ->getTimestamp());
 });
 
 test('run runs the scheduled command of the mutex name with its arguments', function (): void {

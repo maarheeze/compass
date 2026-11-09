@@ -25,6 +25,7 @@ test('handle asks the collector of the source for the composer lock at the store
     $recordingRepositoryFilesCollector = new RecordingRepositoryFilesCollector(json_encode([
         'packages' => [],
         'packages-dev' => [],
+        'platform' => [],
     ], JSON_THROW_ON_ERROR));
     $composerFilesCollectorManager = $this->app->make(ComposerFilesCollectorManager::class);
     $composerFilesCollectorManager->extend(

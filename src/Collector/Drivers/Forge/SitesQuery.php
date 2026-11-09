@@ -9,6 +9,7 @@ use Generator;
 use Maarheeze\Compass\Collections\CollectedSiteCollection;
 use Maarheeze\Compass\Collector\Sites\CollectedSite;
 use Maarheeze\Compass\Collector\Sites\DeploymentStatus;
+use UnexpectedValueException;
 use Webmozart\Assert\Assert;
 
 use function array_key_exists;
@@ -155,6 +156,7 @@ readonly class SitesQuery
             'finished' => DeploymentStatus::SUCCEEDED,
             'failed', 'failed-build' => DeploymentStatus::FAILED,
             'cancelled' => DeploymentStatus::CANCELLED,
+            default => throw new UnexpectedValueException('unknown deployment status'),
         };
     }
 

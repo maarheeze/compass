@@ -34,7 +34,10 @@ test('handle asks the collector of the source for the dependabot yml at the stor
             return $recordingRepositoryFilesCollector;
         },
     );
-    $repository = Repository::factory()->create(['dependabot_yml_version' => fake()->sha1()]);
+    $repository = Repository::factory()->create([
+        'source' => $source,
+        'dependabot_yml_version' => fake()->sha1(),
+    ]);
 
     $collectDependabotYml = new CollectDependabotYml($repository, $source);
     $this->app->call([$collectDependabotYml, 'handle']);
@@ -76,7 +79,10 @@ test('handle stores the package ecosystems of the dependabot yml with its versio
             return $recordingRepositoryFilesCollector;
         },
     );
-    $repository = Repository::factory()->create(['dependabot_yml_version' => fake()->sha1()]);
+    $repository = Repository::factory()->create([
+        'source' => $source,
+        'dependabot_yml_version' => fake()->sha1(),
+    ]);
 
     $collectDependabotYml = new CollectDependabotYml($repository, $source);
     $this->app->call([$collectDependabotYml, 'handle']);
@@ -97,7 +103,10 @@ test('handle removes the dependabot yml when the repository no longer has one', 
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create(['dependabot_yml_version' => null]);
+    $repository = Repository::factory()->create([
+        'source' => $source,
+        'dependabot_yml_version' => null,
+    ]);
     $dependabotYml = DependabotYml::factory()->create(['repository_id' => $repository->id]);
 
     $collectDependabotYml = new CollectDependabotYml($repository, $source);
@@ -115,7 +124,10 @@ test('handle adds the repository to the log context', function (): void {
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create(['dependabot_yml_version' => null]);
+    $repository = Repository::factory()->create([
+        'source' => $source,
+        'dependabot_yml_version' => null,
+    ]);
 
     $collectDependabotYml = new CollectDependabotYml($repository, $source);
     $this->app->call([$collectDependabotYml, 'handle']);

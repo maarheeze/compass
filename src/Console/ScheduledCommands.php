@@ -35,9 +35,11 @@ readonly class ScheduledCommands
         foreach ($this->schedule->events() as $event) {
             $scheduledCommand = $this->scheduledCommand($event);
 
-            if ($scheduledCommand !== null) {
-                $scheduledCommands->push($scheduledCommand);
+            if ($scheduledCommand === null) {
+                continue;
             }
+
+            $scheduledCommands->push($scheduledCommand);
         }
 
         return $scheduledCommands;

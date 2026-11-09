@@ -271,7 +271,10 @@ test('pages hold no deployment for a site that was never deployed', function ():
     ]);
 
     $sitesQuery = new SitesQuery(new ForgeClient($this->app->make(HttpFactory::class), fake()->sha1()), fake()->slug());
-    $collectedSite = $sitesQuery->pages()->current()->collectedSites->sole();
+    $collectedSite = $sitesQuery->pages()
+        ->current()
+        ->collectedSites
+        ->sole();
 
     expect($collectedSite->deploymentStatus)
         ->toBeNull()

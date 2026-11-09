@@ -35,7 +35,10 @@ test('handle asks the collector of the source for the composer json at the store
             return $recordingRepositoryFilesCollector;
         },
     );
-    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
+    $repository = Repository::factory()->create([
+        'source' => $source,
+        'composer_json_version' => fake()->sha1(),
+    ]);
 
     $collectComposerJson = new CollectComposerJson($repository, $source);
     $this->app->call([$collectComposerJson, 'handle']);
@@ -71,7 +74,10 @@ test('handle stores the composer json with its version', function (): void {
             return $recordingRepositoryFilesCollector;
         },
     );
-    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
+    $repository = Repository::factory()->create([
+        'source' => $source,
+        'composer_json_version' => fake()->sha1(),
+    ]);
 
     $collectComposerJson = new CollectComposerJson($repository, $source);
     $this->app->call([$collectComposerJson, 'handle']);
@@ -92,7 +98,10 @@ test('handle removes the composer json when the repository no longer has one', f
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create(['composer_json_version' => null]);
+    $repository = Repository::factory()->create([
+        'source' => $source,
+        'composer_json_version' => null,
+    ]);
     $composerJson = ComposerJson::factory()->create(['repository_id' => $repository->id]);
 
     $collectComposerJson = new CollectComposerJson($repository, $source);
@@ -110,7 +119,10 @@ test('handle adds the repository to the log context', function (): void {
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create(['composer_json_version' => null]);
+    $repository = Repository::factory()->create([
+        'source' => $source,
+        'composer_json_version' => null,
+    ]);
 
     $collectComposerJson = new CollectComposerJson($repository, $source);
     $this->app->call([$collectComposerJson, 'handle']);

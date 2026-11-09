@@ -142,9 +142,11 @@ readonly class IssuesAndPullRequestsQuery
         $itemIds = [];
 
         foreach ($itemResponses as $itemResponse) {
-            if ($itemResponse['created_at'] === $createdAt) {
-                $itemIds[] = Assert::string($itemResponse['node_id']);
+            if ($itemResponse['created_at'] !== $createdAt) {
+                continue;
             }
+
+            $itemIds[] = Assert::string($itemResponse['node_id']);
         }
 
         return $itemIds;
@@ -210,9 +212,11 @@ readonly class IssuesAndPullRequestsQuery
         $unseenItemResponses = [];
 
         foreach ($itemResponses as $itemResponse) {
-            if (!in_array($itemResponse['node_id'], $seenItemIds, true)) {
-                $unseenItemResponses[] = $itemResponse;
+            if (in_array($itemResponse['node_id'], $seenItemIds, true)) {
+                continue;
             }
+
+            $unseenItemResponses[] = $itemResponse;
         }
 
         return $unseenItemResponses;

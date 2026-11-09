@@ -34,14 +34,8 @@ readonly class SiteReportSynchronizer
      */
     private function storeReportAndEndpoints(SiteReport $siteReport, CollectedSiteReport $collectedSiteReport): void
     {
-        $this->connection->transaction(static function () use ($siteReport, $collectedSiteReport): void {
-            $siteReport->fill([
-                'status' => $collectedSiteReport->status,
-                'app_debug' => $collectedSiteReport->appDebug,
-                'app_env' => $collectedSiteReport->appEnv,
-                'app_name' => $collectedSiteReport->appName,
-                'collected_at' => CarbonImmutable::now(),
-            ])->save();
+        $this->connection->transaction(function () use ($siteReport, $collectedSiteReport): void {
+            $this->storeStatus($siteReport, $collectedSiteReport);
 
             $droppedSiteEndpoints = $siteReport->endpoints()
                 ->whereNotIn('path', $collectedSiteReport->endpoints)
@@ -65,6 +59,7 @@ readonly class SiteReportSynchronizer
             'app_env' => $collectedSiteReport->appEnv,
             'app_name' => $collectedSiteReport->appName,
             'collected_at' => CarbonImmutable::now(),
-        ])->save();
+        ]);
+        $siteReport->save();
     }
 }

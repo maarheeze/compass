@@ -95,11 +95,12 @@ test('handle observes nothing for a collected site and its endpoints', function 
 test('handle observes nothing for a missing site of another source', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
+    $siteFactory = Site::factory()->state([
+        'source' => fake()->unique()->slug(),
+        'missing_at' => fake()->dateTime(),
+    ]);
     SiteEndpoint::factory()
-        ->for(SiteReport::factory()->for(Site::factory()->state([
-            'source' => fake()->unique()->slug(),
-            'missing_at' => fake()->dateTime(),
-        ])))
+        ->for(SiteReport::factory()->for($siteFactory))
         ->create();
 
     $resolveMissingSiteConditions = $this->app->make(ResolveMissingSiteConditions::class);

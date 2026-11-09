@@ -23,9 +23,11 @@ class AlertTypeCollection extends Collection
         $alertTypeGroups = [];
 
         foreach ($this->items as $alertType) {
-            if (!in_array($alertType->group(), $alertTypeGroups, true)) {
-                $alertTypeGroups[] = $alertType->group();
+            if (in_array($alertType->group(), $alertTypeGroups, true)) {
+                continue;
             }
+
+            $alertTypeGroups[] = $alertType->group();
         }
 
         return $alertTypeGroups;

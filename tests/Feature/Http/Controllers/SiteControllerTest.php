@@ -43,7 +43,7 @@ test('show contains the alerts of the site and its endpoints, newest first', fun
     $earlierAlert = Alert::factory()
         ->siteDebugEnabled()
         ->done()
-        ->for($siteEndpoint->site, 'subject')
+        ->for($siteEndpoint->siteReport, 'subject')
         ->create(['created_at' => fake()->dateTimeBetween('-2 months', '-1 month')]);
     $laterAlert = Alert::factory()
         ->siteEndpointDown()
@@ -51,7 +51,7 @@ test('show contains the alerts of the site and its endpoints, newest first', fun
         ->create(['created_at' => fake()->dateTimeBetween('-1 month')]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::SITE, $siteEndpoint->site));
+    $response = $this->get(route(RouteName::SITE, $siteEndpoint->siteReport->site));
 
     $response->assertViewHas('alerts', static function (AlertCollection $alerts) use ($earlierAlert, $laterAlert): bool {
         return $alerts->count() === 2
@@ -62,7 +62,7 @@ test('show contains the alerts of the site and its endpoints, newest first', fun
 
 test('show loads the assignee of the alerts', function (): void {
     $alert = Alert::factory()
-        ->siteDebugEnabled()
+        ->siteMissing()
         ->create();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
@@ -76,12 +76,12 @@ test('show loads the assignee of the alerts', function (): void {
 test('show contains the latest check of a reported endpoint path as active', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $activeSiteEndpointCheck = SiteEndpointCheck::factory()->create([
-        'site_id' => $siteEndpoint->site_id,
+        'site_id' => $siteEndpoint->siteReport->site_id,
         'path' => new EndpointPath($siteEndpoint->path),
     ]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::SITE, $siteEndpoint->site_id));
+    $response = $this->get(route(RouteName::SITE, $siteEndpoint->siteReport->site_id));
 
     $response->assertViewHas(
         'activeSiteEndpointChecks',

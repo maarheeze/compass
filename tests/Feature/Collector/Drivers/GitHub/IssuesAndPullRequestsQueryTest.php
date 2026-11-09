@@ -132,6 +132,65 @@ test('issues leave out the issues already collected at the date they continue fr
         ->toBe($unseenItemResponse['node_id']);
 });
 
+test('issues keep leaving out the issues seen at the date they continue from across pages', function (): void {
+    $lastCreatedAt = fake()->iso8601();
+    $firstItemResponses = [];
+    $secondItemResponses = [];
+
+    for ($itemIndex = 0; $itemIndex < 100; $itemIndex++) {
+        $firstItemResponses[] = [
+            'node_id' => fake()->unique()->sha1(),
+            'repository_url' => fake()->url(),
+            'number' => fake()->numberBetween(1, 9999),
+            'title' => fake()->sentence(),
+            'html_url' => fake()->url(),
+            'user' => null,
+            'created_at' => $lastCreatedAt,
+            'assignees' => [],
+        ];
+        $secondItemResponses[] = [
+            'node_id' => fake()->unique()->sha1(),
+            'repository_url' => fake()->url(),
+            'number' => fake()->numberBetween(1, 9999),
+            'title' => fake()->sentence(),
+            'html_url' => fake()->url(),
+            'user' => null,
+            'created_at' => $lastCreatedAt,
+            'assignees' => [],
+        ];
+    }
+
+    $unseenItemResponse = [
+        'node_id' => fake()->unique()->sha1(),
+        'repository_url' => fake()->url(),
+        'number' => fake()->numberBetween(1, 9999),
+        'title' => fake()->sentence(),
+        'html_url' => fake()->url(),
+        'user' => null,
+        'created_at' => $lastCreatedAt,
+        'assignees' => [],
+    ];
+
+    $http = $this->app->make(HttpFactory::class);
+    $responseSequence = $http->sequence();
+    $responseSequence->push(['incomplete_results' => false, 'items' => $firstItemResponses]);
+    $responseSequence->push(['incomplete_results' => false, 'items' => $secondItemResponses]);
+    $responseSequence->push([
+        'incomplete_results' => false,
+        'items' => [$firstItemResponses[0], $secondItemResponses[0], $unseenItemResponse],
+    ]);
+    $http->fake(['*' => $responseSequence]);
+
+    $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
+        new GitHubClient($http, fake()->sha1()),
+        fake()->slug(),
+    );
+    $collectedIssuesPerPage = iterator_to_array($issuesAndPullRequestsQuery->issues());
+
+    expect($collectedIssuesPerPage[2]->sole()->externalId)
+        ->toBe($unseenItemResponse['node_id']);
+});
+
 test('issues end with a page that is not full', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(['incomplete_results' => false, 'items' => []])]);

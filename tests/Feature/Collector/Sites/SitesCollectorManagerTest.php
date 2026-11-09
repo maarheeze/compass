@@ -32,7 +32,9 @@ test('collector of a forge source collects the sites of its organization with it
     ]);
 
     $sitesCollectorManager = $this->app->make(SitesCollectorManager::class);
-    $sitesCollectorManager->collector($key)->sites()->current();
+    $sitesCollectorManager->collector($key)
+        ->sites()
+        ->current();
 
     $http->assertSent(static function (HttpRequest $request) use ($organization, $token): bool {
         return str_starts_with($request->url(), sprintf('https://forge.laravel.com/api/orgs/%s/sites?', $organization))

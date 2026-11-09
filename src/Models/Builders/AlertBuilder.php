@@ -68,22 +68,21 @@ class AlertBuilder extends Builder
     public function ofSite(Site $site): self
     {
         return $this->where(static function (self $alertQuery) use ($site): void {
-            $alertQuery
-                ->whereMorphedTo('subject', $site)
-                ->orWhereHasMorph(
-                    'subject',
-                    [SiteEndpoint::class],
-                    static function (QueryBuilder $siteEndpointQuery) use ($site): void {
-                        $siteEndpointQuery->whereRelation('siteReport', 'site_id', $site->id);
-                    },
-                )
-                ->orWhereHasMorph(
-                    'subject',
-                    [SiteReport::class],
-                    static function (QueryBuilder $siteReportQuery) use ($site): void {
-                        $siteReportQuery->where('site_id', $site->id);
-                    },
-                );
+            $alertQuery->whereMorphedTo('subject', $site);
+            $alertQuery->orWhereHasMorph(
+                'subject',
+                [SiteEndpoint::class],
+                static function (QueryBuilder $siteEndpointQuery) use ($site): void {
+                    $siteEndpointQuery->whereRelation('siteReport', 'site_id', $site->id);
+                },
+            );
+            $alertQuery->orWhereHasMorph(
+                'subject',
+                [SiteReport::class],
+                static function (QueryBuilder $siteReportQuery) use ($site): void {
+                    $siteReportQuery->where('site_id', $site->id);
+                },
+            );
         });
     }
 

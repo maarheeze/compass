@@ -19,5 +19,6 @@
 
     <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint">
         <exclude-pattern>./tests/TestCase.php</exclude-pattern>
+        <exclude-pattern>./tests/Fixtures/RecordingLockStore.php</exclude-pattern>
     </rule>
 </rule>

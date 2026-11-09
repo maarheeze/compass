@@ -6,8 +6,6 @@ use Maarheeze\Compass\Collector\CollectorType;
 use Maarheeze\Compass\Collector\ScheduleFrequency;
 use Maarheeze\Compass\Collector\SourceConfig;
 
-use function sprintf;
-
 test('driver is the driver the source names', function (): void {
     $driverName = fake()->slug();
     $sourceConfig = new SourceConfig(fake()->slug(), ['driver' => $driverName]);

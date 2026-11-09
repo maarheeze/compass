@@ -39,7 +39,9 @@ test('collector of a github source collects the repositories of its organization
     ]);
 
     $repositoriesCollectorManager = $this->app->make(RepositoriesCollectorManager::class);
-    $repositoriesCollectorManager->collector($key)->repositories()->current();
+    $repositoriesCollectorManager->collector($key)
+        ->repositories()
+        ->current();
 
     $http->assertSent(static function (HttpRequest $request) use ($organization, $token): bool {
         return $request['variables']['organization'] === $organization

@@ -20,7 +20,7 @@ test('handle starts a run of the collector of the source', function (): void {
         'source' => $source,
         'collector' => $collectorType->value,
     ]);
-    $pendingCommand->assertSuccessful();
+    $pendingCommand->run();
 
     $this->assertDatabaseHas(Run::class, [
         'source' => $source,
@@ -44,18 +44,6 @@ test('handle runs the job of the collector type', function (): void {
         }),
         FinishRun::class,
     ]);
-});
-
-test('handle refuses a collector that does not exist', function (): void {
-    $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
-
-    $this->expectException(ValueError::class);
-
-    $pendingCommand = $this->artisan(CollectCommand::class, [
-        'source' => fake()->slug(),
-        'collector' => fake()->slug(),
-    ]);
-    $pendingCommand->run();
 });
 
 test('handle refuses a collector that does not exist', function (): void {

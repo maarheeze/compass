@@ -19,10 +19,8 @@ test('handle adds collect composer json when its version differs from the collec
         'version' => fake()->unique()->sha1(),
     ]);
 
-    [$collectChangedComposerJsons, $batchFake] = new CollectChangedComposerJsons(
-        $runId,
-        fake()->slug(),
-    )->withFakeBatch();
+    $collectChangedComposerJsons = new CollectChangedComposerJsons($runId, fake()->slug());
+    [$collectChangedComposerJsons, $batchFake] = $collectChangedComposerJsons->withFakeBatch();
     $this->app->call([$collectChangedComposerJsons, 'handle']);
 
     $addedRepositoryIds = array_map(
@@ -44,10 +42,8 @@ test('handle adds collect composer json when the composer json is gone', functio
     ]);
     ComposerJson::factory()->create(['repository_id' => $repository->id]);
 
-    [$collectChangedComposerJsons, $batchFake] = new CollectChangedComposerJsons(
-        $runId,
-        fake()->slug(),
-    )->withFakeBatch();
+    $collectChangedComposerJsons = new CollectChangedComposerJsons($runId, fake()->slug());
+    [$collectChangedComposerJsons, $batchFake] = $collectChangedComposerJsons->withFakeBatch();
     $this->app->call([$collectChangedComposerJsons, 'handle']);
 
     $addedRepositoryIds = array_map(
@@ -72,10 +68,8 @@ test('handle does not add collect composer json when its version is the collecte
         'version' => $repository->composer_json_version,
     ]);
 
-    [$collectChangedComposerJsons, $batchFake] = new CollectChangedComposerJsons(
-        $runId,
-        fake()->slug(),
-    )->withFakeBatch();
+    $collectChangedComposerJsons = new CollectChangedComposerJsons($runId, fake()->slug());
+    [$collectChangedComposerJsons, $batchFake] = $collectChangedComposerJsons->withFakeBatch();
     $this->app->call([$collectChangedComposerJsons, 'handle']);
 
     expect($batchFake->added)
@@ -89,10 +83,8 @@ test('handle does not add collect composer json for a repository without one', f
         'composer_json_version' => null,
     ]);
 
-    [$collectChangedComposerJsons, $batchFake] = new CollectChangedComposerJsons(
-        $runId,
-        fake()->slug(),
-    )->withFakeBatch();
+    $collectChangedComposerJsons = new CollectChangedComposerJsons($runId, fake()->slug());
+    [$collectChangedComposerJsons, $batchFake] = $collectChangedComposerJsons->withFakeBatch();
     $this->app->call([$collectChangedComposerJsons, 'handle']);
 
     expect($batchFake->added)
@@ -105,10 +97,8 @@ test('handle ignores repositories of another run', function (): void {
         'composer_json_version' => fake()->sha1(),
     ]);
 
-    [$collectChangedComposerJsons, $batchFake] = new CollectChangedComposerJsons(
-        Uuid::generate(),
-        fake()->slug(),
-    )->withFakeBatch();
+    $collectChangedComposerJsons = new CollectChangedComposerJsons(Uuid::generate(), fake()->slug());
+    [$collectChangedComposerJsons, $batchFake] = $collectChangedComposerJsons->withFakeBatch();
     $this->app->call([$collectChangedComposerJsons, 'handle']);
 
     expect($batchFake->added)

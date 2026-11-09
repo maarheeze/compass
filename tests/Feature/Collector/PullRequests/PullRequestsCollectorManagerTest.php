@@ -25,7 +25,9 @@ test('collector of a github source collects the pull requests of its organizatio
     $http->fake(['*' => HttpFactory::response(['incomplete_results' => false, 'items' => []])]);
 
     $pullRequestsCollectorManager = $this->app->make(PullRequestsCollectorManager::class);
-    $pullRequestsCollectorManager->collector($key)->pullRequests()->current();
+    $pullRequestsCollectorManager->collector($key)
+        ->pullRequests()
+        ->current();
 
     $http->assertSent(static function (HttpRequest $request) use ($organization, $token): bool {
         return str_starts_with($request->url(), 'https://api.github.com/search/issues?')

@@ -7,6 +7,8 @@ namespace Maarheeze\Compass\Collections;
 use Illuminate\Support\Collection;
 use Maarheeze\Compass\Console\ScheduledCommand;
 
+use function array_values;
+
 /**
  * @extends Collection<int, ScheduledCommand>
  */
@@ -17,12 +19,12 @@ class ScheduledCommandCollection extends Collection
      */
     public function mutexNames(): array
     {
-        return $this
+        return array_values($this
+            ->toBase()
             ->map(static function (ScheduledCommand $scheduledCommand): string {
                 return $scheduledCommand->mutexName;
             })
-            ->values()
-            ->all();
+            ->all());
     }
 
     public function withMutexName(string $mutexName): ScheduledCommand

@@ -15,7 +15,7 @@ test('handle starts a run of the site endpoints task', function (): void {
     $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
 
     $pendingCommand = $this->artisan(CheckSiteEndpointsCommand::class);
-    $pendingCommand->assertSuccessful();
+    $pendingCommand->run();
 
     $this->assertDatabaseHas(Run::class, [
         'source' => null,

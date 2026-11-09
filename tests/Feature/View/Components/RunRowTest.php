@@ -7,8 +7,6 @@ use Maarheeze\Compass\Collector\TaskType;
 use Maarheeze\Compass\Models\Run;
 use Maarheeze\Compass\View\Components\RunRow;
 
-use function sprintf;
-
 test('label of a collector run is its source and collector', function (): void {
     $run = Run::factory()->create(['collector' => CollectorType::REPOSITORIES]);
 
