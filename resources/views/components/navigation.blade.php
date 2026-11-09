@@ -4,8 +4,6 @@
             <a href="{{ $dashboardUrl }}" class="text-base font-semibold text-foreground"><x-compass::application-name /></a>
 
             <div class="flex items-center gap-2">
-                <livewire:compass::sync-button />
-
                 @if ($hasAlertsNotMuted)
                     <a
                         href="{{ $dashboardUrl }}"

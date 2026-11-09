@@ -11,6 +11,4 @@ return [
     'repositories' => 'Repositories',
     'runs' => 'Runs',
     'sites' => 'Sites',
-    'sync' => 'Sync',
-    'syncing' => 'Syncing now…',
 ];

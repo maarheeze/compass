@@ -12,12 +12,10 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
-use Livewire\LivewireManager;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Listeners\RecordRunFailure;
 use Maarheeze\Compass\Http\Controllers\RunController;
 use Maarheeze\Compass\Http\Controllers\SiteEndpointCheckController;
-use Maarheeze\Compass\Http\Middleware\Authenticate;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
@@ -59,7 +57,7 @@ class CompassServiceProvider extends ServiceProvider
         $this->app->register(ScheduleProvider::class);
     }
 
-    public function boot(Dispatcher $events, LivewireManager $livewire): void
+    public function boot(Dispatcher $events): void
     {
         $events->listen(JobFailed::class, RecordRunFailure::class);
 
@@ -77,9 +75,6 @@ class CompassServiceProvider extends ServiceProvider
 
         Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components', 'compass');
         Blade::componentNamespace('Maarheeze\\Compass\\View\\Components', 'compass');
-
-        $livewire->addNamespace('compass', classNamespace: 'Maarheeze\\Compass\\Livewire');
-        $livewire->addPersistentMiddleware([Authenticate::class]);
 
         $this->publishes([
             __DIR__ . '/../config/compass.php' => config_path('compass.php'),
