@@ -22,31 +22,35 @@
                     </a>
                 @endif
 
-                <details x-data class="relative ml-2" @click.outside="$el.removeAttribute('open')">
-                    <summary class="flex cursor-pointer list-none items-center">
-                        <x-compass::avatar :person="$user" :url="null" class="size-8" />
-                    </summary>
+                <button
+                    type="button"
+                    popovertarget="user-menu"
+                    class="ml-2 flex cursor-pointer items-center [anchor-name:--user-menu]">
+                    <x-compass::avatar :person="$user" :url="null" class="size-8" />
+                </button>
 
-                    <div class="absolute right-0 z-10 mt-2 w-56 rounded-md border border-border bg-canvas py-1 shadow-lg">
-                        <div class="border-b border-border px-4 py-2">
-                            <p class="text-sm font-semibold text-foreground">
-                                @if ($user->name)
-                                    {{ $user->name }}
-                                @else
-                                    {{ $user->nickname }}
-                                @endif
-                            </p>
-                            <p class="text-xs text-foreground-muted">&#64;{{ $user->nickname }}</p>
-                        </div>
-
-                        <a href="{{ $settingsUrl }}" class="block px-4 py-2 text-sm text-foreground hover:bg-canvas-subtle">{{ __('compass::settings.settings') }}</a>
-
-                        <form method="POST" action="{{ $logoutUrl }}">
-                            @csrf
-                            <button type="submit" class="w-full cursor-pointer px-4 py-2 text-left text-sm text-foreground hover:bg-canvas-subtle">{{ __('compass::authentication.sign_out') }}</button>
-                        </form>
+                <div
+                    id="user-menu"
+                    popover
+                    class="inset-auto m-0 mt-2 w-56 rounded-md border border-border bg-canvas px-0 py-1 shadow-lg [position-anchor:--user-menu] top-[anchor(bottom)] right-[anchor(right)]">
+                    <div class="border-b border-border px-4 py-2">
+                        <p class="text-sm font-semibold text-foreground">
+                            @if ($user->name)
+                                {{ $user->name }}
+                            @else
+                                {{ $user->nickname }}
+                            @endif
+                        </p>
+                        <p class="text-xs text-foreground-muted">&#64;{{ $user->nickname }}</p>
                     </div>
-                </details>
+
+                    <a href="{{ $settingsUrl }}" class="block px-4 py-2 text-sm text-foreground hover:bg-canvas-subtle">{{ __('compass::settings.settings') }}</a>
+
+                    <form method="POST" action="{{ $logoutUrl }}">
+                        @csrf
+                        <button type="submit" class="w-full cursor-pointer px-4 py-2 text-left text-sm text-foreground hover:bg-canvas-subtle">{{ __('compass::authentication.sign_out') }}</button>
+                    </form>
+                </div>
             </div>
         </div>
 
