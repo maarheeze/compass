@@ -15,8 +15,6 @@ use Maarheeze\Compass\Alerts\AlertReopener;
 use Maarheeze\Compass\Authentication\AuthenticatedUser;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
-use Maarheeze\Compass\Models\SiteEndpoint;
-use Maarheeze\Compass\Models\SiteReport;
 use Throwable;
 
 readonly class AlertController
@@ -74,12 +72,15 @@ readonly class AlertController
 
     public function show(Alert $alert): View
     {
-        $alert->load('assignee');
-        $alert->loadMorph('subject', [SiteEndpoint::class => ['siteReport.site'], SiteReport::class => ['site']]);
+        $shownAlert = Alert::query()
+            ->with('assignee')
+            ->withSubject()
+            ->whereKey($alert->id)
+            ->sole();
 
         return $this->view->make('compass::alerts.show', [
-            'alert' => $alert,
-            'historyEntries' => $alert
+            'alert' => $shownAlert,
+            'historyEntries' => $shownAlert
                 ->historyEntries()
                 ->with('user')
                 ->latest('occurred_at')

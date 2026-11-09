@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Models\Builders;
 
 use Illuminate\Contracts\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Maarheeze\Compass\Alerts\AlertStatus;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Models\Alert;
@@ -89,5 +90,16 @@ class AlertBuilder extends Builder
     public function ofType(AlertType $alertType): self
     {
         return $this->where('alert_type_identifier', $alertType->identifier());
+    }
+
+    public function withSubject(): self
+    {
+        return $this->with(['subject' => static function (MorphTo $subjectRelation): void {
+            $subjectRelation->morphWith([
+                SiteEndpoint::class => ['siteReport.site'],
+                SiteReport::class => ['site'],
+            ]);
+        },
+        ]);
     }
 }

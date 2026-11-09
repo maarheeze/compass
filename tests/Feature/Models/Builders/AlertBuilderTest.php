@@ -256,3 +256,29 @@ test('of type leaves out an alert of another type', function (): void {
     expect($alertsOfType)
         ->toBeEmpty();
 });
+
+test('with subject loads the site of the report of an endpoint subject', function (): void {
+    Alert::factory()
+        ->siteEndpointDown()
+        ->create();
+
+    $alertWithSubject = Alert::query()
+        ->withSubject()
+        ->sole();
+
+    expect($alertWithSubject->subject->siteReport->relationLoaded('site'))
+        ->toBeTrue();
+});
+
+test('with subject loads the site of a site report subject', function (): void {
+    Alert::factory()
+        ->siteDebugEnabled()
+        ->create();
+
+    $alertWithSubject = Alert::query()
+        ->withSubject()
+        ->sole();
+
+    expect($alertWithSubject->subject->relationLoaded('site'))
+        ->toBeTrue();
+});

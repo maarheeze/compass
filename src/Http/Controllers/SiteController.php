@@ -12,8 +12,6 @@ use Maarheeze\Compass\Collector\Sites\MissingSiteResolver;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Site;
-use Maarheeze\Compass\Models\SiteEndpoint;
-use Maarheeze\Compass\Models\SiteReport;
 use Throwable;
 
 readonly class SiteController
@@ -66,9 +64,9 @@ readonly class SiteController
             'alerts' => Alert::query()
                 ->ofSite($site)
                 ->with('assignee')
+                ->withSubject()
                 ->latest()
-                ->get()
-                ->loadMorph('subject', [SiteEndpoint::class => ['siteReport.site'], SiteReport::class => ['site']]),
+                ->get(),
             'inactiveSiteEndpointChecks' => $site
                 ->endpointChecks()
                 ->latestPerPath()
