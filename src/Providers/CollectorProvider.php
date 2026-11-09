@@ -18,12 +18,13 @@ use Maarheeze\Compass\Collector\Sites\SitesCollectorManager;
 use Maarheeze\Compass\Collector\SourceConfigs;
 use Maarheeze\Compass\Console\CheckSiteEndpointsCommand;
 use Maarheeze\Compass\Console\CollectCommand;
+use Maarheeze\Compass\Console\GenerateKeyCommand;
 
 class CollectorProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        $this->commands([CheckSiteEndpointsCommand::class, CollectCommand::class]);
+        $this->commands([CheckSiteEndpointsCommand::class, CollectCommand::class, GenerateKeyCommand::class]);
     }
 
     public function register(): void

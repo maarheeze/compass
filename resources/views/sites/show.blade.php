@@ -101,7 +101,7 @@
                 <x-slot:icon>
                     <x-compass::icons.file-code />
                 </x-slot:icon>
-                {{ __('compass::site.client') }}
+                {{ __('compass::site.reports') }}
             </x-compass::section-heading>
 
             <div class="space-y-4 rounded-md border border-border bg-canvas px-4 py-3 text-sm">

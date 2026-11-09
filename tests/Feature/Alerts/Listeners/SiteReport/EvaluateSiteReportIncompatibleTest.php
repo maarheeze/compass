@@ -16,7 +16,7 @@ use Maarheeze\Compass\Models\SiteReport;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
-test('handle observes incompatible client now for a site with an outdated client', function (): void {
+test('handle observes site report incompatible now for a report of an outdated client', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
@@ -39,7 +39,7 @@ test('handle observes incompatible client now for a site with an outdated client
     );
 });
 
-test('handle observes incompatible client resolved now for a site with any other client status', function (SiteReportStatus $siteReportStatus): void {
+test('handle observes site report incompatible resolved now for a report with any other status', function (SiteReportStatus $siteReportStatus): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());

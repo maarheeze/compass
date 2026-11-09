@@ -3,28 +3,28 @@
     @method('PATCH')
 
     <div class="space-y-1">
-        <label for="path" class="block font-medium text-foreground">{{ __('compass::client.path') }}</label>
+        <label for="path" class="block font-medium text-foreground">{{ __('compass::site-report.path') }}</label>
         <input
             id="path"
             name="path"
             type="text"
             value="{{ $path }}"
-            placeholder="{{ __('compass::client.path_placeholder') }}"
+            placeholder="{{ __('compass::site-report.path_placeholder') }}"
             class="w-full rounded-md border border-border bg-canvas px-2 py-1 font-mono text-sm text-foreground" />
-        <p class="text-xs text-foreground-muted">{{ __('compass::client.path_hint') }}</p>
+        <p class="text-xs text-foreground-muted">{{ __('compass::site-report.path_hint') }}</p>
         @error('path')
             <p class="text-xs text-red-700 dark:text-red-300">{{ $message }}</p>
         @enderror
     </div>
 
     <div class="space-y-1">
-        <label for="key" class="block font-medium text-foreground">{{ __('compass::client.key') }}</label>
+        <label for="key" class="block font-medium text-foreground">{{ __('compass::site-report.key') }}</label>
         <input
             id="key"
             name="key"
             type="text"
             value="{{ $key }}"
-            placeholder="{{ __('compass::client.key_placeholder') }}"
+            placeholder="{{ __('compass::site-report.key_placeholder') }}"
             class="w-full rounded-md border border-border bg-canvas px-2 py-1 font-mono text-sm text-foreground" />
         @error('key')
             <p class="text-xs text-red-700 dark:text-red-300">{{ $message }}</p>
@@ -32,7 +32,7 @@
     </div>
 
     <div class="flex items-center gap-2">
-        <x-compass::button>{{ __('compass::client.save') }}</x-compass::button>
-        <a href="{{ $cancelUrl }}" class="text-foreground-muted hover:underline">{{ __('compass::client.cancel') }}</a>
+        <x-compass::button>{{ __('compass::site-report.save') }}</x-compass::button>
+        <a href="{{ $cancelUrl }}" class="text-foreground-muted hover:underline">{{ __('compass::site-report.cancel') }}</a>
     </div>
 </form>

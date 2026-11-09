@@ -16,7 +16,7 @@ use Maarheeze\Compass\Models\SiteReport;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
-test('handle observes unauthorized client now for a site that refused the key', function (): void {
+test('handle observes site report unauthorized now for a report whose key was refused', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
@@ -39,7 +39,7 @@ test('handle observes unauthorized client now for a site that refused the key', 
     );
 });
 
-test('handle observes unauthorized client resolved now for a site with any other client status', function (SiteReportStatus $siteReportStatus): void {
+test('handle observes site report unauthorized resolved now for a report with any other status', function (SiteReportStatus $siteReportStatus): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());

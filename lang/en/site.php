@@ -6,7 +6,6 @@ return [
     'auto_deploy_off' => 'Auto-deploy off',
     'auto_deploy_on' => 'Auto-deploy on',
     'checked' => 'checked',
-    'client' => 'Client',
     'collected' => 'collected',
     'deployed' => 'deployed',
     'endpoint_history' => 'Endpoint history',
@@ -15,5 +14,6 @@ return [
     'latest_deployment' => 'Latest deployment',
     'no_endpoints_checked' => 'No endpoints checked yet.',
     'no_sites' => 'No sites collected yet.',
+    'reports' => 'Reports',
     'started' => 'started',
 ];

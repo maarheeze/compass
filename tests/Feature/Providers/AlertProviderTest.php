@@ -43,31 +43,31 @@ test('send alert notifications listens to alert opened', function (): void {
     $eventFake->assertListening(AlertOpened::class, SendAlertNotifications::class);
 });
 
-test('evaluate down site endpoint listens to site endpoint checked', function (): void {
+test('evaluate site endpoint down listens to site endpoint checked', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
     $eventFake->assertListening(SiteEndpointChecked::class, EvaluateSiteEndpointDown::class);
 });
 
-test('evaluate debug enabled listens to site inspected', function (): void {
+test('evaluate site debug enabled listens to site inspected', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
     $eventFake->assertListening(SiteInspected::class, EvaluateSiteDebugEnabled::class);
 });
 
-test('evaluate non production listens to site inspected', function (): void {
+test('evaluate site not in production listens to site inspected', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
     $eventFake->assertListening(SiteInspected::class, EvaluateSiteNotInProduction::class);
 });
 
-test('evaluate unauthorized client listens to site inspected', function (): void {
+test('evaluate site report unauthorized listens to site inspected', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
     $eventFake->assertListening(SiteInspected::class, EvaluateSiteReportUnauthorized::class);
 });
 
-test('evaluate incompatible client listens to site inspected', function (): void {
+test('evaluate site report incompatible listens to site inspected', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
     $eventFake->assertListening(SiteInspected::class, EvaluateSiteReportIncompatible::class);
@@ -145,7 +145,7 @@ test('evaluate site behind on sites collected listens to sites collected', funct
     $eventFake->assertListening(SitesCollected::class, EvaluateSiteBehindOnSitesCollected::class);
 });
 
-test('evaluate overdue deployment listens to sites collected', function (): void {
+test('evaluate site deployment overdue listens to sites collected', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
     $eventFake->assertListening(SitesCollected::class, EvaluateSiteDeploymentOverdue::class);
