@@ -21,7 +21,6 @@ use Maarheeze\Compass\Alerts\Listeners\Site\EvaluateSiteBehindOnSitesCollected;
 use Maarheeze\Compass\Alerts\Listeners\Site\EvaluateSiteDeploymentOverdue;
 use Maarheeze\Compass\Alerts\Listeners\Site\EvaluateSiteMissingOnSiteMissingIgnored;
 use Maarheeze\Compass\Alerts\Listeners\Site\EvaluateSiteMissingOnSitesCollected;
-use Maarheeze\Compass\Alerts\Listeners\Site\ResolveMissingSiteConditions;
 use Maarheeze\Compass\Alerts\Listeners\SiteEndpoint\EvaluateSiteEndpointDown;
 use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteDebugEnabled;
 use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteNotInProduction;
@@ -150,12 +149,6 @@ test('evaluate overdue deployment listens to sites collected', function (): void
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
 
     $eventFake->assertListening(SitesCollected::class, EvaluateSiteDeploymentOverdue::class);
-});
-
-test('resolve missing site conditions listens to sites collected', function (): void {
-    $eventFake = new EventFake($this->app->make(Dispatcher::class));
-
-    $eventFake->assertListening(SitesCollected::class, ResolveMissingSiteConditions::class);
 });
 
 test('every registered alert type has a translation', function (): void {

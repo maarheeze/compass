@@ -22,7 +22,6 @@ use Maarheeze\Compass\Alerts\Listeners\Site\EvaluateSiteBehindOnSitesCollected;
 use Maarheeze\Compass\Alerts\Listeners\Site\EvaluateSiteDeploymentOverdue;
 use Maarheeze\Compass\Alerts\Listeners\Site\EvaluateSiteMissingOnSiteMissingIgnored;
 use Maarheeze\Compass\Alerts\Listeners\Site\EvaluateSiteMissingOnSitesCollected;
-use Maarheeze\Compass\Alerts\Listeners\Site\ResolveMissingSiteConditions;
 use Maarheeze\Compass\Alerts\Listeners\SiteEndpoint\EvaluateSiteEndpointDown;
 use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteDebugEnabled;
 use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteNotInProduction;
@@ -101,7 +100,6 @@ class AlertProvider extends ServiceProvider
         $events->listen(RepositoriesCollected::class, EvaluateSiteBehindOnRepositoriesCollected::class);
         $events->listen(SitesCollected::class, EvaluateSiteBehindOnSitesCollected::class);
         $events->listen(SitesCollected::class, EvaluateSiteDeploymentOverdue::class);
-        $events->listen(SitesCollected::class, ResolveMissingSiteConditions::class);
     }
 
     public function register(): void
