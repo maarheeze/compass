@@ -45,13 +45,7 @@ readonly class ScheduledCommands
 
     public function run(string $mutexName): void
     {
-        $scheduledCommand = $this->all()->firstOrFail(
-            static function (ScheduledCommand $scheduledCommand) use ($mutexName): bool {
-                return $scheduledCommand->mutexName === $mutexName;
-            },
-        );
-
-        $this->kernel->call($scheduledCommand->command);
+        $this->kernel->call($this->all()->withMutexName($mutexName)->command);
     }
 
     private function command(Event $event): ?string

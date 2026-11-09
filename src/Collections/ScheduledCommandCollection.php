@@ -12,4 +12,23 @@ use Maarheeze\Compass\Console\ScheduledCommand;
  */
 class ScheduledCommandCollection extends Collection
 {
+    /**
+     * @return list<string>
+     */
+    public function mutexNames(): array
+    {
+        return $this
+            ->map(static function (ScheduledCommand $scheduledCommand): string {
+                return $scheduledCommand->mutexName;
+            })
+            ->values()
+            ->all();
+    }
+
+    public function withMutexName(string $mutexName): ScheduledCommand
+    {
+        return $this->firstOrFail(static function (ScheduledCommand $scheduledCommand) use ($mutexName): bool {
+            return $scheduledCommand->mutexName === $mutexName;
+        });
+    }
 }

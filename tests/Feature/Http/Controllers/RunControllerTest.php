@@ -4,16 +4,19 @@ declare(strict_types=1);
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
+use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Foundation\Console\ClosureCommand;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Testing\Fakes\BusFake;
 use Maarheeze\Compass\Collections\ScheduledCommandCollection;
-use Maarheeze\Compass\Collector\TaskType;
 use Maarheeze\Compass\Console\CheckSiteEndpointsCommand;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Run;
 use Maarheeze\Compass\Models\RunFailure;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
+use Webmozart\Assert\Assert;
 
 test('index lists the latest run first', function (): void {
     $earlierRun = Run::factory()->create(['created_at' => fake()->dateTimeBetween('-2 months', '-1 month')]);
@@ -70,17 +73,20 @@ test('index lists the scheduled commands', function (): void {
 });
 
 test('run runs the scheduled command of the mutex name', function (): void {
-    $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
+    $isRun = false;
+    $kernel = Assert::isInstanceOf($this->app->make(Kernel::class), ConsoleKernel::class);
+    $kernel->registerCommand(new ClosureCommand('compass:fake-command', function () use (&$isRun): void {
+        $isRun = true;
+    }));
     $schedule = new Schedule();
-    $event = $schedule->command(CheckSiteEndpointsCommand::SIGNATURE);
+    $event = $schedule->command('compass:fake-command');
     $this->app->instance(Schedule::class, $schedule);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
     $this->post(route(RouteName::RUNS_RUN), ['mutex_name' => $event->mutexName()]);
 
-    $this->assertDatabaseHas(Run::class, [
-        'task' => TaskType::SITE_ENDPOINTS,
-    ]);
+    expect($isRun)
+        ->toBeTrue();
 });
 
 test('run sends the user back to the runs page', function (): void {

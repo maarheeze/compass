@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Contracts\Bus\QueueingDispatcher;
-use Illuminate\Support\Testing\Fakes\BusFake;
-use Maarheeze\Compass\Collector\TaskType;
+use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Foundation\Console\ClosureCommand;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Maarheeze\Compass\Console\CheckSiteEndpointsCommand;
 use Maarheeze\Compass\Console\ScheduledCommands;
-use Maarheeze\Compass\Models\Run;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
+use Webmozart\Assert\Assert;
 
 test('all lists a scheduled command of compass without the php binary and artisan', function (): void {
     $schedule = new Schedule();
@@ -65,16 +65,24 @@ test('all gives the next run of a scheduled command after the current time', fun
         ->toBe($now->addDay()->startOfDay()->getTimestamp());
 });
 
-test('run runs the scheduled command of the mutex name', function (): void {
-    $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
+test('run runs the scheduled command of the mutex name with its arguments', function (): void {
+    $recordedArguments = [];
+    $kernel = Assert::isInstanceOf($this->app->make(Kernel::class), ConsoleKernel::class);
+    $kernel->registerCommand(new ClosureCommand(
+        'compass:fake-command {argument}',
+        function (string $argument) use (&$recordedArguments): void {
+            $recordedArguments[] = $argument;
+        },
+    ));
+    $argument = fake()->unique()->words(2, true);
     $schedule = new Schedule();
-    $event = $schedule->command(CheckSiteEndpointsCommand::SIGNATURE);
+    $event = $schedule->command('compass:fake-command', [$argument]);
+    $schedule->command('compass:fake-command', [fake()->unique()->words(2, true)]);
     $this->app->instance(Schedule::class, $schedule);
 
     $scheduledCommands = $this->app->make(ScheduledCommands::class);
     $scheduledCommands->run($event->mutexName());
 
-    $this->assertDatabaseHas(Run::class, [
-        'task' => TaskType::SITE_ENDPOINTS,
-    ]);
+    expect($recordedArguments)
+        ->toBe([$argument]);
 });

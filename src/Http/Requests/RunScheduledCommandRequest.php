@@ -7,7 +7,6 @@ namespace Maarheeze\Compass\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\In;
-use Maarheeze\Compass\Console\ScheduledCommand;
 use Maarheeze\Compass\Console\ScheduledCommands;
 use Webmozart\Assert\Assert;
 
@@ -27,9 +26,7 @@ class RunScheduledCommandRequest extends FormRequest
             'mutex_name' => [
                 'required',
                 'string',
-                Rule::in($scheduledCommands->all()->map(static function (ScheduledCommand $scheduledCommand): string {
-                    return $scheduledCommand->mutexName;
-                })),
+                Rule::in($scheduledCommands->all()->mutexNames()),
             ],
         ];
     }
