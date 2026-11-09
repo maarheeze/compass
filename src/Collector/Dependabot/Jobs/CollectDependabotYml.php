@@ -31,7 +31,6 @@ class CollectDependabotYml implements LockedJob
 
     public function __construct(
         public readonly Repository $repository,
-        public readonly string $source,
     ) {
     }
 
@@ -47,7 +46,7 @@ class CollectDependabotYml implements LockedJob
         DependabotYmlReader $dependabotYmlReader,
         DependabotYmlSynchronizer $dependabotYmlSynchronizer,
     ): void {
-        $dependabotFilesCollector = $dependabotFilesCollectorManager->collector($this->source);
+        $dependabotFilesCollector = $dependabotFilesCollectorManager->collector($this->repository->source);
 
         $context->add('repository', $this->repository->name);
 

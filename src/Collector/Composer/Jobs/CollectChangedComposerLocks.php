@@ -41,7 +41,7 @@ class CollectChangedComposerLocks implements LockedJob
             $collectComposerLockJobs = [];
 
             foreach ($repositoriesWithComposerLockOutOfDate as $repository) {
-                $collectComposerLockJobs[] = new CollectComposerLock($repository, $this->source);
+                $collectComposerLockJobs[] = new CollectComposerLock($repository);
 
                 $collectorLogger->debug('Composer lock collection queued', ['repository' => $repository->name]);
             }

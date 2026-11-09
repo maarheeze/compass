@@ -39,7 +39,7 @@ test('handle asks the collector of the source for the dependabot yml at the stor
         'dependabot_yml_version' => fake()->sha1(),
     ]);
 
-    $collectDependabotYml = new CollectDependabotYml($repository, $source);
+    $collectDependabotYml = new CollectDependabotYml($repository);
     $this->app->call([$collectDependabotYml, 'handle']);
 
     expect($recordingRepositoryFilesCollector->requestedFiles)
@@ -84,7 +84,7 @@ test('handle stores the package ecosystems of the dependabot yml with its versio
         'dependabot_yml_version' => fake()->sha1(),
     ]);
 
-    $collectDependabotYml = new CollectDependabotYml($repository, $source);
+    $collectDependabotYml = new CollectDependabotYml($repository);
     $this->app->call([$collectDependabotYml, 'handle']);
 
     $this->assertDatabaseHas(DependabotYml::class, [
@@ -109,7 +109,7 @@ test('handle removes the dependabot yml when the repository no longer has one', 
     ]);
     $dependabotYml = DependabotYml::factory()->create(['repository_id' => $repository->id]);
 
-    $collectDependabotYml = new CollectDependabotYml($repository, $source);
+    $collectDependabotYml = new CollectDependabotYml($repository);
     $this->app->call([$collectDependabotYml, 'handle']);
 
     $this->assertDatabaseMissing(DependabotYml::class, ['id' => $dependabotYml->id]);
@@ -129,7 +129,7 @@ test('handle adds the repository to the log context', function (): void {
         'dependabot_yml_version' => null,
     ]);
 
-    $collectDependabotYml = new CollectDependabotYml($repository, $source);
+    $collectDependabotYml = new CollectDependabotYml($repository);
     $this->app->call([$collectDependabotYml, 'handle']);
 
     expect($this->app->make(Context::class)->get('repository'))
@@ -143,11 +143,11 @@ test('handle refuses a source without a Dependabot files collector', function ()
             'driver' => fake()->slug(),
         ],
     ]);
-    $repository = Repository::factory()->create();
+    $repository = Repository::factory()->create(['source' => $key]);
 
     $this->expectException(InvalidArgumentException::class);
 
-    $collectDependabotYml = new CollectDependabotYml($repository, $key);
+    $collectDependabotYml = new CollectDependabotYml($repository);
     $this->app->call([$collectDependabotYml, 'handle']);
 });
 
@@ -162,9 +162,12 @@ test('handle raises dependabot yml changed for the repository when its file is g
     ]);
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
-    $repository = Repository::factory()->create(['dependabot_yml_version' => null]);
+    $repository = Repository::factory()->create([
+        'source' => $source,
+        'dependabot_yml_version' => null,
+    ]);
 
-    $collectDependabotYml = new CollectDependabotYml($repository, $source);
+    $collectDependabotYml = new CollectDependabotYml($repository);
     $this->app->call([$collectDependabotYml, 'handle']);
 
     $eventFake->assertDispatched(DependabotYmlChanged::class, static function (DependabotYmlChanged $dependabotYmlChanged) use ($repository): bool {
@@ -175,7 +178,7 @@ test('handle raises dependabot yml changed for the repository when its file is g
 test('lock key is the repository', function (): void {
     $repository = Repository::factory()->create();
 
-    $collectDependabotYml = new CollectDependabotYml($repository, fake()->slug());
+    $collectDependabotYml = new CollectDependabotYml($repository);
     $lockKey = $collectDependabotYml->lockKey();
 
     expect($lockKey)

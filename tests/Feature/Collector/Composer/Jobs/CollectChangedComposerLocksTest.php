@@ -105,21 +105,6 @@ test('handle ignores repositories of another run', function (): void {
         ->toBeEmpty();
 });
 
-test('handle adds collect composer lock for the source of its run', function (): void {
-    $runId = Uuid::generate();
-    $source = fake()->slug();
-    Repository::factory()->create([
-        'run_id' => $runId,
-        'composer_lock_version' => fake()->sha1(),
-    ]);
-
-    [$collectChangedComposerLocks, $batchFake] = new CollectChangedComposerLocks($runId, $source)->withFakeBatch();
-    $this->app->call([$collectChangedComposerLocks, 'handle']);
-
-    expect($batchFake->added[0]->source)
-        ->toBe($source);
-});
-
 test('lock key is the source', function (): void {
     $source = fake()->slug();
 

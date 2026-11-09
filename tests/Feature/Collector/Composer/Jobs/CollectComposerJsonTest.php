@@ -40,7 +40,7 @@ test('handle asks the collector of the source for the composer json at the store
         'composer_json_version' => fake()->sha1(),
     ]);
 
-    $collectComposerJson = new CollectComposerJson($repository, $source);
+    $collectComposerJson = new CollectComposerJson($repository);
     $this->app->call([$collectComposerJson, 'handle']);
 
     expect($recordingRepositoryFilesCollector->requestedFiles)
@@ -79,7 +79,7 @@ test('handle stores the composer json with its version', function (): void {
         'composer_json_version' => fake()->sha1(),
     ]);
 
-    $collectComposerJson = new CollectComposerJson($repository, $source);
+    $collectComposerJson = new CollectComposerJson($repository);
     $this->app->call([$collectComposerJson, 'handle']);
 
     $this->assertDatabaseHas(ComposerJson::class, [
@@ -104,7 +104,7 @@ test('handle removes the composer json when the repository no longer has one', f
     ]);
     $composerJson = ComposerJson::factory()->create(['repository_id' => $repository->id]);
 
-    $collectComposerJson = new CollectComposerJson($repository, $source);
+    $collectComposerJson = new CollectComposerJson($repository);
     $this->app->call([$collectComposerJson, 'handle']);
 
     $this->assertDatabaseMissing(ComposerJson::class, ['id' => $composerJson->id]);
@@ -124,7 +124,7 @@ test('handle adds the repository to the log context', function (): void {
         'composer_json_version' => null,
     ]);
 
-    $collectComposerJson = new CollectComposerJson($repository, $source);
+    $collectComposerJson = new CollectComposerJson($repository);
     $this->app->call([$collectComposerJson, 'handle']);
 
     expect($this->app->make(Context::class)->get('repository'))
@@ -138,11 +138,11 @@ test('handle refuses a source without a composer files collector', function (): 
             'driver' => fake()->slug(),
         ],
     ]);
-    $repository = Repository::factory()->create();
+    $repository = Repository::factory()->create(['source' => $key]);
 
     $this->expectException(InvalidArgumentException::class);
 
-    $collectComposerJson = new CollectComposerJson($repository, $key);
+    $collectComposerJson = new CollectComposerJson($repository);
     $this->app->call([$collectComposerJson, 'handle']);
 });
 
@@ -157,9 +157,12 @@ test('handle raises composer json changed for the repository when its file is go
     ]);
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
-    $repository = Repository::factory()->create(['composer_json_version' => null]);
+    $repository = Repository::factory()->create([
+        'source' => $source,
+        'composer_json_version' => null,
+    ]);
 
-    $collectComposerJson = new CollectComposerJson($repository, $source);
+    $collectComposerJson = new CollectComposerJson($repository);
     $this->app->call([$collectComposerJson, 'handle']);
 
     $eventFake->assertDispatched(ComposerJsonChanged::class, static function (ComposerJsonChanged $composerJsonChanged) use ($repository): bool {
@@ -170,7 +173,7 @@ test('handle raises composer json changed for the repository when its file is go
 test('lock key is the repository', function (): void {
     $repository = Repository::factory()->create();
 
-    $collectComposerJson = new CollectComposerJson($repository, fake()->slug());
+    $collectComposerJson = new CollectComposerJson($repository);
     $lockKey = $collectComposerJson->lockKey();
 
     expect($lockKey)

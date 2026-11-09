@@ -41,7 +41,7 @@ class CollectChangedComposerJsons implements LockedJob
             $collectComposerJsonJobs = [];
 
             foreach ($repositoriesWithComposerJsonOutOfDate as $repository) {
-                $collectComposerJsonJobs[] = new CollectComposerJson($repository, $this->source);
+                $collectComposerJsonJobs[] = new CollectComposerJson($repository);
 
                 $collectorLogger->debug('Composer json collection queued', ['repository' => $repository->name]);
             }

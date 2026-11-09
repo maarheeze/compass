@@ -37,9 +37,12 @@ test('handle asks the collector of the source for the composer lock at the store
             return $recordingRepositoryFilesCollector;
         },
     );
-    $repository = Repository::factory()->create(['composer_lock_version' => fake()->sha1()]);
+    $repository = Repository::factory()->create([
+        'source' => $source,
+        'composer_lock_version' => fake()->sha1(),
+    ]);
 
-    $collectComposerLock = new CollectComposerLock($repository, $source);
+    $collectComposerLock = new CollectComposerLock($repository);
     $this->app->call([$collectComposerLock, 'handle']);
 
     expect($recordingRepositoryFilesCollector->requestedFiles)
@@ -77,9 +80,12 @@ test('handle stores the composer lock with its version', function (): void {
             return $recordingRepositoryFilesCollector;
         },
     );
-    $repository = Repository::factory()->create(['composer_lock_version' => fake()->sha1()]);
+    $repository = Repository::factory()->create([
+        'source' => $source,
+        'composer_lock_version' => fake()->sha1(),
+    ]);
 
-    $collectComposerLock = new CollectComposerLock($repository, $source);
+    $collectComposerLock = new CollectComposerLock($repository);
     $this->app->call([$collectComposerLock, 'handle']);
 
     $this->assertDatabaseHas(ComposerLock::class, [
@@ -98,10 +104,13 @@ test('handle removes the composer lock when the repository no longer has one', f
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create(['composer_lock_version' => null]);
+    $repository = Repository::factory()->create([
+        'source' => $source,
+        'composer_lock_version' => null,
+    ]);
     $composerLock = ComposerLock::factory()->create(['repository_id' => $repository->id]);
 
-    $collectComposerLock = new CollectComposerLock($repository, $source);
+    $collectComposerLock = new CollectComposerLock($repository);
     $this->app->call([$collectComposerLock, 'handle']);
 
     $this->assertDatabaseMissing(ComposerLock::class, ['id' => $composerLock->id]);
@@ -116,9 +125,12 @@ test('handle adds the repository to the log context', function (): void {
             'token' => fake()->sha1(),
         ],
     ]);
-    $repository = Repository::factory()->create(['composer_lock_version' => null]);
+    $repository = Repository::factory()->create([
+        'source' => $source,
+        'composer_lock_version' => null,
+    ]);
 
-    $collectComposerLock = new CollectComposerLock($repository, $source);
+    $collectComposerLock = new CollectComposerLock($repository);
     $this->app->call([$collectComposerLock, 'handle']);
 
     expect($this->app->make(Context::class)->get('repository'))
@@ -132,11 +144,11 @@ test('handle refuses a source without a composer files collector', function (): 
             'driver' => fake()->slug(),
         ],
     ]);
-    $repository = Repository::factory()->create();
+    $repository = Repository::factory()->create(['source' => $key]);
 
     $this->expectException(InvalidArgumentException::class);
 
-    $collectComposerLock = new CollectComposerLock($repository, $key);
+    $collectComposerLock = new CollectComposerLock($repository);
     $this->app->call([$collectComposerLock, 'handle']);
 });
 
@@ -151,9 +163,12 @@ test('handle raises composer lock changed for the repository when its file is go
     ]);
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);
-    $repository = Repository::factory()->create(['composer_lock_version' => null]);
+    $repository = Repository::factory()->create([
+        'source' => $source,
+        'composer_lock_version' => null,
+    ]);
 
-    $collectComposerLock = new CollectComposerLock($repository, $source);
+    $collectComposerLock = new CollectComposerLock($repository);
     $this->app->call([$collectComposerLock, 'handle']);
 
     $eventFake->assertDispatched(ComposerLockChanged::class, static function (ComposerLockChanged $composerLockChanged) use ($repository): bool {
@@ -164,7 +179,7 @@ test('handle raises composer lock changed for the repository when its file is go
 test('lock key is the repository', function (): void {
     $repository = Repository::factory()->create();
 
-    $collectComposerLock = new CollectComposerLock($repository, fake()->slug());
+    $collectComposerLock = new CollectComposerLock($repository);
     $lockKey = $collectComposerLock->lockKey();
 
     expect($lockKey)

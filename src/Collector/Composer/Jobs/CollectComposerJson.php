@@ -32,7 +32,6 @@ class CollectComposerJson implements LockedJob
 
     public function __construct(
         public readonly Repository $repository,
-        public readonly string $source,
     ) {
     }
 
@@ -49,7 +48,7 @@ class CollectComposerJson implements LockedJob
         Context $context,
         Dispatcher $events,
     ): void {
-        $composerFilesCollector = $composerFilesCollectorManager->collector($this->source);
+        $composerFilesCollector = $composerFilesCollectorManager->collector($this->repository->source);
 
         $context->add('repository', $this->repository->name);
 

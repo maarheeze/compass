@@ -41,7 +41,7 @@ class CollectChangedDependabotYmls implements LockedJob
             $collectDependabotYmlJobs = [];
 
             foreach ($repositoriesWithDependabotYmlOutOfDate as $repository) {
-                $collectDependabotYmlJobs[] = new CollectDependabotYml($repository, $this->source);
+                $collectDependabotYmlJobs[] = new CollectDependabotYml($repository);
 
                 $collectorLogger->debug('Dependabot yml collection queued', ['repository' => $repository->name]);
             }
