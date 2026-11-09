@@ -26,7 +26,7 @@ enum RouteName: string
     case REPOSITORY_DELETE = 'compass.repository.delete';
     case REPOSITORY_IGNORE = 'compass.repository.ignore';
     case RUNS = 'compass.runs';
-    case RUNS_OF_TYPE = 'compass.runs.type';
+    case RUNS_RUN = 'compass.runs.run';
     case SETTINGS_EDIT = 'compass.settings.edit';
     case SETTINGS_UPDATE = 'compass.settings.update';
     case SITE = 'compass.site';

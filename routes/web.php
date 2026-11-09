@@ -68,7 +68,7 @@ Route::middleware('web')
             });
 
             Route::get('/runs', [RunController::class, 'index'])->name(RouteName::RUNS);
-            Route::get('/runs/{runType}', [RunController::class, 'type'])->name(RouteName::RUNS_OF_TYPE);
+            Route::post('/runs', [RunController::class, 'run'])->name(RouteName::RUNS_RUN);
 
             Route::get('/settings', [SettingsController::class, 'edit'])->name(RouteName::SETTINGS_EDIT);
             Route::patch('/settings', [SettingsController::class, 'update'])->name(RouteName::SETTINGS_UPDATE);

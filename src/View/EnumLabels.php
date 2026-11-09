@@ -17,7 +17,6 @@ use Maarheeze\Compass\Collector\Composer\PackageSection;
 use Maarheeze\Compass\Collector\MissingState;
 use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
 use Maarheeze\Compass\Collector\RunStatus;
-use Maarheeze\Compass\Collector\RunType;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Collector\Sites\DeploymentStatus;
 use Maarheeze\Compass\Collector\TaskType;
@@ -43,7 +42,6 @@ readonly class EnumLabels
             RepositoryKind::class => 'repository-kind',
             RepositoryVisibility::class => 'repository-visibility',
             RunStatus::class => 'run-status',
-            RunType::class => 'run-type',
             SiteReportStatus::class => 'site-report-status',
             TaskType::class => 'task-type',
             default => throw new InvalidArgumentException(),

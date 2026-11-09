@@ -15,7 +15,6 @@ use Maarheeze\Compass\Collector\Composer\PackageSection;
 use Maarheeze\Compass\Collector\MissingState;
 use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
 use Maarheeze\Compass\Collector\RunStatus;
-use Maarheeze\Compass\Collector\RunType;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Collector\Sites\DeploymentStatus;
 use Maarheeze\Compass\Collector\TaskType;
@@ -23,13 +22,13 @@ use Maarheeze\Compass\View\BadgeType;
 use Maarheeze\Compass\View\EnumLabels;
 
 test('label key is the case name in the translation file of the enum', function (): void {
-    $runType = fake()->randomElement(RunType::cases());
+    $runStatus = fake()->randomElement(RunStatus::cases());
 
     $enumLabels = $this->app->make(EnumLabels::class);
-    $labelKey = $enumLabels->labelKey($runType);
+    $labelKey = $enumLabels->labelKey($runStatus);
 
     expect($labelKey)
-        ->toBe(sprintf('compass::run-type.%s', $runType->name));
+        ->toBe(sprintf('compass::run-status.%s', $runStatus->name));
 });
 
 test('label key refuses an enum without labels', function (): void {
@@ -60,7 +59,6 @@ test('label key has a translation', function (UnitEnum $value): void {
     RepositoryKind::cases(),
     RepositoryVisibility::cases(),
     RunStatus::cases(),
-    RunType::cases(),
     SiteReportStatus::cases(),
     TaskType::cases(),
     [
