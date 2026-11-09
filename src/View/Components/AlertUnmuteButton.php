@@ -20,11 +20,11 @@ class AlertUnmuteButton extends Component
     public function __construct(
         Alert $alert,
         AlertMuter $alertMuter,
-        UrlGenerator $url,
+        UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
         $this->canUnmute = $alertMuter->canUnmute($alert);
-        $this->unmuteUrl = $url->route(RouteName::ALERT_UNMUTE->value, $alert);
+        $this->unmuteUrl = $urlGenerator->route(RouteName::ALERT_UNMUTE->value, $alert);
     }
 
     public function render(): View

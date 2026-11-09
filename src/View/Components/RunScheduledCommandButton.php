@@ -17,10 +17,10 @@ class RunScheduledCommandButton extends Component
 
     public function __construct(
         public readonly ScheduledCommand $scheduledCommand,
-        UrlGenerator $url,
+        UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
-        $this->runUrl = $url->route(RouteName::RUNS_RUN->value);
+        $this->runUrl = $urlGenerator->route(RouteName::RUNS_RUN->value);
     }
 
     public function render(): View

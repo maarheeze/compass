@@ -17,10 +17,10 @@ class RepositoryLink extends Component
 
     public function __construct(
         public readonly Repository $repository,
-        UrlGenerator $url,
+        UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
-        $this->url = $url->route(RouteName::REPOSITORY->value, $repository);
+        $this->url = $urlGenerator->route(RouteName::REPOSITORY->value, $repository);
     }
 
     public function render(): View

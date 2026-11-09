@@ -20,11 +20,11 @@ class SiteReportForm extends Component
         SiteReport $siteReport,
         public readonly ?string $key,
         public readonly ?string $path,
-        UrlGenerator $url,
+        UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
-        $this->cancelUrl = $url->route(RouteName::SITE->value, $siteReport->site);
-        $this->updateUrl = $url->route(RouteName::SITE_REPORT_UPDATE->value, $siteReport);
+        $this->cancelUrl = $urlGenerator->route(RouteName::SITE->value, $siteReport->site);
+        $this->updateUrl = $urlGenerator->route(RouteName::SITE_REPORT_UPDATE->value, $siteReport);
     }
 
     public function render(): View

@@ -25,7 +25,7 @@ readonly class GitHubController
         private GitHubAuthentication $githubAuthentication,
         private Redirector $redirector,
         private Translator $translator,
-        private UrlGenerator $url,
+        private UrlGenerator $urlGenerator,
     ) {
     }
 
@@ -53,7 +53,7 @@ readonly class GitHubController
                 ->withErrors(['github' => $message]);
         }
 
-        return $this->redirector->intended($this->url->route(RouteName::DASHBOARD->value));
+        return $this->redirector->intended($this->urlGenerator->route(RouteName::DASHBOARD->value));
     }
 
     public function logout(Request $request): RedirectResponse

@@ -20,11 +20,11 @@ class AlertReopenButton extends Component
     public function __construct(
         Alert $alert,
         AlertReopener $alertReopener,
-        UrlGenerator $url,
+        UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
         $this->canReopen = $alertReopener->canReopen($alert);
-        $this->reopenUrl = $url->route(RouteName::ALERT_REOPEN->value, $alert);
+        $this->reopenUrl = $urlGenerator->route(RouteName::ALERT_REOPEN->value, $alert);
     }
 
     public function render(): View

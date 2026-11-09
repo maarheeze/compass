@@ -32,18 +32,18 @@ class Navigation extends Component
         AuthenticatedUser $authenticatedUser,
         Request $request,
         Translator $translator,
-        UrlGenerator $url,
+        UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
-        $this->dashboardUrl = $url->route(RouteName::DASHBOARD->value);
+        $this->dashboardUrl = $urlGenerator->route(RouteName::DASHBOARD->value);
         $this->hasAlerts = Alert::query()->notDone()->exists();
         $this->hasAlertsNotMuted = Alert::query()
             ->notDone()
             ->notMuted()
             ->exists();
-        $this->logoutUrl = $url->route(RouteName::LOGOUT->value);
-        $this->settingsUrl = $url->route(RouteName::SETTINGS_EDIT->value);
-        $this->tabs = $this->navigationTabs($request, $translator, $url);
+        $this->logoutUrl = $urlGenerator->route(RouteName::LOGOUT->value);
+        $this->settingsUrl = $urlGenerator->route(RouteName::SETTINGS_EDIT->value);
+        $this->tabs = $this->navigationTabs($request, $translator, $urlGenerator);
         $this->user = $authenticatedUser->user();
     }
 
@@ -55,17 +55,17 @@ class Navigation extends Component
     private function navigationTabs(
         Request $request,
         Translator $translator,
-        UrlGenerator $url,
+        UrlGenerator $urlGenerator,
     ): NavigationTabCollection {
         return new NavigationTabCollection([
             new NavigationTab(
-                $url->route(RouteName::DASHBOARD->value),
+                $urlGenerator->route(RouteName::DASHBOARD->value),
                 Assert::string($translator->get('compass::navigation.dashboard')),
                 'compass::icons.home',
                 $request->routeIs(RouteName::DASHBOARD->value),
             ),
             new NavigationTab(
-                $url->route(RouteName::REPOSITORIES->value),
+                $urlGenerator->route(RouteName::REPOSITORIES->value),
                 Assert::string($translator->get('compass::navigation.repositories')),
                 'compass::icons.repo',
                 $request->routeIs(
@@ -75,19 +75,19 @@ class Navigation extends Component
                 ),
             ),
             new NavigationTab(
-                $url->route(RouteName::ISSUES->value),
+                $urlGenerator->route(RouteName::ISSUES->value),
                 Assert::string($translator->get('compass::navigation.issues')),
                 'compass::icons.issue-opened',
                 $request->routeIs(RouteName::ISSUES->value),
             ),
             new NavigationTab(
-                $url->route(RouteName::PULL_REQUESTS->value),
+                $urlGenerator->route(RouteName::PULL_REQUESTS->value),
                 Assert::string($translator->get('compass::navigation.pull_requests')),
                 'compass::icons.git-pull-request',
                 $request->routeIs(RouteName::PULL_REQUESTS->value),
             ),
             new NavigationTab(
-                $url->route(RouteName::SITES->value),
+                $urlGenerator->route(RouteName::SITES->value),
                 Assert::string($translator->get('compass::navigation.sites')),
                 'compass::icons.server',
                 $request->routeIs(

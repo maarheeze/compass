@@ -17,10 +17,10 @@ class SiteLink extends Component
 
     public function __construct(
         public readonly Site $site,
-        UrlGenerator $url,
+        UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
-        $this->url = $url->route(RouteName::SITE->value, $site);
+        $this->url = $urlGenerator->route(RouteName::SITE->value, $site);
     }
 
     public function render(): View

@@ -24,7 +24,7 @@ readonly class SettingsController
         private AuthenticatedUser $authenticatedUser,
         private NotificationSubscriptionReplacer $notificationSubscriptionReplacer,
         private Redirector $redirector,
-        private UrlGenerator $url,
+        private UrlGenerator $urlGenerator,
         private ViewFactory $view,
     ) {
     }
@@ -35,7 +35,7 @@ readonly class SettingsController
             'alertTypes' => $this->alertTypes->alertTypes(),
             'notificationChannels' => NotificationChannel::cases(),
             'notificationSubscriptions' => $this->authenticatedUser->user()->notificationSubscriptions,
-            'updateUrl' => $this->url->route(RouteName::SETTINGS_UPDATE->value),
+            'updateUrl' => $this->urlGenerator->route(RouteName::SETTINGS_UPDATE->value),
         ]);
     }
 

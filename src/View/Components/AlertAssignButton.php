@@ -22,11 +22,11 @@ class AlertAssignButton extends Component
         Alert $alert,
         AlertAssigner $alertAssigner,
         AuthenticatedUser $authenticatedUser,
-        UrlGenerator $url,
+        UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
         $this->canAssignToMe = $alertAssigner->canAssignToMe($alert, $authenticatedUser->user());
-        $this->assignUrl = $url->route(RouteName::ALERT_ASSIGN->value, $alert);
+        $this->assignUrl = $urlGenerator->route(RouteName::ALERT_ASSIGN->value, $alert);
     }
 
     public function render(): View

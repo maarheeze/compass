@@ -16,14 +16,14 @@ class IssueRow extends Component
 {
     public function __construct(
         public readonly Issue $issue,
-        private readonly UrlGenerator $url,
+        private readonly UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
     }
 
     public function assigneeUrl(IssueAssignee $assignee): string
     {
-        return $this->url->route(RouteName::ISSUES->value, [
+        return $this->urlGenerator->route(RouteName::ISSUES->value, [
             'source' => $this->issue->source,
             'assignee' => $assignee->login,
         ]);

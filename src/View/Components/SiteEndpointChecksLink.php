@@ -19,10 +19,10 @@ class SiteEndpointChecksLink extends Component
     public function __construct(
         Site $site,
         public readonly EndpointPath $path,
-        UrlGenerator $url,
+        UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
-        $this->url = $url->route(RouteName::SITE_ENDPOINT_CHECKS->value, [$site, $path->routeKey()]);
+        $this->url = $urlGenerator->route(RouteName::SITE_ENDPOINT_CHECKS->value, [$site, $path->routeKey()]);
     }
 
     public function render(): View

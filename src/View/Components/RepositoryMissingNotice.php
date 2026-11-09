@@ -25,11 +25,11 @@ class RepositoryMissingNotice extends Component
     public function __construct(
         Repository $repository,
         MissingRepositoryResolver $missingRepositoryResolver,
-        UrlGenerator $url,
+        UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
-        $this->deleteUrl = $url->route(RouteName::REPOSITORY_DELETE->value, $repository);
-        $this->ignoreUrl = $url->route(RouteName::REPOSITORY_IGNORE->value, $repository);
+        $this->deleteUrl = $urlGenerator->route(RouteName::REPOSITORY_DELETE->value, $repository);
+        $this->ignoreUrl = $urlGenerator->route(RouteName::REPOSITORY_IGNORE->value, $repository);
         $this->missingAt = $repository->missing_at;
         $this->missingState = $repository->missingState();
         $this->canIgnore = $missingRepositoryResolver->canIgnore($repository);

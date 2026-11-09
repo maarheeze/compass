@@ -16,14 +16,14 @@ class PullRequestRow extends Component
 {
     public function __construct(
         public readonly PullRequest $pullRequest,
-        private readonly UrlGenerator $url,
+        private readonly UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
     }
 
     public function assigneeUrl(PullRequestAssignee $assignee): string
     {
-        return $this->url->route(RouteName::PULL_REQUESTS->value, [
+        return $this->urlGenerator->route(RouteName::PULL_REQUESTS->value, [
             'source' => $this->pullRequest->source,
             'assignee' => $assignee->login,
         ]);

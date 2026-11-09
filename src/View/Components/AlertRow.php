@@ -17,10 +17,10 @@ class AlertRow extends Component
 
     public function __construct(
         public readonly Alert $alert,
-        UrlGenerator $url,
+        UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
-        $this->url = $url->route(RouteName::ALERT->value, $alert);
+        $this->url = $urlGenerator->route(RouteName::ALERT->value, $alert);
     }
 
     public function render(): View

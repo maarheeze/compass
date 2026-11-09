@@ -17,10 +17,10 @@ class SiteReportEditLink extends Component
 
     public function __construct(
         SiteReport $siteReport,
-        UrlGenerator $url,
+        UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
-        $this->url = $url->route(RouteName::SITE_REPORT_EDIT->value, $siteReport);
+        $this->url = $urlGenerator->route(RouteName::SITE_REPORT_EDIT->value, $siteReport);
     }
 
     public function render(): View

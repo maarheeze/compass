@@ -25,11 +25,11 @@ class SiteMissingNotice extends Component
     public function __construct(
         Site $site,
         MissingSiteResolver $missingSiteResolver,
-        UrlGenerator $url,
+        UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
-        $this->deleteUrl = $url->route(RouteName::SITE_DELETE->value, $site);
-        $this->ignoreUrl = $url->route(RouteName::SITE_IGNORE->value, $site);
+        $this->deleteUrl = $urlGenerator->route(RouteName::SITE_DELETE->value, $site);
+        $this->ignoreUrl = $urlGenerator->route(RouteName::SITE_IGNORE->value, $site);
         $this->missingAt = $site->missing_at;
         $this->missingState = $site->missingState();
         $this->canIgnore = $missingSiteResolver->canIgnore($site);

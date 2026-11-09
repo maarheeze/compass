@@ -15,10 +15,10 @@ class GitHubSignInLink extends Component
     public readonly string $url;
 
     public function __construct(
-        UrlGenerator $url,
+        UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
-        $this->url = $url->route(RouteName::GITHUB_REDIRECT->value);
+        $this->url = $urlGenerator->route(RouteName::GITHUB_REDIRECT->value);
     }
 
     public function render(): View

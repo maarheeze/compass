@@ -16,10 +16,10 @@ class PackageRow extends Component
 
     public function __construct(
         public readonly string $packageName,
-        UrlGenerator $url,
+        UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
-        $this->url = $url->route(RouteName::PACKAGE->value, $packageName);
+        $this->url = $urlGenerator->route(RouteName::PACKAGE->value, $packageName);
     }
 
     public function render(): View

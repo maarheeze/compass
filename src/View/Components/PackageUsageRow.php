@@ -20,10 +20,10 @@ class PackageUsageRow extends Component
         public readonly Repository $repository,
         public readonly string $version,
         public readonly PackageSection $section,
-        UrlGenerator $url,
+        UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
-        $this->url = $url->route(RouteName::REPOSITORY->value, $repository);
+        $this->url = $urlGenerator->route(RouteName::REPOSITORY->value, $repository);
     }
 
     public function render(): View

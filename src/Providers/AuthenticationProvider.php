@@ -41,13 +41,13 @@ class AuthenticationProvider extends ServiceProvider
 
         $this->app->bind(GithubProvider::class, static function (Application $app): GithubProvider {
             $config = $app->make(Repository::class);
-            $url = $app->make(UrlGenerator::class);
+            $urlGenerator = $app->make(UrlGenerator::class);
 
             $github = new GithubProvider(
                 $app->make(Request::class),
                 $config->string('compass.authentication.github.client_id'),
                 $config->string('compass.authentication.github.client_secret'),
-                $url->route(RouteName::GITHUB_CALLBACK),
+                $urlGenerator->route(RouteName::GITHUB_CALLBACK),
             );
 
             return $github->scopes([

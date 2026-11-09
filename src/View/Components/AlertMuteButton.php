@@ -20,11 +20,11 @@ class AlertMuteButton extends Component
     public function __construct(
         Alert $alert,
         AlertMuter $alertMuter,
-        UrlGenerator $url,
+        UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
         $this->canMute = $alertMuter->canMute($alert);
-        $this->muteUrl = $url->route(RouteName::ALERT_MUTE->value, $alert);
+        $this->muteUrl = $urlGenerator->route(RouteName::ALERT_MUTE->value, $alert);
     }
 
     public function render(): View

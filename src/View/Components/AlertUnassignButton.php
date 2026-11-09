@@ -20,11 +20,11 @@ class AlertUnassignButton extends Component
     public function __construct(
         Alert $alert,
         AlertAssigner $alertAssigner,
-        UrlGenerator $url,
+        UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
         $this->canUnassign = $alertAssigner->canUnassign($alert);
-        $this->unassignUrl = $url->route(RouteName::ALERT_UNASSIGN->value, $alert);
+        $this->unassignUrl = $urlGenerator->route(RouteName::ALERT_UNASSIGN->value, $alert);
     }
 
     public function render(): View

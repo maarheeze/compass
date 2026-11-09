@@ -19,10 +19,10 @@ class SiteEndpointChecksDeleteButton extends Component
     public function __construct(
         Site $site,
         EndpointPath $path,
-        UrlGenerator $url,
+        UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
-        $this->deleteUrl = $url->route(RouteName::SITE_ENDPOINT_CHECKS_DELETE->value, [$site, $path->routeKey()]);
+        $this->deleteUrl = $urlGenerator->route(RouteName::SITE_ENDPOINT_CHECKS_DELETE->value, [$site, $path->routeKey()]);
     }
 
     public function render(): View
