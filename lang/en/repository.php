@@ -9,7 +9,6 @@ return [
     'no_sites' => 'No sites deploy this repository.',
     'other' => 'Other',
     'projects' => 'Projects',
-    'repository' => 'Repository',
     'sites' => 'Sites',
     'updated' => 'updated',
 ];

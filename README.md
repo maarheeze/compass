@@ -30,7 +30,7 @@ Collects the sites of a Forge organization, with what is deployed and how that d
 
 ### Compass client
 
-Install [maarheeze/compass-client-laravel](https://github.com/maarheeze/compass-client-laravel) on a site to report what cannot be seen from outside: debug mode, the environment and the endpoints to monitor. Compass checks those endpoints, and alerts on a site in debug mode, a site not in production and an endpoint that is down.
+Install [maarheeze/compass-client-laravel](https://github.com/maarheeze/compass-client-laravel) on a site to report what cannot be seen from outside: debug mode, the environment and the endpoints to monitor. Compass checks those endpoints, and alerts on a site in debug mode, a site not in production, an endpoint that is down, a client that refuses Compass's key and a client too outdated to report.
 
 ## License
 
