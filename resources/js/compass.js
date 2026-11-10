@@ -71,12 +71,34 @@ async function refreshLiveRegions() {
     }
 }
 
+async function sendWithoutRefresh(form) {
+    const response = await fetch(form.action, {
+        method: form.method,
+        body: new FormData(form),
+        headers: { Accept: 'application/json' },
+    });
+
+    if (!response.ok) {
+        form.submit();
+    }
+}
+
 function listen(toastStack) {
     const header = document.querySelector('[data-compass-channel]');
 
     if (window.Echo === undefined || header === null) {
         return;
     }
+
+    document.addEventListener('submit', (event) => {
+        const form = event.target.closest('[data-compass-sends-without-refresh]');
+
+        if (form !== null) {
+            event.preventDefault();
+
+            sendWithoutRefresh(form);
+        }
+    });
 
     window.Echo
         .private(header.getAttribute('data-compass-channel'))

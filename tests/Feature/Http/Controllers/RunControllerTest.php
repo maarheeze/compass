@@ -7,6 +7,7 @@ use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Console\ClosureCommand;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Http\Response;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Testing\Fakes\BusFake;
 use Maarheeze\Compass\Collections\ScheduledCommandCollection;
@@ -99,6 +100,18 @@ test('run sends the user back to the runs page', function (): void {
     $response = $this->post(route(RouteName::RUNS_RUN), ['mutex_name' => $event->mutexName()]);
 
     $response->assertRedirect(route(RouteName::RUNS));
+});
+
+test('run answers a request for json with an empty accepted', function (): void {
+    $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
+    $schedule = new Schedule();
+    $event = $schedule->command(CheckSiteEndpointsCommand::SIGNATURE);
+    $this->app->instance(Schedule::class, $schedule);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->postJson(route(RouteName::RUNS_RUN), ['mutex_name' => $event->mutexName()]);
+
+    $response->assertNoContent(Response::HTTP_ACCEPTED);
 });
 
 test('run refuses a mutex name of no scheduled command', function (): void {
