@@ -87,10 +87,13 @@ return [
     |
     | Credentials of the GitHub OAuth App people sign in with, and the
     | organization whose active members may sign in, checked at sign-in only.
+    | A sign-in is remembered for the remember minutes, after which people
+    | sign in again and their membership is checked again.
     |
     */
 
     'authentication' => [
+        'remember_minutes' => env('COMPASS_REMEMBER_MINUTES', 1440),
         'github' => [
             'client_id' => env('GITHUB_CLIENT_ID'),
             'client_secret' => env('GITHUB_CLIENT_SECRET'),

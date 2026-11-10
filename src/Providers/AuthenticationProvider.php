@@ -32,6 +32,7 @@ class AuthenticationProvider extends ServiceProvider
         $config->set(sprintf('auth.guards.%s', self::GUARD), [
             'driver' => 'session',
             'provider' => self::USER_PROVIDER,
+            'remember' => $config->integer('compass.authentication.remember_minutes'),
         ]);
 
         $config->set(sprintf('auth.providers.%s', self::USER_PROVIDER), [

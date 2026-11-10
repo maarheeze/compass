@@ -47,6 +47,14 @@ class User extends Authenticatable
     }
 
     /**
+     * The session guard only accepts a remember-me cookie for a user whose password is a string.
+     */
+    public function getAuthPassword(): string
+    {
+        return '';
+    }
+
+    /**
      * @return list<string>
      */
     public function getFillable(): array
