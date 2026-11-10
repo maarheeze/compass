@@ -26,7 +26,7 @@ class SiteEndpointChecksDeleteButton extends Component
     ) {
         $this->deleteUrl = $urlGenerator->route(RouteName::SITE_ENDPOINT_CHECKS_DELETE->value, [
             $site,
-            $endpointPathRouteParameter->encode($path)
+            $endpointPathRouteParameter->encode($path),
         ]);
     }
 
