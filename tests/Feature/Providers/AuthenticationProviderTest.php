@@ -34,12 +34,17 @@ test('guard signs in compass users from their remember me cookie', function (): 
 });
 
 test('guard remembers compass users for the configured minutes', function (): void {
-    $configuration = $this->app->make(ConfigurationRepository::class);
-
+    $rememberSeconds = $this->app
+        ->make(ConfigurationRepository::class)
+        ->integer('compass.authentication.remember_minutes') * 60;
     $guard = $this->app->make(AuthenticationFactory::class)->guard(AuthenticationProvider::GUARD);
+    $signedInFrom = time();
 
-    expect($guard->getRememberDuration())
-        ->toBe($configuration->integer('compass.authentication.remember_minutes'));
+    $guard->login(User::factory()->create(), true);
+
+    expect($guard->getCookieJar()->queued($guard->getRecallerName())->getExpiresTime())
+        ->toBeGreaterThanOrEqual($signedInFrom + $rememberSeconds)
+        ->toBeLessThanOrEqual(time() + $rememberSeconds);
 });
 
 test('github provider sends github back to the callback route', function (): void {
