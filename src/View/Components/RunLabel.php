@@ -16,28 +16,31 @@ use Webmozart\Assert\Assert;
 
 use function sprintf;
 
-class RunRow extends Component
+class RunLabel extends Component
 {
+    public readonly string $label;
+
     public function __construct(
-        public readonly Run $run,
+        Run $run,
         private readonly EnumLabels $enumLabels,
         private readonly Translator $translator,
         private readonly ViewFactory $view,
     ) {
-    }
-
-    public function label(): string
-    {
-        if ($this->run->collector === null) {
-            return $this->translatedLabel(Assert::isInstanceOf($this->run->task, TaskType::class));
-        }
-
-        return sprintf('%s · %s', $this->run->source, $this->translatedLabel($this->run->collector));
+        $this->label = $this->runLabel($run);
     }
 
     public function render(): View
     {
-        return $this->view->make('compass::components.run-row');
+        return $this->view->make('compass::components.run-label');
+    }
+
+    private function runLabel(Run $run): string
+    {
+        if ($run->collector === null) {
+            return $this->translatedLabel(Assert::isInstanceOf($run->task, TaskType::class));
+        }
+
+        return sprintf('%s · %s', $run->source, $this->translatedLabel($run->collector));
     }
 
     private function translatedLabel(UnitEnum $value): string
