@@ -9,6 +9,7 @@ use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Queue\InteractsWithQueue;
+use Maarheeze\Compass\Collections\CollectedRepositoryCollection;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Composer\Jobs\CollectChangedComposerJsons;
@@ -20,6 +21,7 @@ use Maarheeze\Compass\Collector\Events\RepositoriesCollected;
 use Maarheeze\Compass\Collector\LockedJob;
 use Maarheeze\Compass\Collector\Repositories\RepositoriesCollectorManager;
 use Maarheeze\Compass\Collector\Repositories\RepositorySynchronizer;
+use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 use Webmozart\Assert\Assert;
 
@@ -50,15 +52,12 @@ class CollectRepositories implements LockedJob
         $collectorLogger->info('Repositories collector started');
 
         foreach ($repositoriesCollector->repositories() as $collectedRepositories) {
-            $repositoriesWithChangedPackageJson = $repositorySynchronizer->storeRepositories(
-                $collectedRepositories,
-                $this->source,
-                $this->runId,
-            );
+            $collectedRepositoriesWithChangedPackageJson = $repositorySynchronizer
+                ->collectedRepositoriesWithChangedPackageJson($collectedRepositories, $this->source);
 
-            foreach ($repositoriesWithChangedPackageJson as $repositoryWithChangedPackageJson) {
-                $events->dispatch(new PackageJsonChanged($repositoryWithChangedPackageJson));
-            }
+            $repositorySynchronizer->storeRepositories($collectedRepositories, $this->source, $this->runId);
+
+            $this->dispatchPackageJsonChanged($events, $collectedRepositoriesWithChangedPackageJson);
 
             $collectorLogger->debug('Repositories page collected', [
                 'repository_count' => $collectedRepositories->count(),
@@ -82,5 +81,19 @@ class CollectRepositories implements LockedJob
     public function lockKey(): string
     {
         return $this->source;
+    }
+
+    private function dispatchPackageJsonChanged(
+        Dispatcher $events,
+        CollectedRepositoryCollection $collectedRepositoriesWithChangedPackageJson,
+    ): void {
+        $repositoriesWithChangedPackageJson = Repository::query()
+            ->ofSource($this->source)
+            ->ofExternalIds($collectedRepositoriesWithChangedPackageJson->externalIds())
+            ->get();
+
+        foreach ($repositoriesWithChangedPackageJson as $repositoryWithChangedPackageJson) {
+            $events->dispatch(new PackageJsonChanged($repositoryWithChangedPackageJson));
+        }
     }
 }

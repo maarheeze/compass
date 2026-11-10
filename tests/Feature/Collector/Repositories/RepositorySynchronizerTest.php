@@ -11,6 +11,59 @@ use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Tests\Fixtures\CollectedRepositoryFactory;
 use Maarheeze\Uuid\Uuid;
 
+test('collected repositories with changed package json holds a known repository whose package json version changed', function (): void {
+    $repository = Repository::factory()->create(['package_json_version' => fake()->unique()->sha1()]);
+    $collectedRepository = new CollectedRepository(
+        $repository->external_id,
+        $repository->name,
+        $repository->full_name,
+        $repository->url,
+        fake()->word(),
+        fake()->sha1(),
+        CarbonImmutable::parse(fake()->iso8601()),
+        fake()->randomElement(RepositoryVisibility::cases()),
+        $repository->composer_json_version,
+        $repository->composer_lock_version,
+        fake()->unique()->sha1(),
+        $repository->dependabot_yml_version,
+    );
+
+    $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
+    $collectedRepositoriesWithChangedPackageJson = $repositorySynchronizer->collectedRepositoriesWithChangedPackageJson(
+        new CollectedRepositoryCollection([$collectedRepository]),
+        $repository->source,
+    );
+
+    expect($collectedRepositoriesWithChangedPackageJson->sole())
+        ->toBe($collectedRepository);
+});
+
+test('collected repositories with changed package json holds a new repository with a package json', function (): void {
+    $collectedRepository = CollectedRepositoryFactory::make();
+
+    $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
+    $collectedRepositoriesWithChangedPackageJson = $repositorySynchronizer->collectedRepositoriesWithChangedPackageJson(
+        new CollectedRepositoryCollection([$collectedRepository]),
+        fake()->slug(),
+    );
+
+    expect($collectedRepositoriesWithChangedPackageJson->sole())
+        ->toBe($collectedRepository);
+});
+
+test('collected repositories with changed package json leaves out a repository whose package json version is unchanged', function (): void {
+    $repository = Repository::factory()->create();
+
+    $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
+    $collectedRepositoriesWithChangedPackageJson = $repositorySynchronizer->collectedRepositoriesWithChangedPackageJson(
+        new CollectedRepositoryCollection([CollectedRepositoryFactory::forRepository($repository)]),
+        $repository->source,
+    );
+
+    expect($collectedRepositoriesWithChangedPackageJson)
+        ->toBeEmpty();
+});
+
 test('store repositories creates a repository for a new collected repository', function (): void {
     $collectedRepository = CollectedRepositoryFactory::make();
     $source = fake()->slug();
@@ -172,62 +225,6 @@ test('store repositories creates a repository for a known external id of another
         'source' => $otherSource,
         'external_id' => $repository->external_id,
     ]);
-});
-
-test('store repositories returns a known repository whose package json version changed', function (): void {
-    $repository = Repository::factory()->create(['package_json_version' => fake()->unique()->sha1()]);
-    $collectedRepository = new CollectedRepository(
-        $repository->external_id,
-        $repository->name,
-        $repository->full_name,
-        $repository->url,
-        fake()->word(),
-        fake()->sha1(),
-        CarbonImmutable::parse(fake()->iso8601()),
-        fake()->randomElement(RepositoryVisibility::cases()),
-        $repository->composer_json_version,
-        $repository->composer_lock_version,
-        fake()->unique()->sha1(),
-        $repository->dependabot_yml_version,
-    );
-
-    $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositoriesWithChangedPackageJson = $repositorySynchronizer->storeRepositories(
-        new CollectedRepositoryCollection([$collectedRepository]),
-        $repository->source,
-        Uuid::generate(),
-    );
-
-    expect($repositoriesWithChangedPackageJson->sole()->is($repository))
-        ->toBeTrue();
-});
-
-test('store repositories returns a new repository with a package json', function (): void {
-    $collectedRepository = CollectedRepositoryFactory::make();
-
-    $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositoriesWithChangedPackageJson = $repositorySynchronizer->storeRepositories(
-        new CollectedRepositoryCollection([$collectedRepository]),
-        fake()->slug(),
-        Uuid::generate(),
-    );
-
-    expect($repositoriesWithChangedPackageJson->sole()->external_id)
-        ->toBe($collectedRepository->externalId);
-});
-
-test('store repositories returns no repository whose package json version is unchanged', function (): void {
-    $repository = Repository::factory()->create();
-
-    $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
-    $repositoriesWithChangedPackageJson = $repositorySynchronizer->storeRepositories(
-        new CollectedRepositoryCollection([CollectedRepositoryFactory::forRepository($repository)]),
-        $repository->source,
-        Uuid::generate(),
-    );
-
-    expect($repositoriesWithChangedPackageJson)
-        ->toBeEmpty();
 });
 
 test('mark uncollected missing marks a repository of another run missing', function (): void {

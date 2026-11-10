@@ -6,12 +6,29 @@ namespace Maarheeze\Compass\Collector\Repositories;
 
 use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\CollectedRepositoryCollection;
-use Maarheeze\Compass\Collections\RepositoryCollection;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 
 readonly class RepositorySynchronizer
 {
+    public function collectedRepositoriesWithChangedPackageJson(
+        CollectedRepositoryCollection $collectedRepositories,
+        string $source,
+    ): CollectedRepositoryCollection {
+        $storedRepositories = Repository::query()
+            ->ofSource($source)
+            ->ofExternalIds($collectedRepositories->externalIds())
+            ->get();
+
+        return $collectedRepositories->filter(
+            static function (CollectedRepository $collectedRepository) use ($storedRepositories): bool {
+                $storedRepository = $storedRepositories->firstWhere('external_id', $collectedRepository->externalId);
+
+                return $storedRepository?->package_json_version !== $collectedRepository->packageJsonVersion;
+            },
+        );
+    }
+
     public function markUncollectedMissing(string $source, Uuid $runId): void
     {
         Repository::query()
@@ -25,11 +42,7 @@ readonly class RepositorySynchronizer
         CollectedRepositoryCollection $collectedRepositories,
         string $source,
         Uuid $runId,
-    ): RepositoryCollection {
-        $storedRepositories = Repository::query()
-            ->ofSource($source)
-            ->ofExternalIds($collectedRepositories->externalIds())
-            ->get();
+    ): void {
         $repositoryValues = [];
 
         foreach ($collectedRepositories as $collectedRepository) {
@@ -55,26 +68,5 @@ readonly class RepositorySynchronizer
         }
 
         Repository::query()->upsert($repositoryValues, ['source', 'external_id']);
-
-        return $this->repositoriesWithChangedPackageJson($collectedRepositories, $source, $storedRepositories);
-    }
-
-    private function repositoriesWithChangedPackageJson(
-        CollectedRepositoryCollection $collectedRepositories,
-        string $source,
-        RepositoryCollection $storedRepositories,
-    ): RepositoryCollection {
-        $collectedRepositoriesWithChangedPackageJson = $collectedRepositories->filter(
-            static function (CollectedRepository $collectedRepository) use ($storedRepositories): bool {
-                $storedRepository = $storedRepositories->firstWhere('external_id', $collectedRepository->externalId);
-
-                return $storedRepository?->package_json_version !== $collectedRepository->packageJsonVersion;
-            },
-        );
-
-        return Repository::query()
-            ->ofSource($source)
-            ->ofExternalIds($collectedRepositoriesWithChangedPackageJson->externalIds())
-            ->get();
     }
 }
