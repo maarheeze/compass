@@ -6,7 +6,6 @@ use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
-use Maarheeze\Compass\Http\EndpointPath;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Site;
@@ -77,7 +76,7 @@ test('show contains the latest check of a reported endpoint path as active', fun
     $siteEndpoint = SiteEndpoint::factory()->create();
     $activeSiteEndpointCheck = SiteEndpointCheck::factory()->create([
         'site_id' => $siteEndpoint->siteReport->site_id,
-        'path' => new EndpointPath($siteEndpoint->path),
+        'path' => $siteEndpoint->path,
     ]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 

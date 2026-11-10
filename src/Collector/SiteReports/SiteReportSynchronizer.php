@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Collector\SiteReports;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\ConnectionInterface;
+use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Models\SiteReport;
 use Throwable;
 
@@ -46,7 +47,7 @@ readonly class SiteReportSynchronizer
             }
 
             foreach ($collectedSiteReport->endpoints as $endpoint) {
-                $siteReport->endpoints()->firstOrCreate(['path' => $endpoint]);
+                $siteReport->endpoints()->firstOrCreate(['path' => new EndpointPath($endpoint)]);
             }
         });
     }

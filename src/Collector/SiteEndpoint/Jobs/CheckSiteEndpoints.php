@@ -39,7 +39,7 @@ class CheckSiteEndpoints implements LockedJob
 
                 $collectorLogger->debug('Endpoint check queued', [
                     'site' => $collectedSiteEndpoint->siteReport->site->name,
-                    'path' => $collectedSiteEndpoint->path,
+                    'path' => $collectedSiteEndpoint->path->toString(),
                 ]);
             }
 

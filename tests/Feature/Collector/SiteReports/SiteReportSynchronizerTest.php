@@ -61,7 +61,7 @@ test('store report stores the reported endpoints', function (): void {
 
 test('store report keeps the endpoints that are still reported', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
-    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [$siteEndpoint->path]);
+    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [$siteEndpoint->path->toString()]);
 
     $siteReportSynchronizer = $this->app->make(SiteReportSynchronizer::class);
     $siteReportSynchronizer->storeReport($siteEndpoint->siteReport, $collectedSiteReport);
@@ -99,7 +99,7 @@ test('store report keeps the alerts of the endpoints that are still reported', f
         ->siteEndpointDown()
         ->for($siteEndpoint, 'subject')
         ->create();
-    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [$siteEndpoint->path]);
+    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [$siteEndpoint->path->toString()]);
 
     $siteReportSynchronizer = $this->app->make(SiteReportSynchronizer::class);
     $siteReportSynchronizer->storeReport($siteEndpoint->siteReport, $collectedSiteReport);

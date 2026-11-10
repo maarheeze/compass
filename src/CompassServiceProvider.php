@@ -10,12 +10,15 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Queue\Events\JobFailed;
+use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Listeners\RecordRunFailure;
+use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Http\Controllers\RunController;
 use Maarheeze\Compass\Http\Controllers\SiteEndpointCheckController;
+use Maarheeze\Compass\Http\EndpointPathRouteParameter;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
@@ -55,9 +58,16 @@ class CompassServiceProvider extends ServiceProvider
         $this->app->register(ScheduleProvider::class);
     }
 
-    public function boot(Dispatcher $events): void
-    {
+    public function boot(
+        Dispatcher $events,
+        EndpointPathRouteParameter $endpointPathRouteParameter,
+        Router $router,
+    ): void {
         $events->listen(JobFailed::class, RecordRunFailure::class);
+
+        $router->bind('endpointPath', static function (string $routeParameter) use ($endpointPathRouteParameter): EndpointPath {
+            return $endpointPathRouteParameter->decode($routeParameter);
+        });
 
         $this->loadTranslationsFrom(sprintf('%s/../lang', __DIR__), 'compass');
         $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');

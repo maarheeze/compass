@@ -13,8 +13,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCollection;
+use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Database\Factories\SiteEndpointFactory;
 use Maarheeze\Compass\Models\Builders\SiteEndpointBuilder;
+use Maarheeze\Compass\Models\Casts\EndpointPathCast;
 use Maarheeze\Compass\Models\Concerns\HasAlerts;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
@@ -25,7 +27,7 @@ use function sprintf;
 /**
  * @property CarbonImmutable $created_at
  * @property Uuid $id
- * @property string $path
+ * @property EndpointPath $path
  * @property Uuid $site_report_id
  * @property CarbonImmutable $updated_at
  *
@@ -72,7 +74,7 @@ class SiteEndpoint extends Model implements AlertSubject
 
     public function displayName(): string
     {
-        return sprintf('%s%s', $this->siteReport->site->name, $this->path);
+        return sprintf('%s%s', $this->siteReport->site->name, $this->path->toString());
     }
 
     /**
@@ -82,6 +84,7 @@ class SiteEndpoint extends Model implements AlertSubject
     {
         return [
             'created_at' => 'immutable_datetime',
+            'path' => EndpointPathCast::class,
             'site_report_id' => UuidCast::class,
             'updated_at' => 'immutable_datetime',
         ];

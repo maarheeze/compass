@@ -5,7 +5,7 @@
         <div class="flex flex-wrap items-center gap-3">
             <h1 class="text-lg font-semibold text-foreground">
                 <x-compass::site-link :site="$site" />
-                <span class="font-mono">{{ $endpointPath->path }}</span>
+                <span class="font-mono">{{ $endpointPath->toString() }}</span>
             </h1>
 
             <x-compass::site-endpoint-checks-delete-button :site="$site" :path="$endpointPath" class="ml-auto" />

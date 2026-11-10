@@ -6,7 +6,7 @@ namespace Maarheeze\Compass\Models\Casts;
 
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
-use Maarheeze\Compass\Http\EndpointPath;
+use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Webmozart\Assert\Assert;
 
 /**
@@ -31,6 +31,6 @@ class EndpointPathCast implements CastsAttributes
     {
         Assert::isInstanceOf($value, EndpointPath::class);
 
-        return $value->path;
+        return $value->toString();
     }
 }

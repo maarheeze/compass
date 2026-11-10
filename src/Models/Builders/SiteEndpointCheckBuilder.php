@@ -6,7 +6,7 @@ namespace Maarheeze\Compass\Models\Builders;
 
 use Illuminate\Contracts\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\Builder;
-use Maarheeze\Compass\Http\EndpointPath;
+use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
 
@@ -38,7 +38,7 @@ class SiteEndpointCheckBuilder extends Builder
 
     public function ofPath(EndpointPath $endpointPath): self
     {
-        return $this->where('path', $endpointPath->path);
+        return $this->where('path', $endpointPath);
     }
 
     public function reported(): self

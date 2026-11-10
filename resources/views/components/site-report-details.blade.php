@@ -37,7 +37,7 @@
         <dd>
             <ul class="flex flex-wrap gap-2">
                 @foreach ($siteReport->endpoints as $endpoint)
-                    <li class="rounded-md bg-border/50 px-2 py-0.5 font-mono text-xs text-foreground-muted">{{ $endpoint->path }}</li>
+                    <li class="rounded-md bg-border/50 px-2 py-0.5 font-mono text-xs text-foreground-muted">{{ $endpoint->path->toString() }}</li>
                 @endforeach
             </ul>
         </dd>

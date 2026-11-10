@@ -57,9 +57,9 @@ Route::middleware('web')
                 Route::get('/{site}', [SiteController::class, 'show'])->name(RouteName::SITE);
                 Route::delete('/{site}', [SiteController::class, 'delete'])->name(RouteName::SITE_DELETE);
                 Route::post('/{site}/ignore', [SiteController::class, 'ignore'])->name(RouteName::SITE_IGNORE);
-                Route::get('/{site}/endpoint-checks/{endpointPathRouteKey}', [SiteEndpointCheckController::class, 'index'])
+                Route::get('/{site}/endpoint-checks/{endpointPath}', [SiteEndpointCheckController::class, 'index'])
                     ->name(RouteName::SITE_ENDPOINT_CHECKS);
-                Route::delete('/{site}/endpoint-checks/{endpointPathRouteKey}', [SiteEndpointCheckController::class, 'delete'])
+                Route::delete('/{site}/endpoint-checks/{endpointPath}', [SiteEndpointCheckController::class, 'delete'])
                     ->name(RouteName::SITE_ENDPOINT_CHECKS_DELETE);
                 Route::get('/reports/{siteReport}/edit', [SiteReportController::class, 'edit'])
                     ->name(RouteName::SITE_REPORT_EDIT);

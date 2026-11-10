@@ -7,6 +7,7 @@ use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
+use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Collector\SiteEndpoint\Jobs\CheckSiteEndpoint;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
@@ -31,7 +32,7 @@ test('handle stores the status code of the endpoint', function (): void {
 test('handle stores the checked url', function (): void {
     $siteEndpoint = SiteEndpoint::factory()
         ->for(SiteReport::factory()->for(Site::factory()->state(['url' => 'https://example.com/'])))
-        ->create(['path' => '/up']);
+        ->create(['path' => new EndpointPath('/up')]);
     $this->app->make(HttpFactory::class)->fake();
 
     $checkSiteEndpoint = new CheckSiteEndpoint($siteEndpoint);
@@ -79,7 +80,7 @@ test('handle adds the site and path of the endpoint to the log context', functio
     expect($this->app->make(Context::class)->only(['site', 'path']))
         ->toBe([
             'site' => $siteEndpoint->siteReport->site->name,
-            'path' => $siteEndpoint->path,
+            'path' => $siteEndpoint->path->toString(),
         ]);
 });
 

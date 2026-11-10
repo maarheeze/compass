@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Maarheeze\Compass\Http\AlertSubjectUrl;
-use Maarheeze\Compass\Http\EndpointPath;
+use Maarheeze\Compass\Http\EndpointPathRouteParameter;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
@@ -32,6 +32,7 @@ test('url is the compass page of a site', function (): void {
 
 test('url is the check history of a site endpoint', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
+    $endpointPathRouteParameter = $this->app->make(EndpointPathRouteParameter::class);
 
     $alertSubjectUrl = $this->app->make(AlertSubjectUrl::class);
     $url = $alertSubjectUrl->url($siteEndpoint);
@@ -39,7 +40,7 @@ test('url is the check history of a site endpoint', function (): void {
     expect($url)
         ->toBe(route(RouteName::SITE_ENDPOINT_CHECKS, [
             $siteEndpoint->siteReport->site,
-            new EndpointPath($siteEndpoint->path)->routeKey(),
+            $endpointPathRouteParameter->encode($siteEndpoint->path),
         ]));
 });
 

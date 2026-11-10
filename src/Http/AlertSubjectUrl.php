@@ -15,6 +15,7 @@ use Maarheeze\Compass\Models\SiteReport;
 readonly class AlertSubjectUrl
 {
     public function __construct(
+        private EndpointPathRouteParameter $endpointPathRouteParameter,
         private UrlGenerator $urlGenerator,
     ) {
     }
@@ -22,19 +23,13 @@ readonly class AlertSubjectUrl
     public function url(AlertSubject $alertSubject): string
     {
         return match (true) {
-            $alertSubject instanceof Repository => $this->urlGenerator->route(
-                RouteName::REPOSITORY->value,
-                $alertSubject,
-            ),
+            $alertSubject instanceof Repository => $this->urlGenerator->route(RouteName::REPOSITORY->value, $alertSubject),
             $alertSubject instanceof Site => $this->urlGenerator->route(RouteName::SITE->value, $alertSubject),
-            $alertSubject instanceof SiteEndpoint => $this->urlGenerator->route(
-                RouteName::SITE_ENDPOINT_CHECKS->value,
-                [$alertSubject->siteReport->site, new EndpointPath($alertSubject->path)->routeKey()],
-            ),
-            $alertSubject instanceof SiteReport => $this->urlGenerator->route(
-                RouteName::SITE->value,
-                $alertSubject->site,
-            ),
+            $alertSubject instanceof SiteEndpoint => $this->urlGenerator->route(RouteName::SITE_ENDPOINT_CHECKS->value, [
+                $alertSubject->siteReport->site,
+                $this->endpointPathRouteParameter->encode($alertSubject->path),
+            ]),
+            $alertSubject instanceof SiteReport => $this->urlGenerator->route(RouteName::SITE->value, $alertSubject->site),
             default => throw new LogicException('alert subject without url'),
         };
     }

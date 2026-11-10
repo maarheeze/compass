@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Http\EndpointPath;
+use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
@@ -81,7 +81,7 @@ test('latest per path keeps the latest check of the same path on each site', fun
 test('not reported keeps a check of a path only another site reports', function (): void {
     $siteEndpointOfAnotherSite = SiteEndpoint::factory()->create();
     $notReportedSiteEndpointCheck = SiteEndpointCheck::factory()->create([
-        'path' => new EndpointPath($siteEndpointOfAnotherSite->path),
+        'path' => $siteEndpointOfAnotherSite->path,
     ]);
 
     $notReportedSiteEndpointChecks = SiteEndpointCheck::query()
@@ -96,7 +96,7 @@ test('not reported leaves out a check of a path its site reports', function (): 
     $siteEndpoint = SiteEndpoint::factory()->create();
     SiteEndpointCheck::factory()->create([
         'site_id' => $siteEndpoint->siteReport->site_id,
-        'path' => new EndpointPath($siteEndpoint->path),
+        'path' => $siteEndpoint->path,
     ]);
 
     $notReportedSiteEndpointChecks = SiteEndpointCheck::query()
@@ -133,7 +133,7 @@ test('reported keeps a check of a path its site reports', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $reportedSiteEndpointCheck = SiteEndpointCheck::factory()->create([
         'site_id' => $siteEndpoint->siteReport->site_id,
-        'path' => new EndpointPath($siteEndpoint->path),
+        'path' => $siteEndpoint->path,
     ]);
 
     $reportedSiteEndpointChecks = SiteEndpointCheck::query()
@@ -146,7 +146,7 @@ test('reported keeps a check of a path its site reports', function (): void {
 
 test('reported leaves out a check of a path only another site reports', function (): void {
     $siteEndpointOfAnotherSite = SiteEndpoint::factory()->create();
-    SiteEndpointCheck::factory()->create(['path' => new EndpointPath($siteEndpointOfAnotherSite->path)]);
+    SiteEndpointCheck::factory()->create(['path' => $siteEndpointOfAnotherSite->path]);
 
     $reportedSiteEndpointChecks = SiteEndpointCheck::query()
         ->reported()
