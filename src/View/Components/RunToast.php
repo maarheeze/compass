@@ -29,6 +29,11 @@ class RunToast extends Component
         return $this->run->status !== RunStatus::QUEUED;
     }
 
+    public function staysOpen(): bool
+    {
+        return $this->run->status === RunStatus::RUNNING;
+    }
+
     public function toastType(): ToastType
     {
         return match ($this->run->status) {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
+use Maarheeze\Compass\Broadcasting\CompassChannel;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\User;
@@ -19,6 +20,15 @@ test('user is the signed in user', function (): void {
 
     expect($navigation->user->is($user))
         ->toBeTrue();
+});
+
+test('channel name is the name of the compass channel', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $navigation = $this->app->make(Navigation::class);
+
+    expect($navigation->channelName)
+        ->toBe(CompassChannel::NAME);
 });
 
 test('data tabs mark the tab of the current page as the only active one', function (): void {

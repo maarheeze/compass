@@ -1,4 +1,4 @@
-<header class="border-b border-border bg-canvas-inset">
+<header data-compass-channel="{{ $channelName }}" class="border-b border-border bg-canvas-inset">
     <div class="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
         <div class="flex items-center justify-between py-4">
             <a href="{{ $dashboardUrl }}" class="text-base font-semibold text-foreground"><x-compass::application-name /></a>

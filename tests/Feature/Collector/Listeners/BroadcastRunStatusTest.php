@@ -20,7 +20,7 @@ test('handle broadcasts the toast of the run', function (): void {
 
     $eventFake->assertDispatched(RunStatusChanged::class, static function (RunStatusChanged $runStatusChanged) use ($run): bool {
         return $runStatusChanged->toastHtml !== null
-            && str_contains($runStatusChanged->toastHtml, sprintf('data-run-id="%s"', $run->id));
+            && str_contains($runStatusChanged->toastHtml, sprintf('data-compass-toast-id="%s"', $run->id));
     });
 });
 

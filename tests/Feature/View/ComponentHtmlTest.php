@@ -15,7 +15,7 @@ test('html is the rendered component', function (): void {
     $html = $componentHtml->html($runToast);
 
     expect($html)
-        ->toContain(sprintf('data-run-id="%s"', $run->id));
+        ->toContain(sprintf('data-compass-toast-id="%s"', $run->id));
 });
 
 test('html is null for a component that does not render', function (): void {

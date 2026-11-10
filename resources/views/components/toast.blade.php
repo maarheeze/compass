@@ -2,6 +2,7 @@
 
 <div
     role="status"
+    data-compass-toast
     {{ $attributes }}
     @class([
         'pointer-events-auto flex items-start justify-between gap-3 rounded-md border bg-canvas px-4 py-3 text-sm shadow-lg',
@@ -16,6 +17,7 @@
 
     <button
         type="button"
+        data-compass-toast-close
         aria-label="{{ __('compass::toast.close') }}"
         class="cursor-pointer text-foreground-muted hover:text-foreground">
         <x-compass::icons.x />

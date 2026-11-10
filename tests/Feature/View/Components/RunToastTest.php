@@ -53,3 +53,23 @@ test('toast type of a failed run is danger', function (): void {
     expect($runToast->toastType())
         ->toBe(ToastType::DANGER);
 });
+
+test('stays open is true for a running run', function (): void {
+    $run = Run::factory()->create(['status' => RunStatus::RUNNING]);
+
+    $runToast = $this->app->make(RunToast::class, ['run' => $run]);
+    $staysOpen = $runToast->staysOpen();
+
+    expect($staysOpen)
+        ->toBeTrue();
+});
+
+test('stays open is false for a finished run', function (): void {
+    $run = Run::factory()->create(['status' => fake()->randomElement([RunStatus::SUCCEEDED, RunStatus::FAILED])]);
+
+    $runToast = $this->app->make(RunToast::class, ['run' => $run]);
+    $staysOpen = $runToast->staysOpen();
+
+    expect($staysOpen)
+        ->toBeFalse();
+});

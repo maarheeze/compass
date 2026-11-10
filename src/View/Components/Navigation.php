@@ -11,6 +11,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\View\Component;
 use Maarheeze\Compass\Authentication\AuthenticatedUser;
+use Maarheeze\Compass\Broadcasting\CompassChannel;
 use Maarheeze\Compass\Collections\NavigationTabCollection;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
@@ -20,6 +21,7 @@ use Webmozart\Assert\Assert;
 
 class Navigation extends Component
 {
+    public readonly string $channelName;
     public readonly string $dashboardUrl;
     public readonly NavigationTabCollection $dataTabs;
     public readonly bool $hasAlerts;
@@ -36,6 +38,7 @@ class Navigation extends Component
         UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
+        $this->channelName = CompassChannel::NAME;
         $this->dashboardUrl = $urlGenerator->route(RouteName::DASHBOARD->value);
         $this->dataTabs = $this->dataNavigationTabs($request, $translator, $urlGenerator);
         $this->hasAlerts = Alert::query()->notDone()->exists();
