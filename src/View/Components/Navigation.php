@@ -26,6 +26,7 @@ class Navigation extends Component
     public readonly string $logoutUrl;
     public readonly string $settingsUrl;
     public readonly NavigationTabCollection $tabs;
+    public readonly NavigationTabCollection $trailingTabs;
     public readonly User $user;
 
     public function __construct(
@@ -44,6 +45,7 @@ class Navigation extends Component
         $this->logoutUrl = $urlGenerator->route(RouteName::LOGOUT->value);
         $this->settingsUrl = $urlGenerator->route(RouteName::SETTINGS_EDIT->value);
         $this->tabs = $this->navigationTabs($request, $translator, $urlGenerator);
+        $this->trailingTabs = $this->trailingNavigationTabs($request, $translator, $urlGenerator);
         $this->user = $authenticatedUser->user();
     }
 
@@ -96,6 +98,21 @@ class Navigation extends Component
                     RouteName::SITE_ENDPOINT_CHECKS->value,
                     RouteName::SITE_REPORT_EDIT->value,
                 ),
+            ),
+        ]);
+    }
+
+    private function trailingNavigationTabs(
+        Request $request,
+        Translator $translator,
+        UrlGenerator $urlGenerator,
+    ): NavigationTabCollection {
+        return new NavigationTabCollection([
+            new NavigationTab(
+                $urlGenerator->route(RouteName::RUNS->value),
+                Assert::string($translator->get('compass::navigation.runs')),
+                'compass::icons.history',
+                $request->routeIs(RouteName::RUNS->value),
             ),
         ]);
     }

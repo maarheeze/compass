@@ -46,6 +46,31 @@ test('tabs label each tab with its translated label', function (): void {
         ->toBe(['Dashboard', 'Repositories', 'Issues', 'Pull requests', 'Sites']);
 });
 
+test('trailing tabs mark the runs tab as active on the runs page', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+    $request = Request::create(route(RouteName::RUNS));
+    $request->setRouteResolver(function () use ($request): Route {
+        return $this->app
+            ->make(Router::class)
+            ->getRoutes()
+            ->match($request);
+    });
+
+    $navigation = $this->app->make(Navigation::class, ['request' => $request]);
+
+    expect($navigation->trailingTabs->where('isActive', true)->sole()->url)
+        ->toBe(route(RouteName::RUNS));
+});
+
+test('trailing tabs label each tab with its translated label', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $navigation = $this->app->make(Navigation::class);
+
+    expect($navigation->trailingTabs->pluck('label')->all())
+        ->toBe(['Runs']);
+});
+
 test('dashboard url is the url of the dashboard', function (): void {
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 

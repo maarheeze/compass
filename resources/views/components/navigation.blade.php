@@ -61,6 +61,10 @@
 
         <nav class="flex items-center gap-4 text-sm">
             <x-compass::tabs :tabs="$tabs" />
+
+            <div class="ml-auto flex items-center gap-4">
+                <x-compass::tabs :tabs="$trailingTabs" />
+            </div>
         </nav>
     </div>
 </header>
