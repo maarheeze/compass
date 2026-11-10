@@ -15,6 +15,12 @@ use Maarheeze\Compass\Alerts\AlertHistoryEntryType;
 use Maarheeze\Compass\Alerts\AlertMuter;
 use Maarheeze\Compass\Alerts\AlertReopener;
 use Maarheeze\Compass\Authentication\AuthenticatedUser;
+use Maarheeze\Compass\Http\Requests\AssignAlertRequest;
+use Maarheeze\Compass\Http\Requests\MarkAlertDoneRequest;
+use Maarheeze\Compass\Http\Requests\MuteAlertRequest;
+use Maarheeze\Compass\Http\Requests\ReopenAlertRequest;
+use Maarheeze\Compass\Http\Requests\UnassignAlertRequest;
+use Maarheeze\Compass\Http\Requests\UnmuteAlertRequest;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
 use Throwable;
@@ -36,7 +42,7 @@ readonly class AlertController
     /**
      * @throws Throwable
      */
-    public function assign(Alert $alert): RedirectResponse
+    public function assign(Alert $alert, AssignAlertRequest $assignAlertRequest): RedirectResponse
     {
         $this->alertAssigner->assignToMe($alert, $this->authenticatedUser->user());
         $this->alertConfirmation->flash(AlertHistoryEntryType::ASSIGNED);
@@ -47,7 +53,7 @@ readonly class AlertController
     /**
      * @throws Throwable
      */
-    public function markDone(Alert $alert): RedirectResponse
+    public function markDone(Alert $alert, MarkAlertDoneRequest $markAlertDoneRequest): RedirectResponse
     {
         $this->alertDoneMarker->markDone($alert, $this->authenticatedUser->user());
         $this->alertConfirmation->flash(AlertHistoryEntryType::MARKED_DONE);
@@ -58,7 +64,7 @@ readonly class AlertController
     /**
      * @throws Throwable
      */
-    public function mute(Alert $alert): RedirectResponse
+    public function mute(Alert $alert, MuteAlertRequest $muteAlertRequest): RedirectResponse
     {
         $this->alertMuter->mute($alert, $this->authenticatedUser->user());
         $this->alertConfirmation->flash(AlertHistoryEntryType::MUTED);
@@ -69,7 +75,7 @@ readonly class AlertController
     /**
      * @throws Throwable
      */
-    public function reopen(Alert $alert): RedirectResponse
+    public function reopen(Alert $alert, ReopenAlertRequest $reopenAlertRequest): RedirectResponse
     {
         $this->alertReopener->reopen($alert, $this->authenticatedUser->user());
         $this->alertConfirmation->flash(AlertHistoryEntryType::REOPENED);
@@ -98,7 +104,7 @@ readonly class AlertController
     /**
      * @throws Throwable
      */
-    public function unassign(Alert $alert): RedirectResponse
+    public function unassign(Alert $alert, UnassignAlertRequest $unassignAlertRequest): RedirectResponse
     {
         $this->alertAssigner->unassign($alert, $this->authenticatedUser->user());
         $this->alertConfirmation->flash(AlertHistoryEntryType::UNASSIGNED);
@@ -109,7 +115,7 @@ readonly class AlertController
     /**
      * @throws Throwable
      */
-    public function unmute(Alert $alert): RedirectResponse
+    public function unmute(Alert $alert, UnmuteAlertRequest $unmuteAlertRequest): RedirectResponse
     {
         $this->alertMuter->unmute($alert, $this->authenticatedUser->user());
         $this->alertConfirmation->flash(AlertHistoryEntryType::UNMUTED);

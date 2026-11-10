@@ -105,6 +105,28 @@ test('mark done confirms the marking done to the signed in user', function (): v
         ->toBe(AlertHistoryEntryType::MARKED_DONE);
 });
 
+test('mark done refuses an alert that is already done', function (): void {
+    $alert = Alert::factory()
+        ->done()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->post(route(RouteName::ALERT_MARK_DONE, $alert));
+
+    $response->assertSessionHasErrors('alert');
+});
+
+test('mark done sends the user back to the alert page when the alert is already done', function (): void {
+    $alert = Alert::factory()
+        ->done()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->post(route(RouteName::ALERT_MARK_DONE, $alert));
+
+    $response->assertRedirect(route(RouteName::ALERT, $alert));
+});
+
 test('reopen reopens the alert by the signed in user', function (): void {
     $alert = Alert::factory()
         ->done()
@@ -144,6 +166,17 @@ test('reopen confirms the reopening to the signed in user', function (): void {
         ->toBe(AlertHistoryEntryType::REOPENED);
 });
 
+test('reopen refuses an alert that is not done', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->post(route(RouteName::ALERT_REOPEN, $alert));
+
+    $response->assertSessionHasErrors('alert');
+});
+
 test('mute mutes the alert by the signed in user', function (): void {
     $alert = Alert::factory()
         ->active()
@@ -181,6 +214,18 @@ test('mute confirms the muting to the signed in user', function (): void {
 
     expect($this->app->make(AlertConfirmation::class)->confirmedEntryType())
         ->toBe(AlertHistoryEntryType::MUTED);
+});
+
+test('mute refuses an alert that is already muted', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->muted()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->post(route(RouteName::ALERT_MUTE, $alert));
+
+    $response->assertSessionHasErrors('alert');
 });
 
 test('unmute unmutes the alert by the signed in user', function (): void {
@@ -225,6 +270,17 @@ test('unmute confirms the unmuting to the signed in user', function (): void {
         ->toBe(AlertHistoryEntryType::UNMUTED);
 });
 
+test('unmute refuses an alert that is not muted', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->post(route(RouteName::ALERT_UNMUTE, $alert));
+
+    $response->assertSessionHasErrors('alert');
+});
+
 test('assign assigns the alert to the signed in user', function (): void {
     $alert = Alert::factory()
         ->active()
@@ -261,6 +317,17 @@ test('assign confirms the assigning to the signed in user', function (): void {
 
     expect($this->app->make(AlertConfirmation::class)->confirmedEntryType())
         ->toBe(AlertHistoryEntryType::ASSIGNED);
+});
+
+test('assign refuses an alert that is done', function (): void {
+    $alert = Alert::factory()
+        ->done()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->post(route(RouteName::ALERT_ASSIGN, $alert));
+
+    $response->assertSessionHasErrors('alert');
 });
 
 test('unassign unassigns the alert by the signed in user', function (): void {
@@ -303,4 +370,15 @@ test('unassign confirms the unassigning to the signed in user', function (): voi
 
     expect($this->app->make(AlertConfirmation::class)->confirmedEntryType())
         ->toBe(AlertHistoryEntryType::UNASSIGNED);
+});
+
+test('unassign refuses an alert that is not assigned', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->create(['assignee_id' => null]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->post(route(RouteName::ALERT_UNASSIGN, $alert));
+
+    $response->assertSessionHasErrors('alert');
 });

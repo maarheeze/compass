@@ -14,13 +14,18 @@
                     <x-compass::alert-subject-link :subject="$alert->subject" />
                 </p>
             </div>
-            <div class="ml-auto flex gap-2">
-                <x-compass::alert-assign-button :alert="$alert" />
-                <x-compass::alert-unassign-button :alert="$alert" />
-                <x-compass::alert-mute-button :alert="$alert" />
-                <x-compass::alert-unmute-button :alert="$alert" />
-                <x-compass::alert-mark-done-button :alert="$alert" />
-                <x-compass::alert-reopen-button :alert="$alert" />
+            <div class="ml-auto space-y-1">
+                <div class="flex justify-end gap-2">
+                    <x-compass::alert-assign-button :alert="$alert" />
+                    <x-compass::alert-unassign-button :alert="$alert" />
+                    <x-compass::alert-mute-button :alert="$alert" />
+                    <x-compass::alert-unmute-button :alert="$alert" />
+                    <x-compass::alert-mark-done-button :alert="$alert" />
+                    <x-compass::alert-reopen-button :alert="$alert" />
+                </div>
+                @error('alert')
+                    <p class="text-right text-xs text-red-700 dark:text-red-300">{{ $message }}</p>
+                @enderror
             </div>
         </div>
 

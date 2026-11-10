@@ -14,6 +14,7 @@ return [
     'mute' => 'Mute',
     'muted' => 'Muted',
     'no_alerts' => 'No alerts.',
+    'no_longer_possible' => 'This alert was changed in the meantime.',
     'open_since' => 'Open since',
     'reopen' => 'Reopen',
     'resolved_since' => 'Resolved since',
