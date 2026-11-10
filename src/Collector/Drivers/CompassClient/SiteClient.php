@@ -9,10 +9,6 @@ use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Response;
 use Maarheeze\Compass\Models\SiteReport;
 
-use function ltrim;
-use function rtrim;
-use function sprintf;
-
 readonly class SiteClient
 {
     public function __construct(
@@ -29,10 +25,11 @@ readonly class SiteClient
     {
         try {
             return $this->http
+                ->baseUrl($siteReport->site->url)
                 ->withToken($this->reportKey($siteReport))
                 ->acceptJson()
                 ->timeout(10)
-                ->get($this->reportUrl($siteReport));
+                ->get($this->reportPath($siteReport));
         } catch (ConnectionException $exception) {
             throw new ClientUnreachable(previous: $exception);
         }
@@ -54,14 +51,5 @@ readonly class SiteClient
         }
 
         return $siteReport->path;
-    }
-
-    private function reportUrl(SiteReport $siteReport): string
-    {
-        return sprintf(
-            '%s/%s',
-            rtrim($siteReport->site->url, '/'),
-            ltrim($this->reportPath($siteReport), '/'),
-        );
     }
 }
