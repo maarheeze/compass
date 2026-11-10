@@ -28,7 +28,12 @@
     <td class="w-32 px-4 py-3">
         <div class="flex justify-end -space-x-1">
             @foreach ($pullRequest->assignees as $assignee)
-                <x-compass::avatar :person="$assignee" :url="$assigneeUrl($assignee)" class="size-5" />
+                <x-compass::avatar
+                    :name="$assignee->login"
+                    :image-url="$assignee->avatar_url"
+                    :url="$assigneeUrl($assignee)"
+                    class="size-5"
+                />
             @endforeach
         </div>
     </td>

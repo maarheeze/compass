@@ -24,7 +24,7 @@ use Maarheeze\Uuid\Uuid;
  * @property string $login
  * @property CarbonImmutable $updated_at
  */
-class IssueAssignee extends Model implements HasAvatar
+class IssueAssignee extends Model
 {
     /** @use HasBuilder<IssueAssigneeBuilder> */
     use HasBuilder;
@@ -52,16 +52,6 @@ class IssueAssignee extends Model implements HasAvatar
     public function getTable(): string
     {
         return 'compass_issue_assignees';
-    }
-
-    public function avatarName(): string
-    {
-        return $this->login;
-    }
-
-    public function avatarUrl(): string
-    {
-        return $this->avatar_url;
     }
 
     /**

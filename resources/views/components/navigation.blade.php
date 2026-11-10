@@ -26,7 +26,12 @@
                     type="button"
                     popovertarget="user-menu"
                     class="ml-2 flex cursor-pointer items-center [anchor-name:--user-menu]">
-                    <x-compass::avatar :person="$user" :url="null" class="size-8" />
+                    <x-compass::avatar
+                        :name="$user->nickname"
+                        :image-url="$user->avatar_url"
+                        :url="null"
+                        class="size-8"
+                    />
                 </button>
 
                 <div

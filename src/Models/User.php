@@ -30,7 +30,7 @@ use Maarheeze\Uuid\Uuid;
  *
  * @property-read NotificationSubscriptionCollection $notificationSubscriptions
  */
-class User extends Authenticatable implements HasAvatar
+class User extends Authenticatable
 {
     /** @use HasBuilder<UserBuilder> */
     use HasBuilder;
@@ -83,16 +83,6 @@ class User extends Authenticatable implements HasAvatar
     public function notificationSubscriptions(): HasMany
     {
         return $this->hasMany(NotificationSubscription::class);
-    }
-
-    public function avatarName(): string
-    {
-        return $this->nickname;
-    }
-
-    public function avatarUrl(): string
-    {
-        return $this->avatar_url;
     }
 
     /**

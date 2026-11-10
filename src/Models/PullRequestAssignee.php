@@ -24,7 +24,7 @@ use Maarheeze\Uuid\Uuid;
  * @property Uuid $pull_request_id
  * @property CarbonImmutable $updated_at
  */
-class PullRequestAssignee extends Model implements HasAvatar
+class PullRequestAssignee extends Model
 {
     /** @use HasBuilder<PullRequestAssigneeBuilder> */
     use HasBuilder;
@@ -52,16 +52,6 @@ class PullRequestAssignee extends Model implements HasAvatar
     public function getTable(): string
     {
         return 'compass_pull_request_assignees';
-    }
-
-    public function avatarName(): string
-    {
-        return $this->login;
-    }
-
-    public function avatarUrl(): string
-    {
-        return $this->avatar_url;
     }
 
     /**

@@ -17,10 +17,3 @@ test('to array leaves out the github token', function (): void {
     expect($user->toArray())
         ->not->toHaveKey('github_token');
 });
-
-test('avatar name is the nickname', function (): void {
-    $user = User::factory()->create();
-
-    expect($user->avatarName())
-        ->toBe($user->nickname);
-});

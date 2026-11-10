@@ -1,7 +1,7 @@
-@props(['person'])
+@props(['imageUrl', 'name'])
 
 <img
-    src="{{ $person->avatarUrl() }}"
-    alt="{{ $person->avatarName() }}"
-    title="{{ $person->avatarName() }}"
+    src="{{ $imageUrl }}"
+    alt="{{ $name }}"
+    title="{{ $name }}"
     {{ $attributes->merge(['class' => 'max-w-none rounded-full border border-border']) }}>

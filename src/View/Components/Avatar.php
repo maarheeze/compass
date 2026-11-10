@@ -7,12 +7,12 @@ namespace Maarheeze\Compass\View\Components;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
-use Maarheeze\Compass\Models\HasAvatar;
 
 class Avatar extends Component
 {
     public function __construct(
-        public readonly HasAvatar $person,
+        public readonly string $name,
+        public readonly string $imageUrl,
         public readonly ?string $url,
         private readonly ViewFactory $view,
     ) {
