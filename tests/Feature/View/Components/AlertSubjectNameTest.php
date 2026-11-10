@@ -8,46 +8,38 @@ use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteReport;
 use Maarheeze\Compass\View\Components\AlertSubjectName;
 
-test('subject view is the view of a repository', function (): void {
-    $alertSubjectName = $this->app->make(AlertSubjectName::class, ['subject' => Repository::factory()->create()]);
+test('render renders the name of a repository', function (): void {
+    $repository = Repository::factory()->create();
 
-    expect($alertSubjectName->render()->getData()['subjectView'])
-        ->toBe('compass::alert-subjects.repository');
+    $alertSubjectName = $this->app->make(AlertSubjectName::class, ['subject' => $repository]);
+
+    expect($alertSubjectName->render()->toHtml())
+        ->toBe($repository->name);
 });
 
-test('subject view is the view of a site', function (): void {
-    $alertSubjectName = $this->app->make(AlertSubjectName::class, ['subject' => Site::factory()->create()]);
-
-    expect($alertSubjectName->render()->getData()['subjectView'])
-        ->toBe('compass::alert-subjects.site');
-});
-
-test('subject view is the view of a site endpoint', function (): void {
-    $alertSubjectName = $this->app->make(AlertSubjectName::class, ['subject' => SiteEndpoint::factory()->create()]);
-
-    expect($alertSubjectName->render()->getData()['subjectView'])
-        ->toBe('compass::alert-subjects.site-endpoint');
-});
-
-test('subject view is the view of a site report', function (): void {
-    $alertSubjectName = $this->app->make(AlertSubjectName::class, ['subject' => SiteReport::factory()->create()]);
-
-    expect($alertSubjectName->render()->getData()['subjectView'])
-        ->toBe('compass::alert-subjects.site-report');
-});
-
-test('render hands the subject to its view', function (): void {
+test('render renders the name of a site', function (): void {
     $site = Site::factory()->create();
 
     $alertSubjectName = $this->app->make(AlertSubjectName::class, ['subject' => $site]);
 
-    expect($alertSubjectName->render()->getData()['subject'])
-        ->toBe($site);
+    expect($alertSubjectName->render()->toHtml())
+        ->toBe($site->name);
 });
 
-test('render renders the alert subject name view', function (): void {
-    $alertSubjectName = $this->app->make(AlertSubjectName::class, ['subject' => Site::factory()->create()]);
+test('render renders the site name followed by the path of a site endpoint', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
 
-    expect($alertSubjectName->render()->name())
-        ->toBe('compass::components.alert-subject-name');
+    $alertSubjectName = $this->app->make(AlertSubjectName::class, ['subject' => $siteEndpoint]);
+
+    expect($alertSubjectName->render()->toHtml())
+        ->toBe(sprintf('%s%s', $siteEndpoint->siteReport->site->name, $siteEndpoint->path->toString()));
+});
+
+test('render renders the site name followed by the source of a site report', function (): void {
+    $siteReport = SiteReport::factory()->create();
+
+    $alertSubjectName = $this->app->make(AlertSubjectName::class, ['subject' => $siteReport]);
+
+    expect($alertSubjectName->render()->toHtml())
+        ->toBe(sprintf('%s (%s)', $siteReport->site->name, $siteReport->source));
 });

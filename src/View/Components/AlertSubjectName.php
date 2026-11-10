@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\View\Components;
 
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\View\Factory as ViewFactory;
-use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\HtmlString;
 use Illuminate\View\Component;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Webmozart\Assert\Assert;
 
 use function sprintf;
+use function trim;
 
 class AlertSubjectName extends Component
 {
@@ -21,13 +23,14 @@ class AlertSubjectName extends Component
     ) {
     }
 
-    public function render(): View
+    public function render(): Htmlable
     {
         $subjectModel = Assert::isInstanceOf($this->subject, Model::class);
-
-        return $this->view->make('compass::components.alert-subject-name', [
+        $alertSubjectNameView = $this->view->make('compass::components.alert-subject-name', [
             'subject' => $this->subject,
             'subjectView' => sprintf('compass::alert-subjects.%s', $subjectModel->getMorphClass()),
         ]);
+
+        return new HtmlString(trim($alertSubjectNameView->render()));
     }
 }

@@ -29,7 +29,7 @@ class AlertOpenedMailable extends Mailable
     {
         $alertTypeLabel = Assert::string($translator->get($this->alertType->translationKey()));
         $alertSubjectName = new AlertSubjectName($this->alert->subject, $view);
-        $subjectName = html_entity_decode($alertSubjectName->render()->render(), ENT_QUOTES | ENT_HTML5);
+        $subjectName = html_entity_decode($alertSubjectName->render()->toHtml(), ENT_QUOTES | ENT_HTML5);
         $subject = Assert::string($translator->get('compass::notification.alert_opened_subject', [
             'type' => $alertTypeLabel,
             'subject' => $subjectName,
