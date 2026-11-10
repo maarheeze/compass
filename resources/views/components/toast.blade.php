@@ -2,6 +2,7 @@
 
 <div
     role="status"
+    {{ $attributes }}
     @class([
         'pointer-events-auto flex items-start justify-between gap-3 rounded-md border bg-canvas px-4 py-3 text-sm shadow-lg',
         'border-red-600/40 text-red-700 dark:border-red-400/40 dark:text-red-400' => $type === 'danger',

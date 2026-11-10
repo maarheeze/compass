@@ -7,10 +7,13 @@ use Illuminate\Bus\ChainedBatch;
 use Illuminate\Bus\PendingBatch;
 use Illuminate\Config\Repository;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Log\LogManager;
 use Illuminate\Support\Testing\Fakes\BatchFake;
 use Illuminate\Support\Testing\Fakes\BusFake;
+use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Collector\CollectorType;
+use Maarheeze\Compass\Collector\Events\RunSaved;
 use Maarheeze\Compass\Collector\Jobs\FinishRun;
 use Maarheeze\Compass\Collector\RunRecorder;
 use Maarheeze\Compass\Collector\RunStatus;
@@ -106,6 +109,33 @@ test('start collector records the run as running with its batch when the batch i
         'status' => RunStatus::RUNNING,
         'batch_id' => $batchFake->id,
     ]);
+});
+
+test('start collector saves the running run as a model so its status is broadcast', function (): void {
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
+    $runId = Uuid::generate();
+    $batchFake = new BatchFake(fake()->uuid(), '', 1, 1, 0, [], [], CarbonImmutable::now());
+
+    $runRecorder = $this->app->make(RunRecorder::class);
+    $runRecorder->startCollector(
+        $runId,
+        fake()->slug(),
+        fake()->randomElement(CollectorType::cases()),
+        new CheckSiteEndpoints(),
+    );
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+    Run::setEventDispatcher($eventFake);
+    $busFake
+        ->dispatched(ChainedBatch::class)
+        ->sole()
+        ->toPendingBatch()
+        ->beforeCallbacks()[0]($batchFake);
+
+    $eventFake->assertDispatched(RunSaved::class, static function (RunSaved $runSaved) use ($runId): bool {
+        return $runSaved->run->id->equals($runId)
+            && $runSaved->run->status === RunStatus::RUNNING;
+    });
 });
 
 test('start collector finishes the run after the batch', function (): void {

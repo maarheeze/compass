@@ -63,6 +63,7 @@ readonly class RunRecorder
             ->before(static function (Batch $batch) use ($runId): void {
                 Run::query()
                     ->whereKey($runId)
+                    ->sole()
                     ->update([
                         'status' => RunStatus::RUNNING,
                         'batch_id' => $batch->id,

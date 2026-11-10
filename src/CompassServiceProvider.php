@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Maarheeze\Compass;
 
 use Carbon\FactoryImmutable;
+use Illuminate\Broadcasting\BroadcastManager;
+use Illuminate\Broadcasting\Broadcasters\Broadcaster;
 use Illuminate\Config\Repository as ConfigurationRepository;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -13,7 +15,10 @@ use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Maarheeze\Compass\Broadcasting\CompassChannel;
 use Maarheeze\Compass\Collector\CollectorLogger;
+use Maarheeze\Compass\Collector\Events\RunSaved;
+use Maarheeze\Compass\Collector\Listeners\BroadcastRunStatus;
 use Maarheeze\Compass\Collector\Listeners\RecordRunFailure;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Http\Controllers\RunController;
@@ -28,6 +33,7 @@ use Maarheeze\Compass\Providers\AuthenticationProvider;
 use Maarheeze\Compass\Providers\CollectorProvider;
 use Maarheeze\Compass\Providers\ScheduleProvider;
 use Psr\Clock\ClockInterface;
+use Webmozart\Assert\Assert;
 
 use function config_path;
 use function sprintf;
@@ -59,11 +65,19 @@ class CompassServiceProvider extends ServiceProvider
     }
 
     public function boot(
+        BroadcastManager $broadcastManager,
         Dispatcher $events,
         EndpointPathRouteParameter $endpointPathRouteParameter,
         Router $router,
     ): void {
         $events->listen(JobFailed::class, RecordRunFailure::class);
+        $events->listen(RunSaved::class, BroadcastRunStatus::class);
+
+        Assert::isInstanceOf($broadcastManager->connection(), Broadcaster::class)->channel(
+            CompassChannel::NAME,
+            CompassChannel::class,
+            ['guards' => [AuthenticationProvider::GUARD]],
+        );
 
         $router->bind('endpointPath', static function (string $routeParameter) use ($endpointPathRouteParameter): EndpointPath {
             return $endpointPathRouteParameter->decode($routeParameter);
