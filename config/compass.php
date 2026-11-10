@@ -34,6 +34,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Broadcast queue
+    |--------------------------------------------------------------------------
+    |
+    | The queue the live updates are broadcast from. A worker that takes
+    | this queue first, as in --queue=broadcasts,default, shows a toast as
+    | soon as the job it is running is done.
+    | Null broadcasts from the default queue of the connection.
+    |
+    */
+
+    'broadcast_queue' => env('COMPASS_BROADCAST_QUEUE'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Display timezone
     |--------------------------------------------------------------------------
     |

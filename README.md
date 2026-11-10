@@ -32,6 +32,8 @@ php artisan install:broadcasting
 
 This brings Reverb and Echo; keep the Reverb server running next to the queue. The broadcasting auth route must stay behind the `web` middleware only, as `install:broadcasting` sets it: Compass signs its users in on a guard of its own, which the host's `auth` middleware refuses.
 
+A toast waits for the jobs queued before it. To have even a single worker take Compass's broadcasts first, set `COMPASS_BROADCAST_QUEUE=broadcasts` and start the worker with `--queue=broadcasts,default`.
+
 Without broadcasting, Compass works the same without live updates. Its events still queue broadcast jobs, which the `null` broadcaster drops.
 
 ## Collectors

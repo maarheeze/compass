@@ -14,6 +14,7 @@ use Maarheeze\Compass\View\Components\RunToast;
 readonly class BroadcastRunStatus
 {
     public function __construct(
+        private ?string $broadcastQueue,
         private ComponentHtml $componentHtml,
         private Dispatcher $events,
         private ViewFactory $view,
@@ -24,6 +25,6 @@ readonly class BroadcastRunStatus
     {
         $runToast = new RunToast($runSaved->run, $this->view);
 
-        $this->events->dispatch(new RunStatusChanged($this->componentHtml->html($runToast)));
+        $this->events->dispatch(new RunStatusChanged($this->componentHtml->html($runToast), $this->broadcastQueue));
     }
 }

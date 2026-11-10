@@ -14,6 +14,7 @@ use Maarheeze\Compass\View\Components\AlertToast;
 readonly class BroadcastAlertHistoryEntry
 {
     public function __construct(
+        private ?string $broadcastQueue,
         private ComponentHtml $componentHtml,
         private Dispatcher $events,
         private ViewFactory $view,
@@ -24,6 +25,6 @@ readonly class BroadcastAlertHistoryEntry
     {
         $alertToast = new AlertToast($alertHistoryEntryCreated->alertHistoryEntry, $this->view);
 
-        $this->events->dispatch(new AlertChanged($this->componentHtml->html($alertToast)));
+        $this->events->dispatch(new AlertChanged($this->componentHtml->html($alertToast), $this->broadcastQueue));
     }
 }

@@ -38,3 +38,18 @@ test('handle broadcasts no toast for an entry a person records', function (): vo
         return $alertChanged->toastHtml === null;
     });
 });
+
+test('handle broadcasts from the configured broadcast queue', function (): void {
+    $broadcastQueue = fake()->slug();
+    $this->setConfiguration('compass.broadcast_queue', $broadcastQueue);
+    $alertHistoryEntry = AlertHistoryEntry::factory()->create();
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+    $this->app->instance(Dispatcher::class, $eventFake);
+
+    $broadcastAlertHistoryEntry = $this->app->make(BroadcastAlertHistoryEntry::class);
+    $broadcastAlertHistoryEntry->handle(new AlertHistoryEntryCreated($alertHistoryEntry));
+
+    $eventFake->assertDispatched(AlertChanged::class, static function (AlertChanged $alertChanged) use ($broadcastQueue): bool {
+        return $alertChanged->broadcastQueue() === $broadcastQueue;
+    });
+});

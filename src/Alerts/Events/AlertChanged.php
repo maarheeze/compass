@@ -12,6 +12,7 @@ readonly class AlertChanged implements ShouldBroadcast
 {
     public function __construct(
         public ?string $toastHtml,
+        private ?string $broadcastQueue,
     ) {
     }
 
@@ -23,5 +24,10 @@ readonly class AlertChanged implements ShouldBroadcast
     public function broadcastOn(): PrivateChannel
     {
         return new PrivateChannel(CompassChannel::NAME);
+    }
+
+    public function broadcastQueue(): ?string
+    {
+        return $this->broadcastQueue;
     }
 }

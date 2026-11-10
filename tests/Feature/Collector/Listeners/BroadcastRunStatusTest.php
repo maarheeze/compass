@@ -36,3 +36,18 @@ test('handle broadcasts no toast for a queued run', function (): void {
         return $runStatusChanged->toastHtml === null;
     });
 });
+
+test('handle broadcasts from the configured broadcast queue', function (): void {
+    $broadcastQueue = fake()->slug();
+    $this->setConfiguration('compass.broadcast_queue', $broadcastQueue);
+    $run = Run::factory()->create();
+    $eventFake = new EventFake($this->app->make(Dispatcher::class));
+    $this->app->instance(Dispatcher::class, $eventFake);
+
+    $broadcastRunStatus = $this->app->make(BroadcastRunStatus::class);
+    $broadcastRunStatus->handle(new RunSaved($run));
+
+    $eventFake->assertDispatched(RunStatusChanged::class, static function (RunStatusChanged $runStatusChanged) use ($broadcastQueue): bool {
+        return $runStatusChanged->broadcastQueue() === $broadcastQueue;
+    });
+});

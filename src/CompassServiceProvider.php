@@ -15,6 +15,7 @@ use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Maarheeze\Compass\Alerts\Listeners\BroadcastAlertHistoryEntry;
 use Maarheeze\Compass\Broadcasting\CompassChannel;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Events\RunSaved;
@@ -50,6 +51,11 @@ class CompassServiceProvider extends ServiceProvider
             ->when(CollectorLogger::class)
             ->needs('$channel')
             ->giveConfig('compass.log_channel');
+
+        $this->app
+            ->when([BroadcastAlertHistoryEntry::class, BroadcastRunStatus::class])
+            ->needs('$broadcastQueue')
+            ->giveConfig('compass.broadcast_queue');
 
         $this->app
             ->when([RunController::class, SiteEndpointCheckController::class])
