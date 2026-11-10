@@ -8,6 +8,10 @@ use Illuminate\Routing\Router;
 use Maarheeze\Compass\Broadcasting\CompassChannel;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
+use Maarheeze\Compass\Models\Issue;
+use Maarheeze\Compass\Models\PullRequest;
+use Maarheeze\Compass\Models\Repository;
+use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 use Maarheeze\Compass\View\Components\Navigation;
@@ -54,6 +58,58 @@ test('data tabs label each tab with its translated label', function (): void {
 
     expect($navigation->dataTabs->pluck('label')->all())
         ->toBe(['Dashboard', 'Repositories', 'Issues', 'Pull requests', 'Sites']);
+});
+
+test('data tabs count the rows of their page', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+    $repositoryCount = fake()->numberBetween(1, 3);
+    Repository::factory()
+        ->count($repositoryCount)
+        ->create();
+    $issueCount = fake()->numberBetween(1, 3);
+    Issue::factory()
+        ->count($issueCount)
+        ->create(['repository_id' => null]);
+    $pullRequestCount = fake()->numberBetween(1, 3);
+    PullRequest::factory()
+        ->count($pullRequestCount)
+        ->create(['repository_id' => null]);
+    $siteCount = fake()->numberBetween(1, 3);
+    Site::factory()
+        ->count($siteCount)
+        ->create();
+
+    $navigation = $this->app->make(Navigation::class);
+
+    expect($navigation->dataTabs->pluck('count')->all())
+        ->toBe([0, $repositoryCount, $issueCount, $pullRequestCount, $siteCount]);
+});
+
+test('dashboard tab counts the alerts that are not done, muted ones included', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+    $alertCount = fake()->numberBetween(1, 3);
+    Alert::factory()
+        ->count($alertCount)
+        ->active()
+        ->muted()
+        ->create();
+    Alert::factory()
+        ->done()
+        ->create();
+
+    $navigation = $this->app->make(Navigation::class);
+
+    expect($navigation->dataTabs->first()->count)
+        ->toBe($alertCount);
+});
+
+test('operation tabs have no count', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $navigation = $this->app->make(Navigation::class);
+
+    expect($navigation->operationTabs->pluck('count')->all())
+        ->toBe([null]);
 });
 
 test('operation tabs mark the runs tab as active on the runs page', function (): void {

@@ -11,6 +11,7 @@ readonly class NavigationTab
         public string $label,
         public ?string $icon,
         public bool $isActive,
+        public ?int $count,
     ) {
     }
 }

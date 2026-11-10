@@ -15,6 +15,10 @@ use Maarheeze\Compass\Broadcasting\CompassChannel;
 use Maarheeze\Compass\Collections\NavigationTabCollection;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
+use Maarheeze\Compass\Models\Issue;
+use Maarheeze\Compass\Models\PullRequest;
+use Maarheeze\Compass\Models\Repository;
+use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\View\NavigationTab;
 use Webmozart\Assert\Assert;
@@ -68,6 +72,7 @@ class Navigation extends Component
                 Assert::string($translator->get('compass::navigation.dashboard')),
                 'compass::icons.home',
                 $request->routeIs(RouteName::DASHBOARD->value),
+                Alert::query()->notDone()->count(),
             ),
             new NavigationTab(
                 $urlGenerator->route(RouteName::REPOSITORIES->value),
@@ -78,18 +83,21 @@ class Navigation extends Component
                     RouteName::REPOSITORY->value,
                     RouteName::PACKAGE->value,
                 ),
+                Repository::query()->count(),
             ),
             new NavigationTab(
                 $urlGenerator->route(RouteName::ISSUES->value),
                 Assert::string($translator->get('compass::navigation.issues')),
                 'compass::icons.issue-opened',
                 $request->routeIs(RouteName::ISSUES->value),
+                Issue::query()->count(),
             ),
             new NavigationTab(
                 $urlGenerator->route(RouteName::PULL_REQUESTS->value),
                 Assert::string($translator->get('compass::navigation.pull_requests')),
                 'compass::icons.git-pull-request',
                 $request->routeIs(RouteName::PULL_REQUESTS->value),
+                PullRequest::query()->count(),
             ),
             new NavigationTab(
                 $urlGenerator->route(RouteName::SITES->value),
@@ -101,6 +109,7 @@ class Navigation extends Component
                     RouteName::SITE_ENDPOINT_CHECKS->value,
                     RouteName::SITE_REPORT_EDIT->value,
                 ),
+                Site::query()->count(),
             ),
         ]);
     }
@@ -116,6 +125,7 @@ class Navigation extends Component
                 Assert::string($translator->get('compass::navigation.runs')),
                 'compass::icons.history',
                 $request->routeIs(RouteName::RUNS->value),
+                null,
             ),
         ]);
     }
