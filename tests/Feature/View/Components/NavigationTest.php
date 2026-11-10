@@ -21,7 +21,7 @@ test('user is the signed in user', function (): void {
         ->toBeTrue();
 });
 
-test('tabs mark the tab of the current page as the only active one', function (): void {
+test('data tabs mark the tab of the current page as the only active one', function (): void {
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
     $request = Request::create(route(RouteName::SITE_ENDPOINT_CHECKS, [fake()->uuid(), fake()->slug()]));
     $request->setRouteResolver(function () use ($request): Route {
@@ -33,20 +33,20 @@ test('tabs mark the tab of the current page as the only active one', function ()
 
     $navigation = $this->app->make(Navigation::class, ['request' => $request]);
 
-    expect($navigation->tabs->where('isActive', true)->sole()->url)
+    expect($navigation->dataTabs->where('isActive', true)->sole()->url)
         ->toBe(route(RouteName::SITES));
 });
 
-test('tabs label each tab with its translated label', function (): void {
+test('data tabs label each tab with its translated label', function (): void {
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
     $navigation = $this->app->make(Navigation::class);
 
-    expect($navigation->tabs->pluck('label')->all())
+    expect($navigation->dataTabs->pluck('label')->all())
         ->toBe(['Dashboard', 'Repositories', 'Issues', 'Pull requests', 'Sites']);
 });
 
-test('trailing tabs mark the runs tab as active on the runs page', function (): void {
+test('operation tabs mark the runs tab as active on the runs page', function (): void {
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
     $request = Request::create(route(RouteName::RUNS));
     $request->setRouteResolver(function () use ($request): Route {
@@ -58,17 +58,49 @@ test('trailing tabs mark the runs tab as active on the runs page', function (): 
 
     $navigation = $this->app->make(Navigation::class, ['request' => $request]);
 
-    expect($navigation->trailingTabs->where('isActive', true)->sole()->url)
+    expect($navigation->operationTabs->where('isActive', true)->sole()->url)
         ->toBe(route(RouteName::RUNS));
 });
 
-test('trailing tabs label each tab with its translated label', function (): void {
+test('operation tabs label each tab with its translated label', function (): void {
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
     $navigation = $this->app->make(Navigation::class);
 
-    expect($navigation->trailingTabs->pluck('label')->all())
+    expect($navigation->operationTabs->pluck('label')->all())
         ->toBe(['Runs']);
+});
+
+test('operation tabs have no active tab on a page of the collected data', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+    $request = Request::create(route(RouteName::DASHBOARD));
+    $request->setRouteResolver(function () use ($request): Route {
+        return $this->app
+            ->make(Router::class)
+            ->getRoutes()
+            ->match($request);
+    });
+
+    $navigation = $this->app->make(Navigation::class, ['request' => $request]);
+
+    expect($navigation->operationTabs->where('isActive', true))
+        ->toBeEmpty();
+});
+
+test('data tabs have no active tab on the runs page', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+    $request = Request::create(route(RouteName::RUNS));
+    $request->setRouteResolver(function () use ($request): Route {
+        return $this->app
+            ->make(Router::class)
+            ->getRoutes()
+            ->match($request);
+    });
+
+    $navigation = $this->app->make(Navigation::class, ['request' => $request]);
+
+    expect($navigation->dataTabs->where('isActive', true))
+        ->toBeEmpty();
 });
 
 test('dashboard url is the url of the dashboard', function (): void {

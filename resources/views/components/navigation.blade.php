@@ -60,10 +60,10 @@
         </div>
 
         <nav class="flex items-center gap-4 text-sm">
-            <x-compass::tabs :tabs="$tabs" />
+            <x-compass::tabs :tabs="$dataTabs" />
 
             <div class="ml-auto flex items-center gap-4">
-                <x-compass::tabs :tabs="$trailingTabs" />
+                <x-compass::tabs :tabs="$operationTabs" />
             </div>
         </nav>
     </div>

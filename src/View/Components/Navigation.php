@@ -21,12 +21,12 @@ use Webmozart\Assert\Assert;
 class Navigation extends Component
 {
     public readonly string $dashboardUrl;
+    public readonly NavigationTabCollection $dataTabs;
     public readonly bool $hasAlerts;
     public readonly bool $hasAlertsNotMuted;
     public readonly string $logoutUrl;
+    public readonly NavigationTabCollection $operationTabs;
     public readonly string $settingsUrl;
-    public readonly NavigationTabCollection $tabs;
-    public readonly NavigationTabCollection $trailingTabs;
     public readonly User $user;
 
     public function __construct(
@@ -37,15 +37,15 @@ class Navigation extends Component
         private readonly ViewFactory $view,
     ) {
         $this->dashboardUrl = $urlGenerator->route(RouteName::DASHBOARD->value);
+        $this->dataTabs = $this->dataNavigationTabs($request, $translator, $urlGenerator);
         $this->hasAlerts = Alert::query()->notDone()->exists();
         $this->hasAlertsNotMuted = Alert::query()
             ->notDone()
             ->notMuted()
             ->exists();
         $this->logoutUrl = $urlGenerator->route(RouteName::LOGOUT->value);
+        $this->operationTabs = $this->operationNavigationTabs($request, $translator, $urlGenerator);
         $this->settingsUrl = $urlGenerator->route(RouteName::SETTINGS_EDIT->value);
-        $this->tabs = $this->navigationTabs($request, $translator, $urlGenerator);
-        $this->trailingTabs = $this->trailingNavigationTabs($request, $translator, $urlGenerator);
         $this->user = $authenticatedUser->user();
     }
 
@@ -54,7 +54,7 @@ class Navigation extends Component
         return $this->view->make('compass::components.navigation');
     }
 
-    private function navigationTabs(
+    private function dataNavigationTabs(
         Request $request,
         Translator $translator,
         UrlGenerator $urlGenerator,
@@ -102,7 +102,7 @@ class Navigation extends Component
         ]);
     }
 
-    private function trailingNavigationTabs(
+    private function operationNavigationTabs(
         Request $request,
         Translator $translator,
         UrlGenerator $urlGenerator,
