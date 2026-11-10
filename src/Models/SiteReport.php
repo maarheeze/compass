@@ -21,8 +21,6 @@ use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
 
-use function sprintf;
-
 /**
  * @property ?bool $app_debug
  * @property ?string $app_env
@@ -89,11 +87,6 @@ class SiteReport extends Model implements AlertSubject
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
-    }
-
-    public function displayName(): string
-    {
-        return sprintf('%s (%s)', $this->site->name, $this->source);
     }
 
     /**

@@ -16,7 +16,6 @@ class App extends Component
     public readonly string $htmlLanguage;
 
     public function __construct(
-        public readonly string $title,
         Translator $translator,
         private readonly ViewFactory $view,
     ) {

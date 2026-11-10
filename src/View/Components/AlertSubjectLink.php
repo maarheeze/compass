@@ -12,15 +12,13 @@ use Maarheeze\Compass\Http\AlertSubjectUrl;
 
 class AlertSubjectLink extends Component
 {
-    public readonly string $name;
     public readonly string $url;
 
     public function __construct(
-        AlertSubject $subject,
+        public readonly AlertSubject $subject,
         AlertSubjectUrl $alertSubjectUrl,
         private readonly ViewFactory $view,
     ) {
-        $this->name = $subject->displayName();
         $this->url = $alertSubjectUrl->url($subject);
     }
 

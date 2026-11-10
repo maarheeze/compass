@@ -1,4 +1,5 @@
-<x-compass::layouts.app :title="__('compass::authentication.sign_in')">
+<x-compass::layouts.app>
+    <x-slot:title>{{ __('compass::authentication.sign_in') }}</x-slot:title>
     <main class="flex min-h-screen items-center justify-center p-6">
         <div class="w-full max-w-sm space-y-6 rounded-md border border-border bg-canvas p-8">
             <div class="space-y-1">

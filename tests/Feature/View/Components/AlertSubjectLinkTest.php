@@ -15,15 +15,6 @@ test('url is the alert subject url of the subject', function (): void {
         ->toBe($this->app->make(AlertSubjectUrl::class)->url($site));
 });
 
-test('name is the display name of the subject', function (): void {
-    $site = Site::factory()->create();
-
-    $alertSubjectLink = $this->app->make(AlertSubjectLink::class, ['subject' => $site]);
-
-    expect($alertSubjectLink->name)
-        ->toBe($site->displayName());
-});
-
 test('render renders the alert subject link view', function (): void {
     $alertSubjectLink = $this->app->make(AlertSubjectLink::class, ['subject' => Site::factory()->create()]);
 

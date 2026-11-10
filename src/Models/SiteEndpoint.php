@@ -22,8 +22,6 @@ use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
 
-use function sprintf;
-
 /**
  * @property CarbonImmutable $created_at
  * @property Uuid $id
@@ -70,11 +68,6 @@ class SiteEndpoint extends Model implements AlertSubject
     public function siteReport(): BelongsTo
     {
         return $this->belongsTo(SiteReport::class);
-    }
-
-    public function displayName(): string
-    {
-        return sprintf('%s%s', $this->siteReport->site->name, $this->path->toString());
     }
 
     /**

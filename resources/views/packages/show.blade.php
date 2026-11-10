@@ -1,4 +1,5 @@
-<x-compass::layouts.app :title="$packageName">
+<x-compass::layouts.app>
+    <x-slot:title>{{ $packageName }}</x-slot:title>
     <x-compass::navigation />
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">

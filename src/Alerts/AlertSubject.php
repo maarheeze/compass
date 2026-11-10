@@ -17,6 +17,4 @@ interface AlertSubject
     public function alerts(): MorphMany;
 
     public function alertsIncludingChildren(): AlertBuilder;
-
-    public function displayName(): string;
 }

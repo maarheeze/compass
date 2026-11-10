@@ -132,11 +132,6 @@ class Site extends Model implements AlertSubject
         return Alert::query()->ofSite($this);
     }
 
-    public function displayName(): string
-    {
-        return $this->name;
-    }
-
     /**
      * @return array<string, string>
      */
