@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Maarheeze\Compass\Alerts\AlertConfirmation;
 use Maarheeze\Compass\Alerts\AlertHistoryEntryType;
 use Maarheeze\Compass\Collections\AlertHistoryEntryCollection;
 use Maarheeze\Compass\Http\RouteName;
@@ -92,6 +93,18 @@ test('mark done sends the user back to the dashboard', function (): void {
     $response->assertRedirect(route(RouteName::DASHBOARD));
 });
 
+test('mark done confirms the marking done to the signed in user', function (): void {
+    $alert = Alert::factory()
+        ->resolved()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $this->post(route(RouteName::ALERT_MARK_DONE, $alert));
+
+    expect($this->app->make(AlertConfirmation::class)->confirmedEntryType())
+        ->toBe(AlertHistoryEntryType::MARKED_DONE);
+});
+
 test('reopen reopens the alert by the signed in user', function (): void {
     $alert = Alert::factory()
         ->done()
@@ -119,6 +132,18 @@ test('reopen sends the user back to the alert page', function (): void {
     $response->assertRedirect(route(RouteName::ALERT, $alert));
 });
 
+test('reopen confirms the reopening to the signed in user', function (): void {
+    $alert = Alert::factory()
+        ->done()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $this->post(route(RouteName::ALERT_REOPEN, $alert));
+
+    expect($this->app->make(AlertConfirmation::class)->confirmedEntryType())
+        ->toBe(AlertHistoryEntryType::REOPENED);
+});
+
 test('mute mutes the alert by the signed in user', function (): void {
     $alert = Alert::factory()
         ->active()
@@ -144,6 +169,18 @@ test('mute sends the user back to the alert page', function (): void {
     $response = $this->post(route(RouteName::ALERT_MUTE, $alert));
 
     $response->assertRedirect(route(RouteName::ALERT, $alert));
+});
+
+test('mute confirms the muting to the signed in user', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $this->post(route(RouteName::ALERT_MUTE, $alert));
+
+    expect($this->app->make(AlertConfirmation::class)->confirmedEntryType())
+        ->toBe(AlertHistoryEntryType::MUTED);
 });
 
 test('unmute unmutes the alert by the signed in user', function (): void {
@@ -175,6 +212,19 @@ test('unmute sends the user back to the alert page', function (): void {
     $response->assertRedirect(route(RouteName::ALERT, $alert));
 });
 
+test('unmute confirms the unmuting to the signed in user', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->muted()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $this->post(route(RouteName::ALERT_UNMUTE, $alert));
+
+    expect($this->app->make(AlertConfirmation::class)->confirmedEntryType())
+        ->toBe(AlertHistoryEntryType::UNMUTED);
+});
+
 test('assign assigns the alert to the signed in user', function (): void {
     $alert = Alert::factory()
         ->active()
@@ -199,6 +249,18 @@ test('assign sends the user back to the alert page', function (): void {
     $response = $this->post(route(RouteName::ALERT_ASSIGN, $alert));
 
     $response->assertRedirect(route(RouteName::ALERT, $alert));
+});
+
+test('assign confirms the assigning to the signed in user', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->create(['assignee_id' => null]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $this->post(route(RouteName::ALERT_ASSIGN, $alert));
+
+    expect($this->app->make(AlertConfirmation::class)->confirmedEntryType())
+        ->toBe(AlertHistoryEntryType::ASSIGNED);
 });
 
 test('unassign unassigns the alert by the signed in user', function (): void {
@@ -228,4 +290,17 @@ test('unassign sends the user back to the alert page', function (): void {
     $response = $this->post(route(RouteName::ALERT_UNASSIGN, $alert));
 
     $response->assertRedirect(route(RouteName::ALERT, $alert));
+});
+
+test('unassign confirms the unassigning to the signed in user', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->for(User::factory(), 'assignee')
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $this->post(route(RouteName::ALERT_UNASSIGN, $alert));
+
+    expect($this->app->make(AlertConfirmation::class)->confirmedEntryType())
+        ->toBe(AlertHistoryEntryType::UNASSIGNED);
 });

@@ -67,4 +67,6 @@
             </div>
         </nav>
     </div>
+
+    <x-compass::toast-stack />
 </header>
