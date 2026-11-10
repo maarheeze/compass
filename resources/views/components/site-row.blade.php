@@ -6,7 +6,7 @@
             @forelse ($site->reports as $siteReport)
                 <x-compass::site-report-status-badge :status="$siteReport->status" />
             @empty
-                <x-compass::site-report-status-badge :status="null" />
+                <x-compass::site-report-not-checked-badge />
             @endforelse
         </x-compass::subject-name>
         <div class="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-foreground-muted">

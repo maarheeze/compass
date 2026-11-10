@@ -13,7 +13,7 @@ use Maarheeze\Compass\View\BadgeType;
 class SiteReportStatusBadge extends Component
 {
     public function __construct(
-        public readonly ?SiteReportStatus $status,
+        public readonly SiteReportStatus $status,
         private readonly ViewFactory $view,
     ) {
     }
@@ -23,7 +23,7 @@ class SiteReportStatusBadge extends Component
         return match ($this->status) {
             SiteReportStatus::INCOMPATIBLE, SiteReportStatus::UNAUTHORIZED => BadgeType::DANGER,
             SiteReportStatus::INSTALLED => BadgeType::SUCCESS,
-            SiteReportStatus::NOT_INSTALLED, null => BadgeType::NEUTRAL,
+            SiteReportStatus::NOT_INSTALLED => BadgeType::NEUTRAL,
         };
     }
 
