@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Maarheeze\Compass\Alerts\AlertHistoryEntryType;
+use Maarheeze\Compass\Alerts\Events\AlertHistoryEntryCreated;
 use Maarheeze\Compass\Collections\AlertHistoryEntryCollection;
 use Maarheeze\Compass\Database\Factories\AlertHistoryEntryFactory;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
@@ -25,6 +26,7 @@ use Maarheeze\Uuid\Uuid;
  * @property CarbonImmutable $updated_at
  * @property ?Uuid $user_id
  *
+ * @property-read Alert $alert
  * @property-read ?User $user
  */
 class AlertHistoryEntry extends Model
@@ -36,6 +38,9 @@ class AlertHistoryEntry extends Model
     use HasUuidAsId;
 
     protected static string $collectionClass = AlertHistoryEntryCollection::class;
+
+    /** @var array<string, class-string> */
+    protected $dispatchesEvents = ['created' => AlertHistoryEntryCreated::class];
 
     /**
      * @return list<string>
@@ -53,6 +58,14 @@ class AlertHistoryEntry extends Model
     public function getTable(): string
     {
         return 'compass_alert_history_entries';
+    }
+
+    /**
+     * @return BelongsTo<Alert, $this>
+     */
+    public function alert(): BelongsTo
+    {
+        return $this->belongsTo(Alert::class);
     }
 
     /**

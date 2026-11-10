@@ -7,7 +7,9 @@ namespace Maarheeze\Compass\Providers;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\ServiceProvider;
 use Maarheeze\Compass\Alerts\AlertTypes;
+use Maarheeze\Compass\Alerts\Events\AlertHistoryEntryCreated;
 use Maarheeze\Compass\Alerts\Events\AlertOpened;
+use Maarheeze\Compass\Alerts\Listeners\BroadcastAlertHistoryEntry;
 use Maarheeze\Compass\Alerts\Listeners\Composer\EvaluateComposerMinimumStability;
 use Maarheeze\Compass\Alerts\Listeners\Composer\EvaluateComposerWarningOnComposerJsonChanged;
 use Maarheeze\Compass\Alerts\Listeners\Composer\EvaluateComposerWarningOnComposerLockChanged;
@@ -81,6 +83,7 @@ class AlertProvider extends ServiceProvider
         Alert::addGlobalScope(new RegisteredAlertTypes($alertTypes));
         NotificationSubscription::addGlobalScope(new RegisteredAlertTypes($alertTypes));
 
+        $events->listen(AlertHistoryEntryCreated::class, BroadcastAlertHistoryEntry::class);
         $events->listen(AlertOpened::class, SendAlertNotifications::class);
         $events->listen(SiteEndpointChecked::class, EvaluateSiteEndpointDown::class);
         $events->listen(SiteInspected::class, EvaluateSiteDebugEnabled::class);

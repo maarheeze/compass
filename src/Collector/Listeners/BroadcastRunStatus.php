@@ -8,11 +8,13 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Maarheeze\Compass\Collector\Events\RunSaved;
 use Maarheeze\Compass\Collector\Events\RunStatusChanged;
+use Maarheeze\Compass\View\ComponentHtml;
 use Maarheeze\Compass\View\Components\RunToast;
 
 readonly class BroadcastRunStatus
 {
     public function __construct(
+        private ComponentHtml $componentHtml,
         private Dispatcher $events,
         private ViewFactory $view,
     ) {
@@ -22,18 +24,6 @@ readonly class BroadcastRunStatus
     {
         $runToast = new RunToast($runSaved->run, $this->view);
 
-        $this->events->dispatch(new RunStatusChanged($this->toastHtml($runToast)));
-    }
-
-    private function toastHtml(RunToast $runToast): ?string
-    {
-        if (!$runToast->shouldRender()) {
-            return null;
-        }
-
-        return $runToast
-            ->render()
-            ->with($runToast->data())
-            ->render();
+        $this->events->dispatch(new RunStatusChanged($this->componentHtml->html($runToast)));
     }
 }
