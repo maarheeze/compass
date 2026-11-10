@@ -4,4 +4,7 @@
             <x-compass::enum-label :value="$confirmedEntryType" />
         </x-compass::toast>
     @endif
+    @foreach ($runningRuns as $runningRun)
+        <x-compass::run-toast :run="$runningRun" />
+    @endforeach
 </div>

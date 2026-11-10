@@ -29,7 +29,7 @@
             </div>
         </div>
 
-        <div class="rounded-md border border-border bg-canvas px-4 py-3 text-sm">
+        <div data-compass-live-region="alert-details" class="rounded-md border border-border bg-canvas px-4 py-3 text-sm">
             <dl class="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2">
                 <dt class="text-foreground-muted">{{ __('compass::alert.condition') }}</dt>
                 <dd class="text-foreground">
@@ -67,7 +67,7 @@
                 </x-slot:icon>
                 {{ __('compass::alert.history') }}
             </x-compass::section-heading>
-            <div class="overflow-hidden rounded-md border border-border bg-canvas">
+            <div data-compass-live-region="alert-history" class="overflow-hidden rounded-md border border-border bg-canvas">
                 <table class="w-full table-fixed text-left text-sm">
                     <tbody class="divide-y divide-border">
                         @foreach ($historyEntries as $historyEntry)

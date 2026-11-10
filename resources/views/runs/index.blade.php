@@ -34,21 +34,23 @@
                 {{ __('compass::run.history') }}
             </x-compass::section-heading>
 
-            <div class="overflow-hidden rounded-md border border-border bg-canvas">
-                <table class="w-full table-fixed text-left text-sm">
-                    <tbody class="divide-y divide-border">
-                        @forelse ($runs as $run)
-                            <x-compass::run-row :run="$run" />
-                        @empty
-                            <tr>
-                                <td class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::run.no_runs') }}</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+            <div data-compass-live-region="runs" class="space-y-3">
+                <div class="overflow-hidden rounded-md border border-border bg-canvas">
+                    <table class="w-full table-fixed text-left text-sm">
+                        <tbody class="divide-y divide-border">
+                            @forelse ($runs as $run)
+                                <x-compass::run-row :run="$run" />
+                            @empty
+                                <tr>
+                                    <td class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::run.no_runs') }}</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
 
-            {{ $runs->links('compass::pagination') }}
+                {{ $runs->links('compass::pagination') }}
+            </div>
         </section>
     </main>
 </x-compass::layouts.app>

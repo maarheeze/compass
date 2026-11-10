@@ -38,7 +38,7 @@
                 </x-slot:icon>
                 {{ __('compass::alert.alerts') }}
             </x-compass::section-heading>
-            <x-compass::alert-table :alerts="$repository->alerts" />
+            <x-compass::alert-table :alerts="$repository->alerts" data-compass-live-region="alerts" />
         </section>
 
         <section class="space-y-3">

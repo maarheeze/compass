@@ -36,6 +36,41 @@ function showToast(toastStack, toastHtml) {
     closeLater(toast);
 }
 
+let isRefreshing = false;
+let isRefreshPending = false;
+
+async function refreshLiveRegions() {
+    if (isRefreshing) {
+        isRefreshPending = true;
+
+        return;
+    }
+
+    isRefreshing = true;
+
+    try {
+        const response = await fetch(window.location.href, { headers: { Accept: 'text/html' } });
+        const refreshedDocument = new DOMParser().parseFromString(await response.text(), 'text/html');
+
+        document.querySelectorAll('[data-compass-live-region]').forEach((liveRegion) => {
+            const liveRegionName = liveRegion.getAttribute('data-compass-live-region');
+            const refreshedLiveRegion = refreshedDocument.querySelector(`[data-compass-live-region="${liveRegionName}"]`);
+
+            if (refreshedLiveRegion !== null) {
+                liveRegion.replaceWith(refreshedLiveRegion);
+            }
+        });
+    } finally {
+        isRefreshing = false;
+    }
+
+    if (isRefreshPending) {
+        isRefreshPending = false;
+
+        await refreshLiveRegions();
+    }
+}
+
 function listen(toastStack) {
     const header = document.querySelector('[data-compass-channel]');
 
@@ -49,6 +84,8 @@ function listen(toastStack) {
             if (eventData.toastHtml) {
                 showToast(toastStack, eventData.toastHtml);
             }
+
+            refreshLiveRegions();
         });
 }
 

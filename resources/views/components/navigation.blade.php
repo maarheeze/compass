@@ -4,23 +4,25 @@
             <a href="{{ $dashboardUrl }}" class="text-base font-semibold text-foreground"><x-compass::application-name /></a>
 
             <div class="flex items-center gap-2">
-                @if ($hasAlertsNotMuted)
-                    <a
-                        href="{{ $dashboardUrl }}"
-                        title="{{ __('compass::navigation.alerts_found') }}"
-                        aria-label="{{ __('compass::navigation.alerts_found') }}"
-                        class="rounded-md border border-amber-600/30 bg-amber-50 px-3 py-1.5 text-sm text-amber-700 hover:bg-amber-100 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-400 dark:hover:bg-amber-400/20">
-                        <x-compass::icons.alert />
-                    </a>
-                @elseif ($hasAlerts)
-                    <a
-                        href="{{ $dashboardUrl }}"
-                        title="{{ __('compass::navigation.all_alerts_muted') }}"
-                        aria-label="{{ __('compass::navigation.all_alerts_muted') }}"
-                        class="rounded-md border border-border bg-canvas-subtle px-3 py-1.5 text-sm text-foreground-muted hover:bg-border/30">
-                        <x-compass::icons.alert />
-                    </a>
-                @endif
+                <div data-compass-live-region="alert-button" class="contents">
+                    @if ($hasAlertsNotMuted)
+                        <a
+                            href="{{ $dashboardUrl }}"
+                            title="{{ __('compass::navigation.alerts_found') }}"
+                            aria-label="{{ __('compass::navigation.alerts_found') }}"
+                            class="rounded-md border border-amber-600/30 bg-amber-50 px-3 py-1.5 text-sm text-amber-700 hover:bg-amber-100 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-400 dark:hover:bg-amber-400/20">
+                            <x-compass::icons.alert />
+                        </a>
+                    @elseif ($hasAlerts)
+                        <a
+                            href="{{ $dashboardUrl }}"
+                            title="{{ __('compass::navigation.all_alerts_muted') }}"
+                            aria-label="{{ __('compass::navigation.all_alerts_muted') }}"
+                            class="rounded-md border border-border bg-canvas-subtle px-3 py-1.5 text-sm text-foreground-muted hover:bg-border/30">
+                            <x-compass::icons.alert />
+                        </a>
+                    @endif
+                </div>
 
                 <button
                     type="button"

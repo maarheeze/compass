@@ -10,7 +10,7 @@
                 </x-slot:icon>
                 {{ __('compass::alert.alerts') }}
             </x-compass::section-heading>
-            <x-compass::alert-table :alerts="$alerts" />
+            <x-compass::alert-table :alerts="$alerts" data-compass-live-region="alerts" />
         </section>
     </main>
 </x-compass::layouts.app>

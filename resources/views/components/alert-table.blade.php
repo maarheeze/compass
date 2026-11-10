@@ -1,4 +1,4 @@
-<div class="overflow-hidden rounded-md border border-border bg-canvas">
+<div {{ $attributes->merge(['class' => 'overflow-hidden rounded-md border border-border bg-canvas']) }}>
     <table class="w-full table-fixed text-left text-sm">
         <tbody class="divide-y divide-border">
             @forelse ($alerts as $alert)
