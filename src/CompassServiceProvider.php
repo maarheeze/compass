@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Maarheeze\Compass;
 
 use Carbon\FactoryImmutable;
-use Illuminate\Broadcasting\BroadcastManager;
 use Illuminate\Broadcasting\Broadcasters\Broadcaster;
+use Illuminate\Broadcasting\BroadcastManager;
 use Illuminate\Config\Repository as ConfigurationRepository;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -26,6 +26,7 @@ use Maarheeze\Compass\Http\Controllers\RunController;
 use Maarheeze\Compass\Http\Controllers\SiteEndpointCheckController;
 use Maarheeze\Compass\Http\EndpointPathRouteParameter;
 use Maarheeze\Compass\Models\Repository;
+use Maarheeze\Compass\Models\Run;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteReport;
@@ -78,6 +79,10 @@ class CompassServiceProvider extends ServiceProvider
     ): void {
         $events->listen(JobFailed::class, RecordRunFailure::class);
         $events->listen(RunSaved::class, BroadcastRunStatus::class);
+
+        Run::saved(static function (Run $run) use ($events): void {
+            $events->dispatch(new RunSaved($run));
+        });
 
         Assert::isInstanceOf($broadcastManager->connection(), Broadcaster::class)->channel(
             CompassChannel::NAME,

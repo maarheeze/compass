@@ -17,9 +17,11 @@ class UnassignAlertRequest extends AlertActionRequest
     {
         return [
             function (Validator $validator) use ($alertAssigner): void {
-                if (!$alertAssigner->canUnassign($this->alert())) {
-                    $this->noLongerPossible($validator);
+                if ($alertAssigner->canUnassign($this->alert())) {
+                    return;
                 }
+
+                $this->noLongerPossible($validator);
             },
         ];
     }

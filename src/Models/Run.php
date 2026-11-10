@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Maarheeze\Compass\Collections\RunCollection;
 use Maarheeze\Compass\Collections\RunFailureCollection;
-use Maarheeze\Compass\Collector\Events\RunSaved;
 use Maarheeze\Compass\Collector\CollectorType;
 use Maarheeze\Compass\Collector\RunStatus;
 use Maarheeze\Compass\Collector\TaskType;
@@ -42,9 +41,6 @@ class Run extends Model
     use HasUuidAsId;
 
     protected static string $collectionClass = RunCollection::class;
-
-    /** @var array<string, class-string> */
-    protected $dispatchesEvents = ['saved' => RunSaved::class];
 
     /**
      * @return list<string>

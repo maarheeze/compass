@@ -11,8 +11,6 @@ use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 
-use function sprintf;
-
 test('guard signs in compass users', function (): void {
     $user = User::factory()->create();
     $guard = $this->app->make(AuthenticationFactory::class)->guard(AuthenticationProvider::GUARD);

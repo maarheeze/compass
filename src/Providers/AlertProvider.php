@@ -56,6 +56,7 @@ use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Collector\Events\SiteMissingIgnored;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Models\Alert;
+use Maarheeze\Compass\Models\AlertHistoryEntry;
 use Maarheeze\Compass\Models\NotificationSubscription;
 use Maarheeze\Compass\Models\Scopes\RegisteredAlertTypes;
 
@@ -103,6 +104,10 @@ class AlertProvider extends ServiceProvider
         $events->listen(RepositoriesCollected::class, EvaluateSiteBehindOnRepositoriesCollected::class);
         $events->listen(SitesCollected::class, EvaluateSiteBehindOnSitesCollected::class);
         $events->listen(SitesCollected::class, EvaluateSiteDeploymentOverdue::class);
+
+        AlertHistoryEntry::created(static function (AlertHistoryEntry $alertHistoryEntry) use ($events): void {
+            $events->dispatch(new AlertHistoryEntryCreated($alertHistoryEntry));
+        });
     }
 
     public function register(): void

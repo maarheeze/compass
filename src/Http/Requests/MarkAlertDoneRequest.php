@@ -17,9 +17,11 @@ class MarkAlertDoneRequest extends AlertActionRequest
     {
         return [
             function (Validator $validator) use ($alertDoneMarker): void {
-                if (!$alertDoneMarker->canMarkDone($this->alert())) {
-                    $this->noLongerPossible($validator);
+                if ($alertDoneMarker->canMarkDone($this->alert())) {
+                    return;
                 }
+
+                $this->noLongerPossible($validator);
             },
         ];
     }

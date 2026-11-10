@@ -17,9 +17,11 @@ class UnmuteAlertRequest extends AlertActionRequest
     {
         return [
             function (Validator $validator) use ($alertMuter): void {
-                if (!$alertMuter->canUnmute($this->alert())) {
-                    $this->noLongerPossible($validator);
+                if ($alertMuter->canUnmute($this->alert())) {
+                    return;
                 }
+
+                $this->noLongerPossible($validator);
             },
         ];
     }

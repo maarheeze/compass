@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Maarheeze\Compass\Alerts\AlertHistoryEntryType;
-use Maarheeze\Compass\Alerts\Events\AlertHistoryEntryCreated;
 use Maarheeze\Compass\Collections\AlertHistoryEntryCollection;
 use Maarheeze\Compass\Database\Factories\AlertHistoryEntryFactory;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
@@ -38,9 +37,6 @@ class AlertHistoryEntry extends Model
     use HasUuidAsId;
 
     protected static string $collectionClass = AlertHistoryEntryCollection::class;
-
-    /** @var array<string, class-string> */
-    protected $dispatchesEvents = ['created' => AlertHistoryEntryCreated::class];
 
     /**
      * @return list<string>

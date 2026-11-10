@@ -18,9 +18,11 @@ class AssignAlertRequest extends AlertActionRequest
     {
         return [
             function (Validator $validator) use ($alertAssigner, $authenticatedUser): void {
-                if (!$alertAssigner->canAssignToMe($this->alert(), $authenticatedUser->user())) {
-                    $this->noLongerPossible($validator);
+                if ($alertAssigner->canAssignToMe($this->alert(), $authenticatedUser->user())) {
+                    return;
                 }
+
+                $this->noLongerPossible($validator);
             },
         ];
     }

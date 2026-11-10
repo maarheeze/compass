@@ -13,7 +13,7 @@ use Illuminate\Support\Testing\Fakes\BatchFake;
 use Illuminate\Support\Testing\Fakes\BusFake;
 use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Collector\CollectorType;
-use Maarheeze\Compass\Collector\Events\RunSaved;
+use Maarheeze\Compass\Collector\Events\RunStatusChanged;
 use Maarheeze\Compass\Collector\Jobs\FinishRun;
 use Maarheeze\Compass\Collector\RunRecorder;
 use Maarheeze\Compass\Collector\RunStatus;
@@ -111,7 +111,7 @@ test('start collector records the run as running with its batch when the batch i
     ]);
 });
 
-test('start collector saves the running run as a model so its status is broadcast', function (): void {
+test('start collector broadcasts the running run when the batch is stored', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $runId = Uuid::generate();
@@ -124,17 +124,18 @@ test('start collector saves the running run as a model so its status is broadcas
         fake()->randomElement(CollectorType::cases()),
         new CheckSiteEndpoints(),
     );
-    $eventFake = new EventFake($this->app->make(Dispatcher::class));
-    Run::setEventDispatcher($eventFake);
+    $eventFake = new EventFake($this->app->make(Dispatcher::class), [RunStatusChanged::class]);
+    $this->app->instance(Dispatcher::class, $eventFake);
     $busFake
         ->dispatched(ChainedBatch::class)
         ->sole()
         ->toPendingBatch()
         ->beforeCallbacks()[0]($batchFake);
 
-    $eventFake->assertDispatched(RunSaved::class, static function (RunSaved $runSaved) use ($runId): bool {
-        return $runSaved->run->id->equals($runId)
-            && $runSaved->run->status === RunStatus::RUNNING;
+    $eventFake->assertDispatched(RunStatusChanged::class, static function (RunStatusChanged $runStatusChanged) use ($runId): bool {
+        return $runStatusChanged->toastHtml !== null
+            && str_contains($runStatusChanged->toastHtml, sprintf('data-compass-toast-id="%s"', $runId))
+            && str_contains($runStatusChanged->toastHtml, 'data-compass-toast-stays-open');
     });
 });
 

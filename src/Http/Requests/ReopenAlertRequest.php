@@ -17,9 +17,11 @@ class ReopenAlertRequest extends AlertActionRequest
     {
         return [
             function (Validator $validator) use ($alertReopener): void {
-                if (!$alertReopener->canReopen($this->alert())) {
-                    $this->noLongerPossible($validator);
+                if ($alertReopener->canReopen($this->alert())) {
+                    return;
                 }
+
+                $this->noLongerPossible($validator);
             },
         ];
     }
