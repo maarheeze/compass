@@ -8,6 +8,7 @@ use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
+use Maarheeze\Compass\Http\AssigneeFilter;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\PullRequest;
 use Maarheeze\Compass\Models\PullRequestAssignee;
@@ -23,10 +24,9 @@ class PullRequestRow extends Component
 
     public function assigneeUrl(PullRequestAssignee $assignee): string
     {
-        return $this->urlGenerator->route(RouteName::PULL_REQUESTS->value, [
-            'source' => $this->pullRequest->source,
-            'assignee' => $assignee->login,
-        ]);
+        $assigneeFilter = new AssigneeFilter($this->pullRequest->source, $assignee->login);
+
+        return $this->urlGenerator->route(RouteName::PULL_REQUESTS->value, $assigneeFilter->routeParameters());
     }
 
     public function render(): View
