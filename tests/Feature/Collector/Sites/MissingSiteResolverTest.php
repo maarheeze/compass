@@ -12,6 +12,8 @@ use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteReport;
+use Psr\Clock\ClockInterface;
+use Symfony\Component\Clock\MockClock;
 
 test('can ignore is true for a missing site', function (): void {
     $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
@@ -118,14 +120,18 @@ test('delete refuses a collected site', function (): void {
     $missingSiteResolver->delete($site);
 });
 
-test('ignore marks a missing site ignored', function (): void {
+test('ignore marks a missing site ignored now', function (): void {
+    $now = CarbonImmutable::parse(fake()->iso8601());
+    $this->app->instance(ClockInterface::class, new MockClock($now));
     $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
 
     $missingSiteResolver = $this->app->make(MissingSiteResolver::class);
     $missingSiteResolver->ignore($site);
 
-    expect($site->refresh()->missing_ignored_at)
-        ->toBeInstanceOf(CarbonImmutable::class);
+    $this->assertDatabaseHas(Site::class, [
+        'id' => $site->id,
+        'missing_ignored_at' => $now,
+    ]);
 });
 
 test('ignore raises site missing ignored with the site', function (): void {

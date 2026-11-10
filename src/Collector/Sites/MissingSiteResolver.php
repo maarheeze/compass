@@ -10,11 +10,13 @@ use Illuminate\Database\ConnectionInterface;
 use Maarheeze\Compass\Collector\Events\SiteMissingIgnored;
 use Maarheeze\Compass\Models\Builders\SiteBuilder;
 use Maarheeze\Compass\Models\Site;
+use Psr\Clock\ClockInterface;
 use Throwable;
 
 readonly class MissingSiteResolver
 {
     public function __construct(
+        private ClockInterface $clock,
         private ConnectionInterface $connection,
         private Dispatcher $events,
     ) {
@@ -52,7 +54,7 @@ readonly class MissingSiteResolver
     public function ignore(Site $site): void
     {
         $missingSite = $this->ignorableSiteQuery($site)->firstOrFail();
-        $missingSite->update(['missing_ignored_at' => CarbonImmutable::now()]);
+        $missingSite->update(['missing_ignored_at' => CarbonImmutable::instance($this->clock->now())]);
 
         $this->events->dispatch(new SiteMissingIgnored($missingSite));
     }

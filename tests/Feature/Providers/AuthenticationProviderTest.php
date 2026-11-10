@@ -41,8 +41,12 @@ test('guard remembers compass users for the configured minutes', function (): vo
     $signedInFrom = time();
 
     $guard->login(User::factory()->create(), true);
+    $recallerExpiresAt = $guard
+        ->getCookieJar()
+        ->queued($guard->getRecallerName())
+        ->getExpiresTime();
 
-    expect($guard->getCookieJar()->queued($guard->getRecallerName())->getExpiresTime())
+    expect($recallerExpiresAt)
         ->toBeGreaterThanOrEqual($signedInFrom + $rememberSeconds)
         ->toBeLessThanOrEqual(time() + $rememberSeconds);
 });

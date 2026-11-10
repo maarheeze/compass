@@ -13,6 +13,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Maarheeze\Compass\Collector\RunStatus;
 use Maarheeze\Compass\Models\Run;
 use Maarheeze\Uuid\Uuid;
+use Psr\Clock\ClockInterface;
 use Webmozart\Assert\Assert;
 
 class FinishRun implements ShouldQueue
@@ -25,7 +26,7 @@ class FinishRun implements ShouldQueue
     ) {
     }
 
-    public function handle(QueueingDispatcher $dispatcher): void
+    public function handle(ClockInterface $clock, QueueingDispatcher $dispatcher): void
     {
         $run = Run::query()
             ->whereKey($this->runId)
@@ -34,7 +35,7 @@ class FinishRun implements ShouldQueue
 
         $run->update([
             'status' => $batch->failedJobs > 0 ? RunStatus::FAILED : RunStatus::SUCCEEDED,
-            'finished_at' => CarbonImmutable::now(),
+            'finished_at' => CarbonImmutable::instance($clock->now()),
             'failed_job_count' => $batch->failedJobs,
         ]);
     }

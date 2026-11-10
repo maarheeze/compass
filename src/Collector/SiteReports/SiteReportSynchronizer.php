@@ -8,11 +8,13 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\ConnectionInterface;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Models\SiteReport;
+use Psr\Clock\ClockInterface;
 use Throwable;
 
 readonly class SiteReportSynchronizer
 {
     public function __construct(
+        private ClockInterface $clock,
         private ConnectionInterface $connection,
     ) {
     }
@@ -54,12 +56,14 @@ readonly class SiteReportSynchronizer
 
     private function storeStatus(SiteReport $siteReport, CollectedSiteReport $collectedSiteReport): void
     {
+        $collectedAt = CarbonImmutable::instance($this->clock->now());
+
         $siteReport->fill([
             'status' => $collectedSiteReport->status,
             'app_debug' => $collectedSiteReport->appDebug,
             'app_env' => $collectedSiteReport->appEnv,
             'app_name' => $collectedSiteReport->appName,
-            'collected_at' => CarbonImmutable::now(),
+            'collected_at' => $collectedAt,
         ]);
         $siteReport->save();
     }

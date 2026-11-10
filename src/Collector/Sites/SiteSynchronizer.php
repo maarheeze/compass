@@ -8,16 +8,24 @@ use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\CollectedSiteCollection;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Uuid\Uuid;
+use Psr\Clock\ClockInterface;
 
 readonly class SiteSynchronizer
 {
+    public function __construct(
+        private ClockInterface $clock,
+    ) {
+    }
+
     public function markUncollectedMissing(string $source, Uuid $runId): void
     {
+        $missingAt = CarbonImmutable::instance($this->clock->now());
+
         Site::query()
             ->ofSource($source)
             ->notReturnedByRun($runId)
             ->collected()
-            ->update(['missing_at' => CarbonImmutable::now()]);
+            ->update(['missing_at' => $missingAt]);
     }
 
     public function storeSites(
@@ -27,6 +35,7 @@ readonly class SiteSynchronizer
         Uuid $runId,
     ): void {
         $siteValues = [];
+        $collectedAt = CarbonImmutable::instance($this->clock->now());
 
         foreach ($collectedSites as $collectedSite) {
             $siteValues[] = [
@@ -46,7 +55,7 @@ readonly class SiteSynchronizer
                 'deployment_started_at' => $collectedSite->deploymentStartedAt,
                 'deployment_ended_at' => $collectedSite->deploymentEndedAt,
                 'run_id' => $runId,
-                'collected_at' => CarbonImmutable::now(),
+                'collected_at' => $collectedAt,
                 'missing_at' => null,
                 'missing_ignored_at' => null,
             ];

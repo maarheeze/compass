@@ -10,6 +10,8 @@ use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Tests\Fixtures\CollectedRepositoryFactory;
 use Maarheeze\Uuid\Uuid;
+use Psr\Clock\ClockInterface;
+use Symfony\Component\Clock\MockClock;
 
 test('collected repositories with changed package json holds a known repository whose package json version changed', function (): void {
     $repository = Repository::factory()->create(['package_json_version' => fake()->unique()->sha1()]);
@@ -91,6 +93,26 @@ test('store repositories creates a repository for a new collected repository', f
         'package_json_version' => $collectedRepository->packageJsonVersion,
         'dependabot_yml_version' => $collectedRepository->dependabotYmlVersion,
         'run_id' => $runId,
+    ]);
+});
+
+test('store repositories stamps a repository with the moment it was collected', function (): void {
+    $now = CarbonImmutable::parse(fake()->iso8601());
+    $this->app->instance(ClockInterface::class, new MockClock($now));
+    $collectedRepository = CollectedRepositoryFactory::make();
+    $source = fake()->slug();
+
+    $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
+    $repositorySynchronizer->storeRepositories(
+        new CollectedRepositoryCollection([$collectedRepository]),
+        $source,
+        Uuid::generate(),
+    );
+
+    $this->assertDatabaseHas(Repository::class, [
+        'source' => $source,
+        'external_id' => $collectedRepository->externalId,
+        'collected_at' => $now,
     ]);
 });
 
@@ -227,14 +249,18 @@ test('store repositories creates a repository for a known external id of another
     ]);
 });
 
-test('mark uncollected missing marks a repository of another run missing', function (): void {
+test('mark uncollected missing marks a repository of another run missing now', function (): void {
+    $now = CarbonImmutable::parse(fake()->iso8601());
+    $this->app->instance(ClockInterface::class, new MockClock($now));
     $repository = Repository::factory()->create();
 
     $repositorySynchronizer = $this->app->make(RepositorySynchronizer::class);
     $repositorySynchronizer->markUncollectedMissing($repository->source, Uuid::generate());
 
-    expect($repository->refresh()->missing_at)
-        ->toBeInstanceOf(CarbonImmutable::class);
+    $this->assertDatabaseHas(Repository::class, [
+        'id' => $repository->id,
+        'missing_at' => $now,
+    ]);
 });
 
 test('mark uncollected missing keeps the moment a repository went missing', function (): void {

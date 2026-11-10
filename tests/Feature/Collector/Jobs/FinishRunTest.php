@@ -9,6 +9,8 @@ use Illuminate\Support\Testing\Fakes\BusFake;
 use Maarheeze\Compass\Collector\Jobs\FinishRun;
 use Maarheeze\Compass\Collector\RunStatus;
 use Maarheeze\Compass\Models\Run;
+use Psr\Clock\ClockInterface;
+use Symfony\Component\Clock\MockClock;
 
 test('handle marks a run without failed jobs succeeded', function (): void {
     $batchRepositoryFake = new BatchRepositoryFake();
@@ -58,6 +60,8 @@ test('handle records the failed job count of the run', function (): void {
 });
 
 test('handle records when the run finished', function (): void {
+    $now = CarbonImmutable::parse(fake()->iso8601());
+    $this->app->instance(ClockInterface::class, new MockClock($now));
     $batchRepositoryFake = new BatchRepositoryFake();
     $batch = $batchRepositoryFake->store($this->app->make(QueueingDispatcher::class)->batch([]));
     $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class), [], $batchRepositoryFake));
@@ -66,6 +70,8 @@ test('handle records when the run finished', function (): void {
     $finishRun = new FinishRun($run->id);
     $this->app->call([$finishRun, 'handle']);
 
-    expect($run->refresh()->finished_at)
-        ->toBeInstanceOf(CarbonImmutable::class);
+    $this->assertDatabaseHas(Run::class, [
+        'id' => $run->id,
+        'finished_at' => $now,
+    ]);
 });

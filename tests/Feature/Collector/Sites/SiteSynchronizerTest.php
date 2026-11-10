@@ -9,6 +9,8 @@ use Maarheeze\Compass\Collector\Sites\SiteSynchronizer;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Tests\Fixtures\CollectedSiteFactory;
 use Maarheeze\Uuid\Uuid;
+use Psr\Clock\ClockInterface;
+use Symfony\Component\Clock\MockClock;
 
 test('store sites creates a site for a new collected site', function (): void {
     $collectedSite = CollectedSiteFactory::make();
@@ -37,6 +39,27 @@ test('store sites creates a site for a new collected site', function (): void {
         'server_ip_address' => $collectedSite->serverIpAddress,
         'auto_deploy_grace_minutes' => $autoDeployGraceMinutes,
         'run_id' => $runId,
+    ]);
+});
+
+test('store sites stamps a site with the moment it was collected', function (): void {
+    $now = CarbonImmutable::parse(fake()->iso8601());
+    $this->app->instance(ClockInterface::class, new MockClock($now));
+    $collectedSite = CollectedSiteFactory::make();
+    $source = fake()->slug();
+
+    $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
+    $siteSynchronizer->storeSites(
+        new CollectedSiteCollection([$collectedSite]),
+        $source,
+        fake()->numberBetween(1, 60),
+        Uuid::generate(),
+    );
+
+    $this->assertDatabaseHas(Site::class, [
+        'source' => $source,
+        'external_id' => $collectedSite->externalId,
+        'collected_at' => $now,
     ]);
 });
 
@@ -151,14 +174,18 @@ test('store sites creates a site for a known external id of another source', fun
     ]);
 });
 
-test('mark uncollected missing marks a site of another run missing', function (): void {
+test('mark uncollected missing marks a site of another run missing now', function (): void {
+    $now = CarbonImmutable::parse(fake()->iso8601());
+    $this->app->instance(ClockInterface::class, new MockClock($now));
     $site = Site::factory()->create();
 
     $siteSynchronizer = $this->app->make(SiteSynchronizer::class);
     $siteSynchronizer->markUncollectedMissing($site->source, Uuid::generate());
 
-    expect($site->refresh()->missing_at)
-        ->toBeInstanceOf(CarbonImmutable::class);
+    $this->assertDatabaseHas(Site::class, [
+        'id' => $site->id,
+        'missing_at' => $now,
+    ]);
 });
 
 test('mark uncollected missing keeps the moment a site went missing', function (): void {

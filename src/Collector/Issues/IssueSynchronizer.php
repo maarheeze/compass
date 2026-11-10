@@ -10,9 +10,15 @@ use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\IssueAssignee;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
+use Psr\Clock\ClockInterface;
 
 readonly class IssueSynchronizer
 {
+    public function __construct(
+        private ClockInterface $clock,
+    ) {
+    }
+
     public function deleteUncollected(string $source, Uuid $runId): void
     {
         Issue::query()
@@ -31,6 +37,7 @@ readonly class IssueSynchronizer
             ->ofFullNames($collectedIssues->repositoryLookupKeys())
             ->pluck('id', 'full_name');
         $issueValues = [];
+        $collectedAt = CarbonImmutable::instance($this->clock->now());
 
         foreach ($collectedIssues as $collectedIssue) {
             $issueValues[] = [
@@ -44,7 +51,7 @@ readonly class IssueSynchronizer
                 'author_login' => $collectedIssue->authorLogin,
                 'opened_at' => $collectedIssue->openedAt,
                 'run_id' => $runId,
-                'collected_at' => CarbonImmutable::now(),
+                'collected_at' => $collectedAt,
             ];
         }
 
@@ -60,6 +67,7 @@ readonly class IssueSynchronizer
             ->get();
         $issueIds = $issuesOfCollectedIssues->pluck('id', 'external_id');
         $assigneeValues = [];
+        $storedAt = CarbonImmutable::instance($this->clock->now());
 
         foreach ($collectedIssues as $collectedIssue) {
             foreach ($collectedIssue->assignees as $collectedAssignee) {
@@ -68,8 +76,8 @@ readonly class IssueSynchronizer
                     'issue_id' => $issueIds->get($collectedIssue->externalId),
                     'login' => $collectedAssignee->login,
                     'avatar_url' => $collectedAssignee->avatarUrl,
-                    'created_at' => CarbonImmutable::now(),
-                    'updated_at' => CarbonImmutable::now(),
+                    'created_at' => $storedAt,
+                    'updated_at' => $storedAt,
                 ];
             }
         }

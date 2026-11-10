@@ -10,9 +10,15 @@ use Maarheeze\Compass\Models\PullRequest;
 use Maarheeze\Compass\Models\PullRequestAssignee;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
+use Psr\Clock\ClockInterface;
 
 readonly class PullRequestSynchronizer
 {
+    public function __construct(
+        private ClockInterface $clock,
+    ) {
+    }
+
     public function deleteUncollected(string $source, Uuid $runId): void
     {
         PullRequest::query()
@@ -31,6 +37,7 @@ readonly class PullRequestSynchronizer
             ->ofFullNames($collectedPullRequests->repositoryLookupKeys())
             ->pluck('id', 'full_name');
         $pullRequestValues = [];
+        $collectedAt = CarbonImmutable::instance($this->clock->now());
 
         foreach ($collectedPullRequests as $collectedPullRequest) {
             $pullRequestValues[] = [
@@ -45,7 +52,7 @@ readonly class PullRequestSynchronizer
                 'is_draft' => $collectedPullRequest->isDraft,
                 'opened_at' => $collectedPullRequest->openedAt,
                 'run_id' => $runId,
-                'collected_at' => CarbonImmutable::now(),
+                'collected_at' => $collectedAt,
             ];
         }
 
@@ -61,6 +68,7 @@ readonly class PullRequestSynchronizer
             ->get();
         $pullRequestIds = $pullRequestsOfCollectedPullRequests->pluck('id', 'external_id');
         $assigneeValues = [];
+        $storedAt = CarbonImmutable::instance($this->clock->now());
 
         foreach ($collectedPullRequests as $collectedPullRequest) {
             foreach ($collectedPullRequest->assignees as $collectedAssignee) {
@@ -69,8 +77,8 @@ readonly class PullRequestSynchronizer
                     'pull_request_id' => $pullRequestIds->get($collectedPullRequest->externalId),
                     'login' => $collectedAssignee->login,
                     'avatar_url' => $collectedAssignee->avatarUrl,
-                    'created_at' => CarbonImmutable::now(),
-                    'updated_at' => CarbonImmutable::now(),
+                    'created_at' => $storedAt,
+                    'updated_at' => $storedAt,
                 ];
             }
         }

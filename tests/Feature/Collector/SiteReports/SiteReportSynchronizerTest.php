@@ -2,12 +2,15 @@
 
 declare(strict_types=1);
 
+use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteReport;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportSynchronizer;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteReport;
+use Psr\Clock\ClockInterface;
+use Symfony\Component\Clock\MockClock;
 
 test('store report stores what an installed client reported', function (): void {
     $siteReport = SiteReport::factory()->create();
@@ -22,6 +25,21 @@ test('store report stores what an installed client reported', function (): void 
         'app_debug' => $collectedSiteReport->appDebug,
         'app_env' => $collectedSiteReport->appEnv,
         'app_name' => $collectedSiteReport->appName,
+    ]);
+});
+
+test('store report stamps the report with the moment it was collected', function (): void {
+    $now = CarbonImmutable::parse(fake()->iso8601());
+    $this->app->instance(ClockInterface::class, new MockClock($now));
+    $siteReport = SiteReport::factory()->create();
+    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), []);
+
+    $siteReportSynchronizer = $this->app->make(SiteReportSynchronizer::class);
+    $siteReportSynchronizer->storeReport($siteReport, $collectedSiteReport);
+
+    $this->assertDatabaseHas(SiteReport::class, [
+        'id' => $siteReport->id,
+        'collected_at' => $now,
     ]);
 });
 

@@ -10,11 +10,13 @@ use Illuminate\Database\ConnectionInterface;
 use Maarheeze\Compass\Collector\Events\RepositoryMissingIgnored;
 use Maarheeze\Compass\Models\Builders\RepositoryBuilder;
 use Maarheeze\Compass\Models\Repository;
+use Psr\Clock\ClockInterface;
 use Throwable;
 
 readonly class MissingRepositoryResolver
 {
     public function __construct(
+        private ClockInterface $clock,
         private ConnectionInterface $connection,
         private Dispatcher $events,
     ) {
@@ -43,7 +45,7 @@ readonly class MissingRepositoryResolver
     public function ignore(Repository $repository): void
     {
         $missingRepository = $this->ignorableRepositoryQuery($repository)->firstOrFail();
-        $missingRepository->update(['missing_ignored_at' => CarbonImmutable::now()]);
+        $missingRepository->update(['missing_ignored_at' => CarbonImmutable::instance($this->clock->now())]);
 
         $this->events->dispatch(new RepositoryMissingIgnored($missingRepository));
     }

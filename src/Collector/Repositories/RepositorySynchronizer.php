@@ -8,9 +8,15 @@ use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\CollectedRepositoryCollection;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
+use Psr\Clock\ClockInterface;
 
 readonly class RepositorySynchronizer
 {
+    public function __construct(
+        private ClockInterface $clock,
+    ) {
+    }
+
     public function collectedRepositoriesWithChangedPackageJson(
         CollectedRepositoryCollection $collectedRepositories,
         string $source,
@@ -31,11 +37,13 @@ readonly class RepositorySynchronizer
 
     public function markUncollectedMissing(string $source, Uuid $runId): void
     {
+        $missingAt = CarbonImmutable::instance($this->clock->now());
+
         Repository::query()
             ->ofSource($source)
             ->notReturnedByRun($runId)
             ->collected()
-            ->update(['missing_at' => CarbonImmutable::now()]);
+            ->update(['missing_at' => $missingAt]);
     }
 
     public function storeRepositories(
@@ -44,6 +52,7 @@ readonly class RepositorySynchronizer
         Uuid $runId,
     ): void {
         $repositoryValues = [];
+        $collectedAt = CarbonImmutable::instance($this->clock->now());
 
         foreach ($collectedRepositories as $collectedRepository) {
             $repositoryValues[] = [
@@ -61,7 +70,7 @@ readonly class RepositorySynchronizer
                 'package_json_version' => $collectedRepository->packageJsonVersion,
                 'dependabot_yml_version' => $collectedRepository->dependabotYmlVersion,
                 'run_id' => $runId,
-                'collected_at' => CarbonImmutable::now(),
+                'collected_at' => $collectedAt,
                 'missing_at' => null,
                 'missing_ignored_at' => null,
             ];

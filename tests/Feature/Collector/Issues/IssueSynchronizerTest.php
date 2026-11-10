@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\CollectedIssueCollection;
 use Maarheeze\Compass\Collector\Issues\CollectedIssue;
 use Maarheeze\Compass\Collector\Issues\IssueSynchronizer;
@@ -10,6 +11,8 @@ use Maarheeze\Compass\Models\IssueAssignee;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Tests\Fixtures\CollectedIssueFactory;
 use Maarheeze\Uuid\Uuid;
+use Psr\Clock\ClockInterface;
+use Symfony\Component\Clock\MockClock;
 
 test('store issues stores an issue of the source', function (): void {
     $source = fake()->slug();
@@ -28,6 +31,22 @@ test('store issues stores an issue of the source', function (): void {
         'url' => $collectedIssue->url,
         'author_login' => $collectedIssue->authorLogin,
         'run_id' => $runId,
+    ]);
+});
+
+test('store issues stamps an issue with the moment it was collected', function (): void {
+    $now = CarbonImmutable::parse(fake()->iso8601());
+    $this->app->instance(ClockInterface::class, new MockClock($now));
+    $source = fake()->slug();
+    $collectedIssue = CollectedIssueFactory::make();
+
+    $issueSynchronizer = $this->app->make(IssueSynchronizer::class);
+    $issueSynchronizer->storeIssues(new CollectedIssueCollection([$collectedIssue]), $source, Uuid::generate());
+
+    $this->assertDatabaseHas(Issue::class, [
+        'source' => $source,
+        'external_id' => $collectedIssue->externalId,
+        'collected_at' => $now,
     ]);
 });
 

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\CollectedPullRequestCollection;
 use Maarheeze\Compass\Collector\PullRequests\CollectedPullRequest;
 use Maarheeze\Compass\Collector\PullRequests\PullRequestSynchronizer;
@@ -10,6 +11,8 @@ use Maarheeze\Compass\Models\PullRequestAssignee;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Tests\Fixtures\CollectedPullRequestFactory;
 use Maarheeze\Uuid\Uuid;
+use Psr\Clock\ClockInterface;
+use Symfony\Component\Clock\MockClock;
 
 test('store pull requests stores a pull request of the source', function (): void {
     $source = fake()->slug();
@@ -33,6 +36,26 @@ test('store pull requests stores a pull request of the source', function (): voi
         'author_login' => $collectedPullRequest->authorLogin,
         'is_draft' => $collectedPullRequest->isDraft,
         'run_id' => $runId,
+    ]);
+});
+
+test('store pull requests stamps a pull request with the moment it was collected', function (): void {
+    $now = CarbonImmutable::parse(fake()->iso8601());
+    $this->app->instance(ClockInterface::class, new MockClock($now));
+    $source = fake()->slug();
+    $collectedPullRequest = CollectedPullRequestFactory::make();
+
+    $pullRequestSynchronizer = $this->app->make(PullRequestSynchronizer::class);
+    $pullRequestSynchronizer->storePullRequests(
+        new CollectedPullRequestCollection([$collectedPullRequest]),
+        $source,
+        Uuid::generate(),
+    );
+
+    $this->assertDatabaseHas(PullRequest::class, [
+        'source' => $source,
+        'external_id' => $collectedPullRequest->externalId,
+        'collected_at' => $now,
     ]);
 });
 

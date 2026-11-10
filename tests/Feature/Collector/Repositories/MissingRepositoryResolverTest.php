@@ -10,6 +10,8 @@ use Maarheeze\Compass\Collector\Events\RepositoryMissingIgnored;
 use Maarheeze\Compass\Collector\Repositories\MissingRepositoryResolver;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Repository;
+use Psr\Clock\ClockInterface;
+use Symfony\Component\Clock\MockClock;
 
 test('can ignore is true for a missing repository', function (): void {
     $repository = Repository::factory()->create(['missing_at' => fake()->dateTime()]);
@@ -87,14 +89,18 @@ test('delete refuses a collected repository', function (): void {
     $missingRepositoryResolver->delete($repository);
 });
 
-test('ignore marks a missing repository ignored', function (): void {
+test('ignore marks a missing repository ignored now', function (): void {
+    $now = CarbonImmutable::parse(fake()->iso8601());
+    $this->app->instance(ClockInterface::class, new MockClock($now));
     $repository = Repository::factory()->create(['missing_at' => fake()->dateTime()]);
 
     $missingRepositoryResolver = $this->app->make(MissingRepositoryResolver::class);
     $missingRepositoryResolver->ignore($repository);
 
-    expect($repository->refresh()->missing_ignored_at)
-        ->toBeInstanceOf(CarbonImmutable::class);
+    $this->assertDatabaseHas(Repository::class, [
+        'id' => $repository->id,
+        'missing_ignored_at' => $now,
+    ]);
 });
 
 test('ignore raises repository missing ignored with the repository', function (): void {
