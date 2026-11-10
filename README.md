@@ -16,6 +16,24 @@ php artisan migrate
 
 Compass runs on the Laravel scheduler and queue. Everything else is set in `config/compass.php`.
 
+Import Compass's JavaScript in the host's `resources/js/app.js`, after Echo if the host has it:
+
+```js
+import '../../vendor/maarheeze/compass/resources/js/compass.js';
+```
+
+## Live updates
+
+With broadcasting set up on the host, Compass pages update themselves while open and show runs and alerts in toasts as they happen:
+
+```bash
+php artisan install:broadcasting
+```
+
+This brings Reverb and Echo; keep the Reverb server running next to the queue. The broadcasting auth route must stay behind the `web` middleware only, as `install:broadcasting` sets it: Compass signs its users in on a guard of its own, which the host's `auth` middleware refuses.
+
+Without broadcasting, Compass works the same without live updates. Its events still queue broadcast jobs, which the `null` broadcaster drops.
+
 ## Collectors
 
 Compass collects from the sources listed in its config. The collectors below are included, and each is optional: one runs only when a source using it is listed.
