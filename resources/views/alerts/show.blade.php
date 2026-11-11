@@ -1,6 +1,6 @@
 <x-compass::layouts.app>
     <x-slot:title>
-        <x-compass::alert-subject-name :subject="$alert->subject" />
+        <x-compass::alert-subject-name :alert-subject="$alert->subject" />
     </x-slot:title>
     <x-compass::navigation />
 
@@ -11,7 +11,7 @@
                     <x-compass::alert-type-label :identifier="$alert->alert_type_identifier" />
                 </h1>
                 <p class="text-sm">
-                    <x-compass::alert-subject-link :subject="$alert->subject" />
+                    <x-compass::alert-subject-link :alert-subject="$alert->subject" />
                 </p>
             </div>
             <div class="ml-auto space-y-1">

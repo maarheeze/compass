@@ -15,11 +15,11 @@ class AlertSubjectLink extends Component
     public readonly string $url;
 
     public function __construct(
-        public readonly AlertSubject $subject,
+        public readonly AlertSubject $alertSubject,
         AlertSubjectUrl $alertSubjectUrl,
         private readonly ViewFactory $view,
     ) {
-        $this->url = $alertSubjectUrl->url($subject);
+        $this->url = $alertSubjectUrl->url($alertSubject);
     }
 
     public function render(): View

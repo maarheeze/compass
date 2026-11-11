@@ -1,1 +1,1 @@
-{{ $subject->site->name }} ({{ $subject->source }})
+{{ $alertSubject->site->name }} ({{ $alertSubject->source }})

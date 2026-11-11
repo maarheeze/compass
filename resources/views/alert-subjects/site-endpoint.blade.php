@@ -1,1 +1,1 @@
-{{ $subject->siteReport->site->name }}{{ $subject->path->toString() }}
+{{ $alertSubject->siteReport->site->name }}{{ $alertSubject->path->toString() }}

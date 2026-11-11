@@ -4,7 +4,7 @@
             <x-compass::alert-type-label :identifier="$alert->alert_type_identifier" />
         </a>
         <div class="mt-0.5 text-xs text-foreground-muted">
-            <x-compass::alert-subject-link :subject="$alert->subject" />
+            <x-compass::alert-subject-link :alert-subject="$alert->subject" />
             ·
             {{ __('compass::alert.open_since') }}
             <x-compass::date-time :time="$alert->created_at" />

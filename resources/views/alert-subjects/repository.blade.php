@@ -1,1 +1,1 @@
-{{ $subject->name }}
+{{ $alertSubject->name }}

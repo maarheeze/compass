@@ -18,17 +18,17 @@ use function trim;
 class AlertSubjectName extends Component
 {
     public function __construct(
-        private readonly AlertSubject $subject,
+        private readonly AlertSubject $alertSubject,
         private readonly ViewFactory $view,
     ) {
     }
 
     public function render(): Htmlable
     {
-        $subjectModel = Assert::isInstanceOf($this->subject, Model::class);
+        $alertSubjectModel = Assert::isInstanceOf($this->alertSubject, Model::class);
         $alertSubjectNameView = $this->view->make('compass::components.alert-subject-name', [
-            'subject' => $this->subject,
-            'subjectView' => sprintf('compass::alert-subjects.%s', $subjectModel->getMorphClass()),
+            'alertSubject' => $this->alertSubject,
+            'alertSubjectView' => sprintf('compass::alert-subjects.%s', $alertSubjectModel->getMorphClass()),
         ]);
 
         return new HtmlString(trim($alertSubjectNameView->render()));

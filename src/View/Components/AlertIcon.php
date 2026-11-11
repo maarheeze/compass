@@ -7,7 +7,7 @@ namespace Maarheeze\Compass\View\Components;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
-use Maarheeze\Compass\Models\Builders\AlertBuilder;
+use Maarheeze\Compass\Alerts\AlertSubject;
 
 class AlertIcon extends Component
 {
@@ -15,15 +15,15 @@ class AlertIcon extends Component
     private readonly bool $hasAlertsNotDone;
 
     public function __construct(
-        AlertBuilder $alertQuery,
+        AlertSubject $alertSubject,
         private readonly ViewFactory $view,
     ) {
-        $this->hasAlertsNotDone = $alertQuery
-            ->clone()
+        $this->hasAlertsNotDone = $alertSubject
+            ->alertsIncludingChildren()
             ->notDone()
             ->exists();
-        $this->hasAlertsNotMuted = $alertQuery
-            ->clone()
+        $this->hasAlertsNotMuted = $alertSubject
+            ->alertsIncludingChildren()
             ->notDone()
             ->notMuted()
             ->exists();

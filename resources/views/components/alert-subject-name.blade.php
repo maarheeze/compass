@@ -1,1 +1,1 @@
-@include($subjectView)
+@include($alertSubjectView)
