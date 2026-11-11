@@ -3,7 +3,7 @@
         <x-compass::subject-name :subject="$repository">
             <a href="{{ $url }}" class="truncate text-base font-semibold text-foreground hover:text-accent">{{ $repository->name }}</a>
             <x-compass::badge type="neutral">
-                <x-compass::enum-label :value="$repository->visibility" />
+                <x-compass::enum-label :labelled-enum="$repository->visibility" />
             </x-compass::badge>
         </x-compass::subject-name>
         <div class="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-foreground-muted">

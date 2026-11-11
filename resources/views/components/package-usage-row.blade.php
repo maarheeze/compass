@@ -5,7 +5,7 @@
             <span class="font-mono">{{ $version }}</span>
             <span>&middot;</span>
             <span class="lowercase">
-                <x-compass::enum-label :value="$section" />
+                <x-compass::enum-label :labelled-enum="$section" />
             </span>
         </div>
     </td>

@@ -33,7 +33,7 @@
             <dl class="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2">
                 <dt class="text-foreground-muted">{{ __('compass::alert.condition') }}</dt>
                 <dd class="text-foreground">
-                    <x-compass::enum-label :value="$alert->condition" />
+                    <x-compass::enum-label :labelled-enum="$alert->condition" />
                 </dd>
 
                 <dt class="text-foreground-muted">{{ __('compass::alert.open_since') }}</dt>
@@ -43,7 +43,7 @@
 
                 <dt class="text-foreground-muted">{{ __('compass::alert.status') }}</dt>
                 <dd class="text-foreground">
-                    <x-compass::enum-label :value="$alert->status" />
+                    <x-compass::enum-label :labelled-enum="$alert->status" />
                 </dd>
 
                 <dt class="text-foreground-muted">{{ __('compass::alert.assigned_to') }}</dt>
@@ -74,7 +74,7 @@
                             <tr>
                                 <td class="px-4 py-3">
                                     <span class="text-base font-semibold text-foreground">
-                                        <x-compass::enum-label :value="$historyEntry->type" />
+                                        <x-compass::enum-label :labelled-enum="$historyEntry->type" />
                                     </span>
                                     <div class="mt-1 text-xs text-foreground-muted">
                                         <x-compass::date-time :time="$historyEntry->occurred_at" />

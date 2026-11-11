@@ -77,7 +77,7 @@
                 <p class="flex flex-wrap items-center gap-x-2 text-foreground-muted">
                     <span>
                         @if ($site->deployment_status !== null)
-                            <x-compass::enum-label :value="$site->deployment_status" />
+                            <x-compass::enum-label :labelled-enum="$site->deployment_status" />
                         @endif
                     </span>
                     @if ($site->deployment_ended_at)

@@ -13,10 +13,10 @@
             </div>
             <p class="flex flex-wrap items-center gap-x-2 text-sm text-foreground-muted">
                 <span>
-                    <x-compass::enum-label :value="$kind" />
+                    <x-compass::enum-label :labelled-enum="$kind" />
                 </span>
                 <span>&middot;</span>
-                <span class="lowercase"><x-compass::enum-label :value="$repository->visibility" /></span>
+                <span class="lowercase"><x-compass::enum-label :labelled-enum="$repository->visibility" /></span>
                 <span>&middot;</span>
                 <span>{{ $repository->default_branch }}</span>
                 @if ($repository->composerJson?->php_constraint)
@@ -184,7 +184,7 @@
                                 <span class="font-mono">{{ $package->version }}</span>
                                 <span>&middot;</span>
                                 <span class="lowercase">
-                                    <x-compass::enum-label :value="$package->section" />
+                                    <x-compass::enum-label :labelled-enum="$package->section" />
                                 </span>
                             </x-compass::composer.package-row>
                         @endforeach

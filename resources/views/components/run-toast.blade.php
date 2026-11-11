@@ -4,5 +4,5 @@
     :data-compass-toast-stays-open="$staysOpen()">
     <x-compass::run-label :run="$run" />
     &middot;
-    <x-compass::enum-label :value="$run->status" />
+    <x-compass::enum-label :labelled-enum="$run->status" />
 </x-compass::toast>

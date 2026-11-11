@@ -5,5 +5,5 @@
         value="{{ $notificationChannel->value }}"
         @checked($isChosen)
         class="size-4 cursor-pointer" />
-    <x-compass::enum-label :value="$notificationChannel" />
+    <x-compass::enum-label :labelled-enum="$notificationChannel" />
 </label>

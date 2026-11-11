@@ -16,11 +16,11 @@ class EnumLabel extends Component
     public readonly string $label;
 
     public function __construct(
-        LabelledEnum $value,
+        LabelledEnum $labelledEnum,
         Translator $translator,
         private readonly ViewFactory $view,
     ) {
-        $this->label = Assert::string($translator->get($value->labelKey()));
+        $this->label = Assert::string($translator->get($labelledEnum->labelKey()));
     }
 
     public function render(): View
