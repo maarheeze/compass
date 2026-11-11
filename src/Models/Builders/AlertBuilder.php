@@ -71,7 +71,7 @@ class AlertBuilder extends Builder
     public function ofSite(Site $site): self
     {
         return $this->where(static function (self $alertQuery) use ($site): void {
-            $alertQuery->whereMorphedTo('subject', $site);
+            $alertQuery->ofSubject($site);
             $alertQuery->orWhereHasMorph(
                 'subject',
                 [SiteEndpoint::class],
@@ -89,9 +89,9 @@ class AlertBuilder extends Builder
         });
     }
 
-    public function ofSubject(AlertSubject&Model $subject): self
+    public function ofSubject(AlertSubject&Model $alertSubject): self
     {
-        return $this->whereMorphedTo('subject', $subject);
+        return $this->whereMorphedTo('subject', $alertSubject);
     }
 
     public function ofType(AlertType $alertType): self

@@ -31,6 +31,6 @@ trait HasAlerts
 
     public function alertsIncludingChildren(): AlertBuilder
     {
-        return Alert::query()->whereMorphedTo('subject', $this);
+        return Alert::query()->ofSubject($this);
     }
 }
