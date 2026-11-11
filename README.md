@@ -36,6 +36,14 @@ A toast waits for the jobs queued before it. To have even a single worker take C
 
 Without broadcasting, Compass works the same without live updates. Its events still queue broadcast jobs, which the `null` broadcaster drops.
 
+## Brand
+
+The header and the sign-in page show the application name (`APP_NAME`). To show a logo instead, override the brand view in `resources/views/vendor/compass/components/brand.blade.php`:
+
+```blade
+<img src="{{ asset('images/logo.svg') }}" alt="{{ $applicationName }}" class="h-6">
+```
+
 ## Collectors
 
 Compass collects from the sources listed in its config. The collectors below are included, and each is optional: one runs only when a source using it is listed.

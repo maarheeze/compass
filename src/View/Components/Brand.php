@@ -9,7 +9,7 @@ use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class ApplicationName extends Component
+class Brand extends Component
 {
     public readonly string $applicationName;
 
@@ -22,6 +22,6 @@ class ApplicationName extends Component
 
     public function render(): View
     {
-        return $this->view->make('compass::components.application-name');
+        return $this->view->make('compass::components.brand');
     }
 }

@@ -3,7 +3,7 @@
     <main class="flex min-h-screen items-center justify-center p-6">
         <div class="w-full max-w-sm space-y-6 rounded-md border border-border bg-canvas p-8">
             <div class="space-y-1">
-                <h1 class="text-lg font-semibold text-foreground"><x-compass::application-name /></h1>
+                <h1 class="text-lg font-semibold text-foreground"><x-compass::brand /></h1>
                 <p class="text-sm text-foreground-muted">{{ __('compass::authentication.tagline') }}</p>
             </div>
 
