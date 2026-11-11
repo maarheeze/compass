@@ -23,6 +23,7 @@ use Maarheeze\Uuid\Uuid;
  * @property CarbonImmutable $created_at
  * @property Uuid $id
  * @property bool $is_successful
+ * @property ?CarbonImmutable $online_since
  * @property EndpointPath $path
  * @property Uuid $site_id
  * @property ?int $status_code

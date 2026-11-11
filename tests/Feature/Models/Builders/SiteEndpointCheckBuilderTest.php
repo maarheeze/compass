@@ -155,3 +155,78 @@ test('reported leaves out a check of a path only another site reports', function
     expect($reportedSiteEndpointChecks)
         ->toBeEmpty();
 });
+
+test('with online since is the first successful check after the latest failed one', function (): void {
+    $site = Site::factory()->create();
+    $endpointPath = new EndpointPath(sprintf('/%s', fake()->slug()));
+    SiteEndpointCheck::factory()->create([
+        'site_id' => $site->id,
+        'path' => $endpointPath,
+        'is_successful' => true,
+        'created_at' => fake()->dateTimeBetween('-4 months', '-3 months'),
+    ]);
+    SiteEndpointCheck::factory()->create([
+        'site_id' => $site->id,
+        'path' => $endpointPath,
+        'is_successful' => false,
+        'created_at' => fake()->dateTimeBetween('-3 months', '-2 months'),
+    ]);
+    $recoveredSiteEndpointCheck = SiteEndpointCheck::factory()->create([
+        'site_id' => $site->id,
+        'path' => $endpointPath,
+        'is_successful' => true,
+        'created_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
+    ]);
+    $latestSiteEndpointCheck = SiteEndpointCheck::factory()->create([
+        'site_id' => $site->id,
+        'path' => $endpointPath,
+        'is_successful' => true,
+        'created_at' => fake()->dateTimeBetween('-1 month'),
+    ]);
+
+    $siteEndpointCheckWithOnlineSince = SiteEndpointCheck::query()
+        ->withOnlineSince()
+        ->whereKey($latestSiteEndpointCheck->id)
+        ->sole();
+
+    expect($siteEndpointCheckWithOnlineSince->online_since?->toDateTimeString())
+        ->toBe($recoveredSiteEndpointCheck->created_at->toDateTimeString());
+});
+
+test('with online since is the first check of a path that never failed', function (): void {
+    $firstSiteEndpointCheck = SiteEndpointCheck::factory()->create([
+        'is_successful' => true,
+        'created_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
+    ]);
+    $latestSiteEndpointCheck = SiteEndpointCheck::factory()->create([
+        'site_id' => $firstSiteEndpointCheck->site_id,
+        'path' => $firstSiteEndpointCheck->path,
+        'is_successful' => true,
+        'created_at' => fake()->dateTimeBetween('-1 month'),
+    ]);
+
+    $siteEndpointCheckWithOnlineSince = SiteEndpointCheck::query()
+        ->withOnlineSince()
+        ->whereKey($latestSiteEndpointCheck->id)
+        ->sole();
+
+    expect($siteEndpointCheckWithOnlineSince->online_since?->toDateTimeString())
+        ->toBe($firstSiteEndpointCheck->created_at->toDateTimeString());
+});
+
+test('with online since is empty while the path is down', function (): void {
+    $successfulSiteEndpointCheck = SiteEndpointCheck::factory()->create(['is_successful' => true]);
+    $failedSiteEndpointCheck = SiteEndpointCheck::factory()->create([
+        'site_id' => $successfulSiteEndpointCheck->site_id,
+        'path' => $successfulSiteEndpointCheck->path,
+        'is_successful' => false,
+    ]);
+
+    $siteEndpointCheckWithOnlineSince = SiteEndpointCheck::query()
+        ->withOnlineSince()
+        ->whereKey($failedSiteEndpointCheck->id)
+        ->sole();
+
+    expect($siteEndpointCheckWithOnlineSince->online_since)
+        ->toBeNull();
+});

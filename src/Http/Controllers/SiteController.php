@@ -59,6 +59,7 @@ readonly class SiteController
                 ->endpointChecks()
                 ->latestPerPath()
                 ->reported()
+                ->withOnlineSince()
                 ->orderBy('path')
                 ->get(),
             'alerts' => Alert::query()
@@ -71,6 +72,7 @@ readonly class SiteController
                 ->endpointChecks()
                 ->latestPerPath()
                 ->notReported()
+                ->withOnlineSince()
                 ->orderBy('path')
                 ->get(),
             'site' => $site,

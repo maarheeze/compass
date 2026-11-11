@@ -14,6 +14,7 @@ return [
     'latest_deployment' => 'Latest deployment',
     'no_endpoints_checked' => 'No endpoints checked yet.',
     'no_sites' => 'No sites collected yet.',
+    'online_since' => 'online since',
     'reports' => 'Reports',
     'started' => 'started',
 ];

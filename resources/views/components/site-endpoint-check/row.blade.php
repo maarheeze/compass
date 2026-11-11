@@ -20,6 +20,13 @@
                 {{ __('compass::site.checked') }}
                 <x-compass::time :time="$siteEndpointCheck->created_at" />
             </span>
+            @if ($siteEndpointCheck->is_successful)
+                <span>&middot;</span>
+                <span>
+                    {{ __('compass::site.online_since') }}
+                    <x-compass::time :time="$siteEndpointCheck->online_since" />
+                </span>
+            @endif
         </div>
     </td>
 </tr>
