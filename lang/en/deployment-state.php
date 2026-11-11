@@ -6,5 +6,6 @@ return [
     'BEHIND' => 'Behind',
     'DEPLOYING' => 'Deploying',
     'DEPLOYMENT_OVERDUE' => 'Deploy overdue',
+    'UNKNOWN' => 'Unknown',
     'UP_TO_DATE' => 'Up to date',
 ];

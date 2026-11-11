@@ -10,8 +10,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 use Maarheeze\Compass\Collector\TaskType;
 use Maarheeze\Compass\Models\Run;
-use Maarheeze\Compass\View\EnumLabels;
-use UnitEnum;
+use Maarheeze\Compass\View\LabelledEnum;
 use Webmozart\Assert\Assert;
 
 use function sprintf;
@@ -22,7 +21,6 @@ class RunLabel extends Component
 
     public function __construct(
         Run $run,
-        private readonly EnumLabels $enumLabels,
         private readonly Translator $translator,
         private readonly ViewFactory $view,
     ) {
@@ -43,8 +41,8 @@ class RunLabel extends Component
         return sprintf('%s · %s', $run->source, $this->translatedLabel($run->collector));
     }
 
-    private function translatedLabel(UnitEnum $value): string
+    private function translatedLabel(LabelledEnum $labelledEnum): string
     {
-        return Assert::string($this->translator->get($this->enumLabels->labelKey($value)));
+        return Assert::string($this->translator->get($labelledEnum->labelKey()));
     }
 }

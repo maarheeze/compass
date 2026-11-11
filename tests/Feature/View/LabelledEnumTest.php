@@ -18,30 +18,10 @@ use Maarheeze\Compass\Collector\RunStatus;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Collector\Sites\DeploymentStatus;
 use Maarheeze\Compass\Collector\TaskType;
-use Maarheeze\Compass\View\BadgeType;
-use Maarheeze\Compass\View\EnumLabels;
+use Maarheeze\Compass\View\LabelledEnum;
 
-test('label key is the case name in the translation file of the enum', function (): void {
-    $runStatus = fake()->randomElement(RunStatus::cases());
-
-    $enumLabels = $this->app->make(EnumLabels::class);
-    $labelKey = $enumLabels->labelKey($runStatus);
-
-    expect($labelKey)
-        ->toBe(sprintf('compass::run-status.%s', $runStatus->name));
-});
-
-test('label key refuses an enum without labels', function (): void {
-    $enumLabels = $this->app->make(EnumLabels::class);
-
-    $this->expectException(InvalidArgumentException::class);
-
-    $enumLabels->labelKey(fake()->randomElement(BadgeType::cases()));
-});
-
-test('label key has a translation', function (UnitEnum $value): void {
-    $enumLabels = $this->app->make(EnumLabels::class);
-    $labelKey = $enumLabels->labelKey($value);
+test('label key has a translation', function (LabelledEnum $labelledEnum): void {
+    $labelKey = $labelledEnum->labelKey();
 
     $hasTranslation = $this->app->make(Translator::class)->has($labelKey);
 
@@ -53,7 +33,9 @@ test('label key has a translation', function (UnitEnum $value): void {
     AlertTypeGroup::cases(),
     CollectorType::cases(),
     ConditionState::cases(),
+    DeploymentState::cases(),
     DeploymentStatus::cases(),
+    MissingState::cases(),
     NotificationChannel::cases(),
     PackageSection::cases(),
     RepositoryKind::cases(),
@@ -61,12 +43,4 @@ test('label key has a translation', function (UnitEnum $value): void {
     RunStatus::cases(),
     SiteReportStatus::cases(),
     TaskType::cases(),
-    [
-        DeploymentState::BEHIND,
-        DeploymentState::DEPLOYING,
-        DeploymentState::DEPLOYMENT_OVERDUE,
-        DeploymentState::UP_TO_DATE,
-        MissingState::IGNORED,
-        MissingState::MISSING,
-    ],
 ));

@@ -9,9 +9,12 @@ use Maarheeze\Compass\Collector\PullRequests\Jobs\CollectPullRequests;
 use Maarheeze\Compass\Collector\Repositories\Jobs\CollectRepositories;
 use Maarheeze\Compass\Collector\SiteReports\Jobs\InspectSites;
 use Maarheeze\Compass\Collector\Sites\Jobs\CollectSites;
+use Maarheeze\Compass\View\LabelledEnum;
 use Maarheeze\Uuid\Uuid;
 
-enum CollectorType: string
+use function sprintf;
+
+enum CollectorType: string implements LabelledEnum
 {
     case ISSUES = 'issues';
     case PULL_REQUESTS = 'pull_requests';
@@ -28,5 +31,10 @@ enum CollectorType: string
             self::SITE_REPORTS => new InspectSites($source),
             self::SITES => new CollectSites($runId, $source),
         };
+    }
+
+    public function labelKey(): string
+    {
+        return sprintf('compass::collector-type.%s', $this->name);
     }
 }

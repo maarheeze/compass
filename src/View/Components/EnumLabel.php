@@ -8,8 +8,7 @@ use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
-use Maarheeze\Compass\View\EnumLabels;
-use UnitEnum;
+use Maarheeze\Compass\View\LabelledEnum;
 use Webmozart\Assert\Assert;
 
 class EnumLabel extends Component
@@ -17,12 +16,11 @@ class EnumLabel extends Component
     public readonly string $label;
 
     public function __construct(
-        UnitEnum $value,
-        EnumLabels $enumLabels,
+        LabelledEnum $value,
         Translator $translator,
         private readonly ViewFactory $view,
     ) {
-        $this->label = Assert::string($translator->get($enumLabels->labelKey($value)));
+        $this->label = Assert::string($translator->get($value->labelKey()));
     }
 
     public function render(): View
