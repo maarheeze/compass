@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Maarheeze\Compass\Alerts\AlertTypes;
 use Maarheeze\Compass\Alerts\Types\SiteNotInProduction;
 use Maarheeze\Compass\Models\Alert;
+use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteReport;
@@ -230,6 +231,34 @@ test('of same type as leaves out an alert of another type', function (): void {
 
     expect($alertsOfSameType->sole()->is($alertOfAnotherType))
         ->toBeTrue();
+});
+
+test('of subject keeps an alert of the subject', function (): void {
+    $repository = Repository::factory()->create();
+    $repositoryAlert = Alert::factory()
+        ->repositoryMissing()
+        ->for($repository, 'subject')
+        ->create();
+
+    $alertsOfSubject = Alert::query()
+        ->ofSubject($repository)
+        ->get();
+
+    expect($alertsOfSubject->sole()->is($repositoryAlert))
+        ->toBeTrue();
+});
+
+test('of subject leaves out the alerts of another subject', function (): void {
+    Alert::factory()
+        ->repositoryMissing()
+        ->create();
+
+    $alertsOfSubject = Alert::query()
+        ->ofSubject(Repository::factory()->create())
+        ->get();
+
+    expect($alertsOfSubject)
+        ->toBeEmpty();
 });
 
 test('of type keeps an alert of the type', function (): void {

@@ -6,8 +6,10 @@ namespace Maarheeze\Compass\Models\Builders;
 
 use Illuminate\Contracts\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Maarheeze\Compass\Alerts\AlertStatus;
+use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Site;
@@ -85,6 +87,11 @@ class AlertBuilder extends Builder
                 },
             );
         });
+    }
+
+    public function ofSubject(AlertSubject&Model $subject): self
+    {
+        return $this->whereMorphedTo('subject', $subject);
     }
 
     public function ofType(AlertType $alertType): self
