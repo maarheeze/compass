@@ -80,6 +80,34 @@ test('handle observes an up-to-date site without an overdue deployment now', fun
     );
 });
 
+test('handle observes a site deploying another branch not applicable now', function (): void {
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
+    $now = CarbonImmutable::parse(fake()->iso8601());
+    $this->app->instance(ClockInterface::class, new MockClock($now));
+    $repository = Repository::factory()->create(['default_branch' => fake()->unique()->slug()]);
+    $site = Site::factory()->create([
+        'repository_url' => $repository->url,
+        'repository_branch' => fake()->unique()->slug(),
+    ]);
+
+    $evaluateOverdueDeployment = $this->app->make(EvaluateSiteDeploymentOverdue::class);
+    $evaluateOverdueDeployment->handle(new SitesCollected($site->source));
+
+    $busFake->assertDispatched(
+        HandleConditionObservations::class,
+        static function (HandleConditionObservations $handleConditionObservations) use ($now, $site): bool {
+            return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($now, $site): bool {
+                return $conditionObservation->alertType instanceof SiteDeploymentOverdue
+                    && $conditionObservation->subject instanceof Site
+                    && $conditionObservation->subject->is($site)
+                    && $conditionObservation->condition === ConditionState::NOT_APPLICABLE
+                    && $conditionObservation->observedAt->equalTo($now);
+            });
+        },
+    );
+});
+
 test('handle observes nothing for a site of another source', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);

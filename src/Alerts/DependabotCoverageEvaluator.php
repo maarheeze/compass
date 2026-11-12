@@ -51,6 +51,10 @@ readonly class DependabotCoverageEvaluator
 
     private function observedCondition(Repository $repository, PackageEcosystem $packageEcosystem): ConditionState
     {
+        if (!$this->dependabotCoverageChecker->isRequired($repository, $packageEcosystem)) {
+            return ConditionState::NOT_APPLICABLE;
+        }
+
         if ($this->dependabotCoverageChecker->isUncovered($repository, $packageEcosystem)) {
             return ConditionState::ACTIVE;
         }

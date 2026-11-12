@@ -26,7 +26,7 @@ class AlertStateBadge extends Component
             AlertStatus::DONE => BadgeType::NEUTRAL,
             AlertStatus::OPEN => match ($this->alert->condition) {
                 ConditionState::ACTIVE => BadgeType::DANGER,
-                ConditionState::RESOLVED => BadgeType::SUCCESS,
+                ConditionState::NOT_APPLICABLE, ConditionState::RESOLVED => BadgeType::SUCCESS,
             },
         };
     }

@@ -122,3 +122,93 @@ test('detect finds nothing for a project with a composer lock', function (): voi
     expect($composerWarning)
         ->toBeNull();
 });
+
+test('is applicable is false for a repository without a composer json', function (ComposerWarning $composerWarning): void {
+    $repository = Repository::factory()->create(['composer_json_version' => null]);
+
+    $composerWarningDetector = $this->app->make(ComposerWarningDetector::class);
+    $isApplicable = $composerWarningDetector->isApplicable($repository, $composerWarning);
+
+    expect($isApplicable)
+        ->toBeFalse();
+})->with(ComposerWarning::cases());
+
+test('is applicable is false for a composer json that is not collected yet', function (ComposerWarning $composerWarning): void {
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
+
+    $composerWarningDetector = $this->app->make(ComposerWarningDetector::class);
+    $isApplicable = $composerWarningDetector->isApplicable($repository, $composerWarning);
+
+    expect($isApplicable)
+        ->toBeFalse();
+})->with(ComposerWarning::cases());
+
+test('is applicable is true for a type warning of a repository with a composer json', function (ComposerWarning $composerWarning): void {
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
+    ComposerJson::factory()->create(['repository_id' => $repository->id]);
+
+    $composerWarningDetector = $this->app->make(ComposerWarningDetector::class);
+    $isApplicable = $composerWarningDetector->isApplicable($repository, $composerWarning);
+
+    expect($isApplicable)
+        ->toBeTrue();
+})->with([
+    ComposerWarning::MISSING_TYPE,
+    ComposerWarning::UNKNOWN_TYPE,
+]);
+
+test('is applicable is true for a library with lock in a library', function (): void {
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
+    ComposerJson::factory()->create([
+        'repository_id' => $repository->id,
+        'type' => 'library',
+    ]);
+
+    $composerWarningDetector = $this->app->make(ComposerWarningDetector::class);
+    $isApplicable = $composerWarningDetector->isApplicable($repository, ComposerWarning::LIBRARY_WITH_LOCK);
+
+    expect($isApplicable)
+        ->toBeTrue();
+});
+
+test('is applicable is false for a library with lock in a repository that is not a library', function (): void {
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
+    ComposerJson::factory()->create([
+        'repository_id' => $repository->id,
+        'type' => fake()->randomElement(['project', null, fake()->slug()]),
+    ]);
+
+    $composerWarningDetector = $this->app->make(ComposerWarningDetector::class);
+    $isApplicable = $composerWarningDetector->isApplicable($repository, ComposerWarning::LIBRARY_WITH_LOCK);
+
+    expect($isApplicable)
+        ->toBeFalse();
+});
+
+test('is applicable is true for a project without lock in a project', function (): void {
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
+    ComposerJson::factory()->create([
+        'repository_id' => $repository->id,
+        'type' => 'project',
+    ]);
+
+    $composerWarningDetector = $this->app->make(ComposerWarningDetector::class);
+    $isApplicable = $composerWarningDetector->isApplicable($repository, ComposerWarning::PROJECT_WITHOUT_LOCK);
+
+    expect($isApplicable)
+        ->toBeTrue();
+});
+
+test('is applicable is false for a project without lock in a repository that is not a project', function (): void {
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
+    ComposerJson::factory()->create([
+        'repository_id' => $repository->id,
+        'type' => fake()->randomElement(['library', null, fake()->slug()]),
+    ]);
+
+    $composerWarningDetector = $this->app->make(ComposerWarningDetector::class);
+    $isApplicable = $composerWarningDetector->isApplicable($repository, ComposerWarning::PROJECT_WITHOUT_LOCK);
+
+    expect($isApplicable)
+        ->toBeFalse();
+});

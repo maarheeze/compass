@@ -17,6 +17,18 @@ readonly class DependabotCoverageChecker
     ) {
     }
 
+    public function isRequired(Repository $repository, PackageEcosystem $packageEcosystem): bool
+    {
+        if (!$this->dependabotFilesCollectorManager->hasCollector($repository->source)) {
+            return false;
+        }
+
+        return match ($packageEcosystem) {
+            PackageEcosystem::COMPOSER => $this->isProject($repository),
+            PackageEcosystem::NPM => $repository->package_json_version !== null,
+        };
+    }
+
     public function isUncovered(Repository $repository, PackageEcosystem $packageEcosystem): bool
     {
         if (!$this->isRequired($repository, $packageEcosystem)) {
@@ -35,17 +47,5 @@ readonly class DependabotCoverageChecker
     private function isProject(Repository $repository): bool
     {
         return $this->repositoryKindClassifier->classify($repository) === RepositoryKind::PROJECT;
-    }
-
-    private function isRequired(Repository $repository, PackageEcosystem $packageEcosystem): bool
-    {
-        if (!$this->dependabotFilesCollectorManager->hasCollector($repository->source)) {
-            return false;
-        }
-
-        return match ($packageEcosystem) {
-            PackageEcosystem::COMPOSER => $this->isProject($repository),
-            PackageEcosystem::NPM => $repository->package_json_version !== null,
-        };
     }
 }

@@ -191,3 +191,110 @@ test('is uncovered is false for a repository whose source has no dependabot file
     expect($isUncovered)
         ->toBeFalse();
 });
+
+test('is required is true for composer in a project', function (): void {
+    $source = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $source => [
+            'driver' => 'github',
+        ],
+    ]);
+    $repository = Repository::factory()->create([
+        'composer_json_version' => fake()->sha1(),
+        'source' => $source,
+    ]);
+    ComposerJson::factory()->create([
+        'repository_id' => $repository->id,
+        'type' => 'project',
+    ]);
+
+    $dependabotCoverageChecker = $this->app->make(DependabotCoverageChecker::class);
+    $isRequired = $dependabotCoverageChecker->isRequired($repository, PackageEcosystem::COMPOSER);
+
+    expect($isRequired)
+        ->toBeTrue();
+});
+
+test('is required is false for composer in a repository that is not a project', function (): void {
+    $source = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $source => [
+            'driver' => 'github',
+        ],
+    ]);
+    $repository = Repository::factory()->create([
+        'composer_json_version' => fake()->sha1(),
+        'source' => $source,
+    ]);
+    ComposerJson::factory()->create([
+        'repository_id' => $repository->id,
+        'type' => 'library',
+    ]);
+
+    $dependabotCoverageChecker = $this->app->make(DependabotCoverageChecker::class);
+    $isRequired = $dependabotCoverageChecker->isRequired($repository, PackageEcosystem::COMPOSER);
+
+    expect($isRequired)
+        ->toBeFalse();
+});
+
+test('is required is true for npm in a repository with a package json', function (): void {
+    $source = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $source => [
+            'driver' => 'github',
+        ],
+    ]);
+    $repository = Repository::factory()->create([
+        'package_json_version' => fake()->sha1(),
+        'source' => $source,
+    ]);
+
+    $dependabotCoverageChecker = $this->app->make(DependabotCoverageChecker::class);
+    $isRequired = $dependabotCoverageChecker->isRequired($repository, PackageEcosystem::NPM);
+
+    expect($isRequired)
+        ->toBeTrue();
+});
+
+test('is required is false for npm in a repository without a package json', function (): void {
+    $source = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $source => [
+            'driver' => 'github',
+        ],
+    ]);
+    $repository = Repository::factory()->create([
+        'package_json_version' => null,
+        'source' => $source,
+    ]);
+
+    $dependabotCoverageChecker = $this->app->make(DependabotCoverageChecker::class);
+    $isRequired = $dependabotCoverageChecker->isRequired($repository, PackageEcosystem::NPM);
+
+    expect($isRequired)
+        ->toBeFalse();
+});
+
+test('is required is false for a repository whose source has no dependabot files collector', function (): void {
+    $source = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $source => [
+            'driver' => fake()->randomElement(['forge', fake()->slug()]),
+        ],
+    ]);
+    $repository = Repository::factory()->create([
+        'composer_json_version' => fake()->sha1(),
+        'source' => $source,
+    ]);
+    ComposerJson::factory()->create([
+        'repository_id' => $repository->id,
+        'type' => 'project',
+    ]);
+
+    $dependabotCoverageChecker = $this->app->make(DependabotCoverageChecker::class);
+    $isRequired = $dependabotCoverageChecker->isRequired($repository, PackageEcosystem::COMPOSER);
+
+    expect($isRequired)
+        ->toBeFalse();
+});

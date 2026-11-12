@@ -274,6 +274,30 @@ test('handle resolves an active alert for a resolved condition', function (): vo
     ]);
 });
 
+test('handle resolves an active alert for a not applicable condition', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $storedAlert = Alert::factory()
+        ->siteEndpointDown()
+        ->active()
+        ->for($siteEndpoint, 'subject')
+        ->create();
+    $observedAt = CarbonImmutable::now();
+
+    $observationHandler = $this->app->make(ObservationHandler::class);
+    $observationHandler->handle(new ConditionObservation(
+        new SiteEndpointDown(),
+        $siteEndpoint,
+        ConditionState::NOT_APPLICABLE,
+        $observedAt,
+    ));
+
+    $this->assertDatabaseHas(Alert::class, [
+        'id' => $storedAlert->id,
+        'condition' => ConditionState::RESOLVED,
+        'resolved_at' => $observedAt,
+    ]);
+});
+
 test('handle raises alert resolved with the resolved alert', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
     $this->app->instance(Dispatcher::class, $eventFake);

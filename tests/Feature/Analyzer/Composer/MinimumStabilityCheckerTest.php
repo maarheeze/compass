@@ -75,3 +75,34 @@ test('is stable is true for a repository without a composer json', function (): 
     expect($isStable)
         ->toBeTrue();
 });
+
+test('is applicable is true for a repository with a collected composer json', function (): void {
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
+    ComposerJson::factory()->create(['repository_id' => $repository->id]);
+
+    $minimumStabilityChecker = $this->app->make(MinimumStabilityChecker::class);
+    $isApplicable = $minimumStabilityChecker->isApplicable($repository);
+
+    expect($isApplicable)
+        ->toBeTrue();
+});
+
+test('is applicable is false for a repository without a composer json', function (): void {
+    $repository = Repository::factory()->create(['composer_json_version' => null]);
+
+    $minimumStabilityChecker = $this->app->make(MinimumStabilityChecker::class);
+    $isApplicable = $minimumStabilityChecker->isApplicable($repository);
+
+    expect($isApplicable)
+        ->toBeFalse();
+});
+
+test('is applicable is false for a composer json that is not collected yet', function (): void {
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
+
+    $minimumStabilityChecker = $this->app->make(MinimumStabilityChecker::class);
+    $isApplicable = $minimumStabilityChecker->isApplicable($repository);
+
+    expect($isApplicable)
+        ->toBeFalse();
+});

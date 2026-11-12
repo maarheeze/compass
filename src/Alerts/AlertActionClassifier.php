@@ -13,17 +13,19 @@ readonly class AlertActionClassifier
         if ($storedAlert === null) {
             return match ($observedCondition) {
                 ConditionState::ACTIVE => AlertAction::OPEN,
-                ConditionState::RESOLVED => null,
+                ConditionState::NOT_APPLICABLE, ConditionState::RESOLVED => null,
             };
         }
 
-        if ($observedCondition === $storedAlert->condition) {
-            return null;
-        }
-
-        return match ($observedCondition) {
-            ConditionState::ACTIVE => AlertAction::RECUR,
-            ConditionState::RESOLVED => AlertAction::RESOLVE,
+        return match ($storedAlert->condition) {
+            ConditionState::ACTIVE => match ($observedCondition) {
+                ConditionState::ACTIVE => null,
+                ConditionState::NOT_APPLICABLE, ConditionState::RESOLVED => AlertAction::RESOLVE,
+            },
+            ConditionState::NOT_APPLICABLE, ConditionState::RESOLVED => match ($observedCondition) {
+                ConditionState::ACTIVE => AlertAction::RECUR,
+                ConditionState::NOT_APPLICABLE, ConditionState::RESOLVED => null,
+            },
         };
     }
 }

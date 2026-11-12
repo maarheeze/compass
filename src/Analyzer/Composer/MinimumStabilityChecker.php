@@ -8,6 +8,11 @@ use Maarheeze\Compass\Models\Repository;
 
 readonly class MinimumStabilityChecker
 {
+    public function isApplicable(Repository $repository): bool
+    {
+        return $repository->composer_json_version !== null && $repository->composerJson !== null;
+    }
+
     public function isStable(Repository $repository): bool
     {
         if ($repository->composer_json_version === null) {

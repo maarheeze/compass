@@ -11,6 +11,7 @@ use function sprintf;
 enum ConditionState: string implements LabelledEnum
 {
     case ACTIVE = 'active';
+    case NOT_APPLICABLE = 'not_applicable';
     case RESOLVED = 'resolved';
 
     public function labelKey(): string

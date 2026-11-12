@@ -55,10 +55,12 @@ readonly class EvaluateSiteDeploymentOverdue implements ShouldQueue
 
     private function observedCondition(Site $site): ConditionState
     {
-        if ($this->deploymentStateClassifier->classify($site) === DeploymentState::DEPLOYMENT_OVERDUE) {
-            return ConditionState::ACTIVE;
-        }
-
-        return ConditionState::RESOLVED;
+        return match ($this->deploymentStateClassifier->classify($site)) {
+            DeploymentState::DEPLOYMENT_OVERDUE => ConditionState::ACTIVE,
+            DeploymentState::UNKNOWN => ConditionState::NOT_APPLICABLE,
+            DeploymentState::BEHIND,
+            DeploymentState::DEPLOYING,
+            DeploymentState::UP_TO_DATE => ConditionState::RESOLVED,
+        };
     }
 }

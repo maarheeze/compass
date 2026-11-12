@@ -42,6 +42,10 @@ readonly class EvaluateComposerMinimumStability implements ShouldQueue
 
     private function observedCondition(Repository $repository): ConditionState
     {
+        if (!$this->minimumStabilityChecker->isApplicable($repository)) {
+            return ConditionState::NOT_APPLICABLE;
+        }
+
         if ($this->minimumStabilityChecker->isStable($repository)) {
             return ConditionState::RESOLVED;
         }

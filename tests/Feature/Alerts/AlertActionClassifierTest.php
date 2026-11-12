@@ -70,3 +70,35 @@ test('classify is recur for an active condition with a resolved alert', function
     expect($alertAction)
         ->toBe(AlertAction::RECUR);
 });
+
+test('classify is nothing for a not applicable condition without a stored alert', function (): void {
+    $alertActionClassifier = $this->app->make(AlertActionClassifier::class);
+    $alertAction = $alertActionClassifier->classify(ConditionState::NOT_APPLICABLE, null);
+
+    expect($alertAction)
+        ->toBeNull();
+});
+
+test('classify is resolve for a not applicable condition with an active alert', function (): void {
+    $storedAlert = Alert::factory()
+        ->active()
+        ->make();
+
+    $alertActionClassifier = $this->app->make(AlertActionClassifier::class);
+    $alertAction = $alertActionClassifier->classify(ConditionState::NOT_APPLICABLE, $storedAlert);
+
+    expect($alertAction)
+        ->toBe(AlertAction::RESOLVE);
+});
+
+test('classify is nothing for a not applicable condition with a resolved alert', function (): void {
+    $storedAlert = Alert::factory()
+        ->resolved()
+        ->make();
+
+    $alertActionClassifier = $this->app->make(AlertActionClassifier::class);
+    $alertAction = $alertActionClassifier->classify(ConditionState::NOT_APPLICABLE, $storedAlert);
+
+    expect($alertAction)
+        ->toBeNull();
+});

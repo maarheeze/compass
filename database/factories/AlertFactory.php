@@ -43,18 +43,12 @@ class AlertFactory extends Factory
 
     public function configure(): static
     {
-        $status = fake()->randomElement(AlertStatus::cases());
-        Assert::isInstanceOf($status, AlertStatus::class);
-        $condition = fake()->randomElement(ConditionState::cases());
-        Assert::isInstanceOf($condition, ConditionState::class);
-
-        $alertFactoryWithState = match ($status) {
-            AlertStatus::DONE => $this->done(),
-            AlertStatus::OPEN => match ($condition) {
-                ConditionState::ACTIVE => $this->active(),
-                ConditionState::RESOLVED => $this->resolved(),
-            },
-        };
+        $alertFactoryWithState = fake()->randomElement([
+            $this->active(),
+            $this->done(),
+            $this->resolved(),
+        ]);
+        Assert::isInstanceOf($alertFactoryWithState, static::class);
 
         $alertFactoryWithType = fake()->randomElement([
             $alertFactoryWithState->composerLibraryWithLock(),

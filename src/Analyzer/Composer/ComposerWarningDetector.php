@@ -33,6 +33,19 @@ readonly class ComposerWarningDetector
         };
     }
 
+    public function isApplicable(Repository $repository, ComposerWarning $composerWarning): bool
+    {
+        if ($repository->composer_json_version === null || $repository->composerJson === null) {
+            return false;
+        }
+
+        return match ($composerWarning) {
+            ComposerWarning::LIBRARY_WITH_LOCK => $this->isRepositoryKind($repository, RepositoryKind::LIBRARY),
+            ComposerWarning::MISSING_TYPE, ComposerWarning::UNKNOWN_TYPE => true,
+            ComposerWarning::PROJECT_WITHOUT_LOCK => $this->isRepositoryKind($repository, RepositoryKind::PROJECT),
+        };
+    }
+
     private function detectLibraryWarning(Repository $repository): ?ComposerWarning
     {
         if ($repository->composer_lock_version === null) {
@@ -58,5 +71,10 @@ readonly class ComposerWarningDetector
         }
 
         return ComposerWarning::UNKNOWN_TYPE;
+    }
+
+    private function isRepositoryKind(Repository $repository, RepositoryKind $repositoryKind): bool
+    {
+        return $this->repositoryKindClassifier->classify($repository) === $repositoryKind;
     }
 }

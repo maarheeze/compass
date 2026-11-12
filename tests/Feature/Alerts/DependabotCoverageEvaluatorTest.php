@@ -40,7 +40,7 @@ test('conditionObservations observes an uncovered package ecosystem active now',
         ->toBeTrue();
 });
 
-test('conditionObservations observes a package ecosystem the repository does not need resolved now', function (string $alertTypeClass): void {
+test('conditionObservations observes a package ecosystem the repository does not need not applicable now', function (string $alertTypeClass): void {
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $source = fake()->slug();
@@ -58,13 +58,13 @@ test('conditionObservations observes a package ecosystem the repository does not
     $dependabotCoverageEvaluator = $this->app->make(DependabotCoverageEvaluator::class);
     $conditionObservations = $dependabotCoverageEvaluator->conditionObservations($repository);
 
-    $hasResolvedObservation = $conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($alertTypeClass, $now, $repository): bool {
+    $hasNotApplicableObservation = $conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($alertTypeClass, $now, $repository): bool {
         return $conditionObservation->alertType instanceof $alertTypeClass
             && $conditionObservation->subject === $repository
-            && $conditionObservation->condition === ConditionState::RESOLVED
+            && $conditionObservation->condition === ConditionState::NOT_APPLICABLE
             && $conditionObservation->observedAt->equalTo($now);
     });
-    expect($hasResolvedObservation)
+    expect($hasNotApplicableObservation)
         ->toBeTrue();
 })->with([
     DependabotComposerMissing::class,

@@ -57,3 +57,25 @@ test('conditionObservation observes an up-to-date site no longer behind now', fu
         ->and($conditionObservation->observedAt->equalTo($now))
         ->toBeTrue();
 });
+
+test('conditionObservation observes a site deploying another branch not applicable now', function (): void {
+    $now = CarbonImmutable::parse(fake()->iso8601());
+    $this->app->instance(ClockInterface::class, new MockClock($now));
+    $repository = Repository::factory()->create(['default_branch' => fake()->unique()->slug()]);
+    $site = Site::factory()->create([
+        'repository_url' => $repository->url,
+        'repository_branch' => fake()->unique()->slug(),
+    ]);
+
+    $siteBehindEvaluator = $this->app->make(SiteBehindEvaluator::class);
+    $conditionObservation = $siteBehindEvaluator->conditionObservation($site);
+
+    expect($conditionObservation->alertType)
+        ->toBeInstanceOf(SiteBehind::class)
+        ->and($conditionObservation->subject)
+        ->toBe($site)
+        ->and($conditionObservation->condition)
+        ->toBe(ConditionState::NOT_APPLICABLE)
+        ->and($conditionObservation->observedAt->equalTo($now))
+        ->toBeTrue();
+});

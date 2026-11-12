@@ -31,10 +31,12 @@ readonly class SiteBehindEvaluator
 
     private function observedCondition(Site $site): ConditionState
     {
-        if ($this->deploymentStateClassifier->classify($site) === DeploymentState::BEHIND) {
-            return ConditionState::ACTIVE;
-        }
-
-        return ConditionState::RESOLVED;
+        return match ($this->deploymentStateClassifier->classify($site)) {
+            DeploymentState::BEHIND => ConditionState::ACTIVE,
+            DeploymentState::UNKNOWN => ConditionState::NOT_APPLICABLE,
+            DeploymentState::DEPLOYING,
+            DeploymentState::DEPLOYMENT_OVERDUE,
+            DeploymentState::UP_TO_DATE => ConditionState::RESOLVED,
+        };
     }
 }

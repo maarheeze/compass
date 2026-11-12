@@ -36,7 +36,7 @@ readonly class ComposerWarningEvaluator
             $conditionObservations->push(new ConditionObservation(
                 $this->alertType($composerWarning),
                 $repository,
-                $this->observedCondition($composerWarning, $detectedComposerWarning),
+                $this->observedCondition($repository, $composerWarning, $detectedComposerWarning),
                 $observedAt,
             ));
         }
@@ -55,9 +55,14 @@ readonly class ComposerWarningEvaluator
     }
 
     private function observedCondition(
+        Repository $repository,
         ComposerWarning $composerWarning,
         ?ComposerWarning $detectedComposerWarning,
     ): ConditionState {
+        if (!$this->composerWarningDetector->isApplicable($repository, $composerWarning)) {
+            return ConditionState::NOT_APPLICABLE;
+        }
+
         if ($composerWarning === $detectedComposerWarning) {
             return ConditionState::ACTIVE;
         }

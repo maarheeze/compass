@@ -64,12 +64,33 @@ test('conditionObservations observes the composer warnings that are not detected
     expect($hasResolvedObservation)
         ->toBeTrue();
 })->with([
-    ComposerLibraryWithLock::class,
     ComposerTypeMissing::class,
     ComposerTypeUnknown::class,
 ]);
 
-test('conditionObservations observes every composer warning resolved now for a repository without a composer warning', function (string $alertTypeClass): void {
+test('conditionObservations observes library with lock not applicable now for a project', function (): void {
+    $now = CarbonImmutable::parse(fake()->iso8601());
+    $this->app->instance(ClockInterface::class, new MockClock($now));
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
+    ComposerJson::factory()->create([
+        'repository_id' => $repository->id,
+        'type' => 'project',
+    ]);
+
+    $composerWarningEvaluator = $this->app->make(ComposerWarningEvaluator::class);
+    $conditionObservations = $composerWarningEvaluator->conditionObservations($repository);
+
+    $hasNotApplicableObservation = $conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($now, $repository): bool {
+        return $conditionObservation->alertType instanceof ComposerLibraryWithLock
+            && $conditionObservation->subject === $repository
+            && $conditionObservation->condition === ConditionState::NOT_APPLICABLE
+            && $conditionObservation->observedAt->equalTo($now);
+    });
+    expect($hasNotApplicableObservation)
+        ->toBeTrue();
+});
+
+test('conditionObservations observes every composer warning not applicable now for a repository without a composer json', function (string $alertTypeClass): void {
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $repository = Repository::factory()->create(['composer_json_version' => null]);
@@ -77,13 +98,13 @@ test('conditionObservations observes every composer warning resolved now for a r
     $composerWarningEvaluator = $this->app->make(ComposerWarningEvaluator::class);
     $conditionObservations = $composerWarningEvaluator->conditionObservations($repository);
 
-    $hasResolvedObservation = $conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($alertTypeClass, $now, $repository): bool {
+    $hasNotApplicableObservation = $conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($alertTypeClass, $now, $repository): bool {
         return $conditionObservation->alertType instanceof $alertTypeClass
             && $conditionObservation->subject === $repository
-            && $conditionObservation->condition === ConditionState::RESOLVED
+            && $conditionObservation->condition === ConditionState::NOT_APPLICABLE
             && $conditionObservation->observedAt->equalTo($now);
     });
-    expect($hasResolvedObservation)
+    expect($hasNotApplicableObservation)
         ->toBeTrue();
 })->with([
     ComposerLibraryWithLock::class,
