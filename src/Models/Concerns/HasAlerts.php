@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Models\Concerns;
 
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Maarheeze\Compass\Models\Alert;
+use Maarheeze\Compass\Models\AlertCheck;
 use Maarheeze\Compass\Models\Builders\AlertBuilder;
 use Maarheeze\Compass\Models\Scopes\RegisteredAlertTypes;
 
@@ -18,7 +19,19 @@ trait HasAlerts
                 ->alerts()
                 ->withoutGlobalScope(RegisteredAlertTypes::class)
                 ->delete();
+            $subject
+                ->alertChecks()
+                ->withoutGlobalScope(RegisteredAlertTypes::class)
+                ->delete();
         });
+    }
+
+    /**
+     * @return MorphMany<AlertCheck, $this>
+     */
+    public function alertChecks(): MorphMany
+    {
+        return $this->morphMany(AlertCheck::class, 'subject');
     }
 
     /**

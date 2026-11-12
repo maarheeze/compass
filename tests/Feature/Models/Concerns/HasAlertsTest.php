@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Database\Eloquent\Model;
 use Maarheeze\Compass\Models\Alert;
+use Maarheeze\Compass\Models\AlertCheck;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
@@ -61,6 +62,73 @@ test('deleting a subject keeps the alerts of another subject', function (Model $
     $subject->delete();
 
     $this->assertModelExists($otherAlert);
+})->with([
+    function (): Repository {
+        return Repository::factory()->create();
+    },
+    function (): Site {
+        return Site::factory()->create();
+    },
+    function (): SiteEndpoint {
+        return SiteEndpoint::factory()->create();
+    },
+    function (): SiteReport {
+        return SiteReport::factory()->create();
+    },
+]);
+
+test('deleting a subject deletes its alert checks', function (Model $subject): void {
+    $alertCheck = AlertCheck::factory()
+        ->for($subject, 'subject')
+        ->create();
+
+    $subject->delete();
+
+    $this->assertModelMissing($alertCheck);
+})->with([
+    function (): Repository {
+        return Repository::factory()->create();
+    },
+    function (): Site {
+        return Site::factory()->create();
+    },
+    function (): SiteEndpoint {
+        return SiteEndpoint::factory()->create();
+    },
+    function (): SiteReport {
+        return SiteReport::factory()->create();
+    },
+]);
+
+test('deleting a subject deletes its alert checks of an alert type that is not registered', function (Model $subject): void {
+    $alertCheck = AlertCheck::factory()
+        ->for($subject, 'subject')
+        ->create(['alert_type_identifier' => fake()->slug()]);
+
+    $subject->delete();
+
+    $this->assertModelMissing($alertCheck);
+})->with([
+    function (): Repository {
+        return Repository::factory()->create();
+    },
+    function (): Site {
+        return Site::factory()->create();
+    },
+    function (): SiteEndpoint {
+        return SiteEndpoint::factory()->create();
+    },
+    function (): SiteReport {
+        return SiteReport::factory()->create();
+    },
+]);
+
+test('deleting a subject keeps the alert checks of another subject', function (Model $subject): void {
+    $otherAlertCheck = AlertCheck::factory()->create();
+
+    $subject->delete();
+
+    $this->assertModelExists($otherAlertCheck);
 })->with([
     function (): Repository {
         return Repository::factory()->create();

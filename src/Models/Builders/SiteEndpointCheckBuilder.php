@@ -49,17 +49,7 @@ class SiteEndpointCheckBuilder extends Builder
     public function withOnlineSince(): self
     {
         return $this
-            ->addSelect([
-                'online_since' => SiteEndpointCheck::query()
-                    ->from('compass_site_endpoint_checks', 'successful_site_endpoint_checks')
-                    ->select('successful_site_endpoint_checks.created_at')
-                    ->whereColumn('successful_site_endpoint_checks.site_id', 'compass_site_endpoint_checks.site_id')
-                    ->whereColumn('successful_site_endpoint_checks.path', 'compass_site_endpoint_checks.path')
-                    ->where('successful_site_endpoint_checks.is_successful', true)
-                    ->whereNotExists($this->failedChecksAfterSuccessfulCheck())
-                    ->orderBy('successful_site_endpoint_checks.id')
-                    ->limit(1),
-            ])
+            ->addSelect(['online_since' => $this->onlineSinceOfCheck()])
             ->withCasts(['online_since' => 'immutable_datetime']);
     }
 
@@ -74,6 +64,22 @@ class SiteEndpointCheckBuilder extends Builder
             ->whereColumn('failed_site_endpoint_checks.path', 'successful_site_endpoint_checks.path')
             ->where('failed_site_endpoint_checks.is_successful', false)
             ->whereColumn('failed_site_endpoint_checks.id', '>', 'successful_site_endpoint_checks.id');
+    }
+
+    /**
+     * @return Builder<SiteEndpointCheck>
+     */
+    private function onlineSinceOfCheck(): Builder
+    {
+        return SiteEndpointCheck::query()
+            ->from('compass_site_endpoint_checks', 'successful_site_endpoint_checks')
+            ->select('successful_site_endpoint_checks.created_at')
+            ->whereColumn('successful_site_endpoint_checks.site_id', 'compass_site_endpoint_checks.site_id')
+            ->whereColumn('successful_site_endpoint_checks.path', 'compass_site_endpoint_checks.path')
+            ->where('successful_site_endpoint_checks.is_successful', true)
+            ->whereNotExists($this->failedChecksAfterSuccessfulCheck())
+            ->orderBy('successful_site_endpoint_checks.id')
+            ->limit(1);
     }
 
     /**

@@ -20,6 +20,7 @@ use Maarheeze\Compass\Alerts\Events\AlertResolved;
 use Maarheeze\Compass\Alerts\ObservationHandler;
 use Maarheeze\Compass\Alerts\Types\SiteEndpointDown;
 use Maarheeze\Compass\Models\Alert;
+use Maarheeze\Compass\Models\AlertCheck;
 use Maarheeze\Compass\Models\AlertHistoryEntry;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Webmozart\Assert\Assert;
@@ -509,4 +510,68 @@ test('handle leaves the lock of another subject free', function (): void {
 
     expect($isLockFree)
         ->toBeTrue();
+});
+
+test('handle stores a resolved condition without an alert as an alert check', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $observedAt = CarbonImmutable::now();
+
+    $observationHandler = $this->app->make(ObservationHandler::class);
+    $observationHandler->handle(new ConditionObservation(
+        new SiteEndpointDown(),
+        $siteEndpoint,
+        ConditionState::RESOLVED,
+        $observedAt,
+    ));
+
+    $this->assertDatabaseHas(AlertCheck::class, [
+        'subject_type' => $siteEndpoint->getMorphClass(),
+        'subject_id' => $siteEndpoint->id,
+        'alert_type_identifier' => new SiteEndpointDown()->identifier(),
+        'condition' => ConditionState::RESOLVED,
+        'observed_at' => $observedAt,
+    ]);
+});
+
+test('handle stores the observed condition on the existing alert check', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $alertCheck = AlertCheck::factory()
+        ->for($siteEndpoint, 'subject')
+        ->create([
+            'alert_type_identifier' => new SiteEndpointDown()->identifier(),
+            'condition' => ConditionState::ACTIVE,
+        ]);
+    $observedAt = CarbonImmutable::now();
+
+    $observationHandler = $this->app->make(ObservationHandler::class);
+    $observationHandler->handle(new ConditionObservation(
+        new SiteEndpointDown(),
+        $siteEndpoint,
+        ConditionState::RESOLVED,
+        $observedAt,
+    ));
+
+    $this->assertDatabaseHas(AlertCheck::class, [
+        'id' => $alertCheck->id,
+        'condition' => ConditionState::RESOLVED,
+        'observed_at' => $observedAt,
+    ]);
+});
+
+test('handle adds no second alert check for an alert type and subject with an alert check', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    AlertCheck::factory()
+        ->for($siteEndpoint, 'subject')
+        ->create(['alert_type_identifier' => new SiteEndpointDown()->identifier()]);
+
+    $observationHandler = $this->app->make(ObservationHandler::class);
+    $observationHandler->handle(new ConditionObservation(
+        new SiteEndpointDown(),
+        $siteEndpoint,
+        fake()->randomElement(ConditionState::cases()),
+        CarbonImmutable::now(),
+    ));
+
+    expect($siteEndpoint->alertChecks()->count())
+        ->toBe(1);
 });

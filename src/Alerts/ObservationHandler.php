@@ -72,15 +72,22 @@ readonly class ObservationHandler
             ->first();
         $alertAction = $this->alertActionClassifier->classify($conditionObservation->condition, $storedAlert);
 
-        if ($alertAction === null) {
-            return;
-        }
-
         $this->connection->transaction(function () use ($alertAction, $conditionObservation, $storedAlert): void {
+            $conditionObservation->subject
+                ->alertChecks()
+                ->updateOrCreate(
+                    ['alert_type_identifier' => $conditionObservation->alertType->identifier()],
+                    [
+                        'condition' => $conditionObservation->condition,
+                        'observed_at' => $conditionObservation->observedAt,
+                    ],
+                );
+
             match ($alertAction) {
                 AlertAction::OPEN => $this->open($conditionObservation),
                 AlertAction::RECUR => $this->recur($conditionObservation, $storedAlert),
                 AlertAction::RESOLVE => $this->resolve($conditionObservation, $storedAlert),
+                null => null,
             };
         });
     }

@@ -56,6 +56,7 @@ use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Collector\Events\SiteMissingIgnored;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Models\Alert;
+use Maarheeze\Compass\Models\AlertCheck;
 use Maarheeze\Compass\Models\AlertHistoryEntry;
 use Maarheeze\Compass\Models\NotificationSubscription;
 use Maarheeze\Compass\Models\Scopes\RegisteredAlertTypes;
@@ -82,6 +83,7 @@ class AlertProvider extends ServiceProvider
         $alertTypes->register(new SiteReportUnauthorized());
 
         Alert::addGlobalScope(new RegisteredAlertTypes($alertTypes));
+        AlertCheck::addGlobalScope(new RegisteredAlertTypes($alertTypes));
         NotificationSubscription::addGlobalScope(new RegisteredAlertTypes($alertTypes));
 
         $events->listen(AlertHistoryEntryCreated::class, BroadcastAlertHistoryEntry::class);

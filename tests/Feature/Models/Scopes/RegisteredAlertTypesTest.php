@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Maarheeze\Compass\Models\Alert;
+use Maarheeze\Compass\Models\AlertCheck;
 use Maarheeze\Compass\Models\NotificationSubscription;
 
 test('apply keeps an alert of a registered alert type', function (): void {
@@ -20,6 +21,15 @@ test('apply leaves out an alert of an alert type that is not registered', functi
     $alerts = Alert::query()->get();
 
     expect($alerts)
+        ->toBeEmpty();
+});
+
+test('apply leaves out an alert check of an alert type that is not registered', function (): void {
+    AlertCheck::factory()->create(['alert_type_identifier' => fake()->slug()]);
+
+    $alertChecks = AlertCheck::query()->get();
+
+    expect($alertChecks)
         ->toBeEmpty();
 });
 
