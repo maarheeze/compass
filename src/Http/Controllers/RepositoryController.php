@@ -15,6 +15,7 @@ use Maarheeze\Compass\Analyzer\Composer\RepositoryKindClassifier;
 use Maarheeze\Compass\Collections\RepositoryCollection;
 use Maarheeze\Compass\Collector\Repositories\MissingRepositoryResolver;
 use Maarheeze\Compass\Http\RouteName;
+use Maarheeze\Compass\Models\AlertCheck;
 use Maarheeze\Compass\Models\Repository;
 use Throwable;
 use Webmozart\Assert\Assert;
@@ -94,6 +95,12 @@ readonly class RepositoryController
         ]);
 
         return $this->view->make('compass::repositories.show', [
+            'alertChecks' => AlertCheck::query()
+                ->ofSubject($repository)
+                ->applicable()
+                ->withAlertMuted()
+                ->orderBy('alert_type_identifier')
+                ->get(),
             'kind' => $this->repositoryKindClassifier->classify($repository),
             'repository' => $repository,
         ]);

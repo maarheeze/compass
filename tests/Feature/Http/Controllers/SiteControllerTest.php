@@ -3,11 +3,16 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
+use Maarheeze\Compass\Alerts\ConditionState;
+use Maarheeze\Compass\Alerts\Types\SiteBehind;
+use Maarheeze\Compass\Alerts\Types\SiteMissing;
+use Maarheeze\Compass\Collections\AlertCheckCollection;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
+use Maarheeze\Compass\Models\AlertCheck;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
@@ -69,6 +74,53 @@ test('show loads the assignee of the alerts', function (): void {
 
     $response->assertViewHas('alerts', static function (AlertCollection $alerts): bool {
         return $alerts->sole()->relationLoaded('assignee');
+    });
+});
+
+test('show contains the checks of the site that apply', function (): void {
+    $site = Site::factory()->create();
+    $applicableAlertCheck = AlertCheck::factory()
+        ->for($site, 'subject')
+        ->create([
+            'alert_type_identifier' => new SiteMissing()->identifier(),
+            'condition' => fake()->randomElement([ConditionState::ACTIVE, ConditionState::RESOLVED]),
+        ]);
+    AlertCheck::factory()
+        ->for($site, 'subject')
+        ->create([
+            'alert_type_identifier' => new SiteBehind()->identifier(),
+            'condition' => ConditionState::NOT_APPLICABLE,
+        ]);
+    AlertCheck::factory()
+        ->for(Site::factory(), 'subject')
+        ->create(['condition' => ConditionState::ACTIVE]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::SITE, $site));
+
+    $response->assertViewHas(
+        'alertChecks',
+        static function (AlertCheckCollection $viewAlertChecks) use ($applicableAlertCheck): bool {
+            return $viewAlertChecks->sole()->is($applicableAlertCheck);
+        },
+    );
+});
+
+test('show contains the checks of the reports of the site that apply', function (): void {
+    $siteReport = SiteReport::factory()->create();
+    $applicableAlertCheck = AlertCheck::factory()
+        ->for($siteReport, 'subject')
+        ->create(['condition' => fake()->randomElement([ConditionState::ACTIVE, ConditionState::RESOLVED])]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::SITE, $siteReport->site));
+
+    $response->assertViewHas('site', static function (Site $viewSite) use ($applicableAlertCheck): bool {
+        return $viewSite->reports
+            ->sole()
+            ->alertChecks
+            ->sole()
+            ->is($applicableAlertCheck);
     });
 });
 

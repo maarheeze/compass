@@ -6,11 +6,13 @@ namespace Maarheeze\Compass\Http\Controllers;
 
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Maarheeze\Compass\Collector\Sites\MissingSiteResolver;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
+use Maarheeze\Compass\Models\AlertCheck;
 use Maarheeze\Compass\Models\Site;
 use Throwable;
 
@@ -52,7 +54,16 @@ readonly class SiteController
 
     public function show(Site $site): View
     {
-        $site->load(['reports.endpoints', 'repository']);
+        $site->load([
+            'reports.alertChecks' => static function (MorphMany $alertCheckQuery): void {
+                $alertCheckQuery
+                    ->applicable()
+                    ->withAlertMuted()
+                    ->orderBy('alert_type_identifier');
+            },
+            'reports.endpoints',
+            'repository',
+        ]);
 
         return $this->view->make('compass::sites.show', [
             'activeSiteEndpointChecks' => $site
@@ -61,6 +72,12 @@ readonly class SiteController
                 ->reported()
                 ->withOnlineSince()
                 ->orderBy('path')
+                ->get(),
+            'alertChecks' => AlertCheck::query()
+                ->ofSubject($site)
+                ->applicable()
+                ->withAlertMuted()
+                ->orderBy('alert_type_identifier')
                 ->get(),
             'alerts' => Alert::query()
                 ->ofSite($site)

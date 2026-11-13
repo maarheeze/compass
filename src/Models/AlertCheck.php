@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Models;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\HasBuilder;
 use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -13,11 +14,13 @@ use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Collections\AlertCheckCollection;
 use Maarheeze\Compass\Database\Factories\AlertCheckFactory;
+use Maarheeze\Compass\Models\Builders\AlertCheckBuilder;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
 
 /**
+ * @property ?bool $alert_is_muted
  * @property string $alert_type_identifier
  * @property ConditionState $condition
  * @property CarbonImmutable $created_at
@@ -31,12 +34,15 @@ use Maarheeze\Uuid\Uuid;
  */
 class AlertCheck extends Model
 {
+    /** @use HasBuilder<AlertCheckBuilder> */
+    use HasBuilder;
     /** @use HasCollection<AlertCheckCollection> */
     use HasCollection;
     /** @use HasFactory<AlertCheckFactory> */
     use HasFactory;
     use HasUuidAsId;
 
+    protected static string $builder = AlertCheckBuilder::class;
     protected static string $collectionClass = AlertCheckCollection::class;
 
     /**

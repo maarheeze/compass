@@ -3,10 +3,15 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
+use Maarheeze\Compass\Alerts\ConditionState;
+use Maarheeze\Compass\Alerts\Types\ComposerLibraryWithLock;
+use Maarheeze\Compass\Alerts\Types\ComposerProjectWithoutLock;
 use Maarheeze\Compass\Analyzer\Composer\RepositoryKind;
+use Maarheeze\Compass\Collections\AlertCheckCollection;
 use Maarheeze\Compass\Collections\RepositoryCollection;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
+use Maarheeze\Compass\Models\AlertCheck;
 use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\PullRequest;
@@ -154,6 +159,56 @@ test('show loads the assignee of the alerts of the repository', function (): voi
 
     $response->assertViewHas('repository', static function (Repository $viewRepository): bool {
         return $viewRepository->alerts->sole()->relationLoaded('assignee');
+    });
+});
+
+test('show contains the checks of the repository that apply', function (): void {
+    $repository = Repository::factory()->create();
+    $applicableAlertCheck = AlertCheck::factory()
+        ->for($repository, 'subject')
+        ->create([
+            'alert_type_identifier' => new ComposerLibraryWithLock()->identifier(),
+            'condition' => fake()->randomElement([ConditionState::ACTIVE, ConditionState::RESOLVED]),
+        ]);
+    AlertCheck::factory()
+        ->for($repository, 'subject')
+        ->create([
+            'alert_type_identifier' => new ComposerProjectWithoutLock()->identifier(),
+            'condition' => ConditionState::NOT_APPLICABLE,
+        ]);
+    AlertCheck::factory()
+        ->for(Repository::factory(), 'subject')
+        ->create(['condition' => ConditionState::ACTIVE]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::REPOSITORY, $repository));
+
+    $response->assertViewHas(
+        'alertChecks',
+        static function (AlertCheckCollection $viewAlertChecks) use ($applicableAlertCheck): bool {
+            return $viewAlertChecks->sole()->is($applicableAlertCheck);
+        },
+    );
+});
+
+test('show loads whether the alerts of the checks of the repository are muted', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->muted()
+        ->composerLibraryWithLock()
+        ->create();
+    AlertCheck::factory()
+        ->for($alert->subject, 'subject')
+        ->create([
+            'alert_type_identifier' => $alert->alert_type_identifier,
+            'condition' => ConditionState::ACTIVE,
+        ]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::REPOSITORY, $alert->subject_id));
+
+    $response->assertViewHas('alertChecks', static function (AlertCheckCollection $viewAlertChecks): bool {
+        return $viewAlertChecks->sole()->alert_is_muted === true;
     });
 });
 

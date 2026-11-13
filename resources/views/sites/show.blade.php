@@ -68,6 +68,16 @@
         <section class="space-y-3">
             <x-compass::section-heading>
                 <x-slot:icon>
+                    <x-compass::icons.check-circle />
+                </x-slot:icon>
+                {{ __('compass::alert-check.checks') }}
+            </x-compass::section-heading>
+            <x-compass::alert-check-table :alert-checks="$alertChecks" />
+        </section>
+
+        <section class="space-y-3">
+            <x-compass::section-heading>
+                <x-slot:icon>
                     <x-compass::icons.rocket />
                 </x-slot:icon>
                 {{ __('compass::site.latest_deployment') }}
@@ -108,8 +118,9 @@
             <div class="space-y-4 rounded-md border border-border bg-canvas px-4 py-3 text-sm">
                 @forelse ($site->reports as $siteReport)
                     <div class="flex items-start gap-4">
-                        <div class="flex-1">
+                        <div class="flex-1 space-y-3">
                             <x-compass::site-report-details :site-report="$siteReport" />
+                            <x-compass::alert-check-table :alert-checks="$siteReport->alertChecks" />
                         </div>
 
                         <x-compass::site-report-edit-link :site-report="$siteReport" />

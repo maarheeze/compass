@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Maarheeze\Compass\Alerts\AlertSubject;
+use Maarheeze\Compass\Collections\AlertCheckCollection;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCollection;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
@@ -29,6 +30,7 @@ use Maarheeze\Uuid\Uuid;
  * @property Uuid $site_report_id
  * @property CarbonImmutable $updated_at
  *
+ * @property-read AlertCheckCollection $alertChecks
  * @property-read AlertCollection $alerts
  * @property-read SiteReport $siteReport
  */

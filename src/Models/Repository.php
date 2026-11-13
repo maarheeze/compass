@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Maarheeze\Compass\Alerts\AlertSubject;
+use Maarheeze\Compass\Collections\AlertCheckCollection;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\IssueCollection;
 use Maarheeze\Compass\Collections\PullRequestCollection;
@@ -48,6 +49,7 @@ use Maarheeze\Uuid\Uuid;
  * @property string $url
  * @property RepositoryVisibility $visibility
  *
+ * @property-read AlertCheckCollection $alertChecks
  * @property-read AlertCollection $alerts
  * @property-read ?ComposerJson $composerJson
  * @property-read ?ComposerLock $composerLock

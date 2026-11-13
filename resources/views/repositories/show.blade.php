@@ -44,6 +44,16 @@
         <section class="space-y-3">
             <x-compass::section-heading>
                 <x-slot:icon>
+                    <x-compass::icons.check-circle />
+                </x-slot:icon>
+                {{ __('compass::alert-check.checks') }}
+            </x-compass::section-heading>
+            <x-compass::alert-check-table :alert-checks="$alertChecks" />
+        </section>
+
+        <section class="space-y-3">
+            <x-compass::section-heading>
+                <x-slot:icon>
                     <x-compass::icons.issue-opened />
                 </x-slot:icon>
                 {{ __('compass::navigation.issues') }}
