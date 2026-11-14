@@ -16,12 +16,24 @@
             </div>
             <div class="ml-auto space-y-1">
                 <div class="flex justify-end gap-2">
-                    <x-compass::alert-assign-button :alert="$alert" />
-                    <x-compass::alert-unassign-button :alert="$alert" />
-                    <x-compass::alert-mute-button :alert="$alert" />
-                    <x-compass::alert-unmute-button :alert="$alert" />
-                    <x-compass::alert-mark-done-button :alert="$alert" />
-                    <x-compass::alert-reopen-button :alert="$alert" />
+                    <x-compass::alert-assign-button :alert="$alert">
+                        <x-compass::button>{{ __('compass::alert.assign_to_me') }}</x-compass::button>
+                    </x-compass::alert-assign-button>
+                    <x-compass::alert-unassign-button :alert="$alert">
+                        <x-compass::button>{{ __('compass::alert.unassign') }}</x-compass::button>
+                    </x-compass::alert-unassign-button>
+                    <x-compass::alert-mute-button :alert="$alert">
+                        <x-compass::button>{{ __('compass::alert.mute') }}</x-compass::button>
+                    </x-compass::alert-mute-button>
+                    <x-compass::alert-unmute-button :alert="$alert">
+                        <x-compass::button>{{ __('compass::alert.unmute') }}</x-compass::button>
+                    </x-compass::alert-unmute-button>
+                    <x-compass::alert-mark-done-button :alert="$alert">
+                        <x-compass::button>{{ __('compass::alert.mark_done') }}</x-compass::button>
+                    </x-compass::alert-mark-done-button>
+                    <x-compass::alert-reopen-button :alert="$alert">
+                        <x-compass::button>{{ __('compass::alert.reopen') }}</x-compass::button>
+                    </x-compass::alert-reopen-button>
                 </div>
                 @error('alert')
                     <p class="text-right text-xs text-red-700 dark:text-red-300">{{ $message }}</p>

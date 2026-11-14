@@ -1,3 +1,13 @@
+const relativeTimeRefreshInMilliseconds = 60000;
+const secondsPerRelativeTimeUnit = [
+    ['year', 31536000],
+    ['month', 2592000],
+    ['week', 604800],
+    ['day', 86400],
+    ['hour', 3600],
+    ['minute', 60],
+    ['second', 1],
+];
 const toastLifetimeInMilliseconds = 5000;
 const toastLimit = 5;
 
@@ -34,6 +44,26 @@ function showToast(toastStack, toastHtml) {
     }
 
     closeLater(toast);
+}
+
+function relativeTime(dateTime, relativeTimeFormat) {
+    const secondsFromNow = Math.round((dateTime.getTime() - Date.now()) / 1000);
+
+    for (const [unit, secondsPerUnit] of secondsPerRelativeTimeUnit) {
+        if (Math.abs(secondsFromNow) >= secondsPerUnit) {
+            return relativeTimeFormat.format(Math.trunc(secondsFromNow / secondsPerUnit), unit);
+        }
+    }
+
+    return relativeTimeFormat.format(0, 'second');
+}
+
+function refreshRelativeTimes() {
+    const relativeTimeFormat = new Intl.RelativeTimeFormat(document.documentElement.lang, { numeric: 'always' });
+
+    document.querySelectorAll('[data-compass-relative-time]').forEach((time) => {
+        time.textContent = relativeTime(new Date(time.getAttribute('datetime')), relativeTimeFormat);
+    });
 }
 
 let isRefreshing = false;
@@ -110,6 +140,8 @@ function listen(toastStack) {
             refreshLiveRegions();
         });
 }
+
+setInterval(refreshRelativeTimes, relativeTimeRefreshInMilliseconds);
 
 document.addEventListener('click', (event) => {
     const closeButton = event.target.closest('[data-compass-toast-close]');

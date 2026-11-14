@@ -17,7 +17,6 @@ return [
     'no_longer_possible' => 'This alert was changed in the meantime.',
     'open_since' => 'Open since',
     'reopen' => 'Reopen',
-    'resolved_since' => 'Resolved since',
     'status' => 'Status',
     'unassign' => 'Unassign',
     'unmute' => 'Unmute',
