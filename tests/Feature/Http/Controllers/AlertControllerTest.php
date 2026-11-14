@@ -105,6 +105,29 @@ test('mark done confirms the marking done to the signed in user', function (): v
         ->toBe(AlertHistoryEntryType::MARKED_DONE);
 });
 
+test('mark done answers a request for json with no content', function (): void {
+    $alert = Alert::factory()
+        ->resolved()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->postJson(route(RouteName::ALERT_MARK_DONE, $alert));
+
+    $response->assertNoContent();
+});
+
+test('mark done does not confirm a request for json', function (): void {
+    $alert = Alert::factory()
+        ->resolved()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $this->postJson(route(RouteName::ALERT_MARK_DONE, $alert));
+
+    expect($this->app->make(AlertConfirmation::class)->confirmedEntryType())
+        ->toBeNull();
+});
+
 test('mark done refuses an alert that is already done', function (): void {
     $alert = Alert::factory()
         ->done()
@@ -166,6 +189,29 @@ test('reopen confirms the reopening to the signed in user', function (): void {
         ->toBe(AlertHistoryEntryType::REOPENED);
 });
 
+test('reopen answers a request for json with no content', function (): void {
+    $alert = Alert::factory()
+        ->done()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->postJson(route(RouteName::ALERT_REOPEN, $alert));
+
+    $response->assertNoContent();
+});
+
+test('reopen does not confirm a request for json', function (): void {
+    $alert = Alert::factory()
+        ->done()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $this->postJson(route(RouteName::ALERT_REOPEN, $alert));
+
+    expect($this->app->make(AlertConfirmation::class)->confirmedEntryType())
+        ->toBeNull();
+});
+
 test('reopen refuses an alert that is not done', function (): void {
     $alert = Alert::factory()
         ->active()
@@ -214,6 +260,29 @@ test('mute confirms the muting to the signed in user', function (): void {
 
     expect($this->app->make(AlertConfirmation::class)->confirmedEntryType())
         ->toBe(AlertHistoryEntryType::MUTED);
+});
+
+test('mute answers a request for json with no content', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->postJson(route(RouteName::ALERT_MUTE, $alert));
+
+    $response->assertNoContent();
+});
+
+test('mute does not confirm a request for json', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $this->postJson(route(RouteName::ALERT_MUTE, $alert));
+
+    expect($this->app->make(AlertConfirmation::class)->confirmedEntryType())
+        ->toBeNull();
 });
 
 test('mute refuses an alert that is already muted', function (): void {
@@ -270,6 +339,31 @@ test('unmute confirms the unmuting to the signed in user', function (): void {
         ->toBe(AlertHistoryEntryType::UNMUTED);
 });
 
+test('unmute answers a request for json with no content', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->muted()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->postJson(route(RouteName::ALERT_UNMUTE, $alert));
+
+    $response->assertNoContent();
+});
+
+test('unmute does not confirm a request for json', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->muted()
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $this->postJson(route(RouteName::ALERT_UNMUTE, $alert));
+
+    expect($this->app->make(AlertConfirmation::class)->confirmedEntryType())
+        ->toBeNull();
+});
+
 test('unmute refuses an alert that is not muted', function (): void {
     $alert = Alert::factory()
         ->active()
@@ -317,6 +411,29 @@ test('assign confirms the assigning to the signed in user', function (): void {
 
     expect($this->app->make(AlertConfirmation::class)->confirmedEntryType())
         ->toBe(AlertHistoryEntryType::ASSIGNED);
+});
+
+test('assign answers a request for json with no content', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->create(['assignee_id' => null]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->postJson(route(RouteName::ALERT_ASSIGN, $alert));
+
+    $response->assertNoContent();
+});
+
+test('assign does not confirm a request for json', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->create(['assignee_id' => null]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $this->postJson(route(RouteName::ALERT_ASSIGN, $alert));
+
+    expect($this->app->make(AlertConfirmation::class)->confirmedEntryType())
+        ->toBeNull();
 });
 
 test('assign refuses an alert that is done', function (): void {
@@ -370,6 +487,31 @@ test('unassign confirms the unassigning to the signed in user', function (): voi
 
     expect($this->app->make(AlertConfirmation::class)->confirmedEntryType())
         ->toBe(AlertHistoryEntryType::UNASSIGNED);
+});
+
+test('unassign answers a request for json with no content', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->for(User::factory(), 'assignee')
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->postJson(route(RouteName::ALERT_UNASSIGN, $alert));
+
+    $response->assertNoContent();
+});
+
+test('unassign does not confirm a request for json', function (): void {
+    $alert = Alert::factory()
+        ->active()
+        ->for(User::factory(), 'assignee')
+        ->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $this->postJson(route(RouteName::ALERT_UNASSIGN, $alert));
+
+    expect($this->app->make(AlertConfirmation::class)->confirmedEntryType())
+        ->toBeNull();
 });
 
 test('unassign refuses an alert that is not assigned', function (): void {
