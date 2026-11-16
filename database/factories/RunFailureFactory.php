@@ -25,7 +25,7 @@ class RunFailureFactory extends Factory
     {
         return [
             'run_id' => Run::factory(),
-            'context' => [fake()->word() => fake()->slug()],
+            'context' => [fake()->slug()],
             'messages' => [fake()->sentence()],
         ];
     }

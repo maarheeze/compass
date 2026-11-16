@@ -91,10 +91,13 @@ test('handle leaves a repeated exception message out of a failed job in a run', 
     ]);
 });
 
-test('handle records the log context of a failed job in a run', function (): void {
+test('handle records the log context values of a failed job in a run in the order they were added', function (): void {
     $run = Run::factory()->create();
     $repositoryName = fake()->slug();
-    $this->app->make(Context::class)->add('repository', $repositoryName);
+    $fileName = fake()->word();
+    $context = $this->app->make(Context::class);
+    $context->add('repository', $repositoryName);
+    $context->add('file', $fileName);
     $syncJob = new SyncJob(
         $this->app,
         json_encode(['data' => ['batchId' => $run->batch_id]]),
@@ -107,7 +110,7 @@ test('handle records the log context of a failed job in a run', function (): voi
 
     $this->assertDatabaseHas(RunFailure::class, [
         'run_id' => $run->id,
-        'context' => json_encode(['repository' => $repositoryName]),
+        'context' => json_encode([$repositoryName, $fileName]),
     ]);
 });
 

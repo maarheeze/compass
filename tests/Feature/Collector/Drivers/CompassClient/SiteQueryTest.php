@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Http\Client\Factory as HttpFactory;
+use Illuminate\Http\Client\RequestException;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\ClientIncompatible;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\ClientNotInstalled;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\ClientUnauthorized;
@@ -118,4 +119,25 @@ test('report throws when the site fails', function (): void {
 
     $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
     $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
+});
+
+test('report puts the error of the response behind the failure of the site', function (): void {
+    $status = fake()->numberBetween(500, 599);
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response(null, $status)]);
+    $siteReport = SiteReport::factory()->create();
+
+    $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
+
+    expect(static function () use ($siteQuery, $siteReport) {
+        return $siteQuery->report($siteReport, fake()->sha1());
+    })
+        ->toThrow(static function (ClientUnreachable $clientUnreachable) use ($status): void {
+            $requestException = $clientUnreachable->getPrevious();
+
+            expect($requestException)
+                ->toBeInstanceOf(RequestException::class)
+                ->and($requestException->response->status())
+                ->toBe($status);
+        });
 });

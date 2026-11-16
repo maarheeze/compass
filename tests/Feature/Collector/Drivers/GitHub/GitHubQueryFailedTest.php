@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubQueryFailed;
 
-test('context holds the error messages github answered with', function (): void {
-    $errorMessages = [fake()->sentence()];
+test('github query failed holds the exception behind it', function (): void {
+    $exception = new RuntimeException(fake()->sentence());
 
-    $gitHubQueryFailed = new GitHubQueryFailed($errorMessages, null);
+    $gitHubQueryFailed = new GitHubQueryFailed($exception);
 
-    expect($gitHubQueryFailed->context())
-        ->toBe(['errorMessages' => $errorMessages]);
+    expect($gitHubQueryFailed->getPrevious())
+        ->toBe($exception);
 });

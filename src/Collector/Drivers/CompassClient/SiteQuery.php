@@ -82,7 +82,7 @@ readonly class SiteQuery
         }
 
         if (!$response->ok()) {
-            throw new ClientUnreachable();
+            throw new ClientUnreachable(previous: $response->toException());
         }
 
         $reportResponse = $response->json();

@@ -8,6 +8,7 @@ use Maarheeze\Compass\Collections\CollectedIssueCollection;
 use Maarheeze\Compass\Collections\CollectedPullRequestCollection;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubQueryFailed;
+use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubSearchIncomplete;
 use Maarheeze\Compass\Collector\Drivers\GitHub\IssuesAndPullRequestsQuery;
 use Maarheeze\Compass\Tests\Fixtures\CollectedIssueFactory;
 use Maarheeze\Compass\Tests\Fixtures\CollectedPullRequestFactory;
@@ -314,7 +315,7 @@ test('issues hold no author login for an issue without a user', function (): voi
         ->toBeNull();
 });
 
-test('issues throw when github could not search everything', function (): void {
+test('issues throw with github search incomplete behind it when github could not search everything', function (): void {
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response(['incomplete_results' => true, 'items' => []]),
     ]);
@@ -323,8 +324,14 @@ test('issues throw when github could not search everything', function (): void {
         new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
         fake()->slug(),
     );
-    $issuesAndPullRequestsQuery->issues()->current();
-})->throws(GitHubQueryFailed::class);
+
+    expect(static function () use ($issuesAndPullRequestsQuery): void {
+        $issuesAndPullRequestsQuery->issues()->current();
+    })->toThrow(static function (GitHubQueryFailed $gitHubQueryFailed): void {
+        expect($gitHubQueryFailed->getPrevious())
+            ->toBeInstanceOf(GitHubSearchIncomplete::class);
+    });
+});
 
 test('issues throw when github refuses the request', function (): void {
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, 401)]);

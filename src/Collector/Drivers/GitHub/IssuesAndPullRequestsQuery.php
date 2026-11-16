@@ -163,7 +163,7 @@ readonly class IssuesAndPullRequestsQuery
         $searchResponse = Assert::isArray($response->json());
 
         if (Assert::boolean($searchResponse['incomplete_results'])) {
-            throw new GitHubQueryFailed([], null);
+            throw new GitHubQueryFailed(new GitHubSearchIncomplete());
         }
 
         $itemResponses = [];

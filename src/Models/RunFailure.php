@@ -15,7 +15,7 @@ use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
 
 /**
- * @property array<string, mixed> $context
+ * @property list<mixed> $context
  * @property CarbonImmutable $created_at
  * @property Uuid $id
  * @property list<string> $messages

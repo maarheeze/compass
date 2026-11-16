@@ -10,6 +10,8 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Webmozart\Assert\Assert;
 
+use function array_reverse;
+
 readonly class GitHubClient
 {
     public function __construct(
@@ -31,7 +33,7 @@ readonly class GitHubClient
                 ->get($url);
             $response->throw();
         } catch (ConnectionException | RequestException $exception) {
-            throw new GitHubQueryFailed([], $exception);
+            throw new GitHubQueryFailed($exception);
         }
 
         return $response;
@@ -55,27 +57,27 @@ readonly class GitHubClient
                 ]);
             $response->throw();
         } catch (ConnectionException | RequestException $exception) {
-            throw new GitHubQueryFailed([], $exception);
+            throw new GitHubQueryFailed($exception);
         }
 
         if ($response->json('errors') !== null) {
-            throw new GitHubQueryFailed($this->getErrorMessages($response), null);
+            throw new GitHubQueryFailed($this->getGitHubAnsweredWithError($response));
         }
 
         return $response;
     }
 
-    /**
-     * @return list<string>
-     */
-    private function getErrorMessages(Response $response): array
+    private function getGitHubAnsweredWithError(Response $response): ?GitHubAnsweredWithError
     {
-        $errorMessages = [];
+        $gitHubAnsweredWithError = null;
 
-        foreach (Assert::isList($response->json('errors')) as $errorResponse) {
-            $errorMessages[] = Assert::string(Assert::isArray($errorResponse)['message']);
+        foreach (array_reverse(Assert::isList($response->json('errors'))) as $errorResponse) {
+            $gitHubAnsweredWithError = new GitHubAnsweredWithError(
+                Assert::string(Assert::isArray($errorResponse)['message']),
+                $gitHubAnsweredWithError,
+            );
         }
 
-        return $errorMessages;
+        return $gitHubAnsweredWithError;
     }
 }

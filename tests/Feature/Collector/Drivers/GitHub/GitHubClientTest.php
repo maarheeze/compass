@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
+use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubAnsweredWithError;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubQueryFailed;
 
@@ -74,13 +75,17 @@ test('query throws when github answers with errors', function (): void {
     $gitHubClient->query(fake()->sentence(), []);
 })->throws(GitHubQueryFailed::class);
 
-test('query throws with the error messages github answered with', function (): void {
-    $errorMessage = fake()->sentence();
+test('query throws with the errors github answered with behind it, in their order', function (): void {
+    $firstErrorMessage = fake()->unique()->sentence();
+    $secondErrorMessage = fake()->unique()->sentence();
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             'errors' => [
                 [
-                    'message' => $errorMessage,
+                    'message' => $firstErrorMessage,
+                ],
+                [
+                    'message' => $secondErrorMessage,
                 ],
             ],
         ]),
@@ -90,9 +95,15 @@ test('query throws with the error messages github answered with', function (): v
 
     expect(static function () use ($gitHubClient): void {
         $gitHubClient->query(fake()->sentence(), []);
-    })->toThrow(static function (GitHubQueryFailed $gitHubQueryFailed) use ($errorMessage): void {
-        expect($gitHubQueryFailed->errorMessages)
-            ->toBe([$errorMessage]);
+    })->toThrow(static function (GitHubQueryFailed $gitHubQueryFailed) use ($firstErrorMessage, $secondErrorMessage): void {
+        $firstGitHubAnsweredWithError = $gitHubQueryFailed->getPrevious();
+
+        expect($firstGitHubAnsweredWithError)
+            ->toBeInstanceOf(GitHubAnsweredWithError::class)
+            ->and($firstGitHubAnsweredWithError->getMessage())
+            ->toBe($firstErrorMessage)
+            ->and($firstGitHubAnsweredWithError->getPrevious()?->getMessage())
+            ->toBe($secondErrorMessage);
     });
 });
 

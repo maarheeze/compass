@@ -12,6 +12,7 @@ use Maarheeze\Compass\Models\Run;
 use Throwable;
 
 use function array_key_exists;
+use function array_values;
 use function in_array;
 use function is_array;
 use function is_string;
@@ -40,7 +41,7 @@ readonly class RecordRunFailure
         }
 
         $run->failures()->create([
-            'context' => $this->context->except([RunRecorder::RUN_ID_CONTEXT_KEY]),
+            'context' => array_values($this->context->except([RunRecorder::RUN_ID_CONTEXT_KEY])),
             'messages' => $this->messages($jobFailed->exception),
         ]);
     }
