@@ -158,6 +158,7 @@ return [
             'organization' => env('COMPASS_FORGE_ORGANIZATION'),
             'token' => env('COMPASS_FORGE_TOKEN'),
             'auto_deploy_grace_minutes' => env('COMPASS_FORGE_AUTO_DEPLOY_GRACE_MINUTES', 5),
+            'server_pattern' => env('COMPASS_FORGE_SERVER_PATTERN', '/.*/'),
             'schedule' => [
                 'sites' => ScheduleFrequency::HOURLY,
             ],

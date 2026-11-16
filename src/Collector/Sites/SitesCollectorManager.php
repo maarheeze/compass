@@ -30,6 +30,7 @@ readonly class SitesCollectorManager
                 return new ForgeSitesCollector(
                     new ForgeClient($this->http, $sourceConfig->setting('token')),
                     $sourceConfig->setting('organization'),
+                    $sourceConfig->setting('server_pattern'),
                 );
             },
         );

@@ -19,6 +19,7 @@ test('handle stores the sites of the page', function (): void {
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
             'auto_deploy_grace_minutes' => fake()->numberBetween(1, 60),
+            'server_pattern' => '/.*/',
         ],
     ]);
     $externalId = fake()->numerify('#######');
@@ -89,6 +90,7 @@ test('handle marks the sites of another run missing on the last page', function 
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
             'auto_deploy_grace_minutes' => fake()->numberBetween(1, 60),
+            'server_pattern' => '/.*/',
         ],
     ]);
     $site = Site::factory()->create(['source' => $source]);
@@ -129,6 +131,7 @@ test('handle refuses a source without auto deploy grace minutes before collectin
             'driver' => 'forge',
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
+            'server_pattern' => '/.*/',
         ],
     ]);
     $this->app->make(HttpFactory::class)->preventStrayRequests();
@@ -147,6 +150,7 @@ test('handle raises sites collected', function (): void {
             'organization' => fake()->slug(),
             'token' => fake()->sha1(),
             'auto_deploy_grace_minutes' => fake()->numberBetween(1, 60),
+            'server_pattern' => '/.*/',
         ],
     ]);
     $eventFake = new EventFake($this->app->make(Dispatcher::class));

@@ -14,6 +14,7 @@ readonly class ForgeSitesCollector implements SitesCollector
     public function __construct(
         private ForgeClient $forgeClient,
         private string $organization,
+        private string $serverPattern,
     ) {
     }
 
@@ -28,7 +29,7 @@ readonly class ForgeSitesCollector implements SitesCollector
 
         try {
             foreach ($sitesQuery->pages() as $sitesQueryResult) {
-                yield $sitesQueryResult->collectedSites;
+                yield $sitesQueryResult->collectedSites->onServersMatching($this->serverPattern);
             }
         } catch (ForgeRequestFailed $forgeRequestFailed) {
             throw CollectingFailed::fromThrowable($forgeRequestFailed);

@@ -19,6 +19,7 @@ test('collector of a forge source collects the sites of its organization with it
             'driver' => 'forge',
             'organization' => $organization,
             'token' => $token,
+            'server_pattern' => '/.*/',
         ],
     ]);
     $http = $this->app->make(HttpFactory::class);
@@ -53,6 +54,7 @@ test('collector is the collector its extension makes from its config', function 
     $forgeSitesCollector = new ForgeSitesCollector(
         new ForgeClient($this->app->make(HttpFactory::class), fake()->sha1()),
         fake()->slug(),
+        '/.*/',
     );
 
     $sitesCollectorManager = $this->app->make(SitesCollectorManager::class);
