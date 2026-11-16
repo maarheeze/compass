@@ -12,13 +12,8 @@ test('content is the content of the file at its version', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake([
         '*' => HttpFactory::response([
-            'data' => [
-                'repository' => [
-                    'object' => [
-                        'text' => $text,
-                    ],
-                ],
-            ],
+            'content' => base64_encode($text),
+            'encoding' => 'base64',
         ]),
     ]);
 

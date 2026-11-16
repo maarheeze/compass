@@ -24,13 +24,8 @@ test('collector of a github source reads the files of its organization with its 
     $http = $this->app->make(HttpFactory::class);
     $http->fake([
         '*' => HttpFactory::response([
-            'data' => [
-                'repository' => [
-                    'object' => [
-                        'text' => fake()->text(),
-                    ],
-                ],
-            ],
+            'content' => base64_encode(fake()->text()),
+            'encoding' => 'base64',
         ]),
     ]);
 
@@ -38,7 +33,7 @@ test('collector of a github source reads the files of its organization with its 
     $composerFilesCollectorManager->collector($key)->content(fake()->slug(), fake()->sha1());
 
     $http->assertSent(static function (HttpRequest $request) use ($organization, $token): bool {
-        return $request['variables']['organization'] === $organization
+        return str_starts_with($request->url(), sprintf('https://api.github.com/repos/%s/', $organization))
             && $request->hasHeader('Authorization', sprintf('Bearer %s', $token));
     });
 });

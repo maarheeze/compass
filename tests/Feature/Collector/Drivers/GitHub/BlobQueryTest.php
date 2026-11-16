@@ -7,7 +7,7 @@ use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collector\Drivers\GitHub\BlobQuery;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubClient;
 
-test('text is queried for the blob of the repository in the organization', function (): void {
+test('text is requested for the blob of the repository in the organization', function (): void {
     $organization = fake()->slug();
     $repositoryName = fake()->slug();
     $oid = fake()->sha1();
@@ -15,13 +15,8 @@ test('text is queried for the blob of the repository in the organization', funct
     $http = $this->app->make(HttpFactory::class);
     $http->fake([
         '*' => HttpFactory::response([
-            'data' => [
-                'repository' => [
-                    'object' => [
-                        'text' => fake()->text(),
-                    ],
-                ],
-            ],
+            'content' => base64_encode(fake()->text()),
+            'encoding' => 'base64',
         ]),
     ]);
 
@@ -29,25 +24,21 @@ test('text is queried for the blob of the repository in the organization', funct
     $blobQuery->text($repositoryName, $oid);
 
     $http->assertSent(static function (HttpRequest $request) use ($organization, $repositoryName, $oid): bool {
-        return $request['variables'] === [
-            'organization' => $organization,
-            'name' => $repositoryName,
-            'oid' => $oid,
-        ];
+        return $request->url() === sprintf(
+            'https://api.github.com/repos/%s/%s/git/blobs/%s',
+            $organization,
+            $repositoryName,
+            $oid,
+        );
     });
 });
 
-test('text is the text of the blob in the response', function (): void {
+test('text is the decoded content of the blob in the response', function (): void {
     $text = fake()->text();
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
-            'data' => [
-                'repository' => [
-                    'object' => [
-                        'text' => $text,
-                    ],
-                ],
-            ],
+            'content' => chunk_split(base64_encode($text), 60, "\n"),
+            'encoding' => 'base64',
         ]),
     ]);
 
