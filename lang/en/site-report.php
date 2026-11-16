@@ -6,6 +6,8 @@ return [
     'application' => 'Application',
     'cancel' => 'Cancel',
     'checked' => 'checked',
+    'client_install_notice' => 'The Compass client is not installed on this site. Install it with:',
+    'client_key_notice' => 'The Compass client refused the key. Set it in the .env of the site:',
     'debug' => 'Debug',
     'default' => '(default)',
     'edit' => 'Edit',

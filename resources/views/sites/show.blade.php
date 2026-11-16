@@ -119,6 +119,8 @@
                 @forelse ($site->reports as $siteReport)
                     <div class="flex items-start gap-4">
                         <div class="flex-1 space-y-3">
+                            <x-compass::site-client-install-notice :site-report="$siteReport" />
+                            <x-compass::site-client-key-notice :site-report="$siteReport" />
                             <x-compass::site-report-details :site-report="$siteReport" />
                             <x-compass::alert-check-table :alert-checks="$siteReport->alertChecks" />
                         </div>
