@@ -137,6 +137,27 @@ test('handle adds the repository to the log context', function (): void {
         ->toBe($repository->name);
 });
 
+test('handle adds the file to the log context', function (): void {
+    $source = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $source => [
+            'driver' => 'github',
+            'organization' => fake()->slug(),
+            'token' => fake()->sha1(),
+        ],
+    ]);
+    $repository = Repository::factory()->create([
+        'source' => $source,
+        'composer_lock_version' => null,
+    ]);
+
+    $collectComposerLock = new CollectComposerLock($repository);
+    $this->app->call([$collectComposerLock, 'handle']);
+
+    expect($this->app->make(Context::class)->get('file'))
+        ->toBe('composer.lock');
+});
+
 test('handle refuses a source without a composer files collector', function (): void {
     $key = fake()->slug();
     $this->setConfiguration('compass.sources', [

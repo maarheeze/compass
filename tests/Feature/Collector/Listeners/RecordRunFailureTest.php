@@ -25,7 +25,69 @@ test('handle records the exception message of a failed job in a run', function (
 
     $this->assertDatabaseHas(RunFailure::class, [
         'run_id' => $run->id,
-        'message' => $exception->getMessage(),
+        'messages' => json_encode([$exception->getMessage()]),
+    ]);
+});
+
+test('handle records the messages of the exceptions behind a failed job in a run', function (): void {
+    $run = Run::factory()->create();
+    $previousException = new RuntimeException(fake()->sentence());
+    $exception = new LogicException(fake()->sentence(), 0, $previousException);
+    $syncJob = new SyncJob(
+        $this->app,
+        json_encode(['data' => ['batchId' => $run->batch_id]]),
+        fake()->word(),
+        fake()->word(),
+    );
+
+    $recordRunFailure = $this->app->make(RecordRunFailure::class);
+    $recordRunFailure->handle(new JobFailed(fake()->word(), $syncJob, $exception));
+
+    $this->assertDatabaseHas(RunFailure::class, [
+        'run_id' => $run->id,
+        'messages' => json_encode([$exception->getMessage(), $previousException->getMessage()]),
+    ]);
+});
+
+test('handle leaves an empty exception message out of a failed job in a run', function (): void {
+    $run = Run::factory()->create();
+    $previousException = new RuntimeException(fake()->sentence());
+    $syncJob = new SyncJob(
+        $this->app,
+        json_encode(['data' => ['batchId' => $run->batch_id]]),
+        fake()->word(),
+        fake()->word(),
+    );
+
+    $recordRunFailure = $this->app->make(RecordRunFailure::class);
+    $recordRunFailure->handle(new JobFailed(fake()->word(), $syncJob, new LogicException('', 0, $previousException)));
+
+    $this->assertDatabaseHas(RunFailure::class, [
+        'run_id' => $run->id,
+        'messages' => json_encode([$previousException->getMessage()]),
+    ]);
+});
+
+test('handle leaves a repeated exception message out of a failed job in a run', function (): void {
+    $run = Run::factory()->create();
+    $exception = new LogicException(fake()->sentence());
+    $syncJob = new SyncJob(
+        $this->app,
+        json_encode(['data' => ['batchId' => $run->batch_id]]),
+        fake()->word(),
+        fake()->word(),
+    );
+
+    $recordRunFailure = $this->app->make(RecordRunFailure::class);
+    $recordRunFailure->handle(new JobFailed(
+        fake()->word(),
+        $syncJob,
+        new RuntimeException($exception->getMessage(), 0, $exception),
+    ));
+
+    $this->assertDatabaseHas(RunFailure::class, [
+        'run_id' => $run->id,
+        'messages' => json_encode([$exception->getMessage()]),
     ]);
 });
 

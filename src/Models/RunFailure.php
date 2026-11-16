@@ -18,7 +18,7 @@ use Maarheeze\Uuid\Uuid;
  * @property array<string, mixed> $context
  * @property CarbonImmutable $created_at
  * @property Uuid $id
- * @property string $message
+ * @property list<string> $messages
  * @property Uuid $run_id
  * @property CarbonImmutable $updated_at
  */
@@ -39,7 +39,7 @@ class RunFailure extends Model
     {
         return [
             'context',
-            'message',
+            'messages',
             'run_id',
         ];
     }
@@ -57,6 +57,7 @@ class RunFailure extends Model
         return [
             'context' => 'array',
             'created_at' => 'immutable_datetime',
+            'messages' => 'array',
             'run_id' => UuidCast::class,
             'updated_at' => 'immutable_datetime',
         ];

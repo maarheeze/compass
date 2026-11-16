@@ -9,8 +9,10 @@ use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Queue\Events\JobFailed;
 use Maarheeze\Compass\Collector\RunRecorder;
 use Maarheeze\Compass\Models\Run;
+use Throwable;
 
 use function array_key_exists;
+use function in_array;
 use function is_array;
 use function is_string;
 
@@ -38,8 +40,8 @@ readonly class RecordRunFailure
         }
 
         $run->failures()->create([
-            'message' => $jobFailed->exception->getMessage(),
             'context' => $this->context->except([RunRecorder::RUN_ID_CONTEXT_KEY]),
+            'messages' => $this->messages($jobFailed->exception),
         ]);
     }
 
@@ -52,5 +54,26 @@ readonly class RecordRunFailure
         }
 
         return $jobData['batchId'];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function messages(Throwable $exception): array
+    {
+        $messages = [];
+        $chainedException = $exception;
+
+        while ($chainedException instanceof Throwable) {
+            $message = $chainedException->getMessage();
+
+            if ($message !== '' && !in_array($message, $messages, true)) {
+                $messages[] = $message;
+            }
+
+            $chainedException = $chainedException->getPrevious();
+        }
+
+        return $messages;
     }
 }

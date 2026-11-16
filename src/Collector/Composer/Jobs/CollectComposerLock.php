@@ -51,6 +51,7 @@ class CollectComposerLock implements LockedJob
         $composerFilesCollector = $composerFilesCollectorManager->collector($this->repository->source);
 
         $context->add('repository', $this->repository->name);
+        $context->add('file', 'composer.lock');
 
         $version = $this->repository->composer_lock_version;
 

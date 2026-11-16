@@ -17,8 +17,8 @@ return new class extends Migration
                 ->constrained('compass_runs')
                 ->cascadeOnDelete();
 
-            $table->text('message');
             $table->json('context');
+            $table->json('messages');
 
             $table->timestamps();
         });

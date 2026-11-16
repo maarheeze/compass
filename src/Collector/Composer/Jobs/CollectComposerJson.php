@@ -51,6 +51,7 @@ class CollectComposerJson implements LockedJob
         $composerFilesCollector = $composerFilesCollectorManager->collector($this->repository->source);
 
         $context->add('repository', $this->repository->name);
+        $context->add('file', 'composer.json');
 
         $version = $this->repository->composer_json_version;
 
