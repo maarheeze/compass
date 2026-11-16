@@ -26,7 +26,12 @@
             @endif
         </div>
         @foreach ($run->failures as $runFailure)
-            <p class="mt-1 text-xs text-red-700 dark:text-red-300">{{ $runFailure->message }}</p>
+            <p class="mt-1 text-xs text-red-700 dark:text-red-300">
+                {{ $runFailure->message }}
+                @foreach ($runFailure->context as $contextValue)
+                    &middot; {{ $contextValue }}
+                @endforeach
+            </p>
         @endforeach
     </td>
 </tr>

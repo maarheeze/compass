@@ -15,6 +15,8 @@ use Webmozart\Assert\Assert;
 
 readonly class RunRecorder
 {
+    public const string RUN_ID_CONTEXT_KEY = 'run_id';
+
     public function __construct(
         private CollectorLogger $collectorLogger,
         private Context $context,
@@ -82,7 +84,7 @@ readonly class RunRecorder
 
                 $collectorLogger->info('Run started', $runContext);
             },
-            ['run_id' => $runId->toString()],
+            [self::RUN_ID_CONTEXT_KEY => $runId->toString()],
         );
     }
 }

@@ -15,6 +15,7 @@ use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
 
 /**
+ * @property array<string, mixed> $context
  * @property CarbonImmutable $created_at
  * @property Uuid $id
  * @property string $message
@@ -37,6 +38,7 @@ class RunFailure extends Model
     public function getFillable(): array
     {
         return [
+            'context',
             'message',
             'run_id',
         ];
@@ -53,6 +55,7 @@ class RunFailure extends Model
     protected function casts(): array
     {
         return [
+            'context' => 'array',
             'created_at' => 'immutable_datetime',
             'run_id' => UuidCast::class,
             'updated_at' => 'immutable_datetime',
