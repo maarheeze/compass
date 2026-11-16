@@ -14,8 +14,8 @@ test('get requests the path of the site report from its site', function (): void
     $http = $this->app->make(HttpFactory::class);
     $http->fake();
 
-    $siteClient = new SiteClient($http, fake()->sha1(), sprintf('/%s', fake()->slug()));
-    $siteClient->get($siteReport);
+    $siteClient = new SiteClient($http, sprintf('/%s', fake()->slug()));
+    $siteClient->get($siteReport, fake()->sha1());
 
     $http->assertSent(static function (HttpRequest $request) use ($siteReport): bool {
         return $request->url() === sprintf('%s%s', rtrim($siteReport->site->url, '/'), $siteReport->path);
@@ -28,8 +28,8 @@ test('get requests the path of the source for a site report without one', functi
     $http = $this->app->make(HttpFactory::class);
     $http->fake();
 
-    $siteClient = new SiteClient($http, fake()->sha1(), $path);
-    $siteClient->get($siteReport);
+    $siteClient = new SiteClient($http, $path);
+    $siteClient->get($siteReport, fake()->sha1());
 
     $http->assertSent(static function (HttpRequest $request) use ($path, $siteReport): bool {
         return $request->url() === sprintf('%s%s', rtrim($siteReport->site->url, '/'), $path);
@@ -45,34 +45,21 @@ test('get joins a site url ending in a slash with one slash', function (): void 
     $http = $this->app->make(HttpFactory::class);
     $http->fake();
 
-    $siteClient = new SiteClient($http, fake()->sha1(), sprintf('/%s', fake()->slug()));
-    $siteClient->get($siteReport);
+    $siteClient = new SiteClient($http, sprintf('/%s', fake()->slug()));
+    $siteClient->get($siteReport, fake()->sha1());
 
     $http->assertSent(static function (HttpRequest $request) use ($clientPath, $host): bool {
         return $request->url() === sprintf('https://%s/%s', $host, $clientPath);
     });
 });
 
-test('get sends the key of the site report', function (): void {
-    $siteReport = SiteReport::factory()->create(['key' => fake()->unique()->sha1()]);
-    $http = $this->app->make(HttpFactory::class);
-    $http->fake();
-
-    $siteClient = new SiteClient($http, fake()->unique()->sha1(), sprintf('/%s', fake()->slug()));
-    $siteClient->get($siteReport);
-
-    $http->assertSent(static function (HttpRequest $request) use ($siteReport): bool {
-        return $request->hasHeader('Authorization', sprintf('Bearer %s', $siteReport->key));
-    });
-});
-
-test('get sends the key of the source for a site report without one', function (): void {
+test('get sends the key', function (): void {
     $key = fake()->sha1();
     $http = $this->app->make(HttpFactory::class);
     $http->fake();
 
-    $siteClient = new SiteClient($http, $key, sprintf('/%s', fake()->slug()));
-    $siteClient->get(SiteReport::factory()->create(['key' => null]));
+    $siteClient = new SiteClient($http, sprintf('/%s', fake()->slug()));
+    $siteClient->get(SiteReport::factory()->create(), $key);
 
     $http->assertSent(static function (HttpRequest $request) use ($key): bool {
         return $request->hasHeader('Authorization', sprintf('Bearer %s', $key));
@@ -85,6 +72,6 @@ test('get throws when the site cannot be reached', function (): void {
 
     $this->expectException(ClientUnreachable::class);
 
-    $siteClient = new SiteClient($http, fake()->sha1(), sprintf('/%s', fake()->slug()));
-    $siteClient->get(SiteReport::factory()->create());
+    $siteClient = new SiteClient($http, sprintf('/%s', fake()->slug()));
+    $siteClient->get(SiteReport::factory()->create(), fake()->sha1());
 });

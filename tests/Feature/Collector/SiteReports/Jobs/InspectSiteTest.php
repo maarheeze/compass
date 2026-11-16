@@ -19,7 +19,6 @@ test('handle stores the report the collector of its source collected', function 
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'compass-client',
-            'key' => fake()->sha1(),
             'path' => sprintf('/%s', fake()->slug()),
         ],
     ]);
@@ -42,27 +41,23 @@ test('handle stores the report the collector of its source collected', function 
     ]);
 });
 
-test('handle asks the site with the key of its report for its source', function (): void {
+test('handle asks the site with its key', function (): void {
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'compass-client',
-            'key' => fake()->unique()->sha1(),
             'path' => sprintf('/%s', fake()->slug()),
         ],
     ]);
-    $siteReport = SiteReport::factory()->create([
-        'source' => $source,
-        'key' => fake()->unique()->sha1(),
-    ]);
+    $site = Site::factory()->create(['key' => fake()->sha1()]);
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(null, 404)]);
 
-    $inspectSite = new InspectSite($siteReport->site, $source);
+    $inspectSite = new InspectSite($site, $source);
     $this->app->call([$inspectSite, 'handle']);
 
-    $http->assertSent(static function (HttpRequest $request) use ($siteReport): bool {
-        return $request->hasHeader('Authorization', sprintf('Bearer %s', $siteReport->key));
+    $http->assertSent(static function (HttpRequest $request) use ($site): bool {
+        return $request->hasHeader('Authorization', sprintf('Bearer %s', $site->key));
     });
 });
 
@@ -71,7 +66,6 @@ test('handle fails when the site cannot be reached', function (): void {
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'compass-client',
-            'key' => fake()->sha1(),
             'path' => sprintf('/%s', fake()->slug()),
         ],
     ]);
@@ -88,7 +82,6 @@ test('handle leaves a missing site alone', function (): void {
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'compass-client',
-            'key' => fake()->sha1(),
             'path' => sprintf('/%s', fake()->slug()),
         ],
     ]);
@@ -107,7 +100,6 @@ test('handle adds the site to the log context', function (): void {
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'compass-client',
-            'key' => fake()->sha1(),
             'path' => sprintf('/%s', fake()->slug()),
         ],
     ]);
@@ -126,7 +118,6 @@ test('handle raises site inspected with the report of the site for its source', 
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'compass-client',
-            'key' => fake()->sha1(),
             'path' => sprintf('/%s', fake()->slug()),
         ],
     ]);

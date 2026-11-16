@@ -51,13 +51,4 @@
             {{ $siteReport->path }}
         @endif
     </dd>
-
-    <dt class="text-foreground-muted">{{ __('compass::site-report.key') }}</dt>
-    <dd class="break-all font-mono text-foreground">
-        @if ($siteReport->key === null)
-            <span class="font-sans text-foreground-muted">{{ __('compass::site-report.default') }}</span>
-        @else
-            {{ $siteReport->key }}
-        @endif
-    </dd>
 </dl>

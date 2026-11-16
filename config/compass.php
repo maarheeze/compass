@@ -164,7 +164,6 @@ return [
         ],
         'compass-client' => [
             'driver' => 'compass-client',
-            'key' => env('COMPASS_CLIENT_KEY'),
             'path' => env('COMPASS_CLIENT_PATH', '/_compass'),
             'schedule' => [
                 'site_reports' => ScheduleFrequency::HOURLY,

@@ -26,10 +26,6 @@ class UpdateSiteReportRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'key' => [
-                Rule::nullable(),
-                Rule::string()->max(255),
-            ],
             'path' => [
                 Rule::nullable(),
                 Rule::string()->startsWith('/')->max(255),

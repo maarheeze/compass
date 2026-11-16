@@ -21,9 +21,9 @@ readonly class SiteQuery
     /**
      * @throws ClientRequestFailed
      */
-    public function report(SiteReport $siteReport): ClientReport
+    public function report(SiteReport $siteReport, string $key): ClientReport
     {
-        $reportResponse = $this->getReportResponse($this->siteClient->get($siteReport));
+        $reportResponse = $this->getReportResponse($this->siteClient->get($siteReport, $key));
 
         try {
             return $this->getClientReport($reportResponse);

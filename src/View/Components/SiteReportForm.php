@@ -18,7 +18,6 @@ class SiteReportForm extends Component
 
     public function __construct(
         SiteReport $siteReport,
-        public readonly ?string $key,
         public readonly ?string $path,
         UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,

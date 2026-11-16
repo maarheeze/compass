@@ -29,7 +29,6 @@ use Maarheeze\Uuid\Uuid;
  * @property CarbonImmutable $collected_at
  * @property CarbonImmutable $created_at
  * @property Uuid $id
- * @property ?string $key
  * @property ?string $path
  * @property Uuid $site_id
  * @property string $source
@@ -62,7 +61,6 @@ class SiteReport extends Model implements AlertSubject
             'app_env',
             'app_name',
             'collected_at',
-            'key',
             'path',
             'site_id',
             'source',

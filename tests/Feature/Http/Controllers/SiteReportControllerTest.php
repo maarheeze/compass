@@ -18,40 +18,28 @@ test('edit contains the site report', function (): void {
     });
 });
 
-test('update stores the path and key of the site report', function (): void {
+test('update stores the path of the site report', function (): void {
     $siteReport = SiteReport::factory()->create();
     $path = sprintf('/%s', fake()->slug());
-    $key = fake()->sha1();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $this->patch(route(RouteName::SITE_REPORT_UPDATE, $siteReport), [
-        'path' => $path,
-        'key' => $key,
-    ]);
+    $this->patch(route(RouteName::SITE_REPORT_UPDATE, $siteReport), ['path' => $path]);
 
     $this->assertDatabaseHas(SiteReport::class, [
         'id' => $siteReport->id,
         'path' => $path,
-        'key' => $key,
     ]);
 });
 
-test('update clears the path and key of the site report when left empty', function (): void {
-    $siteReport = SiteReport::factory()->create([
-        'path' => sprintf('/%s', fake()->slug()),
-        'key' => fake()->sha1(),
-    ]);
+test('update clears the path of the site report when left empty', function (): void {
+    $siteReport = SiteReport::factory()->create(['path' => sprintf('/%s', fake()->slug())]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $this->patch(route(RouteName::SITE_REPORT_UPDATE, $siteReport), [
-        'path' => '',
-        'key' => '',
-    ]);
+    $this->patch(route(RouteName::SITE_REPORT_UPDATE, $siteReport), ['path' => '']);
 
     $this->assertDatabaseHas(SiteReport::class, [
         'id' => $siteReport->id,
         'path' => null,
-        'key' => null,
     ]);
 });
 

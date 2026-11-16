@@ -11,7 +11,6 @@ test('update url is the update action of the site report', function (): void {
 
     $siteReportForm = $this->app->make(SiteReportForm::class, [
         'siteReport' => $siteReport,
-        'key' => fake()->optional()->sha1(),
         'path' => fake()->optional()->slug(),
     ]);
 
@@ -24,7 +23,6 @@ test('cancel url is the page of the site', function (): void {
 
     $siteReportForm = $this->app->make(SiteReportForm::class, [
         'siteReport' => $siteReport,
-        'key' => fake()->optional()->sha1(),
         'path' => fake()->optional()->slug(),
     ]);
 

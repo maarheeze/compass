@@ -25,8 +25,8 @@ test('report holds what the client reported', function (): void {
     ]),
     ]);
 
-    $siteQuery = new SiteQuery(new SiteClient($http, fake()->sha1(), sprintf('/%s', fake()->slug())));
-    $clientReport = $siteQuery->report(SiteReport::factory()->create());
+    $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
+    $clientReport = $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
 
     expect($clientReport)
         ->appDebug
@@ -45,8 +45,8 @@ test('report throws when the site has no client', function (): void {
 
     $this->expectException(ClientNotInstalled::class);
 
-    $siteQuery = new SiteQuery(new SiteClient($http, fake()->sha1(), sprintf('/%s', fake()->slug())));
-    $siteQuery->report(SiteReport::factory()->create());
+    $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
+    $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
 });
 
 test('report throws when the site answers without a site report', function (): void {
@@ -55,8 +55,8 @@ test('report throws when the site answers without a site report', function (): v
 
     $this->expectException(ClientNotInstalled::class);
 
-    $siteQuery = new SiteQuery(new SiteClient($http, fake()->sha1(), sprintf('/%s', fake()->slug())));
-    $siteQuery->report(SiteReport::factory()->create());
+    $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
+    $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
 });
 
 test('report throws when the client reports without a field', function (): void {
@@ -70,8 +70,8 @@ test('report throws when the client reports without a field', function (): void 
 
     $this->expectException(ClientIncompatible::class);
 
-    $siteQuery = new SiteQuery(new SiteClient($http, fake()->sha1(), sprintf('/%s', fake()->slug())));
-    $siteQuery->report(SiteReport::factory()->create());
+    $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
+    $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
 });
 
 test('report throws when the client reports a field of another type', function (): void {
@@ -86,8 +86,8 @@ test('report throws when the client reports a field of another type', function (
 
     $this->expectException(ClientIncompatible::class);
 
-    $siteQuery = new SiteQuery(new SiteClient($http, fake()->sha1(), sprintf('/%s', fake()->slug())));
-    $siteQuery->report(SiteReport::factory()->create());
+    $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
+    $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
 });
 
 test('report throws when the client refuses the key', function (): void {
@@ -96,8 +96,8 @@ test('report throws when the client refuses the key', function (): void {
 
     $this->expectException(ClientUnauthorized::class);
 
-    $siteQuery = new SiteQuery(new SiteClient($http, fake()->sha1(), sprintf('/%s', fake()->slug())));
-    $siteQuery->report(SiteReport::factory()->create());
+    $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
+    $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
 });
 
 test('report throws when the client forbids the request', function (): void {
@@ -106,8 +106,8 @@ test('report throws when the client forbids the request', function (): void {
 
     $this->expectException(ClientUnauthorized::class);
 
-    $siteQuery = new SiteQuery(new SiteClient($http, fake()->sha1(), sprintf('/%s', fake()->slug())));
-    $siteQuery->report(SiteReport::factory()->create());
+    $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
+    $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
 });
 
 test('report throws when the site fails', function (): void {
@@ -116,6 +116,6 @@ test('report throws when the site fails', function (): void {
 
     $this->expectException(ClientUnreachable::class);
 
-    $siteQuery = new SiteQuery(new SiteClient($http, fake()->sha1(), sprintf('/%s', fake()->slug())));
-    $siteQuery->report(SiteReport::factory()->create());
+    $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
+    $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
 });

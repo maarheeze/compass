@@ -12,7 +12,6 @@ test('handle adds the inspection of a collected site to its batch', function ():
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'compass-client',
-            'key' => fake()->sha1(),
             'path' => sprintf('/%s', fake()->slug()),
         ],
     ]);
@@ -37,7 +36,6 @@ test('handle hands its source to the inspection of a site', function (): void {
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'compass-client',
-            'key' => fake()->sha1(),
             'path' => sprintf('/%s', fake()->slug()),
         ],
     ]);
@@ -62,7 +60,6 @@ test('handle leaves out a missing site', function (): void {
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'compass-client',
-            'key' => fake()->sha1(),
             'path' => sprintf('/%s', fake()->slug()),
         ],
     ]);

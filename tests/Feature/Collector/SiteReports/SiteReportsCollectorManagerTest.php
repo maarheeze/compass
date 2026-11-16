@@ -10,15 +10,14 @@ use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteClient;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollectorManager;
 use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Models\SiteReport;
+use Random\Randomizer;
 
-test('collector of a compass client source asks a site for its report with its key at its path', function (): void {
+test('collector of a compass client source asks a site for its report at its path', function (): void {
     $source = fake()->slug();
-    $key = fake()->sha1();
     $path = sprintf('/%s', fake()->slug());
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'compass-client',
-            'key' => $key,
             'path' => $path,
         ],
     ]);
@@ -26,14 +25,10 @@ test('collector of a compass client source asks a site for its report with its k
     $http->fake(['*' => HttpFactory::response(null, 404)]);
 
     $siteReportsCollectorManager = $this->app->make(SiteReportsCollectorManager::class);
-    $siteReportsCollectorManager->collector($source)->siteReport(SiteReport::factory()->create([
-        'key' => null,
-        'path' => null,
-    ]));
+    $siteReportsCollectorManager->collector($source)->siteReport(SiteReport::factory()->create(['path' => null]));
 
-    $http->assertSent(static function (HttpRequest $request) use ($key, $path): bool {
-        return str_ends_with($request->url(), $path)
-            && $request->hasHeader('Authorization', sprintf('Bearer %s', $key));
+    $http->assertSent(static function (HttpRequest $request) use ($path): bool {
+        return str_ends_with($request->url(), $path);
     });
 });
 
@@ -45,11 +40,10 @@ test('collector is the collector its extension makes from its config', function 
             'driver' => $driverName,
         ],
     ]);
-    $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(new SiteClient(
-        $this->app->make(HttpFactory::class),
-        fake()->sha1(),
-        sprintf('/%s', fake()->slug()),
-    ));
+    $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
+        new Randomizer(),
+        new SiteClient($this->app->make(HttpFactory::class), sprintf('/%s', fake()->slug())),
+    );
 
     $siteReportsCollectorManager = $this->app->make(SiteReportsCollectorManager::class);
     $siteReportsCollectorManager->extend(
@@ -84,30 +78,16 @@ test('collector refuses a source naming a driver that has no site reports collec
     $siteReportsCollectorManager->collector($source);
 })->throws(InvalidArgumentException::class);
 
-test('collector refuses a compass client source with a setting it needs missing or unset', function (array $sourceConfig): void {
+test('collector refuses a compass client source without a path', function (): void {
     $source = fake()->slug();
-    $this->setConfiguration('compass.sources', [$source => $sourceConfig]);
+    $this->setConfiguration('compass.sources', [
+        $source => [
+            'driver' => 'compass-client',
+        ],
+    ]);
 
     $this->expectException(InvalidArgumentException::class);
 
     $siteReportsCollectorManager = $this->app->make(SiteReportsCollectorManager::class);
     $siteReportsCollectorManager->collector($source);
-})->with([
-    'without a path' => [
-        function (): array {
-            return [
-                'driver' => 'compass-client',
-                'key' => fake()->sha1(),
-            ];
-        },
-    ],
-    'with an unset key' => [
-        function (): array {
-            return [
-                'driver' => 'compass-client',
-                'key' => null,
-                'path' => sprintf('/%s', fake()->slug()),
-            ];
-        },
-    ],
-]);
+});

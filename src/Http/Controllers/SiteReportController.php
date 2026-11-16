@@ -24,7 +24,6 @@ readonly class SiteReportController
     public function edit(SiteReport $siteReport, Request $request): View
     {
         return $this->view->make('compass::sites.reports.edit', [
-            'key' => $request->old('key', $siteReport->key),
             'path' => $request->old('path', $siteReport->path),
             'site' => $siteReport->site,
             'siteReport' => $siteReport,

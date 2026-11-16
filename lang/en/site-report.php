@@ -11,8 +11,6 @@ return [
     'edit' => 'Edit',
     'endpoints' => 'Endpoints',
     'environment' => 'Environment',
-    'key' => 'Key',
-    'key_placeholder' => 'Default key',
     'not_checked' => 'Not checked',
     'off' => 'Off',
     'on' => 'On',

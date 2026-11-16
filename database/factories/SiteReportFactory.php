@@ -32,7 +32,6 @@ class SiteReportFactory extends Factory
             'app_debug' => fake()->optional()->boolean(),
             'app_env' => fake()->optional()->word(),
             'app_name' => fake()->optional()->company(),
-            'key' => fake()->optional()->sha1(),
             'path' => fake()->optional()->passthrough(sprintf('/%s', fake()->slug())),
             'collected_at' => fake()->dateTime(),
         ];

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('external_id');
             $table->string('name');
             $table->string('url');
+            $table->string('key')->nullable();
             $table->string('php_version')->nullable();
             $table->string('repository_url')->nullable();
             $table->string('repository_branch')->nullable();

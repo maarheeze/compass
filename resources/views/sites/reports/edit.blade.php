@@ -8,6 +8,6 @@
             <p class="text-sm text-foreground-muted">{{ __('compass::site-report.settings_explanation') }}</p>
         </div>
 
-        <x-compass::site-report-form :site-report="$siteReport" :key="$key" :path="$path" />
+        <x-compass::site-report-form :site-report="$siteReport" :path="$path" />
     </main>
 </x-compass::layouts.app>

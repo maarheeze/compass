@@ -12,6 +12,7 @@ use Maarheeze\Compass\Collector\Drivers\CompassClient\CompassClientSiteReportsCo
 use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteClient;
 use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Collector\SourceConfigs;
+use Random\Randomizer;
 
 readonly class SiteReportsCollectorManager
 {
@@ -21,17 +22,17 @@ readonly class SiteReportsCollectorManager
     public function __construct(
         Container $container,
         private HttpFactory $http,
+        private Randomizer $randomizer,
         private SourceConfigs $sourceConfigs,
     ) {
         $this->collectorDrivers = new CollectorDrivers($container);
         $this->collectorDrivers->extend(
             'compass-client',
             function (Container $container, SourceConfig $sourceConfig): CompassClientSiteReportsCollector {
-                return new CompassClientSiteReportsCollector(new SiteClient(
-                    $this->http,
-                    $sourceConfig->setting('key'),
-                    $sourceConfig->setting('path'),
-                ));
+                return new CompassClientSiteReportsCollector(
+                    $this->randomizer,
+                    new SiteClient($this->http, $sourceConfig->setting('path')),
+                );
             },
         );
     }

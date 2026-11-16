@@ -38,6 +38,7 @@ use Maarheeze\Uuid\Uuid;
  * @property ?DeploymentStatus $deployment_status
  * @property string $external_id
  * @property Uuid $id
+ * @property ?string $key
  * @property ?CarbonImmutable $missing_at
  * @property ?CarbonImmutable $missing_ignored_at
  * @property string $name
@@ -86,6 +87,7 @@ class Site extends Model implements AlertSubject
             'deployment_started_at',
             'deployment_status',
             'external_id',
+            'key',
             'missing_at',
             'missing_ignored_at',
             'name',

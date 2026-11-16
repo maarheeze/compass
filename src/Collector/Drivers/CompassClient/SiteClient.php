@@ -13,7 +13,6 @@ readonly class SiteClient
 {
     public function __construct(
         private HttpFactory $http,
-        private string $key,
         private string $path,
     ) {
     }
@@ -21,27 +20,18 @@ readonly class SiteClient
     /**
      * @throws ClientUnreachable
      */
-    public function get(SiteReport $siteReport): Response
+    public function get(SiteReport $siteReport, string $key): Response
     {
         try {
             return $this->http
                 ->baseUrl($siteReport->site->url)
-                ->withToken($this->reportKey($siteReport))
+                ->withToken($key)
                 ->acceptJson()
                 ->timeout(10)
                 ->get($this->reportPath($siteReport));
         } catch (ConnectionException $exception) {
             throw new ClientUnreachable(previous: $exception);
         }
-    }
-
-    private function reportKey(SiteReport $siteReport): string
-    {
-        if ($siteReport->key === null) {
-            return $this->key;
-        }
-
-        return $siteReport->key;
     }
 
     private function reportPath(SiteReport $siteReport): string
