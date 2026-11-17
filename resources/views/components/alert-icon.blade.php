@@ -1,9 +1,8 @@
-@if ($hasAlertsNotMuted)
-    <span
-        title="{{ __('compass::alert.has_alerts') }}"
-        aria-label="{{ __('compass::alert.has_alerts') }}"
-        class="flex text-amber-700 dark:text-amber-400">
-        <x-compass::icons.alert />
+@if ($alertLevelCounts->isNotEmpty())
+    <span class="flex items-center gap-2">
+        @foreach ($alertLevelCounts as $alertLevelCount)
+            <x-compass::alert-level-count-badge :alert-level-count="$alertLevelCount" />
+        @endforeach
     </span>
 @else
     <span

@@ -8,7 +8,6 @@ return [
     'assigned_to' => 'Assigned to',
     'all_alerts_muted' => 'All alerts muted',
     'condition' => 'Condition',
-    'has_alerts' => 'Has alerts',
     'history' => 'History',
     'mark_done' => 'Mark done',
     'mute' => 'Mute',

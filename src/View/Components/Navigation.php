@@ -10,8 +10,10 @@ use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\View\Component;
+use Maarheeze\Compass\Alerts\AlertTypes;
 use Maarheeze\Compass\Authentication\AuthenticatedUser;
 use Maarheeze\Compass\Broadcasting\CompassChannel;
+use Maarheeze\Compass\Collections\AlertLevelCountCollection;
 use Maarheeze\Compass\Collections\NavigationTabCollection;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
@@ -25,31 +27,33 @@ use Webmozart\Assert\Assert;
 
 class Navigation extends Component
 {
+    public readonly AlertLevelCountCollection $alertLevelCounts;
     public readonly string $channelName;
     public readonly string $dashboardUrl;
     public readonly NavigationTabCollection $dataTabs;
     public readonly bool $hasAlerts;
-    public readonly bool $hasAlertsNotMuted;
     public readonly string $logoutUrl;
     public readonly NavigationTabCollection $operationTabs;
     public readonly string $settingsUrl;
     public readonly User $user;
 
     public function __construct(
+        AlertTypes $alertTypes,
         AuthenticatedUser $authenticatedUser,
         Request $request,
         Translator $translator,
         UrlGenerator $urlGenerator,
         private readonly ViewFactory $view,
     ) {
+        $this->alertLevelCounts = Alert::query()
+            ->notDone()
+            ->notMuted()
+            ->get()
+            ->levelCounts($alertTypes);
         $this->channelName = CompassChannel::NAME;
         $this->dashboardUrl = $urlGenerator->route(RouteName::DASHBOARD->value);
         $this->dataTabs = $this->dataNavigationTabs($request, $translator, $urlGenerator);
         $this->hasAlerts = Alert::query()->notDone()->exists();
-        $this->hasAlertsNotMuted = Alert::query()
-            ->notDone()
-            ->notMuted()
-            ->exists();
         $this->logoutUrl = $urlGenerator->route(RouteName::LOGOUT->value);
         $this->operationTabs = $this->operationNavigationTabs($request, $translator, $urlGenerator);
         $this->settingsUrl = $urlGenerator->route(RouteName::SETTINGS_EDIT->value);

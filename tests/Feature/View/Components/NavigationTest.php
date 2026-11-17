@@ -211,19 +211,25 @@ test('has alerts is false without an alert', function (): void {
         ->toBeFalse();
 });
 
-test('has alerts not muted is true with an alert that is not muted', function (): void {
+test('alert level counts count the alerts that are not muted', function (): void {
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
     Alert::factory()
+        ->siteEndpointDown()
         ->active()
+        ->create();
+    Alert::factory()
+        ->siteBehind()
+        ->active()
+        ->muted()
         ->create();
 
     $navigation = $this->app->make(Navigation::class);
 
-    expect($navigation->hasAlertsNotMuted)
-        ->toBeTrue();
+    expect($navigation->alertLevelCounts->sole()->count)
+        ->toBe(1);
 });
 
-test('has alerts not muted is false with only a muted alert', function (): void {
+test('alert level counts are empty with only a muted alert', function (): void {
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
     Alert::factory()
         ->active()
@@ -232,8 +238,8 @@ test('has alerts not muted is false with only a muted alert', function (): void 
 
     $navigation = $this->app->make(Navigation::class);
 
-    expect($navigation->hasAlertsNotMuted)
-        ->toBeFalse();
+    expect($navigation->alertLevelCounts)
+        ->toBeEmpty();
 });
 
 test('logout url is the url of the logout', function (): void {

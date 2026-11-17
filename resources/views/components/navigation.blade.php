@@ -5,13 +5,14 @@
 
             <div class="flex items-center gap-2">
                 <div data-compass-live-region="alert-button" class="contents">
-                    @if ($hasAlertsNotMuted)
+                    @if ($alertLevelCounts->isNotEmpty())
                         <a
                             href="{{ $dashboardUrl }}"
                             title="{{ __('compass::navigation.alerts_found') }}"
-                            aria-label="{{ __('compass::navigation.alerts_found') }}"
-                            class="rounded-md border border-amber-600/30 bg-amber-50 px-3 py-1.5 text-sm text-amber-700 hover:bg-amber-100 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-400 dark:hover:bg-amber-400/20">
-                            <x-compass::icons.alert />
+                            class="flex items-center gap-2">
+                            @foreach ($alertLevelCounts as $alertLevelCount)
+                                <x-compass::alert-level-count-badge :alert-level-count="$alertLevelCount" />
+                            @endforeach
                         </a>
                     @elseif ($hasAlerts)
                         <a

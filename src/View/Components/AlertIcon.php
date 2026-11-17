@@ -8,24 +8,28 @@ use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 use Maarheeze\Compass\Alerts\AlertSubject;
+use Maarheeze\Compass\Alerts\AlertTypes;
+use Maarheeze\Compass\Collections\AlertLevelCountCollection;
 
 class AlertIcon extends Component
 {
-    public readonly bool $hasAlertsNotMuted;
+    public readonly AlertLevelCountCollection $alertLevelCounts;
     private readonly bool $hasAlertsNotDone;
 
     public function __construct(
         AlertSubject $alertSubject,
+        AlertTypes $alertTypes,
         private readonly ViewFactory $view,
     ) {
-        $this->hasAlertsNotDone = $alertSubject
-            ->alertsIncludingChildren()
-            ->notDone()
-            ->exists();
-        $this->hasAlertsNotMuted = $alertSubject
+        $this->alertLevelCounts = $alertSubject
             ->alertsIncludingChildren()
             ->notDone()
             ->notMuted()
+            ->get()
+            ->levelCounts($alertTypes);
+        $this->hasAlertsNotDone = $alertSubject
+            ->alertsIncludingChildren()
+            ->notDone()
             ->exists();
     }
 
