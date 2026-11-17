@@ -5,7 +5,7 @@
                 <x-compass::alert-row :alert="$alert" />
             @empty
                 <tr>
-                    <td colspan="5" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::alert.no_alerts') }}</td>
+                    <td colspan="6" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::alert.no_alerts') }}</td>
                 </tr>
             @endforelse
         </tbody>

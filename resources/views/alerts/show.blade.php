@@ -7,9 +7,12 @@
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
         <div class="flex items-start gap-3">
             <div class="space-y-1">
-                <h1 class="text-lg font-semibold text-foreground">
-                    <x-compass::alert-type-label :identifier="$alert->alert_type_identifier" />
-                </h1>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-lg font-semibold text-foreground">
+                        <x-compass::alert-type-label :identifier="$alert->alert_type_identifier" />
+                    </h1>
+                    <x-compass::alert-level-badge :identifier="$alert->alert_type_identifier" />
+                </div>
                 <p class="text-sm">
                     <x-compass::alert-subject-link :alert-subject="$alert->subject" />
                 </p>

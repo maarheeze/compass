@@ -10,6 +10,9 @@
         </a>
     </td>
     <td class="w-28 px-4 py-2">
+        <x-compass::alert-level-badge :identifier="$alert->alert_type_identifier" />
+    </td>
+    <td class="w-28 px-4 py-2">
         <x-compass::alert-state-badge :alert="$alert" />
     </td>
     <td class="w-10 py-2 pl-4 pr-0">
