@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Alerts\Types;
 
+use Maarheeze\Compass\Alerts\AlertLevel;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\AlertTypeGroup;
 
@@ -17,6 +18,11 @@ readonly class ComposerLibraryWithLock implements AlertType
     public function identifier(): string
     {
         return 'composer-library-with-lock';
+    }
+
+    public function level(): AlertLevel
+    {
+        return AlertLevel::WARNING;
     }
 
     public function translationKey(): string

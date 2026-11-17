@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Contracts\Translation\Translator;
 use Maarheeze\Compass\Alerts\AlertCheckState;
 use Maarheeze\Compass\Alerts\AlertHistoryEntryType;
+use Maarheeze\Compass\Alerts\AlertLevel;
 use Maarheeze\Compass\Alerts\AlertStatus;
 use Maarheeze\Compass\Alerts\AlertTypeGroup;
 use Maarheeze\Compass\Alerts\ConditionState;
@@ -31,6 +32,7 @@ test('label key has a translation', function (LabelledEnum $labelledEnum): void 
 })->with(array_merge(
     AlertCheckState::cases(),
     AlertHistoryEntryType::cases(),
+    AlertLevel::cases(),
     AlertStatus::cases(),
     AlertTypeGroup::cases(),
     CollectorType::cases(),

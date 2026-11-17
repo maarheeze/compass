@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Alerts\Types;
 
+use Maarheeze\Compass\Alerts\AlertLevel;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\AlertTypeGroup;
 
@@ -17,6 +18,11 @@ readonly class SiteEndpointDown implements AlertType
     public function identifier(): string
     {
         return 'site-endpoint-down';
+    }
+
+    public function level(): AlertLevel
+    {
+        return AlertLevel::CRITICAL;
     }
 
     public function translationKey(): string

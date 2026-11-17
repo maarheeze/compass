@@ -9,6 +9,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Alerts\AlertHistoryEntryType;
+use Maarheeze\Compass\Alerts\AlertLevel;
 use Maarheeze\Compass\Alerts\AlertStatus;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Alerts\AlertTypeGroup;
@@ -56,6 +57,11 @@ test('handle refuses an observation of an alert type that is not registered', fu
         public function identifier(): string
         {
             return 'unregistered-alert-type';
+        }
+
+        public function level(): AlertLevel
+        {
+            return AlertLevel::NOTICE;
         }
 
         public function translationKey(): string

@@ -10,5 +10,7 @@ interface AlertType
 
     public function identifier(): string;
 
+    public function level(): AlertLevel;
+
     public function translationKey(): string;
 }
