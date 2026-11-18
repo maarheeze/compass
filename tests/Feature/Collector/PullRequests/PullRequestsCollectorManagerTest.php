@@ -10,14 +10,14 @@ use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubPullRequestsCollector;
 use Maarheeze\Compass\Collector\PullRequests\PullRequestsCollectorManager;
 use Maarheeze\Compass\Collector\SourceConfig;
 
-test('collector of a github source collects the pull requests of its organization with its token', function (): void {
+test('collector of a github source collects the pull requests of its organisation with its token', function (): void {
     $key = fake()->slug();
-    $organization = fake()->slug();
+    $organisation = fake()->slug();
     $token = fake()->sha1();
     $this->setConfiguration('compass.sources', [
         $key => [
             'driver' => 'github',
-            'organization' => $organization,
+            'organisation' => $organisation,
             'token' => $token,
         ],
     ]);
@@ -29,9 +29,9 @@ test('collector of a github source collects the pull requests of its organizatio
         ->pullRequests()
         ->current();
 
-    $http->assertSent(static function (HttpRequest $request) use ($organization, $token): bool {
+    $http->assertSent(static function (HttpRequest $request) use ($organisation, $token): bool {
         return str_starts_with($request->url(), 'https://api.github.com/search/issues?')
-            && str_starts_with($request['q'], sprintf('org:%s ', $organization))
+            && str_starts_with($request['q'], sprintf('org:%s ', $organisation))
             && $request->hasHeader('Authorization', sprintf('Bearer %s', $token));
     });
 });
@@ -94,7 +94,7 @@ test('collector refuses a github source with a setting it needs missing or unset
     $pullRequestsCollectorManager = $this->app->make(PullRequestsCollectorManager::class);
     $pullRequestsCollectorManager->collector($key);
 })->with([
-    'without an organization' => [
+    'without an organisation' => [
         function (): array {
             return [
                 'driver' => 'github',
@@ -106,7 +106,7 @@ test('collector refuses a github source with a setting it needs missing or unset
         function (): array {
             return [
                 'driver' => 'github',
-                'organization' => fake()->slug(),
+                'organisation' => fake()->slug(),
                 'token' => null,
             ];
         },

@@ -7,8 +7,8 @@ use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collector\Drivers\GitHub\BlobQuery;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubClient;
 
-test('text is requested for the blob of the repository in the organization', function (): void {
-    $organization = fake()->slug();
+test('text is requested for the blob of the repository in the organisation', function (): void {
+    $organisation = fake()->slug();
     $repositoryName = fake()->slug();
     $oid = fake()->sha1();
 
@@ -20,13 +20,13 @@ test('text is requested for the blob of the repository in the organization', fun
         ]),
     ]);
 
-    $blobQuery = new BlobQuery(new GitHubClient($http, fake()->sha1()), $organization);
+    $blobQuery = new BlobQuery(new GitHubClient($http, fake()->sha1()), $organisation);
     $blobQuery->text($repositoryName, $oid);
 
-    $http->assertSent(static function (HttpRequest $request) use ($organization, $repositoryName, $oid): bool {
+    $http->assertSent(static function (HttpRequest $request) use ($organisation, $repositoryName, $oid): bool {
         return $request->url() === sprintf(
             'https://api.github.com/repos/%s/%s/git/blobs/%s',
-            $organization,
+            $organisation,
             $repositoryName,
             $oid,
         );

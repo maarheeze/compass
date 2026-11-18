@@ -29,7 +29,7 @@ readonly class IssuesCollectorManager
             function (Container $container, SourceConfig $sourceConfig): GitHubIssuesCollector {
                 return new GitHubIssuesCollector(
                     new GitHubClient($this->http, $sourceConfig->setting('token')),
-                    $sourceConfig->setting('organization'),
+                    $sourceConfig->setting('organisation'),
                 );
             },
         );

@@ -6,7 +6,7 @@ namespace Maarheeze\Compass\Collections;
 
 use Composer\Semver\Semver;
 use Illuminate\Database\Eloquent\Collection;
-use Maarheeze\Compass\Analyzer\Composer\PackageVersionCount;
+use Maarheeze\Compass\Analyser\Composer\PackageVersionCount;
 use Maarheeze\Compass\Models\ComposerLockPackage;
 use Webmozart\Assert\Assert;
 

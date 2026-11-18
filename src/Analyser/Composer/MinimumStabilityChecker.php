@@ -1,0 +1,30 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Maarheeze\Compass\Analyser\Composer;
+
+use Maarheeze\Compass\Models\Repository;
+
+readonly class MinimumStabilityChecker
+{
+    public function isApplicable(Repository $repository): bool
+    {
+        return $repository->composer_json_version !== null && $repository->composerJson !== null;
+    }
+
+    public function isStable(Repository $repository): bool
+    {
+        if ($repository->composer_json_version === null) {
+            return true;
+        }
+
+        $composerJson = $repository->composerJson;
+
+        if ($composerJson === null || $composerJson->prefer_stable) {
+            return true;
+        }
+
+        return $composerJson->minimum_stability === null || $composerJson->minimum_stability === 'stable';
+    }
+}

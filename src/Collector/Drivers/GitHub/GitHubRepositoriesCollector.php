@@ -13,7 +13,7 @@ readonly class GitHubRepositoriesCollector implements RepositoriesCollector
 {
     public function __construct(
         private GitHubClient $gitHubClient,
-        private string $organization,
+        private string $organisation,
     ) {
     }
 
@@ -24,7 +24,7 @@ readonly class GitHubRepositoriesCollector implements RepositoriesCollector
      */
     public function repositories(): Generator
     {
-        $repositoriesQuery = new RepositoriesQuery($this->gitHubClient, $this->organization);
+        $repositoriesQuery = new RepositoriesQuery($this->gitHubClient, $this->organisation);
 
         try {
             foreach ($repositoriesQuery->pages() as $repositoriesQueryResult) {

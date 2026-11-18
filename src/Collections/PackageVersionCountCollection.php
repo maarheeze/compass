@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Collections;
 
 use Illuminate\Support\Collection;
-use Maarheeze\Compass\Analyzer\Composer\PackageVersionCount;
+use Maarheeze\Compass\Analyser\Composer\PackageVersionCount;
 
 /**
  * @extends Collection<int, PackageVersionCount>

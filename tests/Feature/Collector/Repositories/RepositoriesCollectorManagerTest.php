@@ -10,14 +10,14 @@ use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubRepositoriesCollector;
 use Maarheeze\Compass\Collector\Repositories\RepositoriesCollectorManager;
 use Maarheeze\Compass\Collector\SourceConfig;
 
-test('collector of a github source collects the repositories of its organization with its token', function (): void {
+test('collector of a github source collects the repositories of its organisation with its token', function (): void {
     $key = fake()->slug();
-    $organization = fake()->slug();
+    $organisation = fake()->slug();
     $token = fake()->sha1();
     $this->setConfiguration('compass.sources', [
         $key => [
             'driver' => 'github',
-            'organization' => $organization,
+            'organisation' => $organisation,
             'token' => $token,
         ],
     ]);
@@ -43,8 +43,8 @@ test('collector of a github source collects the repositories of its organization
         ->repositories()
         ->current();
 
-    $http->assertSent(static function (HttpRequest $request) use ($organization, $token): bool {
-        return $request['variables']['organization'] === $organization
+    $http->assertSent(static function (HttpRequest $request) use ($organisation, $token): bool {
+        return $request['variables']['organisation'] === $organisation
             && $request->hasHeader('Authorization', sprintf('Bearer %s', $token));
     });
 });
@@ -107,7 +107,7 @@ test('collector refuses a github source with a setting it needs missing or unset
     $repositoriesCollectorManager = $this->app->make(RepositoriesCollectorManager::class);
     $repositoriesCollectorManager->collector($key);
 })->with([
-    'without an organization' => [
+    'without an organisation' => [
         function (): array {
             return [
                 'driver' => 'github',
@@ -119,7 +119,7 @@ test('collector refuses a github source with a setting it needs missing or unset
         function (): array {
             return [
                 'driver' => 'github',
-                'organization' => fake()->slug(),
+                'organisation' => fake()->slug(),
                 'token' => null,
             ];
         },

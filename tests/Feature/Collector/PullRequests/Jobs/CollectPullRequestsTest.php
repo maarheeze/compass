@@ -13,7 +13,7 @@ test('handle stores the pull requests of the page', function (): void {
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
-            'organization' => fake()->slug(),
+            'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
     ]);
@@ -55,7 +55,7 @@ test('handle deletes the pull requests of another run on the last page', functio
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
-            'organization' => fake()->slug(),
+            'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
     ]);
@@ -75,7 +75,7 @@ test('handle keeps the pull requests collected on an earlier page', function ():
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
-            'organization' => fake()->slug(),
+            'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
     ]);
@@ -120,7 +120,7 @@ test('handle leaves the issues alone', function (): void {
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
-            'organization' => fake()->slug(),
+            'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
     ]);

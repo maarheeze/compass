@@ -29,7 +29,7 @@ test('should not render when the client answered', function (): void {
         'status' => fake()->randomElement([
             SiteReportStatus::INCOMPATIBLE,
             SiteReportStatus::INSTALLED,
-            SiteReportStatus::UNAUTHORIZED,
+            SiteReportStatus::UNAUTHORISED,
         ]),
     ]);
 

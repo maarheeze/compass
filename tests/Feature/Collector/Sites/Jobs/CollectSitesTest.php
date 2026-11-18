@@ -16,7 +16,7 @@ test('handle stores the sites of the page', function (): void {
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'forge',
-            'organization' => fake()->slug(),
+            'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
             'auto_deploy_grace_minutes' => fake()->numberBetween(1, 60),
             'server_pattern' => '/.*/',
@@ -87,7 +87,7 @@ test('handle marks the sites of another run missing on the last page', function 
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'forge',
-            'organization' => fake()->slug(),
+            'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
             'auto_deploy_grace_minutes' => fake()->numberBetween(1, 60),
             'server_pattern' => '/.*/',
@@ -129,7 +129,7 @@ test('handle refuses a source without auto deploy grace minutes before collectin
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'forge',
-            'organization' => fake()->slug(),
+            'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
             'server_pattern' => '/.*/',
         ],
@@ -147,7 +147,7 @@ test('handle raises sites collected', function (): void {
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'forge',
-            'organization' => fake()->slug(),
+            'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
             'auto_deploy_grace_minutes' => fake()->numberBetween(1, 60),
             'server_pattern' => '/.*/',

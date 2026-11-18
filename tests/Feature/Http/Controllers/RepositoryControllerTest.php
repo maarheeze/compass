@@ -6,7 +6,7 @@ use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Types\ComposerLibraryWithLock;
 use Maarheeze\Compass\Alerts\Types\ComposerProjectWithoutLock;
-use Maarheeze\Compass\Analyzer\Composer\RepositoryKind;
+use Maarheeze\Compass\Analyser\Composer\RepositoryKind;
 use Maarheeze\Compass\Collections\AlertCheckCollection;
 use Maarheeze\Compass\Collections\RepositoryCollection;
 use Maarheeze\Compass\Http\RouteName;

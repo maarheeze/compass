@@ -41,8 +41,8 @@ test('pages are queried at the github graphql api', function (): void {
     });
 });
 
-test('pages query the first page for the organization without a cursor', function (): void {
-    $organization = fake()->slug();
+test('pages query the first page for the organisation without a cursor', function (): void {
+    $organisation = fake()->slug();
 
     $http = $this->app->make(HttpFactory::class);
     $http->fake([
@@ -61,12 +61,12 @@ test('pages query the first page for the organization without a cursor', functio
         ]),
     ]);
 
-    $repositoriesQuery = new RepositoriesQuery(new GitHubClient($http, fake()->sha1()), $organization);
+    $repositoriesQuery = new RepositoriesQuery(new GitHubClient($http, fake()->sha1()), $organisation);
     $repositoriesQuery->pages()->current();
 
-    $http->assertSent(static function (HttpRequest $request) use ($organization): bool {
+    $http->assertSent(static function (HttpRequest $request) use ($organisation): bool {
         return $request['variables'] === [
-            'organization' => $organization,
+            'organisation' => $organisation,
             'cursor' => null,
         ];
     });

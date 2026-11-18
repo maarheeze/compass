@@ -15,7 +15,7 @@ use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Composer\ComposerFilesCollectorManager;
 use Maarheeze\Compass\Collector\Composer\Lock\ComposerLockReader;
-use Maarheeze\Compass\Collector\Composer\Lock\ComposerLockSynchronizer;
+use Maarheeze\Compass\Collector\Composer\Lock\ComposerLockSynchroniser;
 use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\Events\ComposerLockChanged;
 use Maarheeze\Compass\Collector\LockedJob;
@@ -44,7 +44,7 @@ class CollectComposerLock implements LockedJob
         CollectorLogger $collectorLogger,
         ComposerFilesCollectorManager $composerFilesCollectorManager,
         ComposerLockReader $composerLockReader,
-        ComposerLockSynchronizer $composerLockSynchronizer,
+        ComposerLockSynchroniser $composerLockSynchroniser,
         Context $context,
         Dispatcher $events,
     ): void {
@@ -56,7 +56,7 @@ class CollectComposerLock implements LockedJob
         $version = $this->repository->composer_lock_version;
 
         if ($version === null) {
-            $composerLockSynchronizer->delete($this->repository);
+            $composerLockSynchroniser->delete($this->repository);
 
             $collectorLogger->debug('Composer lock deleted');
 
@@ -66,7 +66,7 @@ class CollectComposerLock implements LockedJob
         }
 
         $composerLockSummary = $composerLockReader->read($composerFilesCollector->content($this->repository->name, $version));
-        $composerLockSynchronizer->store($this->repository, $version, $composerLockSummary);
+        $composerLockSynchroniser->store($this->repository, $version, $composerLockSummary);
 
         $collectorLogger->debug('Composer lock collected');
 

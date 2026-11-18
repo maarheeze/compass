@@ -15,7 +15,7 @@ use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\Dependabot\DependabotFilesCollectorManager;
 use Maarheeze\Compass\Collector\Dependabot\DependabotYmlReader;
-use Maarheeze\Compass\Collector\Dependabot\DependabotYmlSynchronizer;
+use Maarheeze\Compass\Collector\Dependabot\DependabotYmlSynchroniser;
 use Maarheeze\Compass\Collector\Events\DependabotYmlChanged;
 use Maarheeze\Compass\Collector\LockedJob;
 use Maarheeze\Compass\Models\Repository;
@@ -44,7 +44,7 @@ class CollectDependabotYml implements LockedJob
         Dispatcher $events,
         DependabotFilesCollectorManager $dependabotFilesCollectorManager,
         DependabotYmlReader $dependabotYmlReader,
-        DependabotYmlSynchronizer $dependabotYmlSynchronizer,
+        DependabotYmlSynchroniser $dependabotYmlSynchroniser,
     ): void {
         $dependabotFilesCollector = $dependabotFilesCollectorManager->collector($this->repository->source);
 
@@ -53,7 +53,7 @@ class CollectDependabotYml implements LockedJob
         $version = $this->repository->dependabot_yml_version;
 
         if ($version === null) {
-            $dependabotYmlSynchronizer->delete($this->repository);
+            $dependabotYmlSynchroniser->delete($this->repository);
 
             $collectorLogger->debug('Dependabot yml deleted');
 
@@ -65,7 +65,7 @@ class CollectDependabotYml implements LockedJob
         $packageEcosystems = $dependabotYmlReader->packageEcosystems(
             $dependabotFilesCollector->content($this->repository->name, $version),
         );
-        $dependabotYmlSynchronizer->store($this->repository, $version, $packageEcosystems);
+        $dependabotYmlSynchroniser->store($this->repository, $version, $packageEcosystems);
 
         $collectorLogger->debug('Dependabot yml collected');
 

@@ -8,8 +8,8 @@ use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 use LogicException;
-use Maarheeze\Compass\Analyzer\Deployment\DeploymentState;
-use Maarheeze\Compass\Analyzer\Deployment\DeploymentStateClassifier;
+use Maarheeze\Compass\Analyser\Deployment\DeploymentState;
+use Maarheeze\Compass\Analyser\Deployment\DeploymentStateClassifier;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\View\BadgeType;
 

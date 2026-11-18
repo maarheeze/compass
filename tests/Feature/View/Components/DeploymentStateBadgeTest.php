@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Analyzer\Deployment\DeploymentState;
+use Maarheeze\Compass\Analyser\Deployment\DeploymentState;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\View\BadgeType;

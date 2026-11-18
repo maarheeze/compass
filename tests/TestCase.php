@@ -42,7 +42,7 @@ abstract class TestCase extends Orchestra
         $configuration = $app->make(Repository::class);
         $configuration->set('compass.authentication.github.client_id', fake()->uuid());
         $configuration->set('compass.authentication.github.client_secret', fake()->sha1());
-        $configuration->set('compass.authentication.github.organization', fake()->slug());
+        $configuration->set('compass.authentication.github.organisation', fake()->slug());
     }
 
     /**

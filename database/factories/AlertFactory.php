@@ -22,7 +22,7 @@ use Maarheeze\Compass\Alerts\Types\SiteEndpointDown;
 use Maarheeze\Compass\Alerts\Types\SiteMissing;
 use Maarheeze\Compass\Alerts\Types\SiteNotInProduction;
 use Maarheeze\Compass\Alerts\Types\SiteReportIncompatible;
-use Maarheeze\Compass\Alerts\Types\SiteReportUnauthorized;
+use Maarheeze\Compass\Alerts\Types\SiteReportUnauthorised;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
@@ -61,7 +61,7 @@ class AlertFactory extends Factory
             $alertFactoryWithState->repositoryMissing(),
             $alertFactoryWithState->siteBehind(),
             $alertFactoryWithState->siteClientIncompatible(),
-            $alertFactoryWithState->siteClientUnauthorized(),
+            $alertFactoryWithState->siteClientUnauthorised(),
             $alertFactoryWithState->siteDebugEnabled(),
             $alertFactoryWithState->siteDeploymentOverdue(),
             $alertFactoryWithState->siteEndpointDown(),
@@ -189,10 +189,10 @@ class AlertFactory extends Factory
             ->for(SiteReport::factory(), 'subject');
     }
 
-    public function siteClientUnauthorized(): static
+    public function siteClientUnauthorised(): static
     {
         return $this
-            ->state(['alert_type_identifier' => new SiteReportUnauthorized()->identifier()])
+            ->state(['alert_type_identifier' => new SiteReportUnauthorised()->identifier()])
             ->for(SiteReport::factory(), 'subject');
     }
 

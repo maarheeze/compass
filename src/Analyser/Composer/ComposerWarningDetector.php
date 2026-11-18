@@ -1,0 +1,80 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Maarheeze\Compass\Analyser\Composer;
+
+use Maarheeze\Compass\Models\ComposerJson;
+use Maarheeze\Compass\Models\Repository;
+
+readonly class ComposerWarningDetector
+{
+    public function __construct(
+        private RepositoryKindClassifier $repositoryKindClassifier,
+    ) {
+    }
+
+    public function detect(Repository $repository): ?ComposerWarning
+    {
+        if ($repository->composer_json_version === null) {
+            return null;
+        }
+
+        $composerJson = $repository->composerJson;
+
+        if ($composerJson === null) {
+            return null;
+        }
+
+        return match ($this->repositoryKindClassifier->classify($repository)) {
+            RepositoryKind::LIBRARY => $this->detectLibraryWarning($repository),
+            RepositoryKind::OTHER => $this->detectTypeWarning($composerJson),
+            RepositoryKind::PROJECT => $this->detectProjectWarning($repository),
+        };
+    }
+
+    public function isApplicable(Repository $repository, ComposerWarning $composerWarning): bool
+    {
+        if ($repository->composer_json_version === null || $repository->composerJson === null) {
+            return false;
+        }
+
+        return match ($composerWarning) {
+            ComposerWarning::LIBRARY_WITH_LOCK => $this->isRepositoryKind($repository, RepositoryKind::LIBRARY),
+            ComposerWarning::MISSING_TYPE, ComposerWarning::UNKNOWN_TYPE => true,
+            ComposerWarning::PROJECT_WITHOUT_LOCK => $this->isRepositoryKind($repository, RepositoryKind::PROJECT),
+        };
+    }
+
+    private function detectLibraryWarning(Repository $repository): ?ComposerWarning
+    {
+        if ($repository->composer_lock_version === null) {
+            return null;
+        }
+
+        return ComposerWarning::LIBRARY_WITH_LOCK;
+    }
+
+    private function detectProjectWarning(Repository $repository): ?ComposerWarning
+    {
+        if ($repository->composer_lock_version !== null) {
+            return null;
+        }
+
+        return ComposerWarning::PROJECT_WITHOUT_LOCK;
+    }
+
+    private function detectTypeWarning(ComposerJson $composerJson): ComposerWarning
+    {
+        if ($composerJson->type === null) {
+            return ComposerWarning::MISSING_TYPE;
+        }
+
+        return ComposerWarning::UNKNOWN_TYPE;
+    }
+
+    private function isRepositoryKind(Repository $repository, RepositoryKind $repositoryKind): bool
+    {
+        return $this->repositoryKindClassifier->classify($repository) === $repositoryKind;
+    }
+}

@@ -22,7 +22,7 @@ use Maarheeze\Compass\Alerts\Types\SiteEndpointDown;
 use Maarheeze\Compass\Alerts\Types\SiteMissing;
 use Maarheeze\Compass\Alerts\Types\SiteNotInProduction;
 use Maarheeze\Compass\Alerts\Types\SiteReportIncompatible;
-use Maarheeze\Compass\Alerts\Types\SiteReportUnauthorized;
+use Maarheeze\Compass\Alerts\Types\SiteReportUnauthorised;
 use Maarheeze\Compass\Models\AlertCheck;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
@@ -74,7 +74,7 @@ class AlertCheckFactory extends Factory
             new SiteMissing(),
             new SiteNotInProduction(),
             new SiteReportIncompatible(),
-            new SiteReportUnauthorized(),
+            new SiteReportUnauthorised(),
         ]);
         Assert::isInstanceOf($alertType, AlertType::class);
 

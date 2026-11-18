@@ -6,8 +6,8 @@ namespace Maarheeze\Compass\Alerts;
 
 use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Alerts\Types\SiteBehind;
-use Maarheeze\Compass\Analyzer\Deployment\DeploymentState;
-use Maarheeze\Compass\Analyzer\Deployment\DeploymentStateClassifier;
+use Maarheeze\Compass\Analyser\Deployment\DeploymentState;
+use Maarheeze\Compass\Analyser\Deployment\DeploymentStateClassifier;
 use Maarheeze\Compass\Models\Site;
 use Psr\Clock\ClockInterface;
 

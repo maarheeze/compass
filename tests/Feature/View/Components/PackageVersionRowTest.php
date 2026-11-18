@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Analyzer\Composer\PackageVersionCount;
+use Maarheeze\Compass\Analyser\Composer\PackageVersionCount;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\View\Components\PackageVersionRow;
 

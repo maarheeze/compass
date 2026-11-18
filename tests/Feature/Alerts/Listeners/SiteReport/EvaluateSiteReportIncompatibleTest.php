@@ -63,5 +63,5 @@ test('handle observes site report incompatible resolved now for a report with an
 })->with([
     SiteReportStatus::INSTALLED,
     SiteReportStatus::NOT_INSTALLED,
-    SiteReportStatus::UNAUTHORIZED,
+    SiteReportStatus::UNAUTHORISED,
 ]);

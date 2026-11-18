@@ -17,7 +17,7 @@ use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Collector\LockedJob;
 use Maarheeze\Compass\Collector\MissingState;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollectorManager;
-use Maarheeze\Compass\Collector\SiteReports\SiteReportSynchronizer;
+use Maarheeze\Compass\Collector\SiteReports\SiteReportSynchroniser;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteReport;
 use Throwable;
@@ -47,7 +47,7 @@ class InspectSite implements LockedJob
         Context $context,
         Dispatcher $events,
         SiteReportsCollectorManager $siteReportsCollectorManager,
-        SiteReportSynchronizer $siteReportSynchronizer,
+        SiteReportSynchroniser $siteReportSynchroniser,
     ): void {
         $siteReportsCollector = $siteReportsCollectorManager->collector($this->source);
 
@@ -60,7 +60,7 @@ class InspectSite implements LockedJob
         }
 
         $siteReport = SiteReport::query()->firstOrNew(['site_id' => $this->site->id, 'source' => $this->source]);
-        $siteReportSynchronizer->storeReport($siteReport, $siteReportsCollector->siteReport($siteReport));
+        $siteReportSynchroniser->storeReport($siteReport, $siteReportsCollector->siteReport($siteReport));
 
         $collectorLogger->debug('Site inspected', ['status' => $siteReport->status->value]);
 

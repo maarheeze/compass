@@ -10,8 +10,8 @@ use Maarheeze\Compass\Collector\Drivers\Forge\SitesQuery;
 use Maarheeze\Compass\Collector\Sites\DeploymentStatus;
 use Maarheeze\Compass\Tests\Fixtures\CollectedSiteFactory;
 
-test('pages request the sites of the forge organization', function (): void {
-    $organization = fake()->slug();
+test('pages request the sites of the forge organisation', function (): void {
+    $organisation = fake()->slug();
 
     $http = $this->app->make(HttpFactory::class);
     $http->fake([
@@ -23,11 +23,11 @@ test('pages request the sites of the forge organization', function (): void {
         ]),
     ]);
 
-    $sitesQuery = new SitesQuery(new ForgeClient($http, fake()->sha1()), $organization);
+    $sitesQuery = new SitesQuery(new ForgeClient($http, fake()->sha1()), $organisation);
     $sitesQuery->pages()->current();
 
-    $http->assertSent(static function (HttpRequest $request) use ($organization): bool {
-        return str_starts_with($request->url(), sprintf('https://forge.laravel.com/api/orgs/%s/sites?', $organization));
+    $http->assertSent(static function (HttpRequest $request) use ($organisation): bool {
+        return str_starts_with($request->url(), sprintf('https://forge.laravel.com/api/orgs/%s/sites?', $organisation));
     });
 });
 

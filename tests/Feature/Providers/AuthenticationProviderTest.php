@@ -56,9 +56,9 @@ test('github provider sends github back to the callback route', function (): voi
     $request->setLaravelSession($this->app->make(SessionManager::class)->driver());
 
     $github = $this->app->make(GithubProvider::class);
-    $authorizationUrl = $github->redirect()->getTargetUrl();
+    $authorisationUrl = $github->redirect()->getTargetUrl();
 
-    parse_str((string) parse_url($authorizationUrl, PHP_URL_QUERY), $query);
+    parse_str((string) parse_url($authorisationUrl, PHP_URL_QUERY), $query);
 
     expect($query['redirect_uri'])
         ->toBe(route(RouteName::GITHUB_CALLBACK));
@@ -72,9 +72,9 @@ test('github provider uses the configured client id', function (): void {
     $request->setLaravelSession($this->app->make(SessionManager::class)->driver());
 
     $github = $this->app->make(GithubProvider::class);
-    $authorizationUrl = $github->redirect()->getTargetUrl();
+    $authorisationUrl = $github->redirect()->getTargetUrl();
 
-    parse_str((string) parse_url($authorizationUrl, PHP_URL_QUERY), $query);
+    parse_str((string) parse_url($authorisationUrl, PHP_URL_QUERY), $query);
 
     expect($query['client_id'])
         ->toBe($clientId);

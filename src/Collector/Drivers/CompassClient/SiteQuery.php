@@ -78,7 +78,7 @@ readonly class SiteQuery
         }
 
         if ($response->unauthorized() || $response->forbidden()) {
-            throw new ClientUnauthorized();
+            throw new ClientUnauthorised();
         }
 
         if (!$response->ok()) {

@@ -11,7 +11,7 @@ use Maarheeze\Compass\Alerts\ConditionObservation;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Alerts\Types\ComposerMinimumStabilityUnstable;
-use Maarheeze\Compass\Analyzer\Composer\MinimumStabilityChecker;
+use Maarheeze\Compass\Analyser\Composer\MinimumStabilityChecker;
 use Maarheeze\Compass\Collections\ConditionObservationCollection;
 use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
 use Maarheeze\Compass\Models\Repository;

@@ -14,7 +14,7 @@ use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Collector\LockedJob;
 use Maarheeze\Compass\Collector\Sites\SitesCollectorManager;
-use Maarheeze\Compass\Collector\Sites\SiteSynchronizer;
+use Maarheeze\Compass\Collector\Sites\SiteSynchroniser;
 use Maarheeze\Compass\Collector\SourceConfigs;
 use Maarheeze\Uuid\Uuid;
 
@@ -38,7 +38,7 @@ class CollectSites implements LockedJob
         CollectorLogger $collectorLogger,
         Dispatcher $events,
         SitesCollectorManager $sitesCollectorManager,
-        SiteSynchronizer $siteSynchronizer,
+        SiteSynchroniser $siteSynchroniser,
         SourceConfigs $sourceConfigs,
     ): void {
         $sitesCollector = $sitesCollectorManager->collector($this->source);
@@ -49,14 +49,14 @@ class CollectSites implements LockedJob
         $collectorLogger->info('Sites collector started');
 
         foreach ($sitesCollector->sites() as $collectedSites) {
-            $siteSynchronizer->storeSites($collectedSites, $this->source, $autoDeployGraceMinutes, $this->runId);
+            $siteSynchroniser->storeSites($collectedSites, $this->source, $autoDeployGraceMinutes, $this->runId);
 
             $collectorLogger->debug('Sites page collected', [
                 'site_count' => $collectedSites->count(),
             ]);
         }
 
-        $siteSynchronizer->markUncollectedMissing($this->source, $this->runId);
+        $siteSynchroniser->markUncollectedMissing($this->source, $this->runId);
 
         $events->dispatch(new SitesCollected($this->source));
 

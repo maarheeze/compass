@@ -6,5 +6,5 @@ return [
     'INCOMPATIBLE' => 'Outdated',
     'INSTALLED' => 'Installed',
     'NOT_INSTALLED' => 'Not installed',
-    'UNAUTHORIZED' => 'Key refused',
+    'UNAUTHORISED' => 'Key refused',
 ];

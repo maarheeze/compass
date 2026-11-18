@@ -27,7 +27,7 @@ test('key is the key of the site', function (): void {
 });
 
 test('should render when the client refused the key', function (): void {
-    $siteReport = SiteReport::factory()->create(['status' => SiteReportStatus::UNAUTHORIZED]);
+    $siteReport = SiteReport::factory()->create(['status' => SiteReportStatus::UNAUTHORISED]);
 
     $siteClientKeyNotice = $this->app->make(SiteClientKeyNotice::class, ['siteReport' => $siteReport]);
 

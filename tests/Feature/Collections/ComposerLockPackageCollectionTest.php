@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Analyzer\Composer\PackageVersionCount;
+use Maarheeze\Compass\Analyser\Composer\PackageVersionCount;
 use Maarheeze\Compass\Collections\ComposerLockPackageCollection;
 use Maarheeze\Compass\Models\ComposerLockPackage;
 

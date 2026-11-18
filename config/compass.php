@@ -112,7 +112,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | Credentials of the GitHub OAuth App people sign in with, and the
-    | organization whose active members may sign in, checked at sign-in only.
+    | organisation whose active members may sign in, checked at sign-in only.
     | A sign-in is remembered for the remember minutes, after which people
     | sign in again and their membership is checked again.
     |
@@ -123,7 +123,7 @@ return [
         'github' => [
             'client_id' => env('GITHUB_CLIENT_ID'),
             'client_secret' => env('GITHUB_CLIENT_SECRET'),
-            'organization' => env('COMPASS_GITHUB_ORGANIZATION'),
+            'organisation' => env('COMPASS_GITHUB_ORGANISATION'),
         ],
     ],
 
@@ -157,7 +157,7 @@ return [
     'sources' => [
         'github' => [
             'driver' => 'github',
-            'organization' => env('COMPASS_GITHUB_ORGANIZATION'),
+            'organisation' => env('COMPASS_GITHUB_ORGANISATION'),
             'token' => env('COMPASS_GITHUB_TOKEN'),
             'schedule' => [
                 'repositories' => ScheduleFrequency::HOURLY,
@@ -167,7 +167,7 @@ return [
         ],
         'forge' => [
             'driver' => 'forge',
-            'organization' => env('COMPASS_FORGE_ORGANIZATION'),
+            'organisation' => env('COMPASS_FORGE_ORGANISATION'),
             'token' => env('COMPASS_FORGE_TOKEN'),
             'auto_deploy_grace_minutes' => env('COMPASS_FORGE_AUTO_DEPLOY_GRACE_MINUTES', 5),
             'server_pattern' => env('COMPASS_FORGE_SERVER_PATTERN', '/.*/'),

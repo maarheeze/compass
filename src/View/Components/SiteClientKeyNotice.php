@@ -28,6 +28,6 @@ class SiteClientKeyNotice extends Component
 
     public function shouldRender(): bool
     {
-        return $this->siteReport->status === SiteReportStatus::UNAUTHORIZED;
+        return $this->siteReport->status === SiteReportStatus::UNAUTHORISED;
     }
 }

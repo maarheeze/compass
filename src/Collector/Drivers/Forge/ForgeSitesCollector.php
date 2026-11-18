@@ -13,7 +13,7 @@ readonly class ForgeSitesCollector implements SitesCollector
 {
     public function __construct(
         private ForgeClient $forgeClient,
-        private string $organization,
+        private string $organisation,
         private string $serverPattern,
     ) {
     }
@@ -25,7 +25,7 @@ readonly class ForgeSitesCollector implements SitesCollector
      */
     public function sites(): Generator
     {
-        $sitesQuery = new SitesQuery($this->forgeClient, $this->organization);
+        $sitesQuery = new SitesQuery($this->forgeClient, $this->organisation);
 
         try {
             foreach ($sitesQuery->pages() as $sitesQueryResult) {

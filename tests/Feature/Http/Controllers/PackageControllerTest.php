@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Analyzer\Composer\PackageUsages;
+use Maarheeze\Compass\Analyser\Composer\PackageUsages;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\ComposerJsonPackage;

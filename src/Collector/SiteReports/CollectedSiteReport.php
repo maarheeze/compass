@@ -36,8 +36,8 @@ readonly class CollectedSiteReport
         return new self(SiteReportStatus::NOT_INSTALLED, null, null, null, []);
     }
 
-    public static function unauthorized(): self
+    public static function unauthorised(): self
     {
-        return new self(SiteReportStatus::UNAUTHORIZED, null, null, null, []);
+        return new self(SiteReportStatus::UNAUTHORISED, null, null, null, []);
     }
 }

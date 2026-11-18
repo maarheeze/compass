@@ -13,7 +13,7 @@ readonly class GitHubIssuesCollector implements IssuesCollector
 {
     public function __construct(
         private GitHubClient $gitHubClient,
-        private string $organization,
+        private string $organisation,
     ) {
     }
 
@@ -24,7 +24,7 @@ readonly class GitHubIssuesCollector implements IssuesCollector
      */
     public function issues(): Generator
     {
-        $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery($this->gitHubClient, $this->organization);
+        $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery($this->gitHubClient, $this->organisation);
 
         try {
             yield from $issuesAndPullRequestsQuery->issues();

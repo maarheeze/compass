@@ -21,7 +21,7 @@ use Maarheeze\Compass\Alerts\Types\SiteEndpointDown;
 use Maarheeze\Compass\Alerts\Types\SiteMissing;
 use Maarheeze\Compass\Alerts\Types\SiteNotInProduction;
 use Maarheeze\Compass\Alerts\Types\SiteReportIncompatible;
-use Maarheeze\Compass\Alerts\Types\SiteReportUnauthorized;
+use Maarheeze\Compass\Alerts\Types\SiteReportUnauthorised;
 use Maarheeze\Compass\Models\NotificationSubscription;
 use Maarheeze\Compass\Models\User;
 
@@ -57,7 +57,7 @@ class NotificationSubscriptionFactory extends Factory
                 new SiteMissing()->identifier(),
                 new SiteNotInProduction()->identifier(),
                 new SiteReportIncompatible()->identifier(),
-                new SiteReportUnauthorized()->identifier(),
+                new SiteReportUnauthorised()->identifier(),
             ]),
             'channel' => fake()->randomElement(NotificationChannel::cases()),
             'user_id' => User::factory(),

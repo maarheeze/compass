@@ -11,7 +11,7 @@ use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\Issues\IssuesCollectorManager;
-use Maarheeze\Compass\Collector\Issues\IssueSynchronizer;
+use Maarheeze\Compass\Collector\Issues\IssueSynchroniser;
 use Maarheeze\Compass\Collector\LockedJob;
 use Maarheeze\Uuid\Uuid;
 
@@ -33,7 +33,7 @@ class CollectIssues implements LockedJob
      */
     public function handle(
         CollectorLogger $collectorLogger,
-        IssueSynchronizer $issueSynchronizer,
+        IssueSynchroniser $issueSynchroniser,
         IssuesCollectorManager $issuesCollectorManager,
     ): void {
         $issuesCollector = $issuesCollectorManager->collector($this->source);
@@ -41,14 +41,14 @@ class CollectIssues implements LockedJob
         $collectorLogger->info('Issues collector started');
 
         foreach ($issuesCollector->issues() as $collectedIssues) {
-            $issueSynchronizer->storeIssues($collectedIssues, $this->source, $this->runId);
+            $issueSynchroniser->storeIssues($collectedIssues, $this->source, $this->runId);
 
             $collectorLogger->debug('Issues page collected', [
                 'issue_count' => $collectedIssues->count(),
             ]);
         }
 
-        $issueSynchronizer->deleteUncollected($this->source, $this->runId);
+        $issueSynchroniser->deleteUncollected($this->source, $this->runId);
 
         $collectorLogger->info('Issues collector ended');
     }

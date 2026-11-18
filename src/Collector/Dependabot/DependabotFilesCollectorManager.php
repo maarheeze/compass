@@ -29,7 +29,7 @@ readonly class DependabotFilesCollectorManager
             function (Container $container, SourceConfig $sourceConfig): GitHubRepositoryFilesCollector {
                 return new GitHubRepositoryFilesCollector(
                     new GitHubClient($this->http, $sourceConfig->setting('token')),
-                    $sourceConfig->setting('organization'),
+                    $sourceConfig->setting('organisation'),
                 );
             },
         );

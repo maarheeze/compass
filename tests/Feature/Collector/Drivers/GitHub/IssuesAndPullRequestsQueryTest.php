@@ -14,20 +14,20 @@ use Maarheeze\Compass\Tests\Fixtures\CollectedIssueFactory;
 use Maarheeze\Compass\Tests\Fixtures\CollectedPullRequestFactory;
 
 test('issues search the open issues of the unarchived repositories, oldest first', function (): void {
-    $organization = fake()->slug();
+    $organisation = fake()->slug();
 
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(['incomplete_results' => false, 'items' => []])]);
 
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
         new GitHubClient($http, fake()->sha1()),
-        $organization,
+        $organisation,
     );
     iterator_to_array($issuesAndPullRequestsQuery->issues());
 
-    $http->assertSent(static function (HttpRequest $request) use ($organization): bool {
+    $http->assertSent(static function (HttpRequest $request) use ($organisation): bool {
         return str_starts_with($request->url(), 'https://api.github.com/search/issues?')
-            && $request['q'] === sprintf('org:%s is:issue is:open archived:false', $organization)
+            && $request['q'] === sprintf('org:%s is:issue is:open archived:false', $organisation)
             && $request['sort'] === 'created'
             && $request['order'] === 'asc'
             && $request['per_page'] === '100';
@@ -35,20 +35,20 @@ test('issues search the open issues of the unarchived repositories, oldest first
 });
 
 test('pull requests search the open pull requests of the unarchived repositories, oldest first', function (): void {
-    $organization = fake()->slug();
+    $organisation = fake()->slug();
 
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(['incomplete_results' => false, 'items' => []])]);
 
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
         new GitHubClient($http, fake()->sha1()),
-        $organization,
+        $organisation,
     );
     iterator_to_array($issuesAndPullRequestsQuery->pullRequests());
 
-    $http->assertSent(static function (HttpRequest $request) use ($organization): bool {
+    $http->assertSent(static function (HttpRequest $request) use ($organisation): bool {
         return str_starts_with($request->url(), 'https://api.github.com/search/issues?')
-            && $request['q'] === sprintf('org:%s is:pr is:open archived:false', $organization)
+            && $request['q'] === sprintf('org:%s is:pr is:open archived:false', $organisation)
             && $request['sort'] === 'created'
             && $request['order'] === 'asc'
             && $request['per_page'] === '100';

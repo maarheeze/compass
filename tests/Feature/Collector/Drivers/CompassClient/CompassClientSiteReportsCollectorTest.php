@@ -69,7 +69,7 @@ test('site report is not installed when the site has no client', function (): vo
         ->toEqual(CollectedSiteReport::notInstalled());
 });
 
-test('site report is unauthorized when the client refuses the key', function (): void {
+test('site report is unauthorised when the client refuses the key', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(null, 401)]);
 
@@ -80,7 +80,7 @@ test('site report is unauthorized when the client refuses the key', function ():
     $collectedSiteReport = $compassClientSiteReportsCollector->siteReport(SiteReport::factory()->create());
 
     expect($collectedSiteReport)
-        ->toEqual(CollectedSiteReport::unauthorized());
+        ->toEqual(CollectedSiteReport::unauthorised());
 });
 
 test('site report throws collecting failed when the site cannot be reached', function (): void {

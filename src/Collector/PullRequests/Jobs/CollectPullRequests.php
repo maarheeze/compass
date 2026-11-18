@@ -12,7 +12,7 @@ use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\LockedJob;
 use Maarheeze\Compass\Collector\PullRequests\PullRequestsCollectorManager;
-use Maarheeze\Compass\Collector\PullRequests\PullRequestSynchronizer;
+use Maarheeze\Compass\Collector\PullRequests\PullRequestSynchroniser;
 use Maarheeze\Uuid\Uuid;
 
 class CollectPullRequests implements LockedJob
@@ -33,7 +33,7 @@ class CollectPullRequests implements LockedJob
      */
     public function handle(
         CollectorLogger $collectorLogger,
-        PullRequestSynchronizer $pullRequestSynchronizer,
+        PullRequestSynchroniser $pullRequestSynchroniser,
         PullRequestsCollectorManager $pullRequestsCollectorManager,
     ): void {
         $pullRequestsCollector = $pullRequestsCollectorManager->collector($this->source);
@@ -41,14 +41,14 @@ class CollectPullRequests implements LockedJob
         $collectorLogger->info('Pull requests collector started');
 
         foreach ($pullRequestsCollector->pullRequests() as $collectedPullRequests) {
-            $pullRequestSynchronizer->storePullRequests($collectedPullRequests, $this->source, $this->runId);
+            $pullRequestSynchroniser->storePullRequests($collectedPullRequests, $this->source, $this->runId);
 
             $collectorLogger->debug('Pull requests page collected', [
                 'pull_request_count' => $collectedPullRequests->count(),
             ]);
         }
 
-        $pullRequestSynchronizer->deleteUncollected($this->source, $this->runId);
+        $pullRequestSynchroniser->deleteUncollected($this->source, $this->runId);
 
         $collectorLogger->info('Pull requests collector ended');
     }

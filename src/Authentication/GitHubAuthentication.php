@@ -21,11 +21,11 @@ readonly class GitHubAuthentication
         private AuthenticationFactory $authentication,
         private GithubProvider $github,
         private HttpFactory $http,
-        private string $organization,
+        private string $organisation,
     ) {
     }
 
-    public function authorizationUrl(): string
+    public function authorisationUrl(): string
     {
         return $this->github->redirect()->getTargetUrl();
     }
@@ -33,7 +33,7 @@ readonly class GitHubAuthentication
     /**
      * @throws AuthenticationExpired
      * @throws NoVerifiedEmail
-     * @throws NotAnOrganizationMember
+     * @throws NotAnOrganisationMember
      */
     public function callback(): User
     {
@@ -45,8 +45,8 @@ readonly class GitHubAuthentication
 
         Assert::isInstanceOf($oauthUser, OAuthUser::class);
 
-        if (!$this->isActiveMemberOfOrganization($oauthUser->token)) {
-            throw new NotAnOrganizationMember();
+        if (!$this->isActiveMemberOfOrganisation($oauthUser->token)) {
+            throw new NotAnOrganisationMember();
         }
 
         $email = $oauthUser->getEmail();
@@ -74,12 +74,12 @@ readonly class GitHubAuthentication
         return $user;
     }
 
-    private function isActiveMemberOfOrganization(string $token): bool
+    private function isActiveMemberOfOrganisation(string $token): bool
     {
         $membership = $this->http
             ->withToken($token)
             ->acceptJson()
-            ->get(sprintf('https://api.github.com/user/memberships/orgs/%s', $this->organization));
+            ->get(sprintf('https://api.github.com/user/memberships/orgs/%s', $this->organisation));
 
         if (!$membership->successful()) {
             return false;

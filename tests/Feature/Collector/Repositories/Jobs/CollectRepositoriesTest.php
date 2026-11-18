@@ -20,7 +20,7 @@ test('handle stores the repositories of the page', function (): void {
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
-            'organization' => fake()->slug(),
+            'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
     ]);
@@ -74,7 +74,7 @@ test('handle marks the repositories of another run missing on the last page', fu
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
-            'organization' => fake()->slug(),
+            'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
     ]);
@@ -107,7 +107,7 @@ test('handle adds the collection of the composer files and dependabot yml to its
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
-            'organization' => fake()->slug(),
+            'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
     ]);
@@ -157,7 +157,7 @@ test('handle raises repositories collected', function (): void {
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
-            'organization' => fake()->slug(),
+            'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
     ]);
@@ -195,7 +195,7 @@ test('handle raises package json changed for a repository whose package json ver
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
-            'organization' => fake()->slug(),
+            'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
     ]);

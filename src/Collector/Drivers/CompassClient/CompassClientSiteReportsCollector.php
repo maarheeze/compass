@@ -34,8 +34,8 @@ readonly class CompassClientSiteReportsCollector implements SiteReportsCollector
             return CollectedSiteReport::incompatible();
         } catch (ClientNotInstalled) {
             return CollectedSiteReport::notInstalled();
-        } catch (ClientUnauthorized) {
-            return CollectedSiteReport::unauthorized();
+        } catch (ClientUnauthorised) {
+            return CollectedSiteReport::unauthorised();
         } catch (ClientRequestFailed $clientRequestFailed) {
             throw CollectingFailed::fromThrowable($clientRequestFailed);
         }

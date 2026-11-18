@@ -19,7 +19,7 @@ use Maarheeze\Compass\Alerts\Types\SiteEndpointDown;
 use Maarheeze\Compass\Alerts\Types\SiteMissing;
 use Maarheeze\Compass\Alerts\Types\SiteNotInProduction;
 use Maarheeze\Compass\Alerts\Types\SiteReportIncompatible;
-use Maarheeze\Compass\Alerts\Types\SiteReportUnauthorized;
+use Maarheeze\Compass\Alerts\Types\SiteReportUnauthorised;
 
 test('level is the level of the alert type', function (AlertType $alertType, AlertLevel $alertLevel): void {
     $level = $alertType->level();
@@ -42,5 +42,5 @@ test('level is the level of the alert type', function (AlertType $alertType, Ale
     [new SiteMissing(), AlertLevel::NOTICE],
     [new SiteNotInProduction(), AlertLevel::WARNING],
     [new SiteReportIncompatible(), AlertLevel::WARNING],
-    [new SiteReportUnauthorized(), AlertLevel::WARNING],
+    [new SiteReportUnauthorised(), AlertLevel::WARNING],
 ]);

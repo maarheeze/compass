@@ -10,14 +10,14 @@ use Maarheeze\Compass\Collector\Drivers\Forge\ForgeSitesCollector;
 use Maarheeze\Compass\Collector\Sites\SitesCollectorManager;
 use Maarheeze\Compass\Collector\SourceConfig;
 
-test('collector of a forge source collects the sites of its organization with its token', function (): void {
+test('collector of a forge source collects the sites of its organisation with its token', function (): void {
     $key = fake()->slug();
-    $organization = fake()->slug();
+    $organisation = fake()->slug();
     $token = fake()->sha1();
     $this->setConfiguration('compass.sources', [
         $key => [
             'driver' => 'forge',
-            'organization' => $organization,
+            'organisation' => $organisation,
             'token' => $token,
             'server_pattern' => '/.*/',
         ],
@@ -37,8 +37,8 @@ test('collector of a forge source collects the sites of its organization with it
         ->sites()
         ->current();
 
-    $http->assertSent(static function (HttpRequest $request) use ($organization, $token): bool {
-        return str_starts_with($request->url(), sprintf('https://forge.laravel.com/api/orgs/%s/sites?', $organization))
+    $http->assertSent(static function (HttpRequest $request) use ($organisation, $token): bool {
+        return str_starts_with($request->url(), sprintf('https://forge.laravel.com/api/orgs/%s/sites?', $organisation))
             && $request->hasHeader('Authorization', sprintf('Bearer %s', $token));
     });
 });
@@ -99,7 +99,7 @@ test('collector refuses a forge source with a setting it needs missing or unset'
     $sitesCollectorManager = $this->app->make(SitesCollectorManager::class);
     $sitesCollectorManager->collector($key);
 })->with([
-    'without an organization' => [
+    'without an organisation' => [
         function (): array {
             return [
                 'driver' => 'forge',
@@ -111,7 +111,7 @@ test('collector refuses a forge source with a setting it needs missing or unset'
         function (): array {
             return [
                 'driver' => 'forge',
-                'organization' => fake()->slug(),
+                'organisation' => fake()->slug(),
                 'token' => null,
             ];
         },

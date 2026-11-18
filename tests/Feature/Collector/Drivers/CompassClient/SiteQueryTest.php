@@ -6,7 +6,7 @@ use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\RequestException;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\ClientIncompatible;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\ClientNotInstalled;
-use Maarheeze\Compass\Collector\Drivers\CompassClient\ClientUnauthorized;
+use Maarheeze\Compass\Collector\Drivers\CompassClient\ClientUnauthorised;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\ClientUnreachable;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteClient;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteQuery;
@@ -95,7 +95,7 @@ test('report throws when the client refuses the key', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(null, 401)]);
 
-    $this->expectException(ClientUnauthorized::class);
+    $this->expectException(ClientUnauthorised::class);
 
     $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
     $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
@@ -105,7 +105,7 @@ test('report throws when the client forbids the request', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(null, 403)]);
 
-    $this->expectException(ClientUnauthorized::class);
+    $this->expectException(ClientUnauthorised::class);
 
     $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
     $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());

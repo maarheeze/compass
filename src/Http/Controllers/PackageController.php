@@ -6,7 +6,7 @@ namespace Maarheeze\Compass\Http\Controllers;
 
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
-use Maarheeze\Compass\Analyzer\Composer\PackageUsageFinder;
+use Maarheeze\Compass\Analyser\Composer\PackageUsageFinder;
 
 readonly class PackageController
 {

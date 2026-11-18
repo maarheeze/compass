@@ -29,7 +29,7 @@ readonly class SitesCollectorManager
             function (Container $container, SourceConfig $sourceConfig): ForgeSitesCollector {
                 return new ForgeSitesCollector(
                     new ForgeClient($this->http, $sourceConfig->setting('token')),
-                    $sourceConfig->setting('organization'),
+                    $sourceConfig->setting('organisation'),
                     $sourceConfig->setting('server_pattern'),
                 );
             },

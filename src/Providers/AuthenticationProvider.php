@@ -59,9 +59,9 @@ class AuthenticationProvider extends ServiceProvider
 
         $this->app
             ->when(GitHubAuthentication::class)
-            ->needs('$organization')
+            ->needs('$organisation')
             ->give(static function (Application $app): string {
-                return $app->make(Repository::class)->string('compass.authentication.github.organization');
+                return $app->make(Repository::class)->string('compass.authentication.github.organisation');
             });
     }
 }

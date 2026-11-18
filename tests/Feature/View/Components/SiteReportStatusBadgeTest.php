@@ -15,5 +15,5 @@ test('badge type follows the site report status', function (SiteReportStatus $si
     'incompatible' => [SiteReportStatus::INCOMPATIBLE, BadgeType::DANGER],
     'installed' => [SiteReportStatus::INSTALLED, BadgeType::SUCCESS],
     'not installed' => [SiteReportStatus::NOT_INSTALLED, BadgeType::NEUTRAL],
-    'unauthorized' => [SiteReportStatus::UNAUTHORIZED, BadgeType::DANGER],
+    'unauthorised' => [SiteReportStatus::UNAUTHORISED, BadgeType::DANGER],
 ]);

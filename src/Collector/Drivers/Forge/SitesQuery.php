@@ -19,7 +19,7 @@ readonly class SitesQuery
 {
     public function __construct(
         private ForgeClient $forgeClient,
-        private string $organization,
+        private string $organisation,
     ) {
     }
 
@@ -215,7 +215,7 @@ readonly class SitesQuery
      */
     private function getSitesQueryResult(?string $cursor): SitesQueryResult
     {
-        $response = $this->forgeClient->get(sprintf('orgs/%s/sites', $this->organization), [
+        $response = $this->forgeClient->get(sprintf('orgs/%s/sites', $this->organisation), [
             'include' => 'server,latestDeployment',
             'page[size]' => 100,
             'page[cursor]' => $cursor,

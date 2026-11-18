@@ -13,7 +13,7 @@ readonly class BlobQuery
 {
     public function __construct(
         private GitHubClient $gitHubClient,
-        private string $organization,
+        private string $organisation,
     ) {
     }
 
@@ -22,7 +22,7 @@ readonly class BlobQuery
      */
     public function text(string $repositoryName, string $oid): string
     {
-        $response = $this->gitHubClient->get(sprintf('repos/%s/%s/git/blobs/%s', $this->organization, $repositoryName, $oid));
+        $response = $this->gitHubClient->get(sprintf('repos/%s/%s/git/blobs/%s', $this->organisation, $repositoryName, $oid));
 
         return Assert::string(base64_decode(Assert::string($response->json('content')), true));
     }

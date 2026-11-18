@@ -8,7 +8,7 @@ use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
-use Maarheeze\Compass\Analyzer\Composer\PackageUsageFinder;
+use Maarheeze\Compass\Analyser\Composer\PackageUsageFinder;
 use Maarheeze\Compass\Collections\PackageVersionCountCollection;
 use Maarheeze\Compass\Http\RouteName;
 

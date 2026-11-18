@@ -28,7 +28,7 @@ use Maarheeze\Compass\Alerts\Listeners\SiteEndpoint\EvaluateSiteEndpointDown;
 use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteDebugEnabled;
 use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteNotInProduction;
 use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteReportIncompatible;
-use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteReportUnauthorized;
+use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteReportUnauthorised;
 use Maarheeze\Compass\Alerts\Types\ComposerLibraryWithLock;
 use Maarheeze\Compass\Alerts\Types\ComposerMinimumStabilityUnstable;
 use Maarheeze\Compass\Alerts\Types\ComposerProjectWithoutLock;
@@ -44,7 +44,7 @@ use Maarheeze\Compass\Alerts\Types\SiteEndpointDown;
 use Maarheeze\Compass\Alerts\Types\SiteMissing;
 use Maarheeze\Compass\Alerts\Types\SiteNotInProduction;
 use Maarheeze\Compass\Alerts\Types\SiteReportIncompatible;
-use Maarheeze\Compass\Alerts\Types\SiteReportUnauthorized;
+use Maarheeze\Compass\Alerts\Types\SiteReportUnauthorised;
 use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
 use Maarheeze\Compass\Collector\Events\ComposerLockChanged;
 use Maarheeze\Compass\Collector\Events\DependabotYmlChanged;
@@ -80,7 +80,7 @@ class AlertProvider extends ServiceProvider
         $alertTypes->register(new SiteDebugEnabled());
         $alertTypes->register(new SiteNotInProduction());
         $alertTypes->register(new SiteReportIncompatible());
-        $alertTypes->register(new SiteReportUnauthorized());
+        $alertTypes->register(new SiteReportUnauthorised());
 
         Alert::addGlobalScope(new RegisteredAlertTypes($alertTypes));
         AlertCheck::addGlobalScope(new RegisteredAlertTypes($alertTypes));
@@ -91,7 +91,7 @@ class AlertProvider extends ServiceProvider
         $events->listen(SiteEndpointChecked::class, EvaluateSiteEndpointDown::class);
         $events->listen(SiteInspected::class, EvaluateSiteDebugEnabled::class);
         $events->listen(SiteInspected::class, EvaluateSiteNotInProduction::class);
-        $events->listen(SiteInspected::class, EvaluateSiteReportUnauthorized::class);
+        $events->listen(SiteInspected::class, EvaluateSiteReportUnauthorised::class);
         $events->listen(SiteInspected::class, EvaluateSiteReportIncompatible::class);
         $events->listen(RepositoriesCollected::class, EvaluateRepositoryMissingOnRepositoriesCollected::class);
         $events->listen(RepositoryMissingIgnored::class, EvaluateRepositoryMissingOnRepositoryMissingIgnored::class);

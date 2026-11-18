@@ -29,7 +29,7 @@ readonly class RepositoriesCollectorManager
             function (Container $container, SourceConfig $sourceConfig): GitHubRepositoriesCollector {
                 return new GitHubRepositoriesCollector(
                     new GitHubClient($this->http, $sourceConfig->setting('token')),
-                    $sourceConfig->setting('organization'),
+                    $sourceConfig->setting('organisation'),
                 );
             },
         );

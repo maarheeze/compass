@@ -29,7 +29,7 @@ readonly class PullRequestsCollectorManager
             function (Container $container, SourceConfig $sourceConfig): GitHubPullRequestsCollector {
                 return new GitHubPullRequestsCollector(
                     new GitHubClient($this->http, $sourceConfig->setting('token')),
-                    $sourceConfig->setting('organization'),
+                    $sourceConfig->setting('organisation'),
                 );
             },
         );

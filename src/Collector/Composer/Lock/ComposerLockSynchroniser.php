@@ -1,0 +1,46 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Maarheeze\Compass\Collector\Composer\Lock;
+
+use Illuminate\Database\ConnectionInterface;
+use Maarheeze\Compass\Models\ComposerLock;
+use Maarheeze\Compass\Models\Repository;
+use Throwable;
+
+readonly class ComposerLockSynchroniser
+{
+    public function __construct(
+        private ConnectionInterface $connection,
+    ) {
+    }
+
+    public function delete(Repository $repository): void
+    {
+        $repository->composerLock()->delete();
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function store(Repository $repository, string $version, ComposerLockSummary $composerLockSummary): void
+    {
+        $this->connection->transaction(static function () use ($repository, $version, $composerLockSummary): void {
+            $composerLock = ComposerLock::query()->updateOrCreate(['repository_id' => $repository->id], [
+                'version' => $version,
+                'php_constraint' => $composerLockSummary->phpConstraint,
+            ]);
+
+            $composerLock->packages()->delete();
+
+            foreach ($composerLockSummary->lockedPackages as $lockedPackage) {
+                $composerLock->packages()->create([
+                    'name' => $lockedPackage->name,
+                    'version' => $lockedPackage->version,
+                    'section' => $lockedPackage->section,
+                ]);
+            }
+        });
+    }
+}

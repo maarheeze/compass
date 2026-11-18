@@ -99,7 +99,7 @@ test('handle removes the dependabot yml when the repository no longer has one', 
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
-            'organization' => fake()->slug(),
+            'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
     ]);
@@ -120,7 +120,7 @@ test('handle adds the repository to the log context', function (): void {
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
-            'organization' => fake()->slug(),
+            'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
     ]);
@@ -156,7 +156,7 @@ test('handle raises dependabot yml changed for the repository when its file is g
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
-            'organization' => fake()->slug(),
+            'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
         ],
     ]);

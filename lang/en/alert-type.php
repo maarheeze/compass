@@ -18,5 +18,5 @@ return [
     'SITE_MISSING' => 'Site missing',
     'SITE_NOT_IN_PRODUCTION' => 'Site not in production',
     'SITE_REPORT_INCOMPATIBLE' => 'Site report incompatible',
-    'SITE_REPORT_UNAUTHORIZED' => 'Site report key refused',
+    'SITE_REPORT_UNAUTHORISED' => 'Site report key refused',
 ];

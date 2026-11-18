@@ -29,7 +29,7 @@ readonly class IssuesAndPullRequestsQuery
 
     public function __construct(
         private GitHubClient $gitHubClient,
-        private string $organization,
+        private string $organisation,
     ) {
     }
 
@@ -187,7 +187,7 @@ readonly class IssuesAndPullRequestsQuery
 
     private function getSearchUrl(string $typeQualifier, ?string $createdFrom): string
     {
-        $qualifiers = [sprintf('org:%s', $this->organization), $typeQualifier, 'is:open', 'archived:false'];
+        $qualifiers = [sprintf('org:%s', $this->organisation), $typeQualifier, 'is:open', 'archived:false'];
 
         if ($createdFrom !== null) {
             $qualifiers[] = sprintf('created:>=%s', $createdFrom);

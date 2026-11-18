@@ -21,7 +21,7 @@ class SiteReportStatusBadge extends Component
     public function badgeType(): BadgeType
     {
         return match ($this->status) {
-            SiteReportStatus::INCOMPATIBLE, SiteReportStatus::UNAUTHORIZED => BadgeType::DANGER,
+            SiteReportStatus::INCOMPATIBLE, SiteReportStatus::UNAUTHORISED => BadgeType::DANGER,
             SiteReportStatus::INSTALLED => BadgeType::SUCCESS,
             SiteReportStatus::NOT_INSTALLED => BadgeType::NEUTRAL,
         };

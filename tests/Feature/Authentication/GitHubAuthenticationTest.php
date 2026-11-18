@@ -10,32 +10,32 @@ use Laravel\Socialite\Two\GithubProvider;
 use Laravel\Socialite\Two\User as OAuthUser;
 use Maarheeze\Compass\Authentication\AuthenticationExpired;
 use Maarheeze\Compass\Authentication\GitHubAuthentication;
-use Maarheeze\Compass\Authentication\NotAnOrganizationMember;
+use Maarheeze\Compass\Authentication\NotAnOrganisationMember;
 use Maarheeze\Compass\Authentication\NoVerifiedEmail;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 use Maarheeze\Compass\Tests\Fakes\FakeGithubProvider;
 
-test('authorization url points to github', function (): void {
+test('authorisation url points to github', function (): void {
     $request = $this->app->make(Request::class);
     $request->setLaravelSession($this->app->make(SessionManager::class)->driver());
 
     $githubAuthentication = $this->app->make(GitHubAuthentication::class);
-    $authorizationUrl = $githubAuthentication->authorizationUrl();
+    $authorisationUrl = $githubAuthentication->authorisationUrl();
 
-    expect($authorizationUrl)
+    expect($authorisationUrl)
         ->toStartWith('https://github.com/login/oauth/authorize?');
 });
 
-test('authorization url carries the state kept in the session', function (): void {
+test('authorisation url carries the state kept in the session', function (): void {
     $session = $this->app->make(SessionManager::class)->driver();
     $request = $this->app->make(Request::class);
     $request->setLaravelSession($session);
 
     $githubAuthentication = $this->app->make(GitHubAuthentication::class);
-    $authorizationUrl = $githubAuthentication->authorizationUrl();
+    $authorisationUrl = $githubAuthentication->authorisationUrl();
 
-    parse_str((string) parse_url($authorizationUrl, PHP_URL_QUERY), $query);
+    parse_str((string) parse_url($authorisationUrl, PHP_URL_QUERY), $query);
     expect($query['state'])
         ->toBe($session->get('state'));
 });
@@ -86,9 +86,9 @@ test('callback stores the github user', function (): void {
     ]);
 });
 
-test('callback checks the membership of the organization with the user token', function (): void {
-    $organization = fake()->slug();
-    $this->setConfiguration('compass.authentication.github.organization', $organization);
+test('callback checks the membership of the organisation with the user token', function (): void {
+    $organisation = fake()->slug();
+    $this->setConfiguration('compass.authentication.github.organisation', $organisation);
 
     $oauthUser = new OAuthUser()
         ->setToken(fake()->sha1())
@@ -107,8 +107,8 @@ test('callback checks the membership of the organization with the user token', f
     $githubAuthentication = $this->app->make(GitHubAuthentication::class);
     $githubAuthentication->callback();
 
-    $http->assertSent(static function (HttpRequest $request) use ($oauthUser, $organization): bool {
-        if ($request->url() !== sprintf('https://api.github.com/user/memberships/orgs/%s', $organization)) {
+    $http->assertSent(static function (HttpRequest $request) use ($oauthUser, $organisation): bool {
+        if ($request->url() !== sprintf('https://api.github.com/user/memberships/orgs/%s', $organisation)) {
             return false;
         }
 
@@ -132,7 +132,7 @@ test('callback refuses a pending member', function (): void {
 
     $githubAuthentication = $this->app->make(GitHubAuthentication::class);
     $githubAuthentication->callback();
-})->throws(NotAnOrganizationMember::class);
+})->throws(NotAnOrganisationMember::class);
 
 test('callback refuses a non member', function (): void {
     $oauthUser = new OAuthUser()
@@ -150,7 +150,7 @@ test('callback refuses a non member', function (): void {
 
     $githubAuthentication = $this->app->make(GitHubAuthentication::class);
     $githubAuthentication->callback();
-})->throws(NotAnOrganizationMember::class);
+})->throws(NotAnOrganisationMember::class);
 
 test('callback refuses a state that is not in the session', function (): void {
     $request = $this->app->make(Request::class);

@@ -15,7 +15,7 @@ use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Composer\ComposerFilesCollectorManager;
 use Maarheeze\Compass\Collector\Composer\Json\ComposerJsonReader;
-use Maarheeze\Compass\Collector\Composer\Json\ComposerJsonSynchronizer;
+use Maarheeze\Compass\Collector\Composer\Json\ComposerJsonSynchroniser;
 use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
 use Maarheeze\Compass\Collector\LockedJob;
@@ -44,7 +44,7 @@ class CollectComposerJson implements LockedJob
         CollectorLogger $collectorLogger,
         ComposerFilesCollectorManager $composerFilesCollectorManager,
         ComposerJsonReader $composerJsonReader,
-        ComposerJsonSynchronizer $composerJsonSynchronizer,
+        ComposerJsonSynchroniser $composerJsonSynchroniser,
         Context $context,
         Dispatcher $events,
     ): void {
@@ -56,7 +56,7 @@ class CollectComposerJson implements LockedJob
         $version = $this->repository->composer_json_version;
 
         if ($version === null) {
-            $composerJsonSynchronizer->delete($this->repository);
+            $composerJsonSynchroniser->delete($this->repository);
 
             $collectorLogger->debug('Composer json deleted');
 
@@ -66,7 +66,7 @@ class CollectComposerJson implements LockedJob
         }
 
         $composerJsonSummary = $composerJsonReader->read($composerFilesCollector->content($this->repository->name, $version));
-        $composerJsonSynchronizer->store($this->repository, $version, $composerJsonSummary);
+        $composerJsonSynchroniser->store($this->repository, $version, $composerJsonSummary);
 
         $collectorLogger->debug('Composer json collected');
 

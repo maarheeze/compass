@@ -62,7 +62,7 @@ test('callback sends a non member back to the login page', function (): void {
 
     $response
         ->assertRedirect(route(RouteName::LOGIN))
-        ->assertSessionHasErrors(['github' => 'You are not a member of the organization.']);
+        ->assertSessionHasErrors(['github' => 'You are not a member of the organisation.']);
 });
 
 test('callback sends a member without a verified email back to the login page', function (): void {

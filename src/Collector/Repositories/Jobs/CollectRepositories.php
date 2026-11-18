@@ -20,7 +20,7 @@ use Maarheeze\Compass\Collector\Events\PackageJsonChanged;
 use Maarheeze\Compass\Collector\Events\RepositoriesCollected;
 use Maarheeze\Compass\Collector\LockedJob;
 use Maarheeze\Compass\Collector\Repositories\RepositoriesCollectorManager;
-use Maarheeze\Compass\Collector\Repositories\RepositorySynchronizer;
+use Maarheeze\Compass\Collector\Repositories\RepositorySynchroniser;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 use Webmozart\Assert\Assert;
@@ -45,17 +45,17 @@ class CollectRepositories implements LockedJob
         CollectorLogger $collectorLogger,
         Dispatcher $events,
         RepositoriesCollectorManager $repositoriesCollectorManager,
-        RepositorySynchronizer $repositorySynchronizer,
+        RepositorySynchroniser $repositorySynchroniser,
     ): void {
         $repositoriesCollector = $repositoriesCollectorManager->collector($this->source);
 
         $collectorLogger->info('Repositories collector started');
 
         foreach ($repositoriesCollector->repositories() as $collectedRepositories) {
-            $collectedRepositoriesWithChangedPackageJson = $repositorySynchronizer
+            $collectedRepositoriesWithChangedPackageJson = $repositorySynchroniser
                 ->collectedRepositoriesWithChangedPackageJson($collectedRepositories, $this->source);
 
-            $repositorySynchronizer->storeRepositories($collectedRepositories, $this->source, $this->runId);
+            $repositorySynchroniser->storeRepositories($collectedRepositories, $this->source, $this->runId);
 
             $this->dispatchPackageJsonChanged($events, $collectedRepositoriesWithChangedPackageJson);
 
@@ -64,7 +64,7 @@ class CollectRepositories implements LockedJob
             ]);
         }
 
-        $repositorySynchronizer->markUncollectedMissing($this->source, $this->runId);
+        $repositorySynchroniser->markUncollectedMissing($this->source, $this->runId);
 
         $events->dispatch(new RepositoriesCollected($this->source));
 

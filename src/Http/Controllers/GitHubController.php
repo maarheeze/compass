@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Maarheeze\Compass\Authentication\AuthenticationExpired;
 use Maarheeze\Compass\Authentication\GitHubAuthentication;
-use Maarheeze\Compass\Authentication\NotAnOrganizationMember;
+use Maarheeze\Compass\Authentication\NotAnOrganisationMember;
 use Maarheeze\Compass\Authentication\NoVerifiedEmail;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
@@ -45,8 +45,8 @@ readonly class GitHubController
             return $this->redirector
                 ->route(RouteName::LOGIN)
                 ->withErrors(['github' => $message]);
-        } catch (NotAnOrganizationMember) {
-            $message = Assert::string($this->translator->get('compass::authentication.not_an_organization_member'));
+        } catch (NotAnOrganisationMember) {
+            $message = Assert::string($this->translator->get('compass::authentication.not_an_organisation_member'));
 
             return $this->redirector
                 ->route(RouteName::LOGIN)
@@ -68,6 +68,6 @@ readonly class GitHubController
 
     public function redirect(): RedirectResponse
     {
-        return $this->redirector->away($this->githubAuthentication->authorizationUrl());
+        return $this->redirector->away($this->githubAuthentication->authorisationUrl());
     }
 }

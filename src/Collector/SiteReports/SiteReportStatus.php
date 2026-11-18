@@ -13,7 +13,7 @@ enum SiteReportStatus: string implements LabelledEnum
     case INCOMPATIBLE = 'incompatible';
     case INSTALLED = 'installed';
     case NOT_INSTALLED = 'not-installed';
-    case UNAUTHORIZED = 'unauthorized';
+    case UNAUTHORISED = 'unauthorised';
 
     public function labelKey(): string
     {

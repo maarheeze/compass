@@ -16,7 +16,7 @@ readonly class RepositoriesQuery
 {
     public function __construct(
         private GitHubClient $gitHubClient,
-        private string $organization,
+        private string $organisation,
     ) {
     }
 
@@ -100,8 +100,8 @@ readonly class RepositoriesQuery
     private function getQuery(): string
     {
         return <<<'GRAPHQL'
-            query ($organization: String!, $cursor: String) {
-              organization(login: $organization) {
+            query ($organisation: String!, $cursor: String) {
+              organization(login: $organisation) {
                 repositories(first: 100, after: $cursor, isArchived: false) {
                   pageInfo { hasNextPage endCursor }
                   nodes {
@@ -128,7 +128,7 @@ readonly class RepositoriesQuery
     private function getRepositoriesQueryResult(?string $cursor): RepositoriesQueryResult
     {
         $response = $this->gitHubClient->query($this->getQuery(), [
-            'organization' => $this->organization,
+            'organisation' => $this->organisation,
             'cursor' => $cursor,
         ]);
         $repositoriesResponse = Assert::isArray($response->json('data.organization.repositories'));

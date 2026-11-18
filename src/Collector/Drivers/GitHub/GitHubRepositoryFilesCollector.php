@@ -12,7 +12,7 @@ readonly class GitHubRepositoryFilesCollector implements ComposerFilesCollector,
 {
     public function __construct(
         private GitHubClient $gitHubClient,
-        private string $organization,
+        private string $organisation,
     ) {
     }
 
@@ -21,7 +21,7 @@ readonly class GitHubRepositoryFilesCollector implements ComposerFilesCollector,
      */
     public function content(string $repositoryName, string $version): string
     {
-        $blobQuery = new BlobQuery($this->gitHubClient, $this->organization);
+        $blobQuery = new BlobQuery($this->gitHubClient, $this->organisation);
 
         try {
             return $blobQuery->text($repositoryName, $version);

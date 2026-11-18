@@ -1,0 +1,302 @@
+<?php
+
+declare(strict_types=1);
+
+use Carbon\CarbonImmutable;
+use Maarheeze\Compass\Collections\CollectedRepositoryCollection;
+use Maarheeze\Compass\Collector\Repositories\CollectedRepository;
+use Maarheeze\Compass\Collector\Repositories\RepositorySynchroniser;
+use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
+use Maarheeze\Compass\Models\Repository;
+use Maarheeze\Compass\Tests\Fixtures\CollectedRepositoryFactory;
+use Maarheeze\Uuid\Uuid;
+use Psr\Clock\ClockInterface;
+use Symfony\Component\Clock\MockClock;
+
+test('collected repositories with changed package json holds a known repository whose package json version changed', function (): void {
+    $repository = Repository::factory()->create(['package_json_version' => fake()->unique()->sha1()]);
+    $collectedRepository = new CollectedRepository(
+        $repository->external_id,
+        $repository->name,
+        $repository->full_name,
+        $repository->url,
+        fake()->word(),
+        fake()->sha1(),
+        CarbonImmutable::parse(fake()->iso8601()),
+        fake()->randomElement(RepositoryVisibility::cases()),
+        $repository->composer_json_version,
+        $repository->composer_lock_version,
+        fake()->unique()->sha1(),
+        $repository->dependabot_yml_version,
+    );
+
+    $repositorySynchroniser = $this->app->make(RepositorySynchroniser::class);
+    $collectedRepositoriesWithChangedPackageJson = $repositorySynchroniser->collectedRepositoriesWithChangedPackageJson(
+        new CollectedRepositoryCollection([$collectedRepository]),
+        $repository->source,
+    );
+
+    expect($collectedRepositoriesWithChangedPackageJson->sole())
+        ->toBe($collectedRepository);
+});
+
+test('collected repositories with changed package json holds a new repository with a package json', function (): void {
+    $collectedRepository = CollectedRepositoryFactory::make();
+
+    $repositorySynchroniser = $this->app->make(RepositorySynchroniser::class);
+    $collectedRepositoriesWithChangedPackageJson = $repositorySynchroniser->collectedRepositoriesWithChangedPackageJson(
+        new CollectedRepositoryCollection([$collectedRepository]),
+        fake()->slug(),
+    );
+
+    expect($collectedRepositoriesWithChangedPackageJson->sole())
+        ->toBe($collectedRepository);
+});
+
+test('collected repositories with changed package json leaves out a repository whose package json version is unchanged', function (): void {
+    $repository = Repository::factory()->create();
+
+    $repositorySynchroniser = $this->app->make(RepositorySynchroniser::class);
+    $collectedRepositoriesWithChangedPackageJson = $repositorySynchroniser->collectedRepositoriesWithChangedPackageJson(
+        new CollectedRepositoryCollection([CollectedRepositoryFactory::forRepository($repository)]),
+        $repository->source,
+    );
+
+    expect($collectedRepositoriesWithChangedPackageJson)
+        ->toBeEmpty();
+});
+
+test('store repositories creates a repository for a new collected repository', function (): void {
+    $collectedRepository = CollectedRepositoryFactory::make();
+    $source = fake()->slug();
+    $runId = Uuid::generate();
+
+    $repositorySynchroniser = $this->app->make(RepositorySynchroniser::class);
+    $repositorySynchroniser->storeRepositories(
+        new CollectedRepositoryCollection([$collectedRepository]),
+        $source,
+        $runId,
+    );
+
+    $this->assertDatabaseHas(Repository::class, [
+        'source' => $source,
+        'external_id' => $collectedRepository->externalId,
+        'name' => $collectedRepository->name,
+        'full_name' => $collectedRepository->fullName,
+        'url' => $collectedRepository->url,
+        'default_branch' => $collectedRepository->defaultBranch,
+        'last_commit_sha' => $collectedRepository->lastCommitSha,
+        'last_commit_committed_at' => $collectedRepository->lastCommitCommittedAt,
+        'visibility' => $collectedRepository->visibility,
+        'composer_json_version' => $collectedRepository->composerJsonVersion,
+        'composer_lock_version' => $collectedRepository->composerLockVersion,
+        'package_json_version' => $collectedRepository->packageJsonVersion,
+        'dependabot_yml_version' => $collectedRepository->dependabotYmlVersion,
+        'run_id' => $runId,
+    ]);
+});
+
+test('store repositories stamps a repository with the moment it was collected', function (): void {
+    $now = CarbonImmutable::parse(fake()->iso8601());
+    $this->app->instance(ClockInterface::class, new MockClock($now));
+    $collectedRepository = CollectedRepositoryFactory::make();
+    $source = fake()->slug();
+
+    $repositorySynchroniser = $this->app->make(RepositorySynchroniser::class);
+    $repositorySynchroniser->storeRepositories(
+        new CollectedRepositoryCollection([$collectedRepository]),
+        $source,
+        Uuid::generate(),
+    );
+
+    $this->assertDatabaseHas(Repository::class, [
+        'source' => $source,
+        'external_id' => $collectedRepository->externalId,
+        'collected_at' => $now,
+    ]);
+});
+
+test('store repositories updates the default branch of a known repository', function (): void {
+    $repository = Repository::factory()->create(['default_branch' => fake()->unique()->word()]);
+    $collectedRepository = CollectedRepositoryFactory::forRepository($repository);
+
+    $repositorySynchroniser = $this->app->make(RepositorySynchroniser::class);
+    $repositorySynchroniser->storeRepositories(
+        new CollectedRepositoryCollection([$collectedRepository]),
+        $repository->source,
+        Uuid::generate(),
+    );
+
+    $this->assertDatabaseHas(Repository::class, [
+        'id' => $repository->id,
+        'default_branch' => $collectedRepository->defaultBranch,
+    ]);
+});
+
+test('store repositories updates the last commit sha of a known repository', function (): void {
+    $repository = Repository::factory()->create();
+    $collectedRepository = CollectedRepositoryFactory::forRepository($repository);
+
+    $repositorySynchroniser = $this->app->make(RepositorySynchroniser::class);
+    $repositorySynchroniser->storeRepositories(
+        new CollectedRepositoryCollection([$collectedRepository]),
+        $repository->source,
+        Uuid::generate(),
+    );
+
+    $this->assertDatabaseHas(Repository::class, [
+        'id' => $repository->id,
+        'last_commit_sha' => $collectedRepository->lastCommitSha,
+    ]);
+});
+
+test('store repositories updates the name of a known repository', function (): void {
+    $repository = Repository::factory()->create(['name' => fake()->unique()->slug()]);
+    $collectedRepository = new CollectedRepository(
+        $repository->external_id,
+        fake()->unique()->slug(),
+        $repository->full_name,
+        fake()->url(),
+        fake()->word(),
+        fake()->sha1(),
+        CarbonImmutable::parse(fake()->iso8601()),
+        fake()->randomElement(RepositoryVisibility::cases()),
+        fake()->sha1(),
+        fake()->sha1(),
+        fake()->sha1(),
+        fake()->sha1(),
+    );
+
+    $repositorySynchroniser = $this->app->make(RepositorySynchroniser::class);
+    $repositorySynchroniser->storeRepositories(
+        new CollectedRepositoryCollection([$collectedRepository]),
+        $repository->source,
+        Uuid::generate(),
+    );
+
+    $this->assertDatabaseHas(Repository::class, [
+        'id' => $repository->id,
+        'name' => $collectedRepository->name,
+    ]);
+});
+
+test('store repositories updates the full name of a known repository', function (): void {
+    $repository = Repository::factory()->create();
+    $collectedRepository = new CollectedRepository(
+        $repository->external_id,
+        $repository->name,
+        sprintf('%s/%s', fake()->slug(), fake()->unique()->slug()),
+        $repository->url,
+        fake()->word(),
+        fake()->sha1(),
+        CarbonImmutable::parse(fake()->iso8601()),
+        fake()->randomElement(RepositoryVisibility::cases()),
+        fake()->sha1(),
+        fake()->sha1(),
+        fake()->sha1(),
+        fake()->sha1(),
+    );
+
+    $repositorySynchroniser = $this->app->make(RepositorySynchroniser::class);
+    $repositorySynchroniser->storeRepositories(
+        new CollectedRepositoryCollection([$collectedRepository]),
+        $repository->source,
+        Uuid::generate(),
+    );
+
+    $this->assertDatabaseHas(Repository::class, [
+        'id' => $repository->id,
+        'full_name' => $collectedRepository->fullName,
+    ]);
+});
+
+test('store repositories clears the missing marks of a known repository', function (): void {
+    $repository = Repository::factory()->create([
+        'missing_at' => fake()->dateTime(),
+        'missing_ignored_at' => fake()->dateTime(),
+    ]);
+    $collectedRepository = CollectedRepositoryFactory::forRepository($repository);
+
+    $repositorySynchroniser = $this->app->make(RepositorySynchroniser::class);
+    $repositorySynchroniser->storeRepositories(
+        new CollectedRepositoryCollection([$collectedRepository]),
+        $repository->source,
+        Uuid::generate(),
+    );
+
+    $this->assertDatabaseHas(Repository::class, [
+        'id' => $repository->id,
+        'missing_at' => null,
+        'missing_ignored_at' => null,
+    ]);
+});
+
+test('store repositories creates a repository for a known external id of another source', function (): void {
+    $repository = Repository::factory()->create(['source' => fake()->unique()->slug()]);
+    $collectedRepository = CollectedRepositoryFactory::forRepository($repository);
+    $otherSource = fake()->unique()->slug();
+
+    $repositorySynchroniser = $this->app->make(RepositorySynchroniser::class);
+    $repositorySynchroniser->storeRepositories(
+        new CollectedRepositoryCollection([$collectedRepository]),
+        $otherSource,
+        Uuid::generate(),
+    );
+
+    $this->assertDatabaseHas(Repository::class, [
+        'source' => $otherSource,
+        'external_id' => $repository->external_id,
+    ]);
+});
+
+test('mark uncollected missing marks a repository of another run missing now', function (): void {
+    $now = CarbonImmutable::parse(fake()->iso8601());
+    $this->app->instance(ClockInterface::class, new MockClock($now));
+    $repository = Repository::factory()->create();
+
+    $repositorySynchroniser = $this->app->make(RepositorySynchroniser::class);
+    $repositorySynchroniser->markUncollectedMissing($repository->source, Uuid::generate());
+
+    $this->assertDatabaseHas(Repository::class, [
+        'id' => $repository->id,
+        'missing_at' => $now,
+    ]);
+});
+
+test('mark uncollected missing keeps the moment a repository went missing', function (): void {
+    $missingAt = fake()->dateTime();
+    $repository = Repository::factory()->create(['missing_at' => $missingAt]);
+
+    $repositorySynchroniser = $this->app->make(RepositorySynchroniser::class);
+    $repositorySynchroniser->markUncollectedMissing($repository->source, Uuid::generate());
+
+    $this->assertDatabaseHas(Repository::class, [
+        'id' => $repository->id,
+        'missing_at' => $missingAt,
+    ]);
+});
+
+test('mark uncollected missing leaves a repository of the run unmarked', function (): void {
+    $runId = Uuid::generate();
+    $repository = Repository::factory()->create(['run_id' => $runId]);
+
+    $repositorySynchroniser = $this->app->make(RepositorySynchroniser::class);
+    $repositorySynchroniser->markUncollectedMissing($repository->source, $runId);
+
+    $this->assertDatabaseHas(Repository::class, [
+        'id' => $repository->id,
+        'missing_at' => null,
+    ]);
+});
+
+test('mark uncollected missing leaves a repository of another source unmarked', function (): void {
+    $repository = Repository::factory()->create(['source' => fake()->unique()->slug()]);
+
+    $repositorySynchroniser = $this->app->make(RepositorySynchroniser::class);
+    $repositorySynchroniser->markUncollectedMissing(fake()->unique()->slug(), Uuid::generate());
+
+    $this->assertDatabaseHas(Repository::class, [
+        'id' => $repository->id,
+        'missing_at' => null,
+    ]);
+});
