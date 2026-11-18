@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Analyzer\Composer;
 
 use Maarheeze\Compass\Collections\ComposerJsonPackageCollection;
 use Maarheeze\Compass\Collections\ComposerLockPackageCollection;
+use Maarheeze\Compass\Models\Builders\ComposerLockPackageBuilder;
 use Maarheeze\Compass\Models\ComposerJsonPackage;
 use Maarheeze\Compass\Models\ComposerLockPackage;
 
@@ -19,18 +20,35 @@ readonly class PackageUsageFinder
     public function find(string $packageName): PackageUsages
     {
         return new PackageUsages(
-            $this->getLockedPackagesOfProjects($packageName),
+            $this->findLockedPackagesOfProjects($packageName),
             $this->getRequiredPackagesOfLibraries($packageName),
         );
     }
 
-    private function getLockedPackagesOfProjects(string $packageName): ComposerLockPackageCollection
+    public function findLockedPackagesOfProjects(string $packageName): ComposerLockPackageCollection
     {
-        $lockedPackages = ComposerLockPackage::query()
-            ->with('composerLock.repository.composerJson')
-            ->named($packageName)
+        return $this->getLockedPackagesOfProjects($this->getLockedPackageQuery($packageName)->get());
+    }
+
+    public function findLockedPackagesOfVersion(string $packageName, string $version): ComposerLockPackageCollection
+    {
+        $lockedPackages = $this
+            ->getLockedPackageQuery($packageName)
+            ->versioned($version)
             ->get();
 
+        return $this->getLockedPackagesOfProjects($lockedPackages);
+    }
+
+    private function getLockedPackageQuery(string $packageName): ComposerLockPackageBuilder
+    {
+        return ComposerLockPackage::query()
+            ->with('composerLock.repository.composerJson')
+            ->named($packageName);
+    }
+
+    private function getLockedPackagesOfProjects(ComposerLockPackageCollection $lockedPackages): ComposerLockPackageCollection
+    {
         return $lockedPackages
             ->filter(function (ComposerLockPackage $lockedPackage): bool {
                 return $this->repositoryKindClassifier->classify($lockedPackage->composerLock->repository) === RepositoryKind::PROJECT;

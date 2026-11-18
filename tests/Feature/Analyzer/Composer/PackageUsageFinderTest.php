@@ -90,3 +90,89 @@ test('find leaves out other packages', function (): void {
     expect($packageUsages->requiredPackages)
         ->toBeEmpty();
 });
+
+test('find locked packages of projects holds the locked packages of the projects', function (): void {
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
+    ComposerJson::factory()->create([
+        'repository_id' => $repository->id,
+        'type' => 'project',
+    ]);
+    $lockedPackage = ComposerLockPackage::factory()->create([
+        'composer_lock_id' => ComposerLock::factory()->create(['repository_id' => $repository->id])->id,
+    ]);
+
+    $packageUsageFinder = $this->app->make(PackageUsageFinder::class);
+    $lockedPackagesOfProjects = $packageUsageFinder->findLockedPackagesOfProjects($lockedPackage->name);
+
+    expect($lockedPackagesOfProjects->sole()->is($lockedPackage))
+        ->toBeTrue();
+});
+
+test('find locked packages of projects leaves out the locked packages of other repositories than projects', function (): void {
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
+    ComposerJson::factory()->create([
+        'repository_id' => $repository->id,
+        'type' => 'library',
+    ]);
+    $lockedPackage = ComposerLockPackage::factory()->create([
+        'composer_lock_id' => ComposerLock::factory()->create(['repository_id' => $repository->id])->id,
+    ]);
+
+    $packageUsageFinder = $this->app->make(PackageUsageFinder::class);
+    $lockedPackagesOfProjects = $packageUsageFinder->findLockedPackagesOfProjects($lockedPackage->name);
+
+    expect($lockedPackagesOfProjects)
+        ->toBeEmpty();
+});
+
+test('find locked packages of version holds the locked packages of the version of the projects', function (): void {
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
+    ComposerJson::factory()->create([
+        'repository_id' => $repository->id,
+        'type' => 'project',
+    ]);
+    $lockedPackage = ComposerLockPackage::factory()->create([
+        'composer_lock_id' => ComposerLock::factory()->create(['repository_id' => $repository->id])->id,
+    ]);
+
+    $packageUsageFinder = $this->app->make(PackageUsageFinder::class);
+    $lockedPackagesOfVersion = $packageUsageFinder->findLockedPackagesOfVersion($lockedPackage->name, $lockedPackage->version);
+
+    expect($lockedPackagesOfVersion->sole()->is($lockedPackage))
+        ->toBeTrue();
+});
+
+test('find locked packages of version leaves out the locked packages of other repositories than projects', function (): void {
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
+    ComposerJson::factory()->create([
+        'repository_id' => $repository->id,
+        'type' => 'library',
+    ]);
+    $lockedPackage = ComposerLockPackage::factory()->create([
+        'composer_lock_id' => ComposerLock::factory()->create(['repository_id' => $repository->id])->id,
+    ]);
+
+    $packageUsageFinder = $this->app->make(PackageUsageFinder::class);
+    $lockedPackagesOfVersion = $packageUsageFinder->findLockedPackagesOfVersion($lockedPackage->name, $lockedPackage->version);
+
+    expect($lockedPackagesOfVersion)
+        ->toBeEmpty();
+});
+
+test('find locked packages of version leaves out other versions', function (): void {
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
+    ComposerJson::factory()->create([
+        'repository_id' => $repository->id,
+        'type' => 'project',
+    ]);
+    $lockedPackage = ComposerLockPackage::factory()->create([
+        'composer_lock_id' => ComposerLock::factory()->create(['repository_id' => $repository->id])->id,
+        'version' => fake()->unique()->semver(),
+    ]);
+
+    $packageUsageFinder = $this->app->make(PackageUsageFinder::class);
+    $lockedPackagesOfVersion = $packageUsageFinder->findLockedPackagesOfVersion($lockedPackage->name, fake()->unique()->semver());
+
+    expect($lockedPackagesOfVersion)
+        ->toBeEmpty();
+});

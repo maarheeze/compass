@@ -8,6 +8,7 @@ use Maarheeze\Compass\Http\Controllers\DashboardController;
 use Maarheeze\Compass\Http\Controllers\GitHubController;
 use Maarheeze\Compass\Http\Controllers\IssueController;
 use Maarheeze\Compass\Http\Controllers\PackageController;
+use Maarheeze\Compass\Http\Controllers\PackageVersionController;
 use Maarheeze\Compass\Http\Controllers\PullRequestController;
 use Maarheeze\Compass\Http\Controllers\RepositoryController;
 use Maarheeze\Compass\Http\Controllers\RunController;
@@ -48,6 +49,9 @@ Route::middleware('web')
             Route::post('/repositories/{repository}/ignore', [RepositoryController::class, 'ignore'])->name(RouteName::REPOSITORY_IGNORE);
             Route::get('/issues', [IssueController::class, 'index'])->name(RouteName::ISSUES);
             Route::get('/pull-requests', [PullRequestController::class, 'index'])->name(RouteName::PULL_REQUESTS);
+            Route::get('/packages/{packageName}/versions/{version}', [PackageVersionController::class, 'show'])
+                ->where(['packageName' => '.+', 'version' => '.+'])
+                ->name(RouteName::PACKAGE_VERSION);
             Route::get('/packages/{packageName}', [PackageController::class, 'show'])
                 ->where('packageName', '.+')
                 ->name(RouteName::PACKAGE);

@@ -16,4 +16,9 @@ class ComposerLockPackageBuilder extends Builder
     {
         return $this->where('name', $packageName);
     }
+
+    public function versioned(string $version): self
+    {
+        return $this->where('version', $version);
+    }
 }

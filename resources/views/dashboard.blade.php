@@ -12,5 +12,7 @@
             </x-compass::section-heading>
             <x-compass::alert-table :alerts="$alerts" data-compass-live-region="alerts" />
         </section>
+
+        <x-compass::package-versions />
     </main>
 </x-compass::layouts.app>

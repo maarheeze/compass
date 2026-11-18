@@ -20,6 +20,7 @@ enum RouteName: string
     case LOGIN = 'compass.login';
     case LOGOUT = 'compass.logout';
     case PACKAGE = 'compass.package';
+    case PACKAGE_VERSION = 'compass.package.version';
     case PULL_REQUESTS = 'compass.pull-requests';
     case REPOSITORIES = 'compass.repositories';
     case REPOSITORY = 'compass.repository';

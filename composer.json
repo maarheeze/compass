@@ -11,6 +11,7 @@
     "type": "library",
     "require": {
         "php": "^8.5",
+        "composer/semver": "^3.6",
         "illuminate/support": "^13.17",
         "laravel/socialite": "^5.31",
         "maarheeze/uuid": "^3.0",

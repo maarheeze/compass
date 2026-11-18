@@ -25,3 +25,25 @@ test('named leaves out a package with another name', function (): void {
     expect($lockedPackagesNamed)
         ->toBeEmpty();
 });
+
+test('versioned keeps a package with the version', function (): void {
+    $lockedPackage = ComposerLockPackage::factory()->create();
+
+    $lockedPackagesVersioned = ComposerLockPackage::query()
+        ->versioned($lockedPackage->version)
+        ->get();
+
+    expect($lockedPackagesVersioned->sole()->is($lockedPackage))
+        ->toBeTrue();
+});
+
+test('versioned leaves out a package with another version', function (): void {
+    ComposerLockPackage::factory()->create(['version' => fake()->unique()->semver()]);
+
+    $lockedPackagesVersioned = ComposerLockPackage::query()
+        ->versioned(fake()->unique()->semver())
+        ->get();
+
+    expect($lockedPackagesVersioned)
+        ->toBeEmpty();
+});
