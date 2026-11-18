@@ -10,6 +10,7 @@ use Maarheeze\Compass\Collections\AlertCheckCollection;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
+use Maarheeze\Compass\Collections\SiteEndpointCollection;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\AlertCheck;
@@ -124,9 +125,9 @@ test('show contains the checks of the reports of the site that apply', function 
     });
 });
 
-test('show contains the latest check of a reported endpoint path as active', function (): void {
+test('show contains the reported endpoints of the site with their latest check', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
-    $activeSiteEndpointCheck = SiteEndpointCheck::factory()->create([
+    $siteEndpointCheck = SiteEndpointCheck::factory()->create([
         'site_id' => $siteEndpoint->siteReport->site_id,
         'path' => $siteEndpoint->path,
     ]);
@@ -135,11 +136,14 @@ test('show contains the latest check of a reported endpoint path as active', fun
     $response = $this->get(route(RouteName::SITE, $siteEndpoint->siteReport->site_id));
 
     $response->assertViewHas(
-        'activeSiteEndpointChecks',
+        'reportedSiteEndpoints',
         static function (
-            SiteEndpointCheckCollection $viewActiveSiteEndpointChecks,
-        ) use ($activeSiteEndpointCheck): bool {
-            return $viewActiveSiteEndpointChecks->sole()->is($activeSiteEndpointCheck);
+            SiteEndpointCollection $viewReportedSiteEndpoints,
+        ) use ($siteEndpoint, $siteEndpointCheck): bool {
+            $viewReportedSiteEndpoint = $viewReportedSiteEndpoints->sole();
+
+            return $viewReportedSiteEndpoint->is($siteEndpoint)
+                && $viewReportedSiteEndpoint->latestCheck?->is($siteEndpointCheck) === true;
         },
     );
 });

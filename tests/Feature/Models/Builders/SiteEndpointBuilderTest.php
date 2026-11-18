@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
+use Maarheeze\Compass\Models\SiteEndpointCheck;
 use Maarheeze\Compass\Models\SiteReport;
 
 test('of collected sites keeps an endpoint of a collected site', function (): void {
@@ -103,4 +104,51 @@ test('of site keeps only the endpoints of the site', function (): void {
 
     expect($siteEndpointsOfSite->sole()->is($siteEndpoint))
         ->toBeTrue();
+});
+
+test('with latest check loads the latest check of the path of the site', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    SiteEndpointCheck::factory()->create([
+        'site_id' => $siteEndpoint->siteReport->site_id,
+        'path' => $siteEndpoint->path,
+    ]);
+    $latestSiteEndpointCheck = SiteEndpointCheck::factory()->create([
+        'site_id' => $siteEndpoint->siteReport->site_id,
+        'path' => $siteEndpoint->path,
+    ]);
+
+    $siteEndpointWithLatestCheck = SiteEndpoint::query()
+        ->withLatestCheck()
+        ->sole();
+
+    expect($siteEndpointWithLatestCheck->latestCheck?->is($latestSiteEndpointCheck))
+        ->toBeTrue();
+});
+
+test('with latest check leaves out the check of the path of another site', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    SiteEndpointCheck::factory()->create(['path' => $siteEndpoint->path]);
+
+    $siteEndpointWithLatestCheck = SiteEndpoint::query()
+        ->withLatestCheck()
+        ->sole();
+
+    expect($siteEndpointWithLatestCheck->latestCheck)
+        ->toBeNull();
+});
+
+test('with latest check loads when the check has been online since', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    SiteEndpointCheck::factory()->create([
+        'site_id' => $siteEndpoint->siteReport->site_id,
+        'path' => $siteEndpoint->path,
+        'is_successful' => true,
+    ]);
+
+    $siteEndpointWithLatestCheck = SiteEndpoint::query()
+        ->withLatestCheck()
+        ->sole();
+
+    expect($siteEndpointWithLatestCheck->latestCheck?->online_since)
+        ->toBeInstanceOf(CarbonImmutable::class);
 });

@@ -129,33 +129,6 @@ test('of path leaves out a check of another path', function (): void {
         ->toBeEmpty();
 });
 
-test('reported keeps a check of a path its site reports', function (): void {
-    $siteEndpoint = SiteEndpoint::factory()->create();
-    $reportedSiteEndpointCheck = SiteEndpointCheck::factory()->create([
-        'site_id' => $siteEndpoint->siteReport->site_id,
-        'path' => $siteEndpoint->path,
-    ]);
-
-    $reportedSiteEndpointChecks = SiteEndpointCheck::query()
-        ->reported()
-        ->get();
-
-    expect($reportedSiteEndpointChecks->sole()->is($reportedSiteEndpointCheck))
-        ->toBeTrue();
-});
-
-test('reported leaves out a check of a path only another site reports', function (): void {
-    $siteEndpointOfAnotherSite = SiteEndpoint::factory()->create();
-    SiteEndpointCheck::factory()->create(['path' => $siteEndpointOfAnotherSite->path]);
-
-    $reportedSiteEndpointChecks = SiteEndpointCheck::query()
-        ->reported()
-        ->get();
-
-    expect($reportedSiteEndpointChecks)
-        ->toBeEmpty();
-});
-
 test('with online since is the first successful check after the latest failed one', function (): void {
     $site = Site::factory()->create();
     $endpointPath = new EndpointPath(sprintf('/%s', fake()->slug()));

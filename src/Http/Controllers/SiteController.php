@@ -14,6 +14,7 @@ use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\AlertCheck;
 use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteEndpoint;
 use Throwable;
 
 readonly class SiteController
@@ -66,13 +67,6 @@ readonly class SiteController
         ]);
 
         return $this->view->make('compass::sites.show', [
-            'activeSiteEndpointChecks' => $site
-                ->endpointChecks()
-                ->latestPerPath()
-                ->reported()
-                ->withOnlineSince()
-                ->orderBy('path')
-                ->get(),
             'alertChecks' => AlertCheck::query()
                 ->ofSubject($site)
                 ->applicable()
@@ -90,6 +84,11 @@ readonly class SiteController
                 ->latestPerPath()
                 ->notReported()
                 ->withOnlineSince()
+                ->orderBy('path')
+                ->get(),
+            'reportedSiteEndpoints' => SiteEndpoint::query()
+                ->ofSite($site)
+                ->withLatestCheck()
                 ->orderBy('path')
                 ->get(),
             'site' => $site,

@@ -144,15 +144,31 @@
             <div class="overflow-hidden rounded-md border border-border bg-canvas">
                 <table class="w-full table-fixed text-left text-sm">
                     <tbody class="divide-y divide-border">
-                        @foreach ($activeSiteEndpointChecks as $activeSiteEndpointCheck)
-                            <x-compass::site-endpoint-check.row :site="$site" :site-endpoint-check="$activeSiteEndpointCheck" />
+                        @foreach ($reportedSiteEndpoints as $reportedSiteEndpoint)
+                            <x-compass::site-endpoint-check.row
+                                :site="$site"
+                                :path="$reportedSiteEndpoint->path"
+                                :site-endpoint-check="$reportedSiteEndpoint->latestCheck">
+                                <x-slot:schedule>
+                                    <span>&middot;</span>
+                                    <span>{{ trans_choice('compass::site.frequency', $reportedSiteEndpoint->frequency_minutes) }}</span>
+                                    <span>&middot;</span>
+                                    <span>
+                                        {{ __('compass::site.due') }}
+                                        <x-compass::time :time="$reportedSiteEndpoint->due_at" />
+                                    </span>
+                                </x-slot:schedule>
+                            </x-compass::site-endpoint-check.row>
                         @endforeach
                         @foreach ($inactiveSiteEndpointChecks as $inactiveSiteEndpointCheck)
-                            <x-compass::site-endpoint-check.row :site="$site" :site-endpoint-check="$inactiveSiteEndpointCheck">
+                            <x-compass::site-endpoint-check.row
+                                :site="$site"
+                                :path="$inactiveSiteEndpointCheck->path"
+                                :site-endpoint-check="$inactiveSiteEndpointCheck">
                                 <x-compass::badge type="neutral">{{ __('compass::site.inactive') }}</x-compass::badge>
                             </x-compass::site-endpoint-check.row>
                         @endforeach
-                        @if ($activeSiteEndpointChecks->isEmpty() && $inactiveSiteEndpointChecks->isEmpty())
+                        @if ($reportedSiteEndpoints->isEmpty() && $inactiveSiteEndpointChecks->isEmpty())
                             <tr>
                                 <td class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::site.no_endpoints_checked') }}</td>
                             </tr>

@@ -34,6 +34,7 @@ use Maarheeze\Uuid\Uuid;
  *
  * @property-read AlertCheckCollection $alertChecks
  * @property-read AlertCollection $alerts
+ * @property-read ?SiteEndpointCheck $latestCheck
  * @property-read SiteReport $siteReport
  */
 class SiteEndpoint extends Model implements AlertSubject
@@ -66,6 +67,14 @@ class SiteEndpoint extends Model implements AlertSubject
     public function getTable(): string
     {
         return 'compass_site_endpoints';
+    }
+
+    /**
+     * @return BelongsTo<SiteEndpointCheck, $this>
+     */
+    public function latestCheck(): BelongsTo
+    {
+        return $this->belongsTo(SiteEndpointCheck::class, 'latest_check_id');
     }
 
     /**

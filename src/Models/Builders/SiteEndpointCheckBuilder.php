@@ -41,11 +41,6 @@ class SiteEndpointCheckBuilder extends Builder
         return $this->where('path', $endpointPath);
     }
 
-    public function reported(): self
-    {
-        return $this->whereExists($this->siteEndpointsOfCheck());
-    }
-
     public function withOnlineSince(): self
     {
         return $this
