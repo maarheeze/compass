@@ -154,34 +154,6 @@ return [
     |
     */
 
-    'sources' => [
-        'github' => [
-            'driver' => 'github',
-            'organisation' => env('COMPASS_GITHUB_ORGANISATION'),
-            'token' => env('COMPASS_GITHUB_TOKEN'),
-            'schedule' => [
-                'repositories' => ScheduleFrequency::HOURLY,
-                'issues' => ScheduleFrequency::HOURLY,
-                'pull_requests' => ScheduleFrequency::HOURLY,
-            ],
-        ],
-        'forge' => [
-            'driver' => 'forge',
-            'organisation' => env('COMPASS_FORGE_ORGANISATION'),
-            'token' => env('COMPASS_FORGE_TOKEN'),
-            'auto_deploy_grace_minutes' => env('COMPASS_FORGE_AUTO_DEPLOY_GRACE_MINUTES', 5),
-            'server_pattern' => env('COMPASS_FORGE_SERVER_PATTERN', '/.*/'),
-            'schedule' => [
-                'sites' => ScheduleFrequency::HOURLY,
-            ],
-        ],
-        'compass-client' => [
-            'driver' => 'compass-client',
-            'path' => env('COMPASS_CLIENT_PATH', '/_compass'),
-            'schedule' => [
-                'site_reports' => ScheduleFrequency::HOURLY,
-            ],
-        ],
-    ],
+    'sources' => [],
 
 ];

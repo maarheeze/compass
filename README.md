@@ -46,19 +46,61 @@ The header and the sign-in page show the application name (`APP_NAME`). To show 
 
 ## Collectors
 
-Compass collects from the sources listed in its config. The collectors below are included, and each is optional: one runs only when a source using it is listed.
+Compass collects from the sources listed under `sources` in `config/compass.php`, which ships empty. The collectors below are included, and each is optional: one runs only when a source using it is listed. Each comes with a full example of its source.
 
 ### GitHub
 
 Collects the repositories of an organisation, with their latest commit, composer and Dependabot files, open issues and pull requests. Alerts on composer setups that need a look, missing Dependabot coverage and repositories that disappeared.
 
+```php
+'sources' => [
+    'github' => [
+        'driver' => 'github',
+        'organisation' => env('COMPASS_GITHUB_ORGANISATION'),
+        'token' => env('COMPASS_GITHUB_TOKEN'),
+        'schedule' => [
+            'repositories' => ScheduleFrequency::HOURLY,
+            'issues' => ScheduleFrequency::HOURLY,
+            'pull_requests' => ScheduleFrequency::HOURLY,
+        ],
+    ],
+],
+```
+
 ### Laravel Forge
 
 Collects the sites of a Forge organisation, with what is deployed and how that deployment went. Alerts on sites that are behind their repository, deployments that are overdue and sites that disappeared.
 
+```php
+'sources' => [
+    'forge' => [
+        'driver' => 'forge',
+        'organisation' => env('COMPASS_FORGE_ORGANISATION'),
+        'token' => env('COMPASS_FORGE_TOKEN'),
+        'auto_deploy_grace_minutes' => env('COMPASS_FORGE_AUTO_DEPLOY_GRACE_MINUTES', 5),
+        'server_pattern' => env('COMPASS_FORGE_SERVER_PATTERN', '/.*/'),
+        'schedule' => [
+            'sites' => ScheduleFrequency::HOURLY,
+        ],
+    ],
+],
+```
+
 ### Compass client
 
 Install [maarheeze/compass-client-laravel](https://github.com/maarheeze/compass-client-laravel) on a site to report what cannot be seen from outside: debug mode, the environment and the endpoints to monitor. Compass checks those endpoints, and alerts on a site in debug mode, a site not in production, an endpoint that is down, a client that refuses Compass's key and a client too outdated to report.
+
+```php
+'sources' => [
+    'compass-client' => [
+        'driver' => 'compass-client',
+        'path' => env('COMPASS_CLIENT_PATH', '/_compass'),
+        'schedule' => [
+            'site_reports' => ScheduleFrequency::HOURLY,
+        ],
+    ],
+],
+```
 
 ## Licence
 

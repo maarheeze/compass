@@ -3,6 +3,8 @@
     <x-compass::navigation />
 
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
+        <x-compass::no-sources-notice />
+
         <section class="space-y-3">
             <x-compass::section-heading>
                 <x-slot:icon>
