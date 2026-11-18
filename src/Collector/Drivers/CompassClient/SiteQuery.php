@@ -6,6 +6,8 @@ namespace Maarheeze\Compass\Collector\Drivers\CompassClient;
 
 use Illuminate\Http\Client\Response;
 use InvalidArgumentException;
+use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
+use Maarheeze\Compass\Collector\SiteReports\CollectedSiteEndpoint;
 use Maarheeze\Compass\Models\SiteReport;
 use Webmozart\Assert\Assert;
 
@@ -51,19 +53,33 @@ readonly class SiteQuery
     }
 
     /**
+     * @param array<string, mixed> $endpointResponse
+     */
+    private function getEndpoint(array $endpointResponse): CollectedSiteEndpoint
+    {
+        Assert::keyExists($endpointResponse, 'path');
+        Assert::keyExists($endpointResponse, 'frequency_minutes');
+
+        return new CollectedSiteEndpoint(
+            new EndpointPath(Assert::string($endpointResponse['path'])),
+            Assert::positiveInteger($endpointResponse['frequency_minutes']),
+        );
+    }
+
+    /**
      * @param list<mixed> $endpointsResponse
      *
-     * @return list<string>
+     * @return list<CollectedSiteEndpoint>
      */
     private function getEndpoints(array $endpointsResponse): array
     {
-        $endpoints = [];
+        $collectedSiteEndpoints = [];
 
         foreach ($endpointsResponse as $endpointResponse) {
-            $endpoints[] = Assert::string($endpointResponse);
+            $collectedSiteEndpoints[] = $this->getEndpoint(Assert::isMap($endpointResponse));
         }
 
-        return $endpoints;
+        return $collectedSiteEndpoints;
     }
 
     /**

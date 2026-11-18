@@ -7,7 +7,7 @@ namespace Maarheeze\Compass\Collector\SiteReports;
 readonly class CollectedSiteReport
 {
     /**
-     * @param list<string> $endpoints
+     * @param list<CollectedSiteEndpoint> $endpoints
      */
     private function __construct(
         public SiteReportStatus $status,
@@ -24,7 +24,7 @@ readonly class CollectedSiteReport
     }
 
     /**
-     * @param list<string> $endpoints
+     * @param list<CollectedSiteEndpoint> $endpoints
      */
     public static function installed(bool $appDebug, string $appEnv, string $appName, array $endpoints): self
     {

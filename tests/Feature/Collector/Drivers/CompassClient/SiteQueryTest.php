@@ -10,19 +10,27 @@ use Maarheeze\Compass\Collector\Drivers\CompassClient\ClientUnauthorised;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\ClientUnreachable;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteClient;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteQuery;
+use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
+use Maarheeze\Compass\Collector\SiteReports\CollectedSiteEndpoint;
 use Maarheeze\Compass\Models\SiteReport;
 
 test('report holds what the client reported', function (): void {
     $appDebug = fake()->boolean();
     $appEnv = fake()->word();
     $appName = fake()->company();
-    $endpoints = [sprintf('/%s', fake()->unique()->slug()), sprintf('/%s', fake()->unique()->slug())];
+    $path = sprintf('/%s', fake()->slug());
+    $frequencyMinutes = fake()->numberBetween(1, 60);
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response([
         'app_debug' => $appDebug,
         'app_env' => $appEnv,
         'app_name' => $appName,
-        'endpoints' => $endpoints,
+        'endpoints' => [
+            [
+                'path' => $path,
+                'frequency_minutes' => $frequencyMinutes,
+            ],
+        ],
     ]),
     ]);
 
@@ -37,7 +45,43 @@ test('report holds what the client reported', function (): void {
         ->appName
         ->toBe($appName)
         ->endpoints
-        ->toBe($endpoints);
+        ->toEqual([new CollectedSiteEndpoint(new EndpointPath($path), $frequencyMinutes)]);
+});
+
+test('report throws when the client reports an endpoint without a frequency', function (): void {
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response([
+        'app_debug' => fake()->boolean(),
+        'app_env' => fake()->word(),
+        'app_name' => fake()->company(),
+        'endpoints' => [
+            [
+                'path' => sprintf('/%s', fake()->slug()),
+            ],
+        ],
+    ]),
+    ]);
+
+    $this->expectException(ClientIncompatible::class);
+
+    $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
+    $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
+});
+
+test('report throws when the client reports an endpoint as a bare path', function (): void {
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response([
+        'app_debug' => fake()->boolean(),
+        'app_env' => fake()->word(),
+        'app_name' => fake()->company(),
+        'endpoints' => [sprintf('/%s', fake()->slug())],
+    ]),
+    ]);
+
+    $this->expectException(ClientIncompatible::class);
+
+    $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
+    $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
 });
 
 test('report throws when the site has no client', function (): void {

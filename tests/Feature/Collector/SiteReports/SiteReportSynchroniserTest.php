@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
+use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
+use Maarheeze\Compass\Collector\SiteReports\CollectedSiteEndpoint;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteReport;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportSynchroniser;
@@ -65,21 +67,43 @@ test('store report stores a site report not stored yet', function (CollectedSite
 
 test('store report stores the reported endpoints', function (): void {
     $siteReport = SiteReport::factory()->create();
-    $endpoint = sprintf('/%s', fake()->slug());
-    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [$endpoint]);
+    $collectedSiteEndpoint = new CollectedSiteEndpoint(
+        new EndpointPath(sprintf('/%s', fake()->slug())),
+        fake()->numberBetween(1, 60),
+    );
+    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [$collectedSiteEndpoint]);
 
     $siteReportSynchroniser = $this->app->make(SiteReportSynchroniser::class);
     $siteReportSynchroniser->storeReport($siteReport, $collectedSiteReport);
 
     $this->assertDatabaseHas(SiteEndpoint::class, [
         'site_report_id' => $siteReport->id,
-        'path' => $endpoint,
+        'path' => $collectedSiteEndpoint->path,
+        'frequency_minutes' => $collectedSiteEndpoint->frequencyMinutes,
+    ]);
+});
+
+test('store report stores the reported frequency of an endpoint that is still reported', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $frequencyMinutes = fake()->numberBetween(1, 60);
+    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [
+        new CollectedSiteEndpoint($siteEndpoint->path, $frequencyMinutes),
+    ]);
+
+    $siteReportSynchroniser = $this->app->make(SiteReportSynchroniser::class);
+    $siteReportSynchroniser->storeReport($siteEndpoint->siteReport, $collectedSiteReport);
+
+    $this->assertDatabaseHas(SiteEndpoint::class, [
+        'id' => $siteEndpoint->id,
+        'frequency_minutes' => $frequencyMinutes,
     ]);
 });
 
 test('store report keeps the endpoints that are still reported', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
-    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [$siteEndpoint->path->toString()]);
+    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [
+        new CollectedSiteEndpoint($siteEndpoint->path, fake()->numberBetween(1, 60)),
+    ]);
 
     $siteReportSynchroniser = $this->app->make(SiteReportSynchroniser::class);
     $siteReportSynchroniser->storeReport($siteEndpoint->siteReport, $collectedSiteReport);
@@ -117,7 +141,9 @@ test('store report keeps the alerts of the endpoints that are still reported', f
         ->siteEndpointDown()
         ->for($siteEndpoint, 'subject')
         ->create();
-    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [$siteEndpoint->path->toString()]);
+    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [
+        new CollectedSiteEndpoint($siteEndpoint->path, fake()->numberBetween(1, 60)),
+    ]);
 
     $siteReportSynchroniser = $this->app->make(SiteReportSynchroniser::class);
     $siteReportSynchroniser->storeReport($siteEndpoint->siteReport, $collectedSiteReport);

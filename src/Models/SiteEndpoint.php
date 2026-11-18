@@ -25,6 +25,7 @@ use Maarheeze\Uuid\Uuid;
 
 /**
  * @property CarbonImmutable $created_at
+ * @property int $frequency_minutes
  * @property Uuid $id
  * @property EndpointPath $path
  * @property Uuid $site_report_id
@@ -54,6 +55,7 @@ class SiteEndpoint extends Model implements AlertSubject
     public function getFillable(): array
     {
         return [
+            'frequency_minutes',
             'path',
             'site_report_id',
         ];
@@ -79,6 +81,7 @@ class SiteEndpoint extends Model implements AlertSubject
     {
         return [
             'created_at' => 'immutable_datetime',
+            'frequency_minutes' => 'integer',
             'path' => EndpointPathCast::class,
             'site_report_id' => UuidCast::class,
             'updated_at' => 'immutable_datetime',

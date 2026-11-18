@@ -18,6 +18,7 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             $table->string('path');
+            $table->unsignedInteger('frequency_minutes');
 
             $table->timestamps();
 

@@ -7,6 +7,8 @@ use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\CompassClientSiteReportsCollector;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteClient;
+use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
+use Maarheeze\Compass\Collector\SiteReports\CollectedSiteEndpoint;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteReport;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteReport;
@@ -16,13 +18,19 @@ test('site report holds what the client reported', function (): void {
     $appDebug = fake()->boolean();
     $appEnv = fake()->word();
     $appName = fake()->company();
-    $endpoints = [sprintf('/%s', fake()->unique()->slug()), sprintf('/%s', fake()->unique()->slug())];
+    $path = sprintf('/%s', fake()->slug());
+    $frequencyMinutes = fake()->numberBetween(1, 60);
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response([
         'app_debug' => $appDebug,
         'app_env' => $appEnv,
         'app_name' => $appName,
-        'endpoints' => $endpoints,
+        'endpoints' => [
+            [
+                'path' => $path,
+                'frequency_minutes' => $frequencyMinutes,
+            ],
+        ],
     ]),
     ]);
 
@@ -33,7 +41,9 @@ test('site report holds what the client reported', function (): void {
     $collectedSiteReport = $compassClientSiteReportsCollector->siteReport(SiteReport::factory()->create());
 
     expect($collectedSiteReport)
-        ->toEqual(CollectedSiteReport::installed($appDebug, $appEnv, $appName, $endpoints));
+        ->toEqual(CollectedSiteReport::installed($appDebug, $appEnv, $appName, [
+            new CollectedSiteEndpoint(new EndpointPath($path), $frequencyMinutes),
+        ]));
 });
 
 test('site report is incompatible when the client reports without a field', function (): void {

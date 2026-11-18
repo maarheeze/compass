@@ -28,6 +28,7 @@ class SiteEndpointFactory extends Factory
         return [
             'site_report_id' => SiteReport::factory(),
             'path' => new EndpointPath(sprintf('/%s', fake()->unique()->slug())),
+            'frequency_minutes' => fake()->numberBetween(1, 60),
         ];
     }
 }

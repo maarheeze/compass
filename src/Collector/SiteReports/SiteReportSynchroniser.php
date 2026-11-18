@@ -11,6 +11,8 @@ use Maarheeze\Compass\Models\SiteReport;
 use Psr\Clock\ClockInterface;
 use Throwable;
 
+use function array_map;
+
 readonly class SiteReportSynchroniser
 {
     public function __construct(
@@ -40,16 +42,22 @@ readonly class SiteReportSynchroniser
         $this->connection->transaction(function () use ($siteReport, $collectedSiteReport): void {
             $this->storeStatus($siteReport, $collectedSiteReport);
 
+            $reportedEndpointPaths = array_map(static function (CollectedSiteEndpoint $collectedSiteEndpoint): EndpointPath {
+                return $collectedSiteEndpoint->path;
+            }, $collectedSiteReport->endpoints);
             $droppedSiteEndpoints = $siteReport->endpoints()
-                ->whereNotIn('path', $collectedSiteReport->endpoints)
+                ->whereNotIn('path', $reportedEndpointPaths)
                 ->get();
 
             foreach ($droppedSiteEndpoints as $droppedSiteEndpoint) {
                 $droppedSiteEndpoint->delete();
             }
 
-            foreach ($collectedSiteReport->endpoints as $endpoint) {
-                $siteReport->endpoints()->firstOrCreate(['path' => new EndpointPath($endpoint)]);
+            foreach ($collectedSiteReport->endpoints as $collectedSiteEndpoint) {
+                $siteReport->endpoints()->updateOrCreate(
+                    ['path' => $collectedSiteEndpoint->path],
+                    ['frequency_minutes' => $collectedSiteEndpoint->frequencyMinutes],
+                );
             }
         });
     }
