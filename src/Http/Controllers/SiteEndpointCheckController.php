@@ -8,25 +8,28 @@ use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
+use Maarheeze\Compass\Collector\SiteEndpoint\EndpointCheckHistory;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Site;
+use Throwable;
 
 readonly class SiteEndpointCheckController
 {
     public function __construct(
+        private EndpointCheckHistory $endpointCheckHistory,
         private int $itemsPerPage,
         private Redirector $redirector,
         private ViewFactory $view,
     ) {
     }
 
+    /**
+     * @throws Throwable
+     */
     public function delete(Site $site, EndpointPath $endpointPath): RedirectResponse
     {
-        $site
-            ->endpointChecks()
-            ->ofPath($endpointPath)
-            ->delete();
+        $this->endpointCheckHistory->clear($site, $endpointPath);
 
         return $this->redirector->route(RouteName::SITE, $site);
     }

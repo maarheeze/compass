@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Collector\ScheduleFrequency;
-
 return [
 
     /*
@@ -125,21 +123,6 @@ return [
             'client_secret' => env('GITHUB_CLIENT_SECRET'),
             'organisation' => env('COMPASS_GITHUB_ORGANISATION'),
         ],
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Schedule
-    |--------------------------------------------------------------------------
-    |
-    | How often the scheduler runs the tasks of Compass's own, which collect
-    | from no source: the endpoint checks. A task left out is not scheduled,
-    | but still runs when started by hand.
-    |
-    */
-
-    'schedule' => [
-        'site_endpoints' => ScheduleFrequency::EVERY_FIFTEEN_MINUTES,
     ],
 
     /*

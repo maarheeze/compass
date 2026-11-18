@@ -54,12 +54,21 @@ readonly class SiteReportSynchroniser
             }
 
             foreach ($collectedSiteReport->endpoints as $collectedSiteEndpoint) {
-                $siteReport->endpoints()->updateOrCreate(
-                    ['path' => $collectedSiteEndpoint->path],
-                    ['frequency_minutes' => $collectedSiteEndpoint->frequencyMinutes],
-                );
+                $this->storeEndpoint($siteReport, $collectedSiteEndpoint);
             }
         });
+    }
+
+    private function storeEndpoint(SiteReport $siteReport, CollectedSiteEndpoint $collectedSiteEndpoint): void
+    {
+        $siteEndpoint = $siteReport->endpoints()->firstOrNew(['path' => $collectedSiteEndpoint->path]);
+        $siteEndpoint->frequency_minutes = $collectedSiteEndpoint->frequencyMinutes;
+
+        if ($siteEndpoint->isDirty('frequency_minutes')) {
+            $siteEndpoint->due_at = CarbonImmutable::instance($this->clock->now());
+        }
+
+        $siteEndpoint->save();
     }
 
     private function storeStatus(SiteReport $siteReport, CollectedSiteReport $collectedSiteReport): void

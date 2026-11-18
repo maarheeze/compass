@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteReport;
@@ -36,4 +37,70 @@ test('of collected sites leaves out an endpoint of a missing site', function ():
 
     expect($siteEndpointsOfCollectedSites)
         ->toBeEmpty();
+});
+
+test('due for check keeps an endpoint of a collected site whose due time has passed', function (): void {
+    $now = CarbonImmutable::parse(fake()->iso8601());
+    $siteEndpoint = SiteEndpoint::factory()
+        ->for(SiteReport::factory()->for(Site::factory()->create(['missing_at' => null])))
+        ->create(['due_at' => $now->subMinutes(fake()->numberBetween(0, 60))]);
+
+    $siteEndpointsDueForCheck = SiteEndpoint::query()
+        ->dueForCheck($now)
+        ->get();
+
+    expect($siteEndpointsDueForCheck->sole()->is($siteEndpoint))
+        ->toBeTrue();
+});
+
+test('due for check leaves out an endpoint that is not due yet', function (): void {
+    $now = CarbonImmutable::parse(fake()->iso8601());
+    SiteEndpoint::factory()
+        ->for(SiteReport::factory()->for(Site::factory()->create(['missing_at' => null])))
+        ->create(['due_at' => $now->addMinutes(fake()->numberBetween(1, 60))]);
+
+    $siteEndpointsDueForCheck = SiteEndpoint::query()
+        ->dueForCheck($now)
+        ->get();
+
+    expect($siteEndpointsDueForCheck)
+        ->toBeEmpty();
+});
+
+test('due for check leaves out an endpoint of a missing site', function (): void {
+    $now = CarbonImmutable::parse(fake()->iso8601());
+    SiteEndpoint::factory()
+        ->for(SiteReport::factory()->for(Site::factory()->create(['missing_at' => fake()->dateTime()])))
+        ->create(['due_at' => $now->subMinutes(fake()->numberBetween(0, 60))]);
+
+    $siteEndpointsDueForCheck = SiteEndpoint::query()
+        ->dueForCheck($now)
+        ->get();
+
+    expect($siteEndpointsDueForCheck)
+        ->toBeEmpty();
+});
+
+test('of path keeps only the endpoint of the path', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    SiteEndpoint::factory()->create();
+
+    $siteEndpointsOfPath = SiteEndpoint::query()
+        ->ofPath($siteEndpoint->path)
+        ->get();
+
+    expect($siteEndpointsOfPath->sole()->is($siteEndpoint))
+        ->toBeTrue();
+});
+
+test('of site keeps only the endpoints of the site', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    SiteEndpoint::factory()->create();
+
+    $siteEndpointsOfSite = SiteEndpoint::query()
+        ->ofSite($siteEndpoint->siteReport->site)
+        ->get();
+
+    expect($siteEndpointsOfSite->sole()->is($siteEndpoint))
+        ->toBeTrue();
 });

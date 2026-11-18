@@ -29,6 +29,20 @@ test('handle stores the status code of the endpoint', function (): void {
     ]);
 });
 
+test('handle makes the endpoint due its frequency after the check', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $this->app->make(HttpFactory::class)->fake();
+
+    $checkSiteEndpoint = new CheckSiteEndpoint($siteEndpoint);
+    $this->app->call([$checkSiteEndpoint, 'handle']);
+
+    $siteEndpointCheck = SiteEndpointCheck::query()->sole();
+    $this->assertDatabaseHas(SiteEndpoint::class, [
+        'id' => $siteEndpoint->id,
+        'due_at' => $siteEndpointCheck->created_at->addMinutes($siteEndpoint->frequency_minutes),
+    ]);
+});
+
 test('handle stores the checked url', function (): void {
     $siteEndpoint = SiteEndpoint::factory()
         ->for(SiteReport::factory()->for(Site::factory()->state(['url' => 'https://example.com/'])))

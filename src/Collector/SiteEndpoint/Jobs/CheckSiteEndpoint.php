@@ -61,6 +61,10 @@ class CheckSiteEndpoint implements LockedJob
             'is_successful' => $this->isSuccesful($response),
         ]);
 
+        $this->siteEndpoint->update([
+            'due_at' => $siteEndpointCheck->created_at->addMinutes($this->siteEndpoint->frequency_minutes),
+        ]);
+
         $collectorLogger->debug('Endpoint checked', [
             'status_code' => $siteEndpointCheck->status_code,
             'is_successful' => $siteEndpointCheck->is_successful,

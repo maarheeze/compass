@@ -19,6 +19,7 @@ return new class extends Migration
 
             $table->string('path');
             $table->unsignedInteger('frequency_minutes');
+            $table->timestamp('due_at')->index();
 
             $table->timestamps();
 
