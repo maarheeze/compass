@@ -8,7 +8,6 @@ use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Maarheeze\Compass\Analyser\Composer\RepositoryKindClassifier;
@@ -65,33 +64,19 @@ readonly class RepositoryController
             $packageQuery->orderBy('name');
         };
         $repository->load([
-            'alerts' => static function (Builder $alertQuery): void {
-                $alertQuery->latest();
-            },
-            'alerts.assignee',
-            'alerts.subject',
             'composerJson.developmentPackages' => $orderPackagesByName,
             'composerJson.productionPackages' => $orderPackagesByName,
             'composerLock.packages' => $orderPackagesByName,
-            'issues' => static function (HasMany $issueQuery): void {
-                $issueQuery->latestOpened();
-            },
-            'issues.assignees',
-            'pullRequests' => static function (HasMany $pullRequestQuery): void {
-                $pullRequestQuery->latestOpened();
-            },
-            'pullRequests.assignees',
-            'sites' => static function (Builder $siteQuery): void {
-                $siteQuery->orderBy('name');
-            },
-            'sites.reports',
-            'sites.repository',
         ]);
 
         return $this->view->make('compass::repositories.show', [
             'alertChecks' => AlertCheck::query()->ofSubject($repository)->listed(),
+            'alerts' => $repository->alerts()->listed(),
+            'issues' => $repository->issues()->listed(),
             'kind' => $this->repositoryKindClassifier->classify($repository),
+            'pullRequests' => $repository->pullRequests()->listed(),
             'repository' => $repository,
+            'sites' => $repository->sites()->listed(),
         ]);
     }
 }

@@ -8,7 +8,11 @@ use Maarheeze\Compass\Alerts\Types\ComposerLibraryWithLock;
 use Maarheeze\Compass\Alerts\Types\ComposerProjectWithoutLock;
 use Maarheeze\Compass\Analyser\Composer\RepositoryKind;
 use Maarheeze\Compass\Collections\AlertCheckCollection;
+use Maarheeze\Compass\Collections\AlertCollection;
+use Maarheeze\Compass\Collections\IssueCollection;
+use Maarheeze\Compass\Collections\PullRequestCollection;
 use Maarheeze\Compass\Collections\RepositoryGroupCollection;
+use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
 use Maarheeze\Compass\Http\RepositoryFilter;
 use Maarheeze\Compass\Http\RouteName;
@@ -18,6 +22,7 @@ use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\PullRequest;
 use Maarheeze\Compass\Models\Repository;
+use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 use Maarheeze\Compass\View\Filter;
@@ -252,14 +257,11 @@ test('show contains the alerts of the repository newest first', function (): voi
 
     $response = $this->get(route(RouteName::REPOSITORY, $repository));
 
-    $response->assertViewHas(
-        'repository',
-        static function (Repository $viewRepository) use ($earlierAlert, $laterAlert): bool {
-            return $viewRepository->alerts->count() === 2
-                && $viewRepository->alerts->first()->id->equals($laterAlert->id)
-                && $viewRepository->alerts->last()->id->equals($earlierAlert->id);
-        },
-    );
+    $response->assertViewHas('alerts', static function (AlertCollection $viewAlerts) use ($earlierAlert, $laterAlert): bool {
+        return $viewAlerts->count() === 2
+            && $viewAlerts->first()->id->equals($laterAlert->id)
+            && $viewAlerts->last()->id->equals($earlierAlert->id);
+    });
 });
 
 test('show loads the assignee of the alerts of the repository', function (): void {
@@ -270,8 +272,8 @@ test('show loads the assignee of the alerts of the repository', function (): voi
 
     $response = $this->get(route(RouteName::REPOSITORY, $alert->subject_id));
 
-    $response->assertViewHas('repository', static function (Repository $viewRepository): bool {
-        return $viewRepository->alerts->sole()->relationLoaded('assignee');
+    $response->assertViewHas('alerts', static function (AlertCollection $viewAlerts): bool {
+        return $viewAlerts->sole()->relationLoaded('assignee');
     });
 });
 
@@ -339,13 +341,10 @@ test('show contains the issues of the repository newest first', function (): voi
 
     $response = $this->get(route(RouteName::REPOSITORY, $repository));
 
-    $response->assertViewHas(
-        'repository',
-        static function (Repository $viewRepository) use ($newerIssue, $olderIssue): bool {
-            return $viewRepository->issues->first()->id->equals($newerIssue->id)
-                && $viewRepository->issues->last()->id->equals($olderIssue->id);
-        },
-    );
+    $response->assertViewHas('issues', static function (IssueCollection $viewIssues) use ($newerIssue, $olderIssue): bool {
+        return $viewIssues->first()->id->equals($newerIssue->id)
+            && $viewIssues->last()->id->equals($olderIssue->id);
+    });
 });
 
 test('show contains the pull requests of the repository newest first', function (): void {
@@ -363,12 +362,25 @@ test('show contains the pull requests of the repository newest first', function 
     $response = $this->get(route(RouteName::REPOSITORY, $repository));
 
     $response->assertViewHas(
-        'repository',
-        static function (Repository $viewRepository) use ($newerPullRequest, $olderPullRequest): bool {
-            return $viewRepository->pullRequests->first()->id->equals($newerPullRequest->id)
-                && $viewRepository->pullRequests->last()->id->equals($olderPullRequest->id);
+        'pullRequests',
+        static function (PullRequestCollection $viewPullRequests) use ($newerPullRequest, $olderPullRequest): bool {
+            return $viewPullRequests->first()->id->equals($newerPullRequest->id)
+                && $viewPullRequests->last()->id->equals($olderPullRequest->id);
         },
     );
+});
+
+test('show contains the sites of the repository', function (): void {
+    $repository = Repository::factory()->create();
+    $site = Site::factory()->create(['repository_url' => $repository->url]);
+    Site::factory()->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::REPOSITORY, $repository));
+
+    $response->assertViewHas('sites', static function (SiteCollection $viewSites) use ($site): bool {
+        return $viewSites->sole()->is($site);
+    });
 });
 
 test('delete deletes a missing repository', function (): void {

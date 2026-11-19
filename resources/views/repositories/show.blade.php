@@ -12,15 +12,15 @@
         </div>
 
         <x-compass::page-columns>
-            <x-compass::alert-table :alerts="$repository->alerts" data-compass-live-region="alerts" />
+            <x-compass::alert-table :alerts="$alerts" data-compass-live-region="alerts" />
 
             <x-compass::alert-check-table :alert-checks="$alertChecks" />
 
-            <x-compass::issue-list :issues="$repository->issues" />
+            <x-compass::issue-list :issues="$issues" />
 
-            <x-compass::pull-request-list :pull-requests="$repository->pullRequests" />
+            <x-compass::pull-request-list :pull-requests="$pullRequests" />
 
-            <x-compass::site-list :sites="$repository->sites" />
+            <x-compass::site-list :sites="$sites" />
 
             @if ($repository->composerJson)
                 <x-compass::list>
