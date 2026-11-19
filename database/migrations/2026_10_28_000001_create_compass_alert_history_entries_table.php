@@ -14,10 +14,12 @@ return new class extends Migration
             $table->uuid('id')->primary();
 
             $table->foreignUuid('alert_id')
+                ->index()
                 ->constrained('compass_alerts')
                 ->cascadeOnDelete();
             $table->foreignUuid('user_id')
                 ->nullable()
+                ->index()
                 ->constrained('compass_users')
                 ->nullOnDelete();
 

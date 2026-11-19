@@ -14,6 +14,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
 
             $table->foreignUuid('composer_lock_id')
+                ->index()
                 ->constrained('compass_composer_locks')
                 ->cascadeOnDelete();
 
@@ -22,6 +23,8 @@ return new class extends Migration
             $table->string('section');
 
             $table->timestamps();
+
+            $table->index(['name', 'version']);
         });
     }
 };

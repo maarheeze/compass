@@ -14,10 +14,11 @@ return new class extends Migration
             $table->uuid('id')->primary();
 
             $table->foreignUuid('issue_id')
+                ->index()
                 ->constrained('compass_issues')
                 ->cascadeOnDelete();
 
-            $table->string('login')->index();
+            $table->string('login');
             $table->string('avatar_url');
 
             $table->timestamps();

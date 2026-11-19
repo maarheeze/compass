@@ -14,10 +14,11 @@ return new class extends Migration
             $table->uuid('id')->primary();
 
             $table->foreignUuid('pull_request_id')
+                ->index()
                 ->constrained('compass_pull_requests')
                 ->cascadeOnDelete();
 
-            $table->string('login')->index();
+            $table->string('login');
             $table->string('avatar_url');
 
             $table->timestamps();

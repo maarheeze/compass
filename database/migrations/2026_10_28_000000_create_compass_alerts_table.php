@@ -15,6 +15,7 @@ return new class extends Migration
 
             $table->foreignUuid('assignee_id')
                 ->nullable()
+                ->index()
                 ->constrained('compass_users')
                 ->nullOnDelete();
             $table->uuidMorphs('subject');

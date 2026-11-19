@@ -14,10 +14,11 @@ return new class extends Migration
             $table->uuid('id')->primary();
 
             $table->foreignUuid('composer_json_id')
+                ->index()
                 ->constrained('compass_composer_jsons')
                 ->cascadeOnDelete();
 
-            $table->string('name');
+            $table->string('name')->index();
             $table->string('constraint');
             $table->string('section');
 

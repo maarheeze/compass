@@ -15,6 +15,7 @@ return new class extends Migration
 
             $table->foreignUuid('repository_id')
                 ->nullable()
+                ->index()
                 ->constrained('compass_repositories')
                 ->nullOnDelete();
 

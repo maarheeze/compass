@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('external_id');
             $table->string('name');
             $table->string('full_name');
-            $table->string('url');
+            $table->string('url')->index();
             $table->string('default_branch');
             $table->string('last_commit_sha');
             $table->timestamp('last_commit_committed_at');
@@ -34,6 +34,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->unique(['source', 'external_id']);
+            $table->index(['source', 'full_name']);
         });
     }
 };

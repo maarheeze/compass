@@ -17,11 +17,14 @@ return new class extends Migration
             $table->string('collector')->nullable();
             $table->string('task')->nullable();
             $table->string('status');
-            $table->string('batch_id')->nullable();
+            $table->string('batch_id')->nullable()->index();
             $table->timestamp('finished_at')->nullable();
             $table->unsignedInteger('failed_job_count')->nullable();
 
             $table->timestamps();
+
+            $table->index('created_at');
+            $table->index(['status', 'created_at']);
         });
     }
 };
