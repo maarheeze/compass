@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Collections\RequiredPackageCollection;
+use Maarheeze\Compass\Collections\ComposerJsonPackageCollection;
 use Maarheeze\Compass\Collector\Composer\Json\ComposerJsonReader;
-use Maarheeze\Compass\Collector\Composer\Json\RequiredPackage;
 use Maarheeze\Compass\Collector\Composer\PackageSection;
+use Maarheeze\Compass\Models\ComposerJsonPackage;
 
 test('type is the type in the composer json', function (): void {
     $type = fake()->word();
@@ -96,16 +96,16 @@ test('prefer stable is false when the composer json has none', function (): void
 });
 
 test('required packages are the packages of require and require dev with their section', function (): void {
-    $productionPackage = new RequiredPackage(
-        sprintf('%s/%s', fake()->slug(), fake()->slug()),
-        fake()->numerify('^#.#'),
-        PackageSection::PRODUCTION,
-    );
-    $developmentPackage = new RequiredPackage(
-        sprintf('%s/%s', fake()->slug(), fake()->slug()),
-        fake()->numerify('^#.#'),
-        PackageSection::DEVELOPMENT,
-    );
+    $productionPackage = new ComposerJsonPackage([
+        'name' => sprintf('%s/%s', fake()->slug(), fake()->slug()),
+        'constraint' => fake()->numerify('^#.#'),
+        'section' => PackageSection::PRODUCTION,
+    ]);
+    $developmentPackage = new ComposerJsonPackage([
+        'name' => sprintf('%s/%s', fake()->slug(), fake()->slug()),
+        'constraint' => fake()->numerify('^#.#'),
+        'section' => PackageSection::DEVELOPMENT,
+    ]);
 
     $composerJsonReader = $this->app->make(ComposerJsonReader::class);
     $composerJsonSummary = $composerJsonReader->read(json_encode([
@@ -118,7 +118,7 @@ test('required packages are the packages of require and require dev with their s
     ], JSON_THROW_ON_ERROR));
 
     expect($composerJsonSummary->requiredPackages)
-        ->toEqual(new RequiredPackageCollection([$productionPackage, $developmentPackage]));
+        ->toEqual(new ComposerJsonPackageCollection([$productionPackage, $developmentPackage]));
 });
 
 test('required packages leave out platform requirements', function (): void {

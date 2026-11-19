@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Collections\RequiredPackageCollection;
+use Maarheeze\Compass\Collections\ComposerJsonPackageCollection;
 use Maarheeze\Compass\Collector\Composer\Json\ComposerJsonSummary;
 
 test('composer json summary holds the type it is given', function (): void {
@@ -13,7 +13,7 @@ test('composer json summary holds the type it is given', function (): void {
         fake()->numerify('^#.#'),
         fake()->optional()->word(),
         fake()->boolean(),
-        new RequiredPackageCollection(),
+        new ComposerJsonPackageCollection(),
     );
 
     expect($composerJsonSummary->type)
@@ -28,7 +28,7 @@ test('composer json summary holds the php constraint it is given', function (): 
         $phpConstraint,
         fake()->optional()->word(),
         fake()->boolean(),
-        new RequiredPackageCollection(),
+        new ComposerJsonPackageCollection(),
     );
 
     expect($composerJsonSummary->phpConstraint)
@@ -43,7 +43,7 @@ test('composer json summary holds the minimum stability it is given', function (
         fake()->numerify('^#.#'),
         $minimumStability,
         fake()->boolean(),
-        new RequiredPackageCollection(),
+        new ComposerJsonPackageCollection(),
     );
 
     expect($composerJsonSummary->minimumStability)
@@ -58,7 +58,7 @@ test('composer json summary holds the prefer stable it is given', function (): v
         fake()->numerify('^#.#'),
         fake()->optional()->word(),
         $preferStable,
-        new RequiredPackageCollection(),
+        new ComposerJsonPackageCollection(),
     );
 
     expect($composerJsonSummary->preferStable)
@@ -66,7 +66,7 @@ test('composer json summary holds the prefer stable it is given', function (): v
 });
 
 test('composer json summary holds the required packages it is given', function (): void {
-    $requiredPackages = new RequiredPackageCollection();
+    $requiredPackages = new ComposerJsonPackageCollection();
 
     $composerJsonSummary = new ComposerJsonSummary(
         fake()->word(),

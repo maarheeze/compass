@@ -36,14 +36,7 @@ readonly class ComposerJsonSynchroniser
             ]);
 
             $composerJson->packages()->delete();
-
-            foreach ($composerJsonSummary->requiredPackages as $requiredPackage) {
-                $composerJson->packages()->create([
-                    'name' => $requiredPackage->name,
-                    'constraint' => $requiredPackage->constraint,
-                    'section' => $requiredPackage->section,
-                ]);
-            }
+            $composerJson->packages()->saveMany($composerJsonSummary->requiredPackages);
         });
     }
 }

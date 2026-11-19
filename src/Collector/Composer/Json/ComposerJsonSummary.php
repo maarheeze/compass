@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Collector\Composer\Json;
 
-use Maarheeze\Compass\Collections\RequiredPackageCollection;
+use Maarheeze\Compass\Collections\ComposerJsonPackageCollection;
 
 readonly class ComposerJsonSummary
 {
@@ -13,7 +13,7 @@ readonly class ComposerJsonSummary
         public ?string $phpConstraint,
         public ?string $minimumStability,
         public bool $preferStable,
-        public RequiredPackageCollection $requiredPackages,
+        public ComposerJsonPackageCollection $requiredPackages,
     ) {
     }
 }

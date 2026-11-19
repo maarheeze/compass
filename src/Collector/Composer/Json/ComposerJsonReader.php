@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Collector\Composer\Json;
 
 use JsonException;
-use Maarheeze\Compass\Collections\RequiredPackageCollection;
+use Maarheeze\Compass\Collections\ComposerJsonPackageCollection;
 use Maarheeze\Compass\Collector\Composer\PackageSection;
+use Maarheeze\Compass\Models\ComposerJsonPackage;
 use Webmozart\Assert\Assert;
 
 use function array_key_exists;
@@ -36,7 +37,7 @@ readonly class ComposerJsonReader
             $this->getPhpConstraint($requirements),
             $this->getMinimumStability($composerJson),
             $this->isPreferStable($composerJson),
-            $productionPackages->merge($developmentPackages),
+            $productionPackages->concat($developmentPackages),
         );
     }
 
@@ -67,16 +68,20 @@ readonly class ComposerJsonReader
     /**
      * @param array<string, mixed> $requirements
      */
-    private function getRequiredPackages(array $requirements, PackageSection $section): RequiredPackageCollection
+    private function getRequiredPackages(array $requirements, PackageSection $section): ComposerJsonPackageCollection
     {
-        $requiredPackages = new RequiredPackageCollection();
+        $requiredPackages = new ComposerJsonPackageCollection();
 
         foreach ($requirements as $name => $constraint) {
             if (!str_contains($name, '/')) {
                 continue;
             }
 
-            $requiredPackages->push(new RequiredPackage($name, Assert::string($constraint), $section));
+            $requiredPackages->push(new ComposerJsonPackage([
+                'name' => $name,
+                'constraint' => Assert::string($constraint),
+                'section' => $section,
+            ]));
         }
 
         return $requiredPackages;

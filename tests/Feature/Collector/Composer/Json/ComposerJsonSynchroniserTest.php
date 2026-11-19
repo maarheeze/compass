@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Collections\RequiredPackageCollection;
+use Maarheeze\Compass\Collections\ComposerJsonPackageCollection;
 use Maarheeze\Compass\Collector\Composer\Json\ComposerJsonSummary;
 use Maarheeze\Compass\Collector\Composer\Json\ComposerJsonSynchroniser;
-use Maarheeze\Compass\Collector\Composer\Json\RequiredPackage;
 use Maarheeze\Compass\Collector\Composer\PackageSection;
 use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\ComposerJsonPackage;
@@ -19,7 +18,7 @@ test('store stores the composer json of the repository', function (): void {
         fake()->numerify('^#.#'),
         fake()->optional()->word(),
         fake()->boolean(),
-        new RequiredPackageCollection(),
+        new ComposerJsonPackageCollection(),
     );
 
     $composerJsonSynchroniser = $this->app->make(ComposerJsonSynchroniser::class);
@@ -37,11 +36,11 @@ test('store stores the composer json of the repository', function (): void {
 
 test('store stores the required packages', function (): void {
     $repository = Repository::factory()->create();
-    $requiredPackage = new RequiredPackage(
-        sprintf('%s/%s', fake()->slug(), fake()->slug()),
-        fake()->numerify('^#.#'),
-        fake()->randomElement(PackageSection::cases()),
-    );
+    $requiredPackage = new ComposerJsonPackage([
+        'name' => sprintf('%s/%s', fake()->slug(), fake()->slug()),
+        'constraint' => fake()->numerify('^#.#'),
+        'section' => fake()->randomElement(PackageSection::cases()),
+    ]);
 
     $composerJsonSynchroniser = $this->app->make(ComposerJsonSynchroniser::class);
     $composerJsonSynchroniser->store($repository, fake()->sha1(), new ComposerJsonSummary(
@@ -49,7 +48,7 @@ test('store stores the required packages', function (): void {
         fake()->numerify('^#.#'),
         fake()->optional()->word(),
         fake()->boolean(),
-        new RequiredPackageCollection([$requiredPackage]),
+        new ComposerJsonPackageCollection([$requiredPackage]),
     ));
 
     $this->assertDatabaseHas(ComposerJsonPackage::class, [
@@ -70,7 +69,7 @@ test('store replaces the composer json collected before', function (): void {
         fake()->numerify('^#.#'),
         fake()->optional()->word(),
         fake()->boolean(),
-        new RequiredPackageCollection(),
+        new ComposerJsonPackageCollection(),
     ));
 
     $this->assertDatabaseHas(ComposerJson::class, [
@@ -89,7 +88,7 @@ test('store removes the packages collected before', function (): void {
         fake()->numerify('^#.#'),
         fake()->optional()->word(),
         fake()->boolean(),
-        new RequiredPackageCollection(),
+        new ComposerJsonPackageCollection(),
     ));
 
     $this->assertDatabaseMissing(ComposerJsonPackage::class, ['id' => $composerJsonPackage->id]);
