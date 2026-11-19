@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Http\Controllers;
 
-use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
@@ -15,6 +14,8 @@ use Maarheeze\Compass\Collector\Repositories\MissingRepositoryResolver;
 use Maarheeze\Compass\Http\Requests\RepositoryFilterRequest;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\AlertCheck;
+use Maarheeze\Compass\Models\ComposerJsonPackage;
+use Maarheeze\Compass\Models\ComposerLockPackage;
 use Maarheeze\Compass\Models\Repository;
 use Throwable;
 
@@ -60,20 +61,20 @@ readonly class RepositoryController
 
     public function show(Repository $repository): View
     {
-        $orderPackagesByName = static function (Builder $packageQuery): void {
-            $packageQuery->orderBy('name');
-        };
-        $repository->load([
-            'composerJson.developmentPackages' => $orderPackagesByName,
-            'composerJson.productionPackages' => $orderPackagesByName,
-            'composerLock.packages' => $orderPackagesByName,
-        ]);
-
         return $this->view->make('compass::repositories.show', [
             'alertChecks' => AlertCheck::query()->ofSubject($repository)->listed(),
             'alerts' => $repository->alerts()->listed(),
+            'developmentPackages' => ComposerJsonPackage::query()
+                ->ofRepository($repository)
+                ->development()
+                ->listed(),
             'issues' => $repository->issues()->listed(),
             'kind' => $this->repositoryKindClassifier->classify($repository),
+            'lockedPackages' => ComposerLockPackage::query()->ofRepository($repository)->listed(),
+            'productionPackages' => ComposerJsonPackage::query()
+                ->ofRepository($repository)
+                ->production()
+                ->listed(),
             'pullRequests' => $repository->pullRequests()->listed(),
             'repository' => $repository,
             'sites' => $repository->sites()->listed(),

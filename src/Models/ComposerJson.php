@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Maarheeze\Compass\Collections\ComposerJsonCollection;
 use Maarheeze\Compass\Collections\ComposerJsonPackageCollection;
-use Maarheeze\Compass\Collector\Composer\PackageSection;
 use Maarheeze\Compass\Database\Factories\ComposerJsonFactory;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
@@ -29,9 +28,7 @@ use Maarheeze\Uuid\Uuid;
  * @property CarbonImmutable $updated_at
  * @property string $version
  *
- * @property-read ComposerJsonPackageCollection $developmentPackages
  * @property-read ComposerJsonPackageCollection $packages
- * @property-read ComposerJsonPackageCollection $productionPackages
  * @property-read Repository $repository
  */
 class ComposerJson extends Model
@@ -67,25 +64,9 @@ class ComposerJson extends Model
     /**
      * @return HasMany<ComposerJsonPackage, $this>
      */
-    public function developmentPackages(): HasMany
-    {
-        return $this->hasMany(ComposerJsonPackage::class)->where('section', PackageSection::DEVELOPMENT);
-    }
-
-    /**
-     * @return HasMany<ComposerJsonPackage, $this>
-     */
     public function packages(): HasMany
     {
         return $this->hasMany(ComposerJsonPackage::class);
-    }
-
-    /**
-     * @return HasMany<ComposerJsonPackage, $this>
-     */
-    public function productionPackages(): HasMany
-    {
-        return $this->hasMany(ComposerJsonPackage::class)->where('section', PackageSection::PRODUCTION);
     }
 
     /**

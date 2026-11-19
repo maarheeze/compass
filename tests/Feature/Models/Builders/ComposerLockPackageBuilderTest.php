@@ -47,3 +47,25 @@ test('versioned leaves out a package with another version', function (): void {
     expect($lockedPackagesVersioned)
         ->toBeEmpty();
 });
+
+test('listed is the packages ordered by name', function (): void {
+    $laterLockedPackage = ComposerLockPackage::factory()->create(['name' => sprintf('b%s', fake()->slug())]);
+    $earlierLockedPackage = ComposerLockPackage::factory()->create(['name' => sprintf('a%s', fake()->slug())]);
+
+    $listedLockedPackages = ComposerLockPackage::query()->listed();
+
+    expect($listedLockedPackages->modelKeys())
+        ->toEqual([$earlierLockedPackage->getKey(), $laterLockedPackage->getKey()]);
+});
+
+test('of repository keeps only the packages of the repository', function (): void {
+    $lockedPackage = ComposerLockPackage::factory()->create();
+    ComposerLockPackage::factory()->create();
+
+    $lockedPackagesOfRepository = ComposerLockPackage::query()
+        ->ofRepository($lockedPackage->composerLock->repository)
+        ->get();
+
+    expect($lockedPackagesOfRepository->sole()->is($lockedPackage))
+        ->toBeTrue();
+});

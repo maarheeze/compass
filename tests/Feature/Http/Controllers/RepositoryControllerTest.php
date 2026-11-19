@@ -9,16 +9,21 @@ use Maarheeze\Compass\Alerts\Types\ComposerProjectWithoutLock;
 use Maarheeze\Compass\Analyser\Composer\RepositoryKind;
 use Maarheeze\Compass\Collections\AlertCheckCollection;
 use Maarheeze\Compass\Collections\AlertCollection;
+use Maarheeze\Compass\Collections\ComposerJsonPackageCollection;
+use Maarheeze\Compass\Collections\ComposerLockPackageCollection;
 use Maarheeze\Compass\Collections\IssueCollection;
 use Maarheeze\Compass\Collections\PullRequestCollection;
 use Maarheeze\Compass\Collections\RepositoryGroupCollection;
 use Maarheeze\Compass\Collections\SiteCollection;
+use Maarheeze\Compass\Collector\Composer\PackageSection;
 use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
 use Maarheeze\Compass\Http\RepositoryFilter;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\AlertCheck;
 use Maarheeze\Compass\Models\ComposerJson;
+use Maarheeze\Compass\Models\ComposerJsonPackage;
+use Maarheeze\Compass\Models\ComposerLockPackage;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\PullRequest;
 use Maarheeze\Compass\Models\Repository;
@@ -366,6 +371,59 @@ test('show contains the pull requests of the repository newest first', function 
         static function (PullRequestCollection $viewPullRequests) use ($newerPullRequest, $olderPullRequest): bool {
             return $viewPullRequests->first()->id->equals($newerPullRequest->id)
                 && $viewPullRequests->last()->id->equals($olderPullRequest->id);
+        },
+    );
+});
+
+test('show contains the production packages of the repository', function (): void {
+    $productionPackage = ComposerJsonPackage::factory()->create(['section' => PackageSection::PRODUCTION]);
+    ComposerJsonPackage::factory()->create([
+        'composer_json_id' => $productionPackage->composer_json_id,
+        'section' => PackageSection::DEVELOPMENT,
+    ]);
+    ComposerJsonPackage::factory()->create(['section' => PackageSection::PRODUCTION]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::REPOSITORY, $productionPackage->composerJson->repository_id));
+
+    $response->assertViewHas(
+        'productionPackages',
+        static function (ComposerJsonPackageCollection $viewProductionPackages) use ($productionPackage): bool {
+            return $viewProductionPackages->sole()->is($productionPackage);
+        },
+    );
+});
+
+test('show contains the development packages of the repository', function (): void {
+    $developmentPackage = ComposerJsonPackage::factory()->create(['section' => PackageSection::DEVELOPMENT]);
+    ComposerJsonPackage::factory()->create([
+        'composer_json_id' => $developmentPackage->composer_json_id,
+        'section' => PackageSection::PRODUCTION,
+    ]);
+    ComposerJsonPackage::factory()->create(['section' => PackageSection::DEVELOPMENT]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::REPOSITORY, $developmentPackage->composerJson->repository_id));
+
+    $response->assertViewHas(
+        'developmentPackages',
+        static function (ComposerJsonPackageCollection $viewDevelopmentPackages) use ($developmentPackage): bool {
+            return $viewDevelopmentPackages->sole()->is($developmentPackage);
+        },
+    );
+});
+
+test('show contains the locked packages of the repository', function (): void {
+    $lockedPackage = ComposerLockPackage::factory()->create();
+    ComposerLockPackage::factory()->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::REPOSITORY, $lockedPackage->composerLock->repository_id));
+
+    $response->assertViewHas(
+        'lockedPackages',
+        static function (ComposerLockPackageCollection $viewLockedPackages) use ($lockedPackage): bool {
+            return $viewLockedPackages->sole()->is($lockedPackage);
         },
     );
 });

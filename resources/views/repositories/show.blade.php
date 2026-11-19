@@ -32,29 +32,29 @@
                         @if ($repository->composerJson->type)
                             <span class="text-foreground-muted">{{ $repository->composerJson->type }}</span>
                         @endif
-                        @if ($repository->composerJson->productionPackages->isNotEmpty())
-                            <x-compass::badge type="neutral">{{ __('compass::composer.production_count', ['count' => $repository->composerJson->productionPackages->count()]) }}</x-compass::badge>
+                        @if ($productionPackages->isNotEmpty())
+                            <x-compass::badge type="neutral">{{ __('compass::composer.production_count', ['count' => $productionPackages->count()]) }}</x-compass::badge>
                         @endif
-                        @if ($repository->composerJson->developmentPackages->isNotEmpty())
-                            <x-compass::badge type="neutral">{{ __('compass::composer.development_count', ['count' => $repository->composerJson->developmentPackages->count()]) }}</x-compass::badge>
+                        @if ($developmentPackages->isNotEmpty())
+                            <x-compass::badge type="neutral">{{ __('compass::composer.development_count', ['count' => $developmentPackages->count()]) }}</x-compass::badge>
                         @endif
                     </x-slot:counts>
                     <x-slot:more-rows>
-                        @if ($repository->composerJson->productionPackages->isNotEmpty())
+                        @if ($productionPackages->isNotEmpty())
                             <tr>
                                 <th class="bg-canvas-subtle px-4 py-2 text-xs font-medium text-foreground-muted">{{ __('compass::composer.production') }}</th>
                             </tr>
-                            @foreach ($repository->composerJson->productionPackages as $package)
+                            @foreach ($productionPackages as $package)
                                 <x-compass::composer.package-row :package-name="$package->name">
                                     <span class="font-mono">{{ $package->constraint }}</span>
                                 </x-compass::composer.package-row>
                             @endforeach
                         @endif
-                        @if ($repository->composerJson->developmentPackages->isNotEmpty())
+                        @if ($developmentPackages->isNotEmpty())
                             <tr>
                                 <th class="bg-canvas-subtle px-4 py-2 text-xs font-medium text-foreground-muted">{{ __('compass::composer.development') }}</th>
                             </tr>
-                            @foreach ($repository->composerJson->developmentPackages as $package)
+                            @foreach ($developmentPackages as $package)
                                 <x-compass::composer.package-row :package-name="$package->name">
                                     <span class="font-mono">{{ $package->constraint }}</span>
                                 </x-compass::composer.package-row>
@@ -82,10 +82,10 @@
                         @if ($repository->composerLock->php_constraint)
                             <span class="text-foreground-muted">PHP {{ $repository->composerLock->php_constraint }}</span>
                         @endif
-                        <x-compass::badge type="neutral">{{ __('compass::composer.package_count', ['count' => $repository->composerLock->packages->count()]) }}</x-compass::badge>
+                        <x-compass::badge type="neutral">{{ __('compass::composer.package_count', ['count' => $lockedPackages->count()]) }}</x-compass::badge>
                     </x-slot:counts>
                     <x-slot:more-rows>
-                        @foreach ($repository->composerLock->packages as $package)
+                        @foreach ($lockedPackages as $package)
                             <x-compass::composer.package-row :package-name="$package->name">
                                 <span class="font-mono">{{ $package->version }}</span>
                                 <span>&middot;</span>
