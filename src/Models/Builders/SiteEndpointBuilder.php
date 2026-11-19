@@ -8,10 +8,12 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Maarheeze\Compass\Collections\SiteEndpointCollection;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
+use Webmozart\Assert\Assert;
 
 /**
  * @extends Builder<SiteEndpoint>
@@ -23,6 +25,17 @@ class SiteEndpointBuilder extends Builder
         return $this
             ->ofCollectedSites()
             ->where('due_at', '<=', $now);
+    }
+
+    public function listed(): SiteEndpointCollection
+    {
+        return Assert::isInstanceOf(
+            $this
+                ->withLatestCheck()
+                ->orderBy('path')
+                ->get(),
+            SiteEndpointCollection::class,
+        );
     }
 
     public function ofCollectedSites(): self

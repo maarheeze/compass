@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
+use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Collector\SiteEndpoint\SiteEndpointState;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
@@ -152,4 +153,18 @@ test('with latest check loads when the check has been online since', function ()
 
     expect($siteEndpointWithLatestCheck->latestCheck?->online_since)
         ->toBeInstanceOf(CarbonImmutable::class);
+});
+
+test('listed is the endpoints ordered by path', function (): void {
+    $laterSiteEndpoint = SiteEndpoint::factory()->create([
+        'path' => new EndpointPath(sprintf('/b%s', fake()->slug())),
+    ]);
+    $earlierSiteEndpoint = SiteEndpoint::factory()->create([
+        'path' => new EndpointPath(sprintf('/a%s', fake()->slug())),
+    ]);
+
+    $listedSiteEndpoints = SiteEndpoint::query()->listed();
+
+    expect($listedSiteEndpoints->modelKeys())
+        ->toEqual([$earlierSiteEndpoint->getKey(), $laterSiteEndpoint->getKey()]);
 });

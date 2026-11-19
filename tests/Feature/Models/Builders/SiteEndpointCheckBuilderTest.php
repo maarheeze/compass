@@ -204,3 +204,17 @@ test('with online since is empty while the path is down', function (): void {
     expect($siteEndpointCheckWithOnlineSince->online_since)
         ->toBeNull();
 });
+
+test('listed is the checks ordered by path', function (): void {
+    $laterSiteEndpointCheck = SiteEndpointCheck::factory()->create([
+        'path' => new EndpointPath(sprintf('/b%s', fake()->slug())),
+    ]);
+    $earlierSiteEndpointCheck = SiteEndpointCheck::factory()->create([
+        'path' => new EndpointPath(sprintf('/a%s', fake()->slug())),
+    ]);
+
+    $listedSiteEndpointChecks = SiteEndpointCheck::query()->listed();
+
+    expect($listedSiteEndpointChecks->modelKeys())
+        ->toEqual([$earlierSiteEndpointCheck->getKey(), $laterSiteEndpointCheck->getKey()]);
+});

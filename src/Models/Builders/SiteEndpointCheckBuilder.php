@@ -6,10 +6,12 @@ namespace Maarheeze\Compass\Models\Builders;
 
 use Illuminate\Contracts\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\Builder;
+use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Collector\SiteEndpoint\SiteEndpointState;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
+use Webmozart\Assert\Assert;
 
 /**
  * @extends Builder<SiteEndpointCheck>
@@ -29,6 +31,19 @@ class SiteEndpointCheckBuilder extends Builder
                 ->whereColumn('newer_site_endpoint_checks.site_id', 'compass_site_endpoint_checks.site_id')
                 ->whereColumn('newer_site_endpoint_checks.path', 'compass_site_endpoint_checks.path')
                 ->whereColumn('newer_site_endpoint_checks.id', '>', 'compass_site_endpoint_checks.id'),
+        );
+    }
+
+    public function listed(): SiteEndpointCheckCollection
+    {
+        return Assert::isInstanceOf(
+            $this
+                ->latestPerPath()
+                ->notReported()
+                ->withOnlineSince()
+                ->orderBy('path')
+                ->get(),
+            SiteEndpointCheckCollection::class,
         );
     }
 

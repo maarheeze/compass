@@ -64,18 +64,8 @@ readonly class SiteController
         return $this->view->make('compass::sites.show', [
             'alertChecks' => AlertCheck::query()->ofSiteOrItsReports($site)->listed(),
             'alerts' => Alert::query()->ofSite($site)->listed(),
-            'inactiveSiteEndpointChecks' => $site
-                ->endpointChecks()
-                ->latestPerPath()
-                ->notReported()
-                ->withOnlineSince()
-                ->orderBy('path')
-                ->get(),
-            'reportedSiteEndpoints' => SiteEndpoint::query()
-                ->ofSite($site)
-                ->withLatestCheck()
-                ->orderBy('path')
-                ->get(),
+            'inactiveSiteEndpointChecks' => $site->endpointChecks()->listed(),
+            'reportedSiteEndpoints' => SiteEndpoint::query()->ofSite($site)->listed(),
             'site' => $site,
         ]);
     }
