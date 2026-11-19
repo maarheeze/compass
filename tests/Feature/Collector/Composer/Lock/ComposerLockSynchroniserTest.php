@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Collections\LockedPackageCollection;
+use Maarheeze\Compass\Collections\ComposerLockPackageCollection;
 use Maarheeze\Compass\Collector\Composer\Lock\ComposerLockSummary;
 use Maarheeze\Compass\Collector\Composer\Lock\ComposerLockSynchroniser;
-use Maarheeze\Compass\Collector\Composer\Lock\LockedPackage;
 use Maarheeze\Compass\Collector\Composer\PackageSection;
 use Maarheeze\Compass\Models\ComposerLock;
 use Maarheeze\Compass\Models\ComposerLockPackage;
@@ -16,7 +15,7 @@ test('store stores the composer lock of the repository', function (): void {
     $version = fake()->sha1();
     $composerLockSummary = new ComposerLockSummary(
         fake()->numerify('^#.#'),
-        new LockedPackageCollection(),
+        new ComposerLockPackageCollection(),
     );
 
     $composerLockSynchroniser = $this->app->make(ComposerLockSynchroniser::class);
@@ -31,16 +30,16 @@ test('store stores the composer lock of the repository', function (): void {
 
 test('store stores the locked packages', function (): void {
     $repository = Repository::factory()->create();
-    $lockedPackage = new LockedPackage(
-        sprintf('%s/%s', fake()->slug(), fake()->slug()),
-        fake()->numerify('v#.#.#'),
-        fake()->randomElement(PackageSection::cases()),
-    );
+    $lockedPackage = new ComposerLockPackage([
+        'name' => sprintf('%s/%s', fake()->slug(), fake()->slug()),
+        'version' => fake()->numerify('v#.#.#'),
+        'section' => fake()->randomElement(PackageSection::cases()),
+    ]);
 
     $composerLockSynchroniser = $this->app->make(ComposerLockSynchroniser::class);
     $composerLockSynchroniser->store($repository, fake()->sha1(), new ComposerLockSummary(
         fake()->numerify('^#.#'),
-        new LockedPackageCollection([$lockedPackage]),
+        new ComposerLockPackageCollection([$lockedPackage]),
     ));
 
     $this->assertDatabaseHas(ComposerLockPackage::class, [
@@ -58,7 +57,7 @@ test('store replaces the composer lock collected before', function (): void {
     $composerLockSynchroniser = $this->app->make(ComposerLockSynchroniser::class);
     $composerLockSynchroniser->store($composerLock->repository, $version, new ComposerLockSummary(
         fake()->numerify('^#.#'),
-        new LockedPackageCollection(),
+        new ComposerLockPackageCollection(),
     ));
 
     $this->assertDatabaseHas(ComposerLock::class, [
@@ -74,7 +73,7 @@ test('store removes the packages collected before', function (): void {
     $composerLockSynchroniser = $this->app->make(ComposerLockSynchroniser::class);
     $composerLockSynchroniser->store($repository, fake()->sha1(), new ComposerLockSummary(
         fake()->numerify('^#.#'),
-        new LockedPackageCollection(),
+        new ComposerLockPackageCollection(),
     ));
 
     $this->assertDatabaseMissing(ComposerLockPackage::class, ['id' => $composerLockPackage->id]);

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Collections\LockedPackageCollection;
+use Maarheeze\Compass\Collections\ComposerLockPackageCollection;
 use Maarheeze\Compass\Collector\Composer\Lock\ComposerLockReader;
-use Maarheeze\Compass\Collector\Composer\Lock\LockedPackage;
 use Maarheeze\Compass\Collector\Composer\PackageSection;
+use Maarheeze\Compass\Models\ComposerLockPackage;
 
 test('php constraint is the php version of the platform', function (): void {
     $phpConstraint = fake()->numerify('^#.#');
@@ -36,16 +36,16 @@ test('php constraint is null when the platform has no php version', function ():
 });
 
 test('locked packages are the packages and dev packages with their section', function (): void {
-    $productionPackage = new LockedPackage(
-        sprintf('%s/%s', fake()->slug(), fake()->slug()),
-        fake()->numerify('v#.#.#'),
-        PackageSection::PRODUCTION,
-    );
-    $developmentPackage = new LockedPackage(
-        sprintf('%s/%s', fake()->slug(), fake()->slug()),
-        fake()->numerify('v#.#.#'),
-        PackageSection::DEVELOPMENT,
-    );
+    $productionPackage = new ComposerLockPackage([
+        'name' => sprintf('%s/%s', fake()->slug(), fake()->slug()),
+        'version' => fake()->numerify('v#.#.#'),
+        'section' => PackageSection::PRODUCTION,
+    ]);
+    $developmentPackage = new ComposerLockPackage([
+        'name' => sprintf('%s/%s', fake()->slug(), fake()->slug()),
+        'version' => fake()->numerify('v#.#.#'),
+        'section' => PackageSection::DEVELOPMENT,
+    ]);
 
     $composerLockReader = $this->app->make(ComposerLockReader::class);
     $composerLockSummary = $composerLockReader->read(json_encode([
@@ -65,5 +65,5 @@ test('locked packages are the packages and dev packages with their section', fun
     ], JSON_THROW_ON_ERROR));
 
     expect($composerLockSummary->lockedPackages)
-        ->toEqual(new LockedPackageCollection([$productionPackage, $developmentPackage]));
+        ->toEqual(new ComposerLockPackageCollection([$productionPackage, $developmentPackage]));
 });

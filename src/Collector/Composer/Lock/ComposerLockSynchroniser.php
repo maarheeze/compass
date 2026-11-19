@@ -33,14 +33,7 @@ readonly class ComposerLockSynchroniser
             ]);
 
             $composerLock->packages()->delete();
-
-            foreach ($composerLockSummary->lockedPackages as $lockedPackage) {
-                $composerLock->packages()->create([
-                    'name' => $lockedPackage->name,
-                    'version' => $lockedPackage->version,
-                    'section' => $lockedPackage->section,
-                ]);
-            }
+            $composerLock->packages()->saveMany($composerLockSummary->lockedPackages);
         });
     }
 }

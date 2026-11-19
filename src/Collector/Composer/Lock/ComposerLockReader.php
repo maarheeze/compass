@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Collector\Composer\Lock;
 
 use JsonException;
-use Maarheeze\Compass\Collections\LockedPackageCollection;
+use Maarheeze\Compass\Collections\ComposerLockPackageCollection;
 use Maarheeze\Compass\Collector\Composer\PackageSection;
+use Maarheeze\Compass\Models\ComposerLockPackage;
 use Webmozart\Assert\Assert;
 
 use function array_key_exists;
@@ -34,25 +35,25 @@ readonly class ComposerLockReader
 
         return new ComposerLockSummary(
             $this->getPhpConstraint(Assert::isMap($composerLock['platform'])),
-            $productionPackages->merge($developmentPackages),
+            $productionPackages->concat($developmentPackages),
         );
     }
 
     /**
      * @param list<mixed> $packageResponses
      */
-    private function getLockedPackages(array $packageResponses, PackageSection $section): LockedPackageCollection
+    private function getLockedPackages(array $packageResponses, PackageSection $section): ComposerLockPackageCollection
     {
-        $lockedPackages = new LockedPackageCollection();
+        $lockedPackages = new ComposerLockPackageCollection();
 
         foreach ($packageResponses as $packageResponse) {
             Assert::isArray($packageResponse);
 
-            $lockedPackages->push(new LockedPackage(
-                Assert::string($packageResponse['name']),
-                Assert::string($packageResponse['version']),
-                $section,
-            ));
+            $lockedPackages->push(new ComposerLockPackage([
+                'name' => Assert::string($packageResponse['name']),
+                'version' => Assert::string($packageResponse['version']),
+                'section' => $section,
+            ]));
         }
 
         return $lockedPackages;
