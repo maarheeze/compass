@@ -3,17 +3,14 @@
 declare(strict_types=1);
 
 use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
-use Maarheeze\Compass\View\BadgeType;
 use Maarheeze\Compass\View\Components\SiteReportStatusBadge;
+use Maarheeze\Compass\View\SiteReportStatusBadgeType;
 
-test('badge type follows the site report status', function (SiteReportStatus $siteReportStatus, BadgeType $badgeType): void {
+test('badge type is the badge type of the status', function (): void {
+    $siteReportStatus = fake()->randomElement(SiteReportStatus::cases());
+
     $siteReportStatusBadge = $this->app->make(SiteReportStatusBadge::class, ['status' => $siteReportStatus]);
 
     expect($siteReportStatusBadge->badgeType())
-        ->toBe($badgeType);
-})->with([
-    'incompatible' => [SiteReportStatus::INCOMPATIBLE, BadgeType::DANGER],
-    'installed' => [SiteReportStatus::INSTALLED, BadgeType::SUCCESS],
-    'not installed' => [SiteReportStatus::NOT_INSTALLED, BadgeType::NEUTRAL],
-    'unauthorised' => [SiteReportStatus::UNAUTHORISED, BadgeType::DANGER],
-]);
+        ->toBe(new SiteReportStatusBadgeType()->badgeType($siteReportStatus));
+});

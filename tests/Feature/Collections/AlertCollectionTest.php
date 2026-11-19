@@ -8,6 +8,25 @@ use Maarheeze\Compass\Alerts\AlertTypes;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Models\Alert;
 
+test('done is the alerts that are done', function (): void {
+    $unmutedOpenAlert = Alert::factory()
+        ->active()
+        ->make();
+    $mutedOpenAlert = Alert::factory()
+        ->active()
+        ->muted()
+        ->make();
+    $doneAlert = Alert::factory()
+        ->done()
+        ->make();
+    $alerts = new AlertCollection([$unmutedOpenAlert, $mutedOpenAlert, $doneAlert]);
+
+    $doneAlerts = $alerts->done();
+
+    expect($doneAlerts->sole())
+        ->toBe($doneAlert);
+});
+
 test('level counts count the alerts per level, highest level first', function (): void {
     $alerts = new AlertCollection([
         Alert::factory()
@@ -67,4 +86,62 @@ test('sorted by level keeps the order of the alerts within a level', function ()
 
     expect($alertsSortedByLevel->all())
         ->toBe([$firstAlert, $secondAlert]);
+});
+
+test('unmuted open is the open alerts that are not muted', function (): void {
+    $unmutedOpenAlert = Alert::factory()
+        ->active()
+        ->make();
+    $mutedOpenAlert = Alert::factory()
+        ->active()
+        ->muted()
+        ->make();
+    $doneAlert = Alert::factory()
+        ->done()
+        ->make();
+    $alerts = new AlertCollection([$unmutedOpenAlert, $mutedOpenAlert, $doneAlert]);
+
+    $unmutedOpenAlerts = $alerts->unmutedOpen();
+
+    expect($unmutedOpenAlerts->sole())
+        ->toBe($unmutedOpenAlert);
+});
+
+test('muted open is the open alerts that are muted', function (): void {
+    $unmutedOpenAlert = Alert::factory()
+        ->active()
+        ->make();
+    $mutedOpenAlert = Alert::factory()
+        ->active()
+        ->muted()
+        ->make();
+    $mutedDoneAlert = Alert::factory()
+        ->done()
+        ->muted()
+        ->make();
+    $alerts = new AlertCollection([$unmutedOpenAlert, $mutedOpenAlert, $mutedDoneAlert]);
+
+    $mutedOpenAlerts = $alerts->mutedOpen();
+
+    expect($mutedOpenAlerts->sole())
+        ->toBe($mutedOpenAlert);
+});
+
+test('muted or done is the alerts that are muted or done', function (): void {
+    $unmutedOpenAlert = Alert::factory()
+        ->active()
+        ->make();
+    $mutedOpenAlert = Alert::factory()
+        ->active()
+        ->muted()
+        ->make();
+    $doneAlert = Alert::factory()
+        ->done()
+        ->make();
+    $alerts = new AlertCollection([$unmutedOpenAlert, $mutedOpenAlert, $doneAlert]);
+
+    $mutedOrDoneAlerts = $alerts->mutedOrDone();
+
+    expect($mutedOrDoneAlerts->values()->all())
+        ->toBe([$mutedOpenAlert, $doneAlert]);
 });

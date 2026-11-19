@@ -6,26 +6,30 @@ namespace Maarheeze\Compass\Models\Builders;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Maarheeze\Compass\Collections\PullRequestCollection;
 use Maarheeze\Compass\Models\PullRequest;
 use Maarheeze\Uuid\Uuid;
+use Webmozart\Assert\Assert;
 
 /**
  * @extends Builder<PullRequest>
  */
 class PullRequestBuilder extends Builder
 {
-    public function assignedTo(string $source, string $login): self
-    {
-        return $this
-            ->ofSource($source)
-            ->whereHas('assignees', static function (Builder $assigneeQuery) use ($login): void {
-                $assigneeQuery->where('login', $login);
-            });
-    }
-
     public function latestOpened(): self
     {
         return $this->latest('opened_at');
+    }
+
+    public function listed(): PullRequestCollection
+    {
+        return Assert::isInstanceOf(
+            $this
+                ->with(['assignees', 'repository'])
+                ->latestOpened()
+                ->get(),
+            PullRequestCollection::class,
+        );
     }
 
     public function notReturnedByRun(Uuid $runId): self

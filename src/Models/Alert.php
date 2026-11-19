@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Maarheeze\Compass\Alerts\AlertStatus;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Alerts\ConditionState;
@@ -19,6 +18,7 @@ use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\AlertHistoryEntryCollection;
 use Maarheeze\Compass\Database\Factories\AlertFactory;
 use Maarheeze\Compass\Models\Builders\AlertBuilder;
+use Maarheeze\Compass\Models\Concerns\HasSubject;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
@@ -49,6 +49,7 @@ class Alert extends Model
     use HasCollection;
     /** @use HasFactory<AlertFactory> */
     use HasFactory;
+    use HasSubject;
     use HasUuidAsId;
 
     protected static string $builder = AlertBuilder::class;
@@ -91,14 +92,6 @@ class Alert extends Model
     public function historyEntries(): HasMany
     {
         return $this->hasMany(AlertHistoryEntry::class);
-    }
-
-    /**
-     * @return MorphTo<Model, $this>
-     */
-    public function subject(): MorphTo
-    {
-        return $this->morphTo();
     }
 
     /**

@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
+use Maarheeze\Compass\Collector\SiteEndpoint\SiteEndpointState;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
 
@@ -29,8 +30,8 @@ class SiteEndpointCheckFactory extends Factory
             'site_id' => Site::factory(),
             'path' => new EndpointPath(sprintf('/%s', fake()->slug())),
             'url' => fake()->url(),
+            'state' => fake()->randomElement(SiteEndpointState::cases()),
             'status_code' => fake()->optional()->numberBetween(100, 599),
-            'is_successful' => fake()->boolean(),
         ];
     }
 }

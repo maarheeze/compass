@@ -4,47 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Collection;
 use Maarheeze\Compass\Models\PullRequest;
-use Maarheeze\Compass\Models\PullRequestAssignee;
 use Maarheeze\Uuid\Uuid;
-
-test('assigned to keeps a pull request of the source assigned to the login', function (): void {
-    $pullRequest = PullRequest::factory()->create();
-    $assignee = PullRequestAssignee::factory()->create(['pull_request_id' => $pullRequest->id]);
-
-    $pullRequestsAssignedToLogin = PullRequest::query()
-        ->assignedTo($pullRequest->source, $assignee->login)
-        ->get();
-
-    expect($pullRequestsAssignedToLogin->sole()->is($pullRequest))
-        ->toBeTrue();
-});
-
-test('assigned to leaves out a pull request assigned to someone else', function (): void {
-    $pullRequest = PullRequest::factory()->create();
-    PullRequestAssignee::factory()->create([
-        'pull_request_id' => $pullRequest->id,
-        'login' => fake()->unique()->userName(),
-    ]);
-
-    $pullRequestsAssignedToLogin = PullRequest::query()
-        ->assignedTo($pullRequest->source, fake()->unique()->userName())
-        ->get();
-
-    expect($pullRequestsAssignedToLogin)
-        ->toBeEmpty();
-});
-
-test('assigned to leaves out a pull request of another source', function (): void {
-    $pullRequest = PullRequest::factory()->create(['source' => fake()->unique()->slug()]);
-    $assignee = PullRequestAssignee::factory()->create(['pull_request_id' => $pullRequest->id]);
-
-    $pullRequestsAssignedToLogin = PullRequest::query()
-        ->assignedTo(fake()->unique()->slug(), $assignee->login)
-        ->get();
-
-    expect($pullRequestsAssignedToLogin)
-        ->toBeEmpty();
-});
 
 test('not returned by run keeps a pullRequest returned by another run', function (): void {
     $pullRequest = PullRequest::factory()->create();
@@ -122,4 +82,14 @@ test('of source leaves out a pull request of another source', function (): void 
 
     expect($pullRequestsOfSource)
         ->toBeEmpty();
+});
+
+test('listed is the pull requests opened latest first', function (): void {
+    $olderPullRequest = PullRequest::factory()->create(['opened_at' => fake()->dateTimeBetween('-2 months', '-1 month')]);
+    $newerPullRequest = PullRequest::factory()->create(['opened_at' => fake()->dateTimeBetween('-1 week')]);
+
+    $listedPullRequests = PullRequest::query()->listed();
+
+    expect($listedPullRequests->modelKeys())
+        ->toEqual([$newerPullRequest->getKey(), $olderPullRequest->getKey()]);
 });

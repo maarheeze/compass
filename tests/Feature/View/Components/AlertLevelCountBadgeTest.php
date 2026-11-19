@@ -24,7 +24,7 @@ test('label is the translated count of the level', function (): void {
     ]);
 
     expect($alertLevelCountBadge->label)
-        ->toBe('2 Warnings');
+        ->toBe('2 warnings');
 });
 
 test('label counts the alerts of every level', function (AlertLevel $alertLevel): void {

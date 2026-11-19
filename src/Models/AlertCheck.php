@@ -9,12 +9,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\HasBuilder;
 use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Collections\AlertCheckCollection;
 use Maarheeze\Compass\Database\Factories\AlertCheckFactory;
 use Maarheeze\Compass\Models\Builders\AlertCheckBuilder;
+use Maarheeze\Compass\Models\Concerns\HasSubject;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
@@ -40,6 +40,7 @@ class AlertCheck extends Model
     use HasCollection;
     /** @use HasFactory<AlertCheckFactory> */
     use HasFactory;
+    use HasSubject;
     use HasUuidAsId;
 
     protected static string $builder = AlertCheckBuilder::class;
@@ -62,14 +63,6 @@ class AlertCheck extends Model
     public function getTable(): string
     {
         return 'compass_alert_checks';
-    }
-
-    /**
-     * @return MorphTo<Model, $this>
-     */
-    public function subject(): MorphTo
-    {
-        return $this->morphTo();
     }
 
     /**

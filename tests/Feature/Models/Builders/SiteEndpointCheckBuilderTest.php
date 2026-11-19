@@ -3,23 +3,24 @@
 declare(strict_types=1);
 
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
+use Maarheeze\Compass\Collector\SiteEndpoint\SiteEndpointState;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
 
-test('down keeps an unsuccessful check', function (): void {
-    $unsuccessfulSiteEndpointCheck = SiteEndpointCheck::factory()->create(['is_successful' => false]);
+test('down keeps a down check', function (): void {
+    $downSiteEndpointCheck = SiteEndpointCheck::factory()->create(['state' => SiteEndpointState::DOWN]);
 
     $downSiteEndpointChecks = SiteEndpointCheck::query()
         ->down()
         ->get();
 
-    expect($downSiteEndpointChecks->sole()->is($unsuccessfulSiteEndpointCheck))
+    expect($downSiteEndpointChecks->sole()->is($downSiteEndpointCheck))
         ->toBeTrue();
 });
 
-test('down leaves out a successful check', function (): void {
-    SiteEndpointCheck::factory()->create(['is_successful' => true]);
+test('down leaves out an up check', function (): void {
+    SiteEndpointCheck::factory()->create(['state' => SiteEndpointState::UP]);
 
     $downSiteEndpointChecks = SiteEndpointCheck::query()
         ->down()
@@ -135,25 +136,25 @@ test('with online since is the first successful check after the latest failed on
     SiteEndpointCheck::factory()->create([
         'site_id' => $site->id,
         'path' => $endpointPath,
-        'is_successful' => true,
+        'state' => SiteEndpointState::UP,
         'created_at' => fake()->dateTimeBetween('-4 months', '-3 months'),
     ]);
     SiteEndpointCheck::factory()->create([
         'site_id' => $site->id,
         'path' => $endpointPath,
-        'is_successful' => false,
+        'state' => SiteEndpointState::DOWN,
         'created_at' => fake()->dateTimeBetween('-3 months', '-2 months'),
     ]);
     $recoveredSiteEndpointCheck = SiteEndpointCheck::factory()->create([
         'site_id' => $site->id,
         'path' => $endpointPath,
-        'is_successful' => true,
+        'state' => SiteEndpointState::UP,
         'created_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
     ]);
     $latestSiteEndpointCheck = SiteEndpointCheck::factory()->create([
         'site_id' => $site->id,
         'path' => $endpointPath,
-        'is_successful' => true,
+        'state' => SiteEndpointState::UP,
         'created_at' => fake()->dateTimeBetween('-1 month'),
     ]);
 
@@ -168,13 +169,13 @@ test('with online since is the first successful check after the latest failed on
 
 test('with online since is the first check of a path that never failed', function (): void {
     $firstSiteEndpointCheck = SiteEndpointCheck::factory()->create([
-        'is_successful' => true,
+        'state' => SiteEndpointState::UP,
         'created_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
     ]);
     $latestSiteEndpointCheck = SiteEndpointCheck::factory()->create([
         'site_id' => $firstSiteEndpointCheck->site_id,
         'path' => $firstSiteEndpointCheck->path,
-        'is_successful' => true,
+        'state' => SiteEndpointState::UP,
         'created_at' => fake()->dateTimeBetween('-1 month'),
     ]);
 
@@ -188,11 +189,11 @@ test('with online since is the first check of a path that never failed', functio
 });
 
 test('with online since is empty while the path is down', function (): void {
-    $successfulSiteEndpointCheck = SiteEndpointCheck::factory()->create(['is_successful' => true]);
+    $successfulSiteEndpointCheck = SiteEndpointCheck::factory()->create(['state' => SiteEndpointState::UP]);
     $failedSiteEndpointCheck = SiteEndpointCheck::factory()->create([
         'site_id' => $successfulSiteEndpointCheck->site_id,
         'path' => $successfulSiteEndpointCheck->path,
-        'is_successful' => false,
+        'state' => SiteEndpointState::DOWN,
     ]);
 
     $siteEndpointCheckWithOnlineSince = SiteEndpointCheck::query()

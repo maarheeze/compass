@@ -5,20 +5,19 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Http\Controllers;
 
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
-use Maarheeze\Compass\Analyser\Composer\RepositoryKind;
 use Maarheeze\Compass\Analyser\Composer\RepositoryKindClassifier;
-use Maarheeze\Compass\Collections\RepositoryCollection;
 use Maarheeze\Compass\Collector\Repositories\MissingRepositoryResolver;
+use Maarheeze\Compass\Http\Requests\RepositoryFilterRequest;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\AlertCheck;
 use Maarheeze\Compass\Models\Repository;
 use Throwable;
-use Webmozart\Assert\Assert;
 
 readonly class RepositoryController
 {
@@ -26,6 +25,7 @@ readonly class RepositoryController
         private MissingRepositoryResolver $missingRepositoryResolver,
         private Redirector $redirector,
         private RepositoryKindClassifier $repositoryKindClassifier,
+        private Translator $translator,
         private ViewFactory $view,
     ) {
     }
@@ -47,21 +47,15 @@ readonly class RepositoryController
         return $this->redirector->route(RouteName::DASHBOARD);
     }
 
-    public function index(): View
+    public function index(RepositoryFilterRequest $repositoryFilterRequest): View
     {
-        $repositories = Assert::isInstanceOf(
-            Repository::query()
-                ->with('composerJson')
-                ->withCount(['issues', 'pullRequests'])
-                ->orderBy('name')
-                ->get(),
-            RepositoryCollection::class,
-        );
+        $repositories = Repository::query()->listed();
+        $repositoryFilter = $repositoryFilterRequest->repositoryFilter();
 
         return $this->view->make('compass::repositories.index', [
-            'libraries' => $this->getRepositoriesOfKind($repositories, RepositoryKind::LIBRARY),
-            'otherRepositories' => $this->getRepositoriesOfKind($repositories, RepositoryKind::OTHER),
-            'projects' => $this->getRepositoriesOfKind($repositories, RepositoryKind::PROJECT),
+            'kindFilter' => $repositoryFilter->kindFilter($repositories, $this->repositoryKindClassifier, $this->translator),
+            'repositoryGroups' => $repositoryFilter->repositoryGroups($repositories, $this->repositoryKindClassifier),
+            'visibilityFilter' => $repositoryFilter->visibilityFilter($repositories, $this->repositoryKindClassifier, $this->translator),
         ]);
     }
 
@@ -104,12 +98,5 @@ readonly class RepositoryController
             'kind' => $this->repositoryKindClassifier->classify($repository),
             'repository' => $repository,
         ]);
-    }
-
-    private function getRepositoriesOfKind(RepositoryCollection $repositories, RepositoryKind $kind): RepositoryCollection
-    {
-        return $repositories->filter(function (Repository $repository) use ($kind): bool {
-            return $this->repositoryKindClassifier->classify($repository) === $kind;
-        });
     }
 }

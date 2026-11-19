@@ -173,3 +173,13 @@ test('of repository source leaves out a site whose repository belongs to another
     expect($sitesOfRepositorySource)
         ->toBeEmpty();
 });
+
+test('listed is the sites in the order of their name', function (): void {
+    $bravoSite = Site::factory()->create(['name' => 'bravo']);
+    $alphaSite = Site::factory()->create(['name' => 'alpha']);
+
+    $listedSites = Site::query()->listed();
+
+    expect($listedSites->modelKeys())
+        ->toEqual([$alphaSite->getKey(), $bravoSite->getKey()]);
+});

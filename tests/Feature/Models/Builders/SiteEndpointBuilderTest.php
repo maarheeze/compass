@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
+use Maarheeze\Compass\Collector\SiteEndpoint\SiteEndpointState;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
@@ -142,7 +143,7 @@ test('with latest check loads when the check has been online since', function ()
     SiteEndpointCheck::factory()->create([
         'site_id' => $siteEndpoint->siteReport->site_id,
         'path' => $siteEndpoint->path,
-        'is_successful' => true,
+        'state' => SiteEndpointState::UP,
     ]);
 
     $siteEndpointWithLatestCheck = SiteEndpoint::query()

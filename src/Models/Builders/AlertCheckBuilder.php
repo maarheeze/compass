@@ -4,26 +4,18 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Models\Builders;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\AlertCheck;
 
 /**
- * @extends Builder<AlertCheck>
+ * @extends SubjectBuilder<AlertCheck>
  */
-class AlertCheckBuilder extends Builder
+class AlertCheckBuilder extends SubjectBuilder
 {
     public function applicable(): self
     {
         return $this->whereNot('condition', ConditionState::NOT_APPLICABLE);
-    }
-
-    public function ofSubject(AlertSubject&Model $alertSubject): self
-    {
-        return $this->whereMorphedTo('subject', $alertSubject);
     }
 
     public function withAlertMuted(): self

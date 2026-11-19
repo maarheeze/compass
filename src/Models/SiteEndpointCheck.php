@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
+use Maarheeze\Compass\Collector\SiteEndpoint\SiteEndpointState;
 use Maarheeze\Compass\Database\Factories\SiteEndpointCheckFactory;
 use Maarheeze\Compass\Models\Builders\SiteEndpointCheckBuilder;
 use Maarheeze\Compass\Models\Casts\EndpointPathCast;
@@ -22,10 +23,10 @@ use Maarheeze\Uuid\Uuid;
 /**
  * @property CarbonImmutable $created_at
  * @property Uuid $id
- * @property bool $is_successful
  * @property ?CarbonImmutable $online_since
  * @property EndpointPath $path
  * @property Uuid $site_id
+ * @property SiteEndpointState $state
  * @property ?int $status_code
  * @property CarbonImmutable $updated_at
  * @property string $url
@@ -51,9 +52,9 @@ class SiteEndpointCheck extends Model
     public function getFillable(): array
     {
         return [
-            'is_successful',
             'path',
             'site_id',
+            'state',
             'status_code',
             'url',
         ];
@@ -79,9 +80,9 @@ class SiteEndpointCheck extends Model
     {
         return [
             'created_at' => 'immutable_datetime',
-            'is_successful' => 'boolean',
             'path' => EndpointPathCast::class,
             'site_id' => UuidCast::class,
+            'state' => SiteEndpointState::class,
             'status_code' => 'integer',
             'updated_at' => 'immutable_datetime',
         ];

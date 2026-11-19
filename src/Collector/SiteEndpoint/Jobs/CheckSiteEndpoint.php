@@ -17,6 +17,7 @@ use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
 use Maarheeze\Compass\Collector\LockedJob;
+use Maarheeze\Compass\Collector\SiteEndpoint\SiteEndpointState;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
 
@@ -58,7 +59,7 @@ class CheckSiteEndpoint implements LockedJob
             'path' => $this->siteEndpoint->path,
             'url' => $url,
             'status_code' => $response?->status(),
-            'is_successful' => $this->isSuccesful($response),
+            'state' => $this->siteEndpointState($response),
         ]);
 
         $this->siteEndpoint->update([
@@ -67,7 +68,7 @@ class CheckSiteEndpoint implements LockedJob
 
         $collectorLogger->debug('Endpoint checked', [
             'status_code' => $siteEndpointCheck->status_code,
-            'is_successful' => $siteEndpointCheck->is_successful,
+            'state' => $siteEndpointCheck->state->value,
         ]);
 
         $events->dispatch(new SiteEndpointChecked($this->siteEndpoint, $siteEndpointCheck));
@@ -90,12 +91,12 @@ class CheckSiteEndpoint implements LockedJob
         }
     }
 
-    private function isSuccesful(?Response $response): bool
+    private function siteEndpointState(?Response $response): SiteEndpointState
     {
-        if ($response === null) {
-            return false;
+        if ($response?->successful() === true) {
+            return SiteEndpointState::UP;
         }
 
-        return $response->successful();
+        return SiteEndpointState::DOWN;
     }
 }

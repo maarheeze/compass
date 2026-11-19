@@ -48,7 +48,8 @@ class SiteEndpointBuilder extends Builder
             ->addSelect(['latest_check_id' => $this->latestCheckIdOfEndpoint()])
             ->with(['latestCheck' => static function (BelongsTo $latestCheckQuery): void {
                 $latestCheckQuery->withOnlineSince();
-            }]);
+            },
+            ]);
     }
 
     /**

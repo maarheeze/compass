@@ -1,54 +1,38 @@
-<dl class="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2">
-    <dt class="text-foreground-muted">{{ __('compass::site-report.source') }}</dt>
-    <dd class="font-mono text-foreground">{{ $siteReport->source }}</dd>
+<div class="space-y-2">
+    <dl>
+        <x-compass::fact :label="__('compass::site-report.status')">
+            <x-compass::site-report-status-badge :status="$siteReport->status" />
+            <span class="text-foreground-muted">&middot; <x-compass::time :time="$siteReport->collected_at" /></span>
+        </x-compass::fact>
+    </dl>
 
-    <dt class="text-foreground-muted">{{ __('compass::site-report.status') }}</dt>
-    <dd class="flex items-center gap-2 text-foreground">
-        <x-compass::site-report-status-badge :status="$siteReport->status" />
-        <span class="text-foreground-muted">
-            {{ __('compass::site-report.checked') }}
-            <x-compass::time :time="$siteReport->collected_at" />
-        </span>
-    </dd>
+    <details>
+        <summary class="w-fit cursor-pointer list-none text-xs text-accent hover:underline [&::-webkit-details-marker]:hidden">{{ __('compass::site-report.details') }}</summary>
 
-    @if ($siteReport->app_name !== null)
-        <dt class="text-foreground-muted">{{ __('compass::site-report.application') }}</dt>
-        <dd class="text-foreground">{{ $siteReport->app_name }}</dd>
-    @endif
+        <dl class="mt-2 space-y-2">
+            <x-compass::fact :label="__('compass::site-report.source')" class="font-mono">{{ $siteReport->source }}</x-compass::fact>
 
-    @if ($siteReport->app_env !== null)
-        <dt class="text-foreground-muted">{{ __('compass::site-report.environment') }}</dt>
-        <dd class="text-foreground">{{ $siteReport->app_env }}</dd>
-    @endif
-
-    @if ($siteReport->app_debug !== null)
-        <dt class="text-foreground-muted">{{ __('compass::site-report.debug') }}</dt>
-        <dd class="text-foreground">
-            @if ($siteReport->app_debug)
-                {{ __('compass::site-report.on') }}
-            @else
-                {{ __('compass::site-report.off') }}
+            @if ($siteReport->app_name !== null)
+                <x-compass::fact :label="__('compass::site-report.application')">{{ $siteReport->app_name }}</x-compass::fact>
             @endif
-        </dd>
-    @endif
 
-    @if ($siteReport->endpoints->isNotEmpty())
-        <dt class="text-foreground-muted">{{ __('compass::site-report.endpoints') }}</dt>
-        <dd>
-            <ul class="flex flex-wrap gap-2">
-                @foreach ($siteReport->endpoints as $endpoint)
-                    <li class="rounded-md bg-border/50 px-2 py-0.5 font-mono text-xs text-foreground-muted">{{ $endpoint->path->toString() }}</li>
-                @endforeach
-            </ul>
-        </dd>
-    @endif
+            @if ($siteReport->app_env !== null)
+                <x-compass::fact :label="__('compass::site-report.environment')">{{ $siteReport->app_env }}</x-compass::fact>
+            @endif
 
-    <dt class="text-foreground-muted">{{ __('compass::site-report.path') }}</dt>
-    <dd class="font-mono text-foreground">
-        @if ($siteReport->path === null)
-            <span class="font-sans text-foreground-muted">{{ __('compass::site-report.default') }}</span>
-        @else
-            {{ $siteReport->path }}
-        @endif
-    </dd>
-</dl>
+            @if ($siteReport->app_debug !== null)
+                <x-compass::fact :label="__('compass::site-report.debug')">
+                    @if ($siteReport->app_debug)
+                        {{ __('compass::site-report.on') }}
+                    @else
+                        {{ __('compass::site-report.off') }}
+                    @endif
+                </x-compass::fact>
+            @endif
+        </dl>
+
+        <p class="mt-2">
+            <x-compass::site-report-edit-link :site-report="$siteReport" />
+        </p>
+    </details>
+</div>

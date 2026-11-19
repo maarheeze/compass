@@ -7,6 +7,7 @@ namespace Maarheeze\Compass\Models\Builders;
 use Illuminate\Contracts\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\Builder;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
+use Maarheeze\Compass\Collector\SiteEndpoint\SiteEndpointState;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
 
@@ -17,7 +18,7 @@ class SiteEndpointCheckBuilder extends Builder
 {
     public function down(): self
     {
-        return $this->where('is_successful', false);
+        return $this->where('state', SiteEndpointState::DOWN);
     }
 
     public function latestPerPath(): self
@@ -57,7 +58,7 @@ class SiteEndpointCheckBuilder extends Builder
             ->from('compass_site_endpoint_checks', 'failed_site_endpoint_checks')
             ->whereColumn('failed_site_endpoint_checks.site_id', 'successful_site_endpoint_checks.site_id')
             ->whereColumn('failed_site_endpoint_checks.path', 'successful_site_endpoint_checks.path')
-            ->where('failed_site_endpoint_checks.is_successful', false)
+            ->where('failed_site_endpoint_checks.state', SiteEndpointState::DOWN)
             ->whereColumn('failed_site_endpoint_checks.id', '>', 'successful_site_endpoint_checks.id');
     }
 
@@ -71,7 +72,7 @@ class SiteEndpointCheckBuilder extends Builder
             ->select('successful_site_endpoint_checks.created_at')
             ->whereColumn('successful_site_endpoint_checks.site_id', 'compass_site_endpoint_checks.site_id')
             ->whereColumn('successful_site_endpoint_checks.path', 'compass_site_endpoint_checks.path')
-            ->where('successful_site_endpoint_checks.is_successful', true)
+            ->where('successful_site_endpoint_checks.state', SiteEndpointState::UP)
             ->whereNotExists($this->failedChecksAfterSuccessfulCheck())
             ->orderBy('successful_site_endpoint_checks.id')
             ->limit(1);

@@ -3,12 +3,16 @@
 declare(strict_types=1);
 
 return [
-    'collected' => 'collected',
+    'about' => 'About',
+    'collected' => 'Collected',
+    'default_branch' => 'Default branch',
+    'kind' => 'Kind',
     'libraries' => 'Libraries',
-    'no_repositories' => 'No repositories.',
-    'no_sites' => 'No sites deploy this repository.',
+    'none' => 'No repositories.',
     'other' => 'Other',
+    'php' => 'PHP',
     'projects' => 'Projects',
-    'sites' => 'Sites',
+    'repository_count' => ':count repository|:count repositories',
     'updated' => 'updated',
+    'visibility' => 'Visibility',
 ];

@@ -136,6 +136,15 @@ class Site extends Model implements AlertSubject
         return Alert::query()->ofSite($this);
     }
 
+    public function latestDeploymentTime(): ?CarbonImmutable
+    {
+        if ($this->deployment_ended_at !== null) {
+            return $this->deployment_ended_at;
+        }
+
+        return $this->deployment_started_at;
+    }
+
     /**
      * @return array<string, string>
      */

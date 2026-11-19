@@ -12,6 +12,7 @@ use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Alerts\Types\SiteEndpointDown;
 use Maarheeze\Compass\Collections\ConditionObservationCollection;
 use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
+use Maarheeze\Compass\Collector\SiteEndpoint\SiteEndpointState;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
 
 readonly class EvaluateSiteEndpointDown implements ShouldQueue
@@ -39,10 +40,9 @@ readonly class EvaluateSiteEndpointDown implements ShouldQueue
 
     private function observedCondition(SiteEndpointCheck $siteEndpointCheck): ConditionState
     {
-        if ($siteEndpointCheck->is_successful) {
-            return ConditionState::RESOLVED;
-        }
-
-        return ConditionState::ACTIVE;
+        return match ($siteEndpointCheck->state) {
+            SiteEndpointState::DOWN => ConditionState::ACTIVE,
+            SiteEndpointState::UP => ConditionState::RESOLVED,
+        };
     }
 }

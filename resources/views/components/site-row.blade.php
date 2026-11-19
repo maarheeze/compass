@@ -19,11 +19,11 @@
                 <span>&middot;</span>
                 <span>{{ $site->repository->name }}</span>
             @endif
-            @if ($site->deployment_ended_at)
+            @if ($site->latestDeploymentTime() !== null)
                 <span>&middot;</span>
                 <span>
-                    {{ __('compass::site.deployed') }}
-                    <x-compass::time :time="$site->deployment_ended_at" />
+                    {{ __('compass::site.latest_deployment_time') }}
+                    <x-compass::time :time="$site->latestDeploymentTime()" />
                 </span>
             @endif
         </div>

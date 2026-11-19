@@ -1,13 +1,22 @@
-<div {{ $attributes->merge(['class' => 'overflow-hidden rounded-md border border-border bg-canvas']) }}>
-    <table class="w-full table-fixed text-left text-sm">
-        <tbody class="divide-y divide-border">
-            @forelse ($alertChecks as $alertCheck)
-                <x-compass::alert-check-row :alert-check="$alertCheck" />
-            @empty
-                <tr>
-                    <td colspan="2" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::alert-check.no_checks') }}</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
-</div>
+<x-compass::list :attributes="$attributes">
+    <x-slot:icon>
+        <x-compass::icons.check-circle />
+    </x-slot:icon>
+    <x-slot:title>{{ __('compass::alert-check.checks') }}</x-slot:title>
+    <x-slot:empty>{{ __('compass::alert-check.none') }}</x-slot:empty>
+    <x-slot:counts>
+        @foreach ($alertCheckStateCounts as $alertCheckStateCount)
+            <x-compass::alert-check-state-count-badge :alert-check-state-count="$alertCheckStateCount" />
+        @endforeach
+    </x-slot:counts>
+    <x-slot:rows>
+        @foreach ($failingAlertChecks as $failingAlertCheck)
+            <x-compass::alert-check-row :alert-check="$failingAlertCheck" />
+        @endforeach
+    </x-slot:rows>
+    <x-slot:more-rows>
+        @foreach ($notFailingAlertChecks as $notFailingAlertCheck)
+            <x-compass::alert-check-row :alert-check="$notFailingAlertCheck" />
+        @endforeach
+    </x-slot:more-rows>
+</x-compass::list>

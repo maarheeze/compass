@@ -5,7 +5,7 @@
         </div>
         <a
             href="{{ $url }}"
-            class="text-sm text-foreground before:absolute before:inset-0 before:-z-10 after:absolute after:inset-0 group-first:before:rounded-t-md group-last:before:rounded-b-md group-focus-within:before:bg-accent-muted group-focus-within:before:shadow-[inset_2px_0_0_var(--color-accent)] group-hover:before:bg-accent-muted group-hover:before:shadow-[inset_2px_0_0_var(--color-accent)]">
+            class="text-sm text-foreground before:absolute before:inset-0 before:-z-10 after:absolute after:inset-0 group-last:before:rounded-b-md group-focus-within:before:bg-accent-muted group-focus-within:before:shadow-[inset_2px_0_0_var(--color-accent)] group-hover:before:bg-accent-muted group-hover:before:shadow-[inset_2px_0_0_var(--color-accent)]">
             <x-compass::alert-type-label :identifier="$alert->alert_type_identifier" />
         </a>
     </td>

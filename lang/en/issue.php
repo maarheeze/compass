@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'no_open_issues' => 'No open issues.',
+    'none' => 'No open issues.',
+    'open_count' => ':count open',
     'opened' => 'opened',
 ];

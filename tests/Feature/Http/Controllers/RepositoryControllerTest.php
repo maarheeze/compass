@@ -8,7 +8,9 @@ use Maarheeze\Compass\Alerts\Types\ComposerLibraryWithLock;
 use Maarheeze\Compass\Alerts\Types\ComposerProjectWithoutLock;
 use Maarheeze\Compass\Analyser\Composer\RepositoryKind;
 use Maarheeze\Compass\Collections\AlertCheckCollection;
-use Maarheeze\Compass\Collections\RepositoryCollection;
+use Maarheeze\Compass\Collections\RepositoryGroupCollection;
+use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
+use Maarheeze\Compass\Http\RepositoryFilter;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\AlertCheck;
@@ -18,6 +20,9 @@ use Maarheeze\Compass\Models\PullRequest;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
+use Maarheeze\Compass\View\Filter;
+use Maarheeze\Compass\View\FilterOption;
+use Maarheeze\Compass\View\RepositoryGroup;
 
 test('index contains the projects', function (): void {
     $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
@@ -29,9 +34,16 @@ test('index contains the projects', function (): void {
 
     $response = $this->get(route(RouteName::REPOSITORIES));
 
-    $response->assertViewHas('projects', static function (RepositoryCollection $viewProjects) use ($repository): bool {
-        return $viewProjects->sole()->is($repository);
-    });
+    $response->assertViewHas(
+        'repositoryGroups',
+        static function (RepositoryGroupCollection $viewRepositoryGroups) use ($repository): bool {
+            $projectGroup = $viewRepositoryGroups->firstOrFail(static function (RepositoryGroup $repositoryGroup): bool {
+                return $repositoryGroup->kind === RepositoryKind::PROJECT;
+            });
+
+            return $projectGroup->repositories->sole()->is($repository);
+        },
+    );
 });
 
 test('index contains the libraries', function (): void {
@@ -45,9 +57,13 @@ test('index contains the libraries', function (): void {
     $response = $this->get(route(RouteName::REPOSITORIES));
 
     $response->assertViewHas(
-        'libraries',
-        static function (RepositoryCollection $viewLibraries) use ($repository): bool {
-            return $viewLibraries->sole()->is($repository);
+        'repositoryGroups',
+        static function (RepositoryGroupCollection $viewRepositoryGroups) use ($repository): bool {
+            $libraryGroup = $viewRepositoryGroups->firstOrFail(static function (RepositoryGroup $repositoryGroup): bool {
+                return $repositoryGroup->kind === RepositoryKind::LIBRARY;
+            });
+
+            return $libraryGroup->repositories->sole()->is($repository);
         },
     );
 });
@@ -59,9 +75,13 @@ test('index contains the other repositories', function (): void {
     $response = $this->get(route(RouteName::REPOSITORIES));
 
     $response->assertViewHas(
-        'otherRepositories',
-        static function (RepositoryCollection $viewOtherRepositories) use ($repository): bool {
-            return $viewOtherRepositories->sole()->is($repository);
+        'repositoryGroups',
+        static function (RepositoryGroupCollection $viewRepositoryGroups) use ($repository): bool {
+            $otherGroup = $viewRepositoryGroups->firstOrFail(static function (RepositoryGroup $repositoryGroup): bool {
+                return $repositoryGroup->kind === RepositoryKind::OTHER;
+            });
+
+            return $otherGroup->repositories->sole()->is($repository);
         },
     );
 });
@@ -74,9 +94,13 @@ test('index counts the issues of the repositories', function (): void {
     $response = $this->get(route(RouteName::REPOSITORIES));
 
     $response->assertViewHas(
-        'otherRepositories',
-        static function (RepositoryCollection $viewOtherRepositories): bool {
-            return $viewOtherRepositories->sole()->issues_count === 1;
+        'repositoryGroups',
+        static function (RepositoryGroupCollection $viewRepositoryGroups): bool {
+            $otherGroup = $viewRepositoryGroups->firstOrFail(static function (RepositoryGroup $repositoryGroup): bool {
+                return $repositoryGroup->kind === RepositoryKind::OTHER;
+            });
+
+            return $otherGroup->repositories->sole()->issues_count === 1;
         },
     );
 });
@@ -89,11 +113,100 @@ test('index counts the pull requests of the repositories', function (): void {
     $response = $this->get(route(RouteName::REPOSITORIES));
 
     $response->assertViewHas(
-        'otherRepositories',
-        static function (RepositoryCollection $viewOtherRepositories): bool {
-            return $viewOtherRepositories->sole()->pull_requests_count === 1;
+        'repositoryGroups',
+        static function (RepositoryGroupCollection $viewRepositoryGroups): bool {
+            $otherGroup = $viewRepositoryGroups->firstOrFail(static function (RepositoryGroup $repositoryGroup): bool {
+                return $repositoryGroup->kind === RepositoryKind::OTHER;
+            });
+
+            return $otherGroup->repositories->sole()->pull_requests_count === 1;
         },
     );
+});
+
+test('index on a kind contains only the group of that kind', function (): void {
+    Repository::factory()->create(['composer_json_version' => null]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::REPOSITORIES, [RepositoryFilter::KIND_PARAMETER => RepositoryKind::OTHER->value]));
+
+    $response->assertViewHas(
+        'repositoryGroups',
+        static function (RepositoryGroupCollection $viewRepositoryGroups): bool {
+            return $viewRepositoryGroups->sole()->kind === RepositoryKind::OTHER;
+        },
+    );
+});
+
+test('index on a visibility contains only the repositories of that visibility', function (): void {
+    $repository = Repository::factory()->create([
+        'composer_json_version' => null,
+        'visibility' => RepositoryVisibility::PRIVATE,
+    ]);
+    Repository::factory()->create([
+        'composer_json_version' => null,
+        'visibility' => RepositoryVisibility::PUBLIC,
+    ]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::REPOSITORIES, [RepositoryFilter::VISIBILITY_PARAMETER => RepositoryVisibility::PRIVATE->value]));
+
+    $response->assertViewHas(
+        'repositoryGroups',
+        static function (RepositoryGroupCollection $viewRepositoryGroups) use ($repository): bool {
+            $otherGroup = $viewRepositoryGroups->firstOrFail(static function (RepositoryGroup $repositoryGroup): bool {
+                return $repositoryGroup->kind === RepositoryKind::OTHER;
+            });
+
+            return $otherGroup->repositories->sole()->is($repository);
+        },
+    );
+});
+
+test('index contains the kind filter of the repository filter', function (): void {
+    Repository::factory()->create(['composer_json_version' => null]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::REPOSITORIES, [RepositoryFilter::KIND_PARAMETER => RepositoryKind::PROJECT->value]));
+
+    $response->assertViewHas('kindFilter', static function (Filter $viewKindFilter): bool {
+        $otherOption = $viewKindFilter->options->firstOrFail(static function (FilterOption $filterOption): bool {
+            return $filterOption->queryParameters === [RepositoryFilter::KIND_PARAMETER => RepositoryKind::OTHER->value];
+        });
+
+        return $otherOption->count === 1;
+    });
+});
+
+test('index contains the visibility filter of the repository filter', function (): void {
+    Repository::factory()->create(['visibility' => RepositoryVisibility::PUBLIC]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::REPOSITORIES, [RepositoryFilter::VISIBILITY_PARAMETER => RepositoryVisibility::PRIVATE->value]));
+
+    $response->assertViewHas('visibilityFilter', static function (Filter $viewVisibilityFilter): bool {
+        $publicOption = $viewVisibilityFilter->options->firstOrFail(static function (FilterOption $filterOption): bool {
+            return $filterOption->queryParameters === [RepositoryFilter::VISIBILITY_PARAMETER => RepositoryVisibility::PUBLIC->value];
+        });
+
+        return $publicOption->count === 1;
+    });
+});
+
+test('index refuses an unknown kind', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::REPOSITORIES, [RepositoryFilter::KIND_PARAMETER => fake()->word()]));
+
+    $response->assertInvalid(RepositoryFilter::KIND_PARAMETER);
+});
+
+test('index refuses an unknown visibility', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::REPOSITORIES, [RepositoryFilter::VISIBILITY_PARAMETER => fake()->word()]));
+
+    $response->assertInvalid(RepositoryFilter::VISIBILITY_PARAMETER);
 });
 
 test('show contains the repository', function (): void {

@@ -10,6 +10,7 @@ use Maarheeze\Compass\Alerts\Jobs\HandleConditionObservations;
 use Maarheeze\Compass\Alerts\Listeners\SiteEndpoint\EvaluateSiteEndpointDown;
 use Maarheeze\Compass\Alerts\Types\SiteEndpointDown;
 use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
+use Maarheeze\Compass\Collector\SiteEndpoint\SiteEndpointState;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
 
@@ -17,7 +18,7 @@ test('handle observes the endpoint down at the check for a failed check', functi
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $siteEndpoint = SiteEndpoint::factory()->create();
-    $siteEndpointCheck = SiteEndpointCheck::factory()->create(['is_successful' => false]);
+    $siteEndpointCheck = SiteEndpointCheck::factory()->create(['state' => SiteEndpointState::DOWN]);
 
     $evaluateDownSiteEndpoint = $this->app->make(EvaluateSiteEndpointDown::class);
     $evaluateDownSiteEndpoint->handle(new SiteEndpointChecked($siteEndpoint, $siteEndpointCheck));
@@ -35,11 +36,11 @@ test('handle observes the endpoint down at the check for a failed check', functi
     );
 });
 
-test('handle observes the endpoint no longer down at the check for a successful check', function (): void {
+test('handle observes the endpoint no longer down at the check for an up check', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $siteEndpoint = SiteEndpoint::factory()->create();
-    $siteEndpointCheck = SiteEndpointCheck::factory()->create(['is_successful' => true]);
+    $siteEndpointCheck = SiteEndpointCheck::factory()->create(['state' => SiteEndpointState::UP]);
 
     $evaluateDownSiteEndpoint = $this->app->make(EvaluateSiteEndpointDown::class);
     $evaluateDownSiteEndpoint->handle(new SiteEndpointChecked($siteEndpoint, $siteEndpointCheck));

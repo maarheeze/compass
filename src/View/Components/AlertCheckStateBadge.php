@@ -10,12 +10,14 @@ use Illuminate\View\Component;
 use Maarheeze\Compass\Alerts\AlertCheckState;
 use Maarheeze\Compass\Alerts\AlertCheckStateClassifier;
 use Maarheeze\Compass\Models\AlertCheck;
+use Maarheeze\Compass\View\AlertCheckStateBadgeType;
 use Maarheeze\Compass\View\BadgeType;
 
 class AlertCheckStateBadge extends Component
 {
     public function __construct(
         public readonly AlertCheck $alertCheck,
+        private readonly AlertCheckStateBadgeType $alertCheckStateBadgeType,
         private readonly AlertCheckStateClassifier $alertCheckStateClassifier,
         private readonly ViewFactory $view,
     ) {
@@ -23,11 +25,7 @@ class AlertCheckStateBadge extends Component
 
     public function badgeType(): BadgeType
     {
-        return match ($this->state()) {
-            AlertCheckState::FAILING => BadgeType::DANGER,
-            AlertCheckState::MUTED => BadgeType::NEUTRAL,
-            AlertCheckState::OK => BadgeType::SUCCESS,
-        };
+        return $this->alertCheckStateBadgeType->badgeType($this->state());
     }
 
     public function render(): View

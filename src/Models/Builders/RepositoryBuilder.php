@@ -6,8 +6,10 @@ namespace Maarheeze\Compass\Models\Builders;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Maarheeze\Compass\Collections\RepositoryCollection;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
+use Webmozart\Assert\Assert;
 
 use function sprintf;
 
@@ -34,6 +36,18 @@ class RepositoryBuilder extends Builder
     public function dependabotYmlOutOfDate(): self
     {
         return $this->storedFileOutOfDate('dependabot_yml_version', 'dependabotYml');
+    }
+
+    public function listed(): RepositoryCollection
+    {
+        return Assert::isInstanceOf(
+            $this
+                ->with('composerJson')
+                ->withCount(['issues', 'pullRequests'])
+                ->orderBy('name')
+                ->get(),
+            RepositoryCollection::class,
+        );
     }
 
     public function missing(): self

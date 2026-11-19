@@ -6,26 +6,30 @@ namespace Maarheeze\Compass\Models\Builders;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Maarheeze\Compass\Collections\IssueCollection;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Uuid\Uuid;
+use Webmozart\Assert\Assert;
 
 /**
  * @extends Builder<Issue>
  */
 class IssueBuilder extends Builder
 {
-    public function assignedTo(string $source, string $login): self
-    {
-        return $this
-            ->ofSource($source)
-            ->whereHas('assignees', static function (Builder $assigneeQuery) use ($login): void {
-                $assigneeQuery->where('login', $login);
-            });
-    }
-
     public function latestOpened(): self
     {
         return $this->latest('opened_at');
+    }
+
+    public function listed(): IssueCollection
+    {
+        return Assert::isInstanceOf(
+            $this
+                ->with(['assignees', 'repository'])
+                ->latestOpened()
+                ->get(),
+            IssueCollection::class,
+        );
     }
 
     public function notReturnedByRun(Uuid $runId): self

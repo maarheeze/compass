@@ -5,144 +5,42 @@
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
         <x-compass::repository-missing-notice :repository="$repository" />
 
-        <div class="space-y-1">
-            <div class="flex items-center gap-3">
-                <x-compass::subject-name :subject="$repository">
-                    <h1 class="text-lg font-semibold text-foreground">{{ $repository->name }}</h1>
-                </x-compass::subject-name>
-            </div>
-            <p class="flex flex-wrap items-center gap-x-2 text-sm text-foreground-muted">
-                <span>
-                    <x-compass::enum-label :labelled-enum="$kind" />
-                </span>
-                <span>&middot;</span>
-                <span class="lowercase"><x-compass::enum-label :labelled-enum="$repository->visibility" /></span>
-                <span>&middot;</span>
-                <span>{{ $repository->default_branch }}</span>
-                @if ($repository->composerJson?->php_constraint)
-                    <span>&middot;</span>
-                    <span>PHP {{ $repository->composerJson->php_constraint }}</span>
-                @endif
-                <span>&middot;</span>
-                <span>
-                    {{ __('compass::repository.collected') }}
-                    <x-compass::time :time="$repository->collected_at" />
-                </span>
-            </p>
+        <div class="flex items-center gap-3">
+            <x-compass::subject-name :subject="$repository">
+                <h1 class="text-lg font-semibold text-foreground">{{ $repository->name }}</h1>
+            </x-compass::subject-name>
         </div>
 
-        <section class="space-y-3">
-            <x-compass::section-heading>
-                <x-slot:icon>
-                    <x-compass::icons.alert />
-                </x-slot:icon>
-                {{ __('compass::alert.alerts') }}
-            </x-compass::section-heading>
+        <x-compass::page-columns>
             <x-compass::alert-table :alerts="$repository->alerts" data-compass-live-region="alerts" />
-        </section>
 
-        <section class="space-y-3">
-            <x-compass::section-heading>
-                <x-slot:icon>
-                    <x-compass::icons.check-circle />
-                </x-slot:icon>
-                {{ __('compass::alert-check.checks') }}
-            </x-compass::section-heading>
             <x-compass::alert-check-table :alert-checks="$alertChecks" />
-        </section>
 
-        <section class="space-y-3">
-            <x-compass::section-heading>
-                <x-slot:icon>
-                    <x-compass::icons.issue-opened />
-                </x-slot:icon>
-                {{ __('compass::navigation.issues') }}
-            </x-compass::section-heading>
+            <x-compass::issue-list :issues="$repository->issues" />
 
-            <div class="overflow-hidden rounded-md border border-border bg-canvas">
-                <table class="w-full table-fixed text-left text-sm">
-                    <tbody class="divide-y divide-border">
-                        @forelse ($repository->issues as $issue)
-                            <x-compass::issue-row :issue="$issue" />
-                        @empty
-                            <tr>
-                                <td colspan="2" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::issue.no_open_issues') }}</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </section>
+            <x-compass::pull-request-list :pull-requests="$repository->pullRequests" />
 
-        <section class="space-y-3">
-            <x-compass::section-heading>
-                <x-slot:icon>
-                    <x-compass::icons.git-pull-request />
-                </x-slot:icon>
-                {{ __('compass::navigation.pull_requests') }}
-            </x-compass::section-heading>
+            <x-compass::site-list :sites="$repository->sites" />
 
-            <div class="overflow-hidden rounded-md border border-border bg-canvas">
-                <table class="w-full table-fixed text-left text-sm">
-                    <tbody class="divide-y divide-border">
-                        @forelse ($repository->pullRequests as $pullRequest)
-                            <x-compass::pull-request-row :pull-request="$pullRequest" />
-                        @empty
-                            <tr>
-                                <td colspan="2" class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::pull-request.no_open_pull_requests') }}</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <section class="space-y-3">
-            <x-compass::section-heading>
-                <x-slot:icon>
-                    <x-compass::icons.server />
-                </x-slot:icon>
-                {{ __('compass::repository.sites') }}
-            </x-compass::section-heading>
-
-            <div class="overflow-hidden rounded-md border border-border bg-canvas">
-                <table class="w-full table-fixed text-left text-sm">
-                    <tbody class="divide-y divide-border">
-                        @forelse ($repository->sites as $site)
-                            <x-compass::site-row :site="$site" />
-                        @empty
-                            <tr>
-                                <td class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::repository.no_sites') }}</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        @if ($repository->composerJson)
-            <details class="group rounded-md border border-border bg-canvas">
-                <summary class="flex cursor-pointer items-center gap-2 px-4 py-3 text-sm">
-                    <span class="text-foreground-muted transition group-open:rotate-90">&rsaquo;</span>
-                    <x-compass::section-heading>
-                        <x-slot:icon>
-                            <x-compass::icons.file-code />
-                        </x-slot:icon>
-                        composer.json
-                    </x-compass::section-heading>
-                    @if ($repository->composerJson->type)
-                        <span class="text-foreground-muted">&middot; {{ $repository->composerJson->type }}</span>
-                    @endif
-                    @if ($repository->composerJson->php_constraint)
-                        <span class="text-foreground-muted">&middot; PHP {{ $repository->composerJson->php_constraint }}</span>
-                    @endif
-                    <span class="text-foreground-muted">&middot; {{ __('compass::composer.production_count', ['count' => $repository->composerJson->productionPackages->count()]) }}</span>
-                    <span class="text-foreground-muted">&middot; {{ __('compass::composer.development_count', ['count' => $repository->composerJson->developmentPackages->count()]) }}</span>
-                </summary>
-
-                <table class="w-full table-fixed border-t border-border text-left text-sm">
-                    @if ($repository->composerJson->productionPackages->isNotEmpty())
-                        <tbody class="divide-y divide-border">
+            @if ($repository->composerJson)
+                <x-compass::list>
+                    <x-slot:icon>
+                        <x-compass::icons.file-code />
+                    </x-slot:icon>
+                    <x-slot:title>composer.json</x-slot:title>
+                    <x-slot:counts>
+                        @if ($repository->composerJson->type)
+                            <span class="text-foreground-muted">{{ $repository->composerJson->type }}</span>
+                        @endif
+                        @if ($repository->composerJson->productionPackages->isNotEmpty())
+                            <x-compass::badge type="neutral">{{ __('compass::composer.production_count', ['count' => $repository->composerJson->productionPackages->count()]) }}</x-compass::badge>
+                        @endif
+                        @if ($repository->composerJson->developmentPackages->isNotEmpty())
+                            <x-compass::badge type="neutral">{{ __('compass::composer.development_count', ['count' => $repository->composerJson->developmentPackages->count()]) }}</x-compass::badge>
+                        @endif
+                    </x-slot:counts>
+                    <x-slot:more-rows>
+                        @if ($repository->composerJson->productionPackages->isNotEmpty())
                             <tr>
                                 <th class="bg-canvas-subtle px-4 py-2 text-xs font-medium text-foreground-muted">{{ __('compass::composer.production') }}</th>
                             </tr>
@@ -151,10 +49,8 @@
                                     <span class="font-mono">{{ $package->constraint }}</span>
                                 </x-compass::composer.package-row>
                             @endforeach
-                        </tbody>
-                    @endif
-                    @if ($repository->composerJson->developmentPackages->isNotEmpty())
-                        <tbody class="divide-y divide-border border-t border-border">
+                        @endif
+                        @if ($repository->composerJson->developmentPackages->isNotEmpty())
                             <tr>
                                 <th class="bg-canvas-subtle px-4 py-2 text-xs font-medium text-foreground-muted">{{ __('compass::composer.development') }}</th>
                             </tr>
@@ -163,32 +59,32 @@
                                     <span class="font-mono">{{ $package->constraint }}</span>
                                 </x-compass::composer.package-row>
                             @endforeach
-                        </tbody>
-                    @endif
-                </table>
-            </details>
-        @else
-            <p class="text-sm text-foreground-muted">{{ __('compass::composer.no_composer_json') }}</p>
-        @endif
+                        @endif
+                    </x-slot:more-rows>
+                </x-compass::list>
+            @else
+                <x-compass::list>
+                    <x-slot:icon>
+                        <x-compass::icons.file-code />
+                    </x-slot:icon>
+                    <x-slot:title>composer.json</x-slot:title>
+                    <x-slot:empty>{{ __('compass::composer.composer_json_none') }}</x-slot:empty>
+                </x-compass::list>
+            @endif
 
-        @if ($repository->composerLock)
-            <details class="group rounded-md border border-border bg-canvas">
-                <summary class="flex cursor-pointer items-center gap-2 px-4 py-3 text-sm">
-                    <span class="text-foreground-muted transition group-open:rotate-90">&rsaquo;</span>
-                    <x-compass::section-heading>
-                        <x-slot:icon>
-                            <x-compass::icons.file-code />
-                        </x-slot:icon>
-                        composer.lock
-                    </x-compass::section-heading>
-                    @if ($repository->composerLock->php_constraint)
-                        <span class="text-foreground-muted">&middot; PHP {{ $repository->composerLock->php_constraint }}</span>
-                    @endif
-                    <span class="text-foreground-muted">&middot; {{ __('compass::composer.package_count', ['count' => $repository->composerLock->packages->count()]) }}</span>
-                </summary>
-
-                <table class="w-full table-fixed border-t border-border text-left text-sm">
-                    <tbody class="divide-y divide-border">
+            @if ($repository->composerLock)
+                <x-compass::list>
+                    <x-slot:icon>
+                        <x-compass::icons.file-code />
+                    </x-slot:icon>
+                    <x-slot:title>composer.lock</x-slot:title>
+                    <x-slot:counts>
+                        @if ($repository->composerLock->php_constraint)
+                            <span class="text-foreground-muted">PHP {{ $repository->composerLock->php_constraint }}</span>
+                        @endif
+                        <x-compass::badge type="neutral">{{ __('compass::composer.package_count', ['count' => $repository->composerLock->packages->count()]) }}</x-compass::badge>
+                    </x-slot:counts>
+                    <x-slot:more-rows>
                         @foreach ($repository->composerLock->packages as $package)
                             <x-compass::composer.package-row :package-name="$package->name">
                                 <span class="font-mono">{{ $package->version }}</span>
@@ -198,11 +94,39 @@
                                 </span>
                             </x-compass::composer.package-row>
                         @endforeach
-                    </tbody>
-                </table>
-            </details>
-        @else
-            <p class="text-sm text-foreground-muted">{{ __('compass::composer.no_composer_lock') }}</p>
-        @endif
+                    </x-slot:more-rows>
+                </x-compass::list>
+            @else
+                <x-compass::list>
+                    <x-slot:icon>
+                        <x-compass::icons.file-code />
+                    </x-slot:icon>
+                    <x-slot:title>composer.lock</x-slot:title>
+                    <x-slot:empty>{{ __('compass::composer.composer_lock_none') }}</x-slot:empty>
+                </x-compass::list>
+            @endif
+
+            <x-slot:aside>
+                <x-compass::sidebar-section :title="__('compass::repository.about')">
+                    <dl class="space-y-2">
+                        <x-compass::fact :label="__('compass::repository.kind')">
+                            <x-compass::enum-label :labelled-enum="$kind" />
+                        </x-compass::fact>
+                        <x-compass::fact :label="__('compass::repository.visibility')">
+                            <x-compass::enum-label :labelled-enum="$repository->visibility" />
+                        </x-compass::fact>
+                        <x-compass::fact :label="__('compass::repository.default_branch')">{{ $repository->default_branch }}</x-compass::fact>
+                        @if ($repository->composerJson?->php_constraint)
+                            <x-compass::fact :label="__('compass::repository.php')">{{ $repository->composerJson->php_constraint }}</x-compass::fact>
+                        @endif
+                    </dl>
+                </x-compass::sidebar-section>
+
+                <p class="text-xs text-foreground-muted">
+                    {{ __('compass::repository.collected') }}
+                    <x-compass::time :time="$repository->collected_at" />
+                </p>
+            </x-slot:aside>
+        </x-compass::page-columns>
     </main>
 </x-compass::layouts.app>

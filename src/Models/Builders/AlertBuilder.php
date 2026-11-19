@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Models\Builders;
 
 use Illuminate\Contracts\Database\Eloquent\Builder as QueryBuilder;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Maarheeze\Compass\Alerts\AlertStatus;
-use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Alerts\AlertType;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Site;
@@ -18,9 +15,9 @@ use Maarheeze\Compass\Models\SiteReport;
 use Maarheeze\Compass\Models\User;
 
 /**
- * @extends Builder<Alert>
+ * @extends SubjectBuilder<Alert>
  */
-class AlertBuilder extends Builder
+class AlertBuilder extends SubjectBuilder
 {
     public function assigned(): self
     {
@@ -71,7 +68,7 @@ class AlertBuilder extends Builder
     public function ofSite(Site $site): self
     {
         return $this->where(static function (self $alertQuery) use ($site): void {
-            $alertQuery->ofSubject($site);
+            $alertQuery->ofSiteOrItsReports($site);
             $alertQuery->orWhereHasMorph(
                 'subject',
                 [SiteEndpoint::class],
@@ -79,19 +76,7 @@ class AlertBuilder extends Builder
                     $siteEndpointQuery->whereRelation('siteReport', 'site_id', $site->id);
                 },
             );
-            $alertQuery->orWhereHasMorph(
-                'subject',
-                [SiteReport::class],
-                static function (QueryBuilder $siteReportQuery) use ($site): void {
-                    $siteReportQuery->where('site_id', $site->id);
-                },
-            );
         });
-    }
-
-    public function ofSubject(AlertSubject&Model $alertSubject): self
-    {
-        return $this->whereMorphedTo('subject', $alertSubject);
     }
 
     public function ofType(AlertType $alertType): self

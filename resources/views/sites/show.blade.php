@@ -12,170 +12,83 @@
                 </x-compass::subject-name>
                 <x-compass::deployment-state-badge :site="$site" />
             </div>
-            <p class="flex flex-wrap items-center gap-x-2 text-sm text-foreground-muted">
-                <a href="{{ $site->url }}" target="_blank" rel="noopener" class="text-accent hover:underline">{{ $site->url }}</a>
-                @if ($site->repository)
-                    <span>&middot;</span>
-                    <span>
-                        <x-compass::repository-link :repository="$site->repository" />
-                        @if ($site->repository_branch)
-                            &#64; {{ $site->repository_branch }}
-                        @endif
-                    </span>
-                @elseif ($site->repository_url)
-                    <span>&middot;</span>
-                    <span>
-                        {{ $site->repository_url }}
-                        @if ($site->repository_branch)
-                            &#64; {{ $site->repository_branch }}
-                        @endif
-                    </span>
-                @endif
-                @if ($site->auto_deploy !== null)
-                    <span>&middot;</span>
-                    <span>
-                        @if ($site->auto_deploy)
-                            {{ __('compass::site.auto_deploy_on') }}
-                        @else
-                            {{ __('compass::site.auto_deploy_off') }}
-                        @endif
-                    </span>
-                @endif
-                @if ($site->php_version)
-                    <span>&middot;</span>
-                    <span>{{ $site->php_version }}</span>
-                @endif
-                <span>&middot;</span>
-                <span title="{{ $site->server_ip_address }}">{{ $site->server_name }}</span>
-                <span>&middot;</span>
-                <span>
-                    {{ __('compass::site.collected') }}
-                    <x-compass::time :time="$site->collected_at" />
-                </span>
-            </p>
+            <a href="{{ $site->url }}" target="_blank" rel="noopener" class="text-sm text-accent hover:underline">{{ $site->url }}</a>
         </div>
 
-        <section class="space-y-3">
-            <x-compass::section-heading>
-                <x-slot:icon>
-                    <x-compass::icons.alert />
-                </x-slot:icon>
-                {{ __('compass::alert.alerts') }}
-            </x-compass::section-heading>
+        <x-compass::page-columns>
+            @foreach ($site->reports as $siteReport)
+                <x-compass::site-client-install-notice :site-report="$siteReport" />
+                <x-compass::site-client-key-notice :site-report="$siteReport" />
+            @endforeach
+
             <x-compass::alert-table :alerts="$alerts" data-compass-live-region="alerts" />
-        </section>
 
-        <section class="space-y-3">
-            <x-compass::section-heading>
-                <x-slot:icon>
-                    <x-compass::icons.check-circle />
-                </x-slot:icon>
-                {{ __('compass::alert-check.checks') }}
-            </x-compass::section-heading>
             <x-compass::alert-check-table :alert-checks="$alertChecks" />
-        </section>
 
-        <section class="space-y-3">
-            <x-compass::section-heading>
-                <x-slot:icon>
-                    <x-compass::icons.rocket />
-                </x-slot:icon>
-                {{ __('compass::site.latest_deployment') }}
-            </x-compass::section-heading>
+            <x-compass::site-endpoint-table
+                :site="$site"
+                :reported-site-endpoints="$reportedSiteEndpoints"
+                :inactive-site-endpoint-checks="$inactiveSiteEndpointChecks" />
 
-            <div class="rounded-md border border-border bg-canvas px-4 py-3 text-sm">
-                <p class="flex flex-wrap items-center gap-x-2 text-foreground-muted">
-                    <span>
+            <x-slot:aside>
+                <x-compass::sidebar-section :title="__('compass::site.about')">
+                    <dl class="space-y-2">
+                        <x-compass::fact :label="__('compass::site.repository')">
+                            @if ($site->repository)
+                                <x-compass::repository-link :repository="$site->repository" />
+                            @elseif ($site->repository_url)
+                                {{ $site->repository_url }}
+                            @else
+                                &mdash;
+                            @endif
+                            @if ($site->repository_branch)
+                                <span class="text-foreground-muted">&#64; {{ $site->repository_branch }}</span>
+                            @endif
+                        </x-compass::fact>
+                        <x-compass::fact :label="__('compass::site.server')">
+                            <span title="{{ $site->server_ip_address }}">{{ $site->server_name }}</span>
+                            @if ($site->php_version)
+                                <span class="text-foreground-muted">&middot; {{ $site->php_version }}</span>
+                            @endif
+                        </x-compass::fact>
+                    </dl>
+                </x-compass::sidebar-section>
+
+                <x-compass::sidebar-section :title="__('compass::site.deployment')">
+                    <dl class="space-y-2">
                         @if ($site->deployment_status !== null)
-                            <x-compass::enum-label :labelled-enum="$site->deployment_status" />
+                            <x-compass::fact :label="__('compass::site.latest_deployment')">
+                                <x-compass::deployment-status-badge :status="$site->deployment_status" />
+                                @if ($site->latestDeploymentTime() !== null)
+                                    <span class="text-foreground-muted">&middot; <x-compass::time :time="$site->latestDeploymentTime()" /></span>
+                                @endif
+                            </x-compass::fact>
                         @endif
-                    </span>
-                    @if ($site->deployment_ended_at)
-                        <span>&middot;</span>
-                        <span>
-                            {{ __('compass::site.finished') }}
-                            <x-compass::time :time="$site->deployment_ended_at" />
-                        </span>
-                    @elseif ($site->deployment_started_at)
-                        <span>&middot;</span>
-                        <span>
-                            {{ __('compass::site.started') }}
-                            <x-compass::time :time="$site->deployment_started_at" />
-                        </span>
-                    @endif
+                        @if ($site->auto_deploy !== null)
+                            <x-compass::fact :label="__('compass::site.auto_deploy')">
+                                @if ($site->auto_deploy)
+                                    {{ __('compass::site.auto_deploy_on') }}
+                                @else
+                                    {{ __('compass::site.auto_deploy_off') }}
+                                @endif
+                            </x-compass::fact>
+                        @endif
+                    </dl>
+                </x-compass::sidebar-section>
+
+                <x-compass::sidebar-section :title="__('compass::site.report')">
+                    @forelse ($site->reports as $siteReport)
+                        <x-compass::site-report-details :site-report="$siteReport" />
+                    @empty
+                        <x-compass::site-report-not-checked-badge />
+                    @endforelse
+                </x-compass::sidebar-section>
+
+                <p class="text-xs text-foreground-muted">
+                    {{ __('compass::site.collected') }}
+                    <x-compass::time :time="$site->collected_at" />
                 </p>
-            </div>
-        </section>
-
-        <section class="space-y-3">
-            <x-compass::section-heading>
-                <x-slot:icon>
-                    <x-compass::icons.file-code />
-                </x-slot:icon>
-                {{ __('compass::site.reports') }}
-            </x-compass::section-heading>
-
-            <div class="space-y-4 rounded-md border border-border bg-canvas px-4 py-3 text-sm">
-                @forelse ($site->reports as $siteReport)
-                    <div class="flex items-start gap-4">
-                        <div class="flex-1 space-y-3">
-                            <x-compass::site-client-install-notice :site-report="$siteReport" />
-                            <x-compass::site-client-key-notice :site-report="$siteReport" />
-                            <x-compass::site-report-details :site-report="$siteReport" />
-                            <x-compass::alert-check-table :alert-checks="$siteReport->alertChecks" />
-                        </div>
-
-                        <x-compass::site-report-edit-link :site-report="$siteReport" />
-                    </div>
-                @empty
-                    <x-compass::site-report-not-checked-badge />
-                @endforelse
-            </div>
-        </section>
-
-        <section class="space-y-3">
-            <x-compass::section-heading>
-                <x-slot:icon>
-                    <x-compass::icons.check-circle />
-                </x-slot:icon>
-                {{ __('compass::site.endpoint_history') }}
-            </x-compass::section-heading>
-
-            <div class="overflow-hidden rounded-md border border-border bg-canvas">
-                <table class="w-full table-fixed text-left text-sm">
-                    <tbody class="divide-y divide-border">
-                        @foreach ($reportedSiteEndpoints as $reportedSiteEndpoint)
-                            <x-compass::site-endpoint-check.row
-                                :site="$site"
-                                :path="$reportedSiteEndpoint->path"
-                                :site-endpoint-check="$reportedSiteEndpoint->latestCheck">
-                                <x-slot:schedule>
-                                    <span>&middot;</span>
-                                    <span>{{ trans_choice('compass::site.frequency', $reportedSiteEndpoint->frequency_minutes) }}</span>
-                                    <span>&middot;</span>
-                                    <span>
-                                        {{ __('compass::site.due') }}
-                                        <x-compass::time :time="$reportedSiteEndpoint->due_at" />
-                                    </span>
-                                </x-slot:schedule>
-                            </x-compass::site-endpoint-check.row>
-                        @endforeach
-                        @foreach ($inactiveSiteEndpointChecks as $inactiveSiteEndpointCheck)
-                            <x-compass::site-endpoint-check.row
-                                :site="$site"
-                                :path="$inactiveSiteEndpointCheck->path"
-                                :site-endpoint-check="$inactiveSiteEndpointCheck">
-                                <x-compass::badge type="neutral">{{ __('compass::site.inactive') }}</x-compass::badge>
-                            </x-compass::site-endpoint-check.row>
-                        @endforeach
-                        @if ($reportedSiteEndpoints->isEmpty() && $inactiveSiteEndpointChecks->isEmpty())
-                            <tr>
-                                <td class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::site.no_endpoints_checked') }}</td>
-                            </tr>
-                        @endif
-                    </tbody>
-                </table>
-            </div>
-        </section>
+            </x-slot:aside>
+        </x-compass::page-columns>
     </main>
 </x-compass::layouts.app>

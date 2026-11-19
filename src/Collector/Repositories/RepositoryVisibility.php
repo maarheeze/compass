@@ -10,9 +10,15 @@ use function sprintf;
 
 enum RepositoryVisibility: string implements LabelledEnum
 {
-    case INTERNAL = 'INTERNAL';
-    case PRIVATE = 'PRIVATE';
-    case PUBLIC = 'PUBLIC';
+    case INTERNAL = 'internal';
+    case PRIVATE = 'private';
+    case PUBLIC = 'public';
+
+    public const array DISPLAY_ORDER = [
+        self::PUBLIC,
+        self::PRIVATE,
+        self::INTERNAL,
+    ];
 
     public function labelKey(): string
     {

@@ -2,19 +2,14 @@
     <x-slot:title>{{ __('compass::navigation.sites') }}</x-slot:title>
     <x-compass::navigation />
 
-    <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
-        <div class="overflow-hidden rounded-md border border-border bg-canvas">
-            <table class="w-full table-fixed text-left text-sm">
-                <tbody class="divide-y divide-border">
-                    @forelse ($sites as $site)
-                        <x-compass::site-row :site="$site" />
-                    @empty
-                        <tr>
-                            <td class="px-4 py-6 text-center text-foreground-muted">{{ __('compass::site.no_sites') }}</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+    <main class="mx-auto max-w-7xl px-4 py-6 md:px-6 lg:px-8">
+        <x-compass::page-columns>
+            <x-compass::site-list :sites="$sites" />
+
+            <x-slot:aside>
+                <x-compass::filter-section :filter="$serverFilter" />
+                <x-compass::filter-section :filter="$phpVersionFilter" />
+            </x-slot:aside>
+        </x-compass::page-columns>
     </main>
 </x-compass::layouts.app>

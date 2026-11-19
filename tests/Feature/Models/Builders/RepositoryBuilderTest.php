@@ -377,3 +377,13 @@ test('of source leaves out a repository of another source', function (): void {
     expect($repositoriesOfSource)
         ->toBeEmpty();
 });
+
+test('listed is the repositories in the order of their name', function (): void {
+    $bravoRepository = Repository::factory()->create(['name' => 'bravo']);
+    $alphaRepository = Repository::factory()->create(['name' => 'alpha']);
+
+    $listedRepositories = Repository::query()->listed();
+
+    expect($listedRepositories->modelKeys())
+        ->toEqual([$alphaRepository->getKey(), $bravoRepository->getKey()]);
+});

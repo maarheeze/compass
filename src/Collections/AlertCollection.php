@@ -7,6 +7,7 @@ namespace Maarheeze\Compass\Collections;
 use Illuminate\Database\Eloquent\Collection;
 use Maarheeze\Compass\Alerts\AlertLevel;
 use Maarheeze\Compass\Alerts\AlertLevelCount;
+use Maarheeze\Compass\Alerts\AlertStatus;
 use Maarheeze\Compass\Alerts\AlertTypes;
 use Maarheeze\Compass\Models\Alert;
 
@@ -17,6 +18,13 @@ use function usort;
  */
 class AlertCollection extends Collection
 {
+    public function done(): self
+    {
+        return $this->filter(static function (Alert $alert): bool {
+            return $alert->status === AlertStatus::DONE;
+        });
+    }
+
     public function levelCounts(AlertTypes $alertTypes): AlertLevelCountCollection
     {
         $alertLevels = AlertLevel::cases();
@@ -42,6 +50,20 @@ class AlertCollection extends Collection
         return $alertLevelCounts;
     }
 
+    public function mutedOpen(): self
+    {
+        return $this->filter(static function (Alert $alert): bool {
+            return $alert->is_muted && $alert->status === AlertStatus::OPEN;
+        });
+    }
+
+    public function mutedOrDone(): self
+    {
+        return $this->filter(static function (Alert $alert): bool {
+            return $alert->is_muted || $alert->status === AlertStatus::DONE;
+        });
+    }
+
     public function sortedByLevel(AlertTypes $alertTypes): self
     {
         return $this
@@ -49,6 +71,13 @@ class AlertCollection extends Collection
                 return self::alertLevel($alert, $alertTypes)->order();
             })
             ->values();
+    }
+
+    public function unmutedOpen(): self
+    {
+        return $this->filter(static function (Alert $alert): bool {
+            return !$alert->is_muted && $alert->status === AlertStatus::OPEN;
+        });
     }
 
     private static function alertLevel(Alert $alert, AlertTypes $alertTypes): AlertLevel

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('path');
             $table->string('url');
             $table->unsignedSmallInteger('status_code')->nullable();
-            $table->boolean('is_successful');
+            $table->string('state');
 
             $table->timestamps();
 

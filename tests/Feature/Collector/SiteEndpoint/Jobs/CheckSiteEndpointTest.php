@@ -9,6 +9,7 @@ use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Collector\SiteEndpoint\Jobs\CheckSiteEndpoint;
+use Maarheeze\Compass\Collector\SiteEndpoint\SiteEndpointState;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
@@ -98,7 +99,7 @@ test('handle adds the site and path of the endpoint to the log context', functio
         ]);
 });
 
-test('handle records a check of an endpoint that responds with a 2xx status code as successful', function (): void {
+test('handle records a check of an endpoint that responds with a 2xx status code as up', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, fake()->numberBetween(200, 299))]);
 
@@ -108,11 +109,11 @@ test('handle records a check of an endpoint that responds with a 2xx status code
     $this->assertDatabaseHas(SiteEndpointCheck::class, [
         'site_id' => $siteEndpoint->siteReport->site_id,
         'path' => $siteEndpoint->path,
-        'is_successful' => true,
+        'state' => SiteEndpointState::UP,
     ]);
 });
 
-test('handle records a check of an endpoint that responds with another status code as unsuccessful', function (): void {
+test('handle records a check of an endpoint that responds with another status code as down', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, fake()->numberBetween(300, 599))]);
 
@@ -122,11 +123,11 @@ test('handle records a check of an endpoint that responds with another status co
     $this->assertDatabaseHas(SiteEndpointCheck::class, [
         'site_id' => $siteEndpoint->siteReport->site_id,
         'path' => $siteEndpoint->path,
-        'is_successful' => false,
+        'state' => SiteEndpointState::DOWN,
     ]);
 });
 
-test('handle records a check of an endpoint that cannot be reached as unsuccessful', function (): void {
+test('handle records a check of an endpoint that cannot be reached as down', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::failedConnection()]);
 
@@ -136,7 +137,7 @@ test('handle records a check of an endpoint that cannot be reached as unsuccessf
     $this->assertDatabaseHas(SiteEndpointCheck::class, [
         'site_id' => $siteEndpoint->siteReport->site_id,
         'path' => $siteEndpoint->path,
-        'is_successful' => false,
+        'state' => SiteEndpointState::DOWN,
     ]);
 });
 

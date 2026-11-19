@@ -69,6 +69,16 @@ function refreshRelativeTimes() {
 let isRefreshing = false;
 let isRefreshPending = false;
 
+function keepCollapsibleToggles(liveRegion, refreshedLiveRegion) {
+    const refreshedToggles = refreshedLiveRegion.querySelectorAll('[data-compass-collapsible-toggle]');
+
+    liveRegion.querySelectorAll('[data-compass-collapsible-toggle]').forEach((toggle, index) => {
+        if (refreshedToggles[index] !== undefined) {
+            refreshedToggles[index].checked = toggle.checked;
+        }
+    });
+}
+
 async function refreshLiveRegions() {
     if (isRefreshing) {
         isRefreshPending = true;
@@ -87,6 +97,7 @@ async function refreshLiveRegions() {
             const refreshedLiveRegion = refreshedDocument.querySelector(`[data-compass-live-region="${liveRegionName}"]`);
 
             if (refreshedLiveRegion !== null) {
+                keepCollapsibleToggles(liveRegion, refreshedLiveRegion);
                 liveRegion.replaceWith(refreshedLiveRegion);
             }
         });

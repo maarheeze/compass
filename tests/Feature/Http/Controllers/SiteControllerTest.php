@@ -12,6 +12,7 @@ use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCollection;
 use Maarheeze\Compass\Http\RouteName;
+use Maarheeze\Compass\Http\SiteFilter;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\AlertCheck;
 use Maarheeze\Compass\Models\Site;
@@ -20,6 +21,7 @@ use Maarheeze\Compass\Models\SiteEndpointCheck;
 use Maarheeze\Compass\Models\SiteReport;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
+use Maarheeze\Compass\View\Filter;
 
 test('index contains the sites', function (): void {
     $site = Site::factory()->create();
@@ -29,6 +31,52 @@ test('index contains the sites', function (): void {
 
     $response->assertViewHas('sites', static function (SiteCollection $viewSites) use ($site): bool {
         return $viewSites->sole()->is($site);
+    });
+});
+
+test('index on a server contains only the sites on that server', function (): void {
+    $site = Site::factory()->create(['server_name' => fake()->unique()->slug()]);
+    Site::factory()->create(['server_name' => fake()->unique()->slug()]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::SITES, [SiteFilter::SERVER_PARAMETER => $site->server_name]));
+
+    $response->assertViewHas('sites', static function (SiteCollection $viewSites) use ($site): bool {
+        return $viewSites->sole()->is($site);
+    });
+});
+
+test('index on a php version contains only the sites on that php version', function (): void {
+    $site = Site::factory()->create(['php_version' => 'php84']);
+    Site::factory()->create(['php_version' => 'php83']);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::SITES, [SiteFilter::PHP_VERSION_PARAMETER => 'php84']));
+
+    $response->assertViewHas('sites', static function (SiteCollection $viewSites) use ($site): bool {
+        return $viewSites->sole()->is($site);
+    });
+});
+
+test('index contains the server filter of the site filter', function (): void {
+    $site = Site::factory()->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::SITES, [SiteFilter::SERVER_PARAMETER => fake()->unique()->slug()]));
+
+    $response->assertViewHas('serverFilter', static function (Filter $viewServerFilter) use ($site): bool {
+        return $viewServerFilter->options->sole()->queryParameters === [SiteFilter::SERVER_PARAMETER => $site->server_name];
+    });
+});
+
+test('index contains the php version filter of the site filter', function (): void {
+    Site::factory()->create(['php_version' => 'php84']);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::SITES, [SiteFilter::PHP_VERSION_PARAMETER => 'php83']));
+
+    $response->assertViewHas('phpVersionFilter', static function (Filter $viewPhpVersionFilter): bool {
+        return $viewPhpVersionFilter->options->sole()->queryParameters === [SiteFilter::PHP_VERSION_PARAMETER => 'php84'];
     });
 });
 
@@ -116,13 +164,12 @@ test('show contains the checks of the reports of the site that apply', function 
 
     $response = $this->get(route(RouteName::SITE, $siteReport->site));
 
-    $response->assertViewHas('site', static function (Site $viewSite) use ($applicableAlertCheck): bool {
-        return $viewSite->reports
-            ->sole()
-            ->alertChecks
-            ->sole()
-            ->is($applicableAlertCheck);
-    });
+    $response->assertViewHas(
+        'alertChecks',
+        static function (AlertCheckCollection $viewAlertChecks) use ($applicableAlertCheck): bool {
+            return $viewAlertChecks->sole()->is($applicableAlertCheck);
+        },
+    );
 });
 
 test('show contains the reported endpoints of the site with their latest check', function (): void {
@@ -139,7 +186,10 @@ test('show contains the reported endpoints of the site with their latest check',
         'reportedSiteEndpoints',
         static function (
             SiteEndpointCollection $viewReportedSiteEndpoints,
-        ) use ($siteEndpoint, $siteEndpointCheck): bool {
+        ) use (
+            $siteEndpoint,
+            $siteEndpointCheck,
+        ): bool {
             $viewReportedSiteEndpoint = $viewReportedSiteEndpoints->sole();
 
             return $viewReportedSiteEndpoint->is($siteEndpoint)

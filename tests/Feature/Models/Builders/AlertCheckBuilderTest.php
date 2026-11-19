@@ -32,29 +32,6 @@ test('applicable leaves out a check that does not apply', function (): void {
         ->toBeEmpty();
 });
 
-test('of subject keeps a check of the subject', function (): void {
-    $alertCheck = AlertCheck::factory()->create();
-
-    $alertChecksOfSubject = AlertCheck::query()
-        ->ofSubject($alertCheck->subject)
-        ->get();
-
-    expect($alertChecksOfSubject->sole()->is($alertCheck))
-        ->toBeTrue();
-});
-
-test('of subject leaves out a check of another subject', function (): void {
-    AlertCheck::factory()->create();
-    $repository = Repository::factory()->create();
-
-    $alertChecksOfSubject = AlertCheck::query()
-        ->ofSubject($repository)
-        ->get();
-
-    expect($alertChecksOfSubject)
-        ->toBeEmpty();
-});
-
 test('with alert muted is true for a check whose open alert is muted', function (): void {
     $alert = Alert::factory()
         ->active()

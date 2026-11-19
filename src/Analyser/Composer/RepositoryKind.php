@@ -8,11 +8,17 @@ use Maarheeze\Compass\View\LabelledEnum;
 
 use function sprintf;
 
-enum RepositoryKind implements LabelledEnum
+enum RepositoryKind: string implements LabelledEnum
 {
-    case LIBRARY;
-    case OTHER;
-    case PROJECT;
+    case LIBRARY = 'library';
+    case OTHER = 'other';
+    case PROJECT = 'project';
+
+    public const array DISPLAY_ORDER = [
+        self::PROJECT,
+        self::LIBRARY,
+        self::OTHER,
+    ];
 
     public function labelKey(): string
     {
