@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Models\Builders;
 
 use Maarheeze\Compass\Alerts\ConditionState;
+use Maarheeze\Compass\Collections\AlertCheckCollection;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\AlertCheck;
+use Webmozart\Assert\Assert;
 
 /**
  * @extends SubjectBuilder<AlertCheck>
@@ -16,6 +18,18 @@ class AlertCheckBuilder extends SubjectBuilder
     public function applicable(): self
     {
         return $this->whereNot('condition', ConditionState::NOT_APPLICABLE);
+    }
+
+    public function listed(): AlertCheckCollection
+    {
+        return Assert::isInstanceOf(
+            $this
+                ->applicable()
+                ->withAlertMuted()
+                ->orderBy('alert_type_identifier')
+                ->get(),
+            AlertCheckCollection::class,
+        );
     }
 
     public function withAlertMuted(): self

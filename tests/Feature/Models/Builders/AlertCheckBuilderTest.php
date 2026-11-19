@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Types\ComposerProjectWithoutLock;
+use Maarheeze\Compass\Alerts\Types\SiteMissing;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\AlertCheck;
 use Maarheeze\Compass\Models\Repository;
@@ -127,4 +128,20 @@ test('with alert muted is null for a check of a subject other than the alert', f
 
     expect($alertCheck->alert_is_muted)
         ->toBeNull();
+});
+
+test('listed is the checks ordered by alert type', function (): void {
+    $siteMissingCheck = AlertCheck::factory()->create([
+        'alert_type_identifier' => new SiteMissing()->identifier(),
+        'condition' => ConditionState::ACTIVE,
+    ]);
+    $projectWithoutLockCheck = AlertCheck::factory()->create([
+        'alert_type_identifier' => new ComposerProjectWithoutLock()->identifier(),
+        'condition' => ConditionState::ACTIVE,
+    ]);
+
+    $listedAlertChecks = AlertCheck::query()->listed();
+
+    expect($listedAlertChecks->modelKeys())
+        ->toEqual([$projectWithoutLockCheck->getKey(), $siteMissingCheck->getKey()]);
 });

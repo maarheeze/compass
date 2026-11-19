@@ -8,11 +8,13 @@ use Illuminate\Contracts\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Maarheeze\Compass\Alerts\AlertStatus;
 use Maarheeze\Compass\Alerts\AlertType;
+use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteReport;
 use Maarheeze\Compass\Models\User;
+use Webmozart\Assert\Assert;
 
 /**
  * @extends SubjectBuilder<Alert>
@@ -27,6 +29,18 @@ class AlertBuilder extends SubjectBuilder
     public function done(): self
     {
         return $this->where('status', AlertStatus::DONE);
+    }
+
+    public function listed(): AlertCollection
+    {
+        return Assert::isInstanceOf(
+            $this
+                ->with('assignee')
+                ->withSubject()
+                ->latest()
+                ->get(),
+            AlertCollection::class,
+        );
     }
 
     public function muted(): self

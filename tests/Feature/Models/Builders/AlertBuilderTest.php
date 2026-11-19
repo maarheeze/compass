@@ -282,3 +282,13 @@ test('with subject loads the site of a site report subject', function (): void {
     expect($alertWithSubject->subject->relationLoaded('site'))
         ->toBeTrue();
 });
+
+test('listed is the alerts created latest first', function (): void {
+    $olderAlert = Alert::factory()->create(['created_at' => fake()->dateTimeBetween('-2 months', '-1 month')]);
+    $newerAlert = Alert::factory()->create(['created_at' => fake()->dateTimeBetween('-1 week')]);
+
+    $listedAlerts = Alert::query()->listed();
+
+    expect($listedAlerts->modelKeys())
+        ->toEqual([$newerAlert->getKey(), $olderAlert->getKey()]);
+});

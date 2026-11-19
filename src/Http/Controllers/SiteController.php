@@ -62,18 +62,8 @@ readonly class SiteController
         $site->load(['reports', 'repository']);
 
         return $this->view->make('compass::sites.show', [
-            'alertChecks' => AlertCheck::query()
-                ->ofSiteOrItsReports($site)
-                ->applicable()
-                ->withAlertMuted()
-                ->orderBy('alert_type_identifier')
-                ->get(),
-            'alerts' => Alert::query()
-                ->ofSite($site)
-                ->with('assignee')
-                ->withSubject()
-                ->latest()
-                ->get(),
+            'alertChecks' => AlertCheck::query()->ofSiteOrItsReports($site)->listed(),
+            'alerts' => Alert::query()->ofSite($site)->listed(),
             'inactiveSiteEndpointChecks' => $site
                 ->endpointChecks()
                 ->latestPerPath()

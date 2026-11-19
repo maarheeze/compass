@@ -89,12 +89,7 @@ readonly class RepositoryController
         ]);
 
         return $this->view->make('compass::repositories.show', [
-            'alertChecks' => AlertCheck::query()
-                ->ofSubject($repository)
-                ->applicable()
-                ->withAlertMuted()
-                ->orderBy('alert_type_identifier')
-                ->get(),
+            'alertChecks' => AlertCheck::query()->ofSubject($repository)->listed(),
             'kind' => $this->repositoryKindClassifier->classify($repository),
             'repository' => $repository,
         ]);

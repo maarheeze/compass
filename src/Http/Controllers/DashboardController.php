@@ -22,10 +22,7 @@ readonly class DashboardController
         return $this->view->make('compass::dashboard', [
             'alerts' => Alert::query()
                 ->notDone()
-                ->with('assignee')
-                ->withSubject()
-                ->latest()
-                ->get()
+                ->listed()
                 ->sortedByLevel($this->alertTypes),
         ]);
     }
