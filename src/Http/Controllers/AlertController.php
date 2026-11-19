@@ -102,18 +102,13 @@ readonly class AlertController
     public function show(Alert $alert): View
     {
         $shownAlert = Alert::query()
-            ->with('assignee')
-            ->withSubject()
             ->whereKey($alert->id)
+            ->listed()
             ->sole();
 
         return $this->view->make('compass::alerts.show', [
             'alert' => $shownAlert,
-            'historyEntries' => $shownAlert
-                ->historyEntries()
-                ->with('user')
-                ->latest('occurred_at')
-                ->get(),
+            'historyEntries' => $shownAlert->historyEntries()->listed(),
         ]);
     }
 

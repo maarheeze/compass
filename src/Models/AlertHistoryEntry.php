@@ -6,12 +6,14 @@ namespace Maarheeze\Compass\Models;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\HasBuilder;
 use Illuminate\Database\Eloquent\HasCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Maarheeze\Compass\Alerts\AlertHistoryEntryType;
 use Maarheeze\Compass\Collections\AlertHistoryEntryCollection;
 use Maarheeze\Compass\Database\Factories\AlertHistoryEntryFactory;
+use Maarheeze\Compass\Models\Builders\AlertHistoryEntryBuilder;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
@@ -30,12 +32,15 @@ use Maarheeze\Uuid\Uuid;
  */
 class AlertHistoryEntry extends Model
 {
+    /** @use HasBuilder<AlertHistoryEntryBuilder> */
+    use HasBuilder;
     /** @use HasCollection<AlertHistoryEntryCollection> */
     use HasCollection;
     /** @use HasFactory<AlertHistoryEntryFactory> */
     use HasFactory;
     use HasUuidAsId;
 
+    protected static string $builder = AlertHistoryEntryBuilder::class;
     protected static string $collectionClass = AlertHistoryEntryCollection::class;
 
     /**
