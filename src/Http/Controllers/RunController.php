@@ -29,10 +29,7 @@ readonly class RunController
     public function index(): View
     {
         return $this->view->make('compass::runs.index', [
-            'runs' => Run::query()
-                ->with('failures')
-                ->latest()
-                ->paginate($this->itemsPerPage),
+            'runs' => Run::query()->listed($this->itemsPerPage),
             'scheduledCommands' => $this->scheduledCommands->all(),
         ]);
     }
