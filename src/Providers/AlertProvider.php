@@ -27,6 +27,7 @@ use Maarheeze\Compass\Alerts\Listeners\Site\EvaluateSiteMissingOnSitesCollected;
 use Maarheeze\Compass\Alerts\Listeners\SiteEndpoint\EvaluateSiteEndpointDown;
 use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteDebugEnabled;
 use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteNotInProduction;
+use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteOnForgeDomain;
 use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteReportIncompatible;
 use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteReportUnauthorised;
 use Maarheeze\Compass\Alerts\Types\ComposerLibraryWithLock;
@@ -43,6 +44,7 @@ use Maarheeze\Compass\Alerts\Types\SiteDeploymentOverdue;
 use Maarheeze\Compass\Alerts\Types\SiteEndpointDown;
 use Maarheeze\Compass\Alerts\Types\SiteMissing;
 use Maarheeze\Compass\Alerts\Types\SiteNotInProduction;
+use Maarheeze\Compass\Alerts\Types\SiteOnForgeDomain;
 use Maarheeze\Compass\Alerts\Types\SiteReportIncompatible;
 use Maarheeze\Compass\Alerts\Types\SiteReportUnauthorised;
 use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
@@ -79,6 +81,7 @@ class AlertProvider extends ServiceProvider
         $alertTypes->register(new SiteMissing());
         $alertTypes->register(new SiteDebugEnabled());
         $alertTypes->register(new SiteNotInProduction());
+        $alertTypes->register(new SiteOnForgeDomain());
         $alertTypes->register(new SiteReportIncompatible());
         $alertTypes->register(new SiteReportUnauthorised());
 
@@ -91,6 +94,7 @@ class AlertProvider extends ServiceProvider
         $events->listen(SiteEndpointChecked::class, EvaluateSiteEndpointDown::class);
         $events->listen(SiteInspected::class, EvaluateSiteDebugEnabled::class);
         $events->listen(SiteInspected::class, EvaluateSiteNotInProduction::class);
+        $events->listen(SiteInspected::class, EvaluateSiteOnForgeDomain::class);
         $events->listen(SiteInspected::class, EvaluateSiteReportUnauthorised::class);
         $events->listen(SiteInspected::class, EvaluateSiteReportIncompatible::class);
         $events->listen(RepositoriesCollected::class, EvaluateRepositoryMissingOnRepositoriesCollected::class);

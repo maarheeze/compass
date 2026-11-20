@@ -17,6 +17,7 @@ return [
     'SITE_ENDPOINT_DOWN' => 'Endpoint down',
     'SITE_MISSING' => 'Site missing',
     'SITE_NOT_IN_PRODUCTION' => 'Site not in production',
+    'SITE_ON_FORGE_DOMAIN' => 'Reachable on a Forge domain',
     'SITE_REPORT_INCOMPATIBLE' => 'Site report incompatible',
     'SITE_REPORT_UNAUTHORISED' => 'Site report key refused',
 ];
