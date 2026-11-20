@@ -27,6 +27,6 @@ readonly class ComposerTypeMissing implements AlertType
 
     public function translationKey(): string
     {
-        return 'compass::alert-type.COMPOSER_TYPE_MISSING';
+        return 'compass::alert-type.composer-type-missing';
     }
 }

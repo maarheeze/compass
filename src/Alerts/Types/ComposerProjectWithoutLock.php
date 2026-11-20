@@ -27,6 +27,6 @@ readonly class ComposerProjectWithoutLock implements AlertType
 
     public function translationKey(): string
     {
-        return 'compass::alert-type.COMPOSER_PROJECT_WITHOUT_LOCK';
+        return 'compass::alert-type.composer-project-without-lock';
     }
 }

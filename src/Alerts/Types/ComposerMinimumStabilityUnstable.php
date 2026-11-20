@@ -27,6 +27,6 @@ readonly class ComposerMinimumStabilityUnstable implements AlertType
 
     public function translationKey(): string
     {
-        return 'compass::alert-type.COMPOSER_MINIMUM_STABILITY_UNSTABLE';
+        return 'compass::alert-type.composer-minimum-stability-unstable';
     }
 }

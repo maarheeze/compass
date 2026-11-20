@@ -27,6 +27,6 @@ readonly class SiteOnForgeDomain implements AlertType
 
     public function translationKey(): string
     {
-        return 'compass::alert-type.SITE_ON_FORGE_DOMAIN';
+        return 'compass::alert-type.site-on-forge-domain';
     }
 }

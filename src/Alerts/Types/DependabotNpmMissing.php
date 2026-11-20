@@ -27,6 +27,6 @@ readonly class DependabotNpmMissing implements AlertType
 
     public function translationKey(): string
     {
-        return 'compass::alert-type.DEPENDABOT_NPM_MISSING';
+        return 'compass::alert-type.dependabot-npm-missing';
     }
 }

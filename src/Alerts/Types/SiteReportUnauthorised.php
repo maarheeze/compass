@@ -27,6 +27,6 @@ readonly class SiteReportUnauthorised implements AlertType
 
     public function translationKey(): string
     {
-        return 'compass::alert-type.SITE_REPORT_UNAUTHORISED';
+        return 'compass::alert-type.site-report-unauthorised';
     }
 }

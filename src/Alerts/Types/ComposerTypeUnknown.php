@@ -27,6 +27,6 @@ readonly class ComposerTypeUnknown implements AlertType
 
     public function translationKey(): string
     {
-        return 'compass::alert-type.COMPOSER_TYPE_UNKNOWN';
+        return 'compass::alert-type.composer-type-unknown';
     }
 }

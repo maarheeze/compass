@@ -27,6 +27,6 @@ readonly class SiteReportIncompatible implements AlertType
 
     public function translationKey(): string
     {
-        return 'compass::alert-type.SITE_REPORT_INCOMPATIBLE';
+        return 'compass::alert-type.site-report-incompatible';
     }
 }

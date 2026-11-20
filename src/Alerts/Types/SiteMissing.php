@@ -27,6 +27,6 @@ readonly class SiteMissing implements AlertType
 
     public function translationKey(): string
     {
-        return 'compass::alert-type.SITE_MISSING';
+        return 'compass::alert-type.site-missing';
     }
 }

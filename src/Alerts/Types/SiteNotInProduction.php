@@ -27,6 +27,6 @@ readonly class SiteNotInProduction implements AlertType
 
     public function translationKey(): string
     {
-        return 'compass::alert-type.SITE_NOT_IN_PRODUCTION';
+        return 'compass::alert-type.site-not-in-production';
     }
 }

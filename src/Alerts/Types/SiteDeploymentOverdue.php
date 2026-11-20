@@ -27,6 +27,6 @@ readonly class SiteDeploymentOverdue implements AlertType
 
     public function translationKey(): string
     {
-        return 'compass::alert-type.SITE_DEPLOYMENT_OVERDUE';
+        return 'compass::alert-type.site-deployment-overdue';
     }
 }

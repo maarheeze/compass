@@ -27,6 +27,6 @@ readonly class SiteDebugEnabled implements AlertType
 
     public function translationKey(): string
     {
-        return 'compass::alert-type.SITE_DEBUG_ENABLED';
+        return 'compass::alert-type.site-debug-enabled';
     }
 }

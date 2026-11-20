@@ -27,6 +27,6 @@ readonly class SiteEndpointDown implements AlertType
 
     public function translationKey(): string
     {
-        return 'compass::alert-type.SITE_ENDPOINT_DOWN';
+        return 'compass::alert-type.site-endpoint-down';
     }
 }

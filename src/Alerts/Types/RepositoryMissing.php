@@ -27,6 +27,6 @@ readonly class RepositoryMissing implements AlertType
 
     public function translationKey(): string
     {
-        return 'compass::alert-type.REPOSITORY_MISSING';
+        return 'compass::alert-type.repository-missing';
     }
 }

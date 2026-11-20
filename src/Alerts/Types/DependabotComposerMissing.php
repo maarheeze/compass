@@ -27,6 +27,6 @@ readonly class DependabotComposerMissing implements AlertType
 
     public function translationKey(): string
     {
-        return 'compass::alert-type.DEPENDABOT_COMPOSER_MISSING';
+        return 'compass::alert-type.dependabot-composer-missing';
     }
 }

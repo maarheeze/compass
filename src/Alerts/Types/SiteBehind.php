@@ -27,6 +27,6 @@ readonly class SiteBehind implements AlertType
 
     public function translationKey(): string
     {
-        return 'compass::alert-type.SITE_BEHIND';
+        return 'compass::alert-type.site-behind';
     }
 }

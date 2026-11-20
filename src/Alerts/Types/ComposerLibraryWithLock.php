@@ -27,6 +27,6 @@ readonly class ComposerLibraryWithLock implements AlertType
 
     public function translationKey(): string
     {
-        return 'compass::alert-type.COMPOSER_LIBRARY_WITH_LOCK';
+        return 'compass::alert-type.composer-library-with-lock';
     }
 }
