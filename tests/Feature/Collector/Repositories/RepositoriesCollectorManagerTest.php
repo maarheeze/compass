@@ -102,11 +102,9 @@ test('collector refuses a github source with a setting it needs missing or unset
     $key = fake()->slug();
     $this->setConfiguration('compass.sources', [$key => $sourceConfig]);
 
-    $this->expectException(InvalidArgumentException::class);
-
     $repositoriesCollectorManager = $this->app->make(RepositoriesCollectorManager::class);
     $repositoriesCollectorManager->collector($key);
-})->with([
+})->throws(InvalidArgumentException::class)->with([
     'without an organisation' => [
         function (): array {
             return [

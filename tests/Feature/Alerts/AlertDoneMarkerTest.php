@@ -104,8 +104,6 @@ test('mark done refuses a done alert', function (): void {
         ->done()
         ->create();
 
-    $this->expectException(ModelNotFoundException::class);
-
     $alertDoneMarker = $this->app->make(AlertDoneMarker::class);
     $alertDoneMarker->markDone($alert, User::factory()->create());
-});
+})->throws(ModelNotFoundException::class);

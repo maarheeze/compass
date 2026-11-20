@@ -33,10 +33,8 @@ test('badge type is not given for a collected subject', function (): void {
 
     $missingLabel = $this->app->make(MissingLabel::class, ['subject' => $repository]);
 
-    $this->expectException(LogicException::class);
-
     $missingLabel->badgeType();
-});
+})->throws(LogicException::class);
 
 test('should render when the subject is missing', function (): void {
     $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);

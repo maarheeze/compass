@@ -81,11 +81,9 @@ test('handle refuses a source without a site reports collector', function (): vo
     ]);
     Site::factory()->create();
 
-    $this->expectException(InvalidArgumentException::class);
-
     [$inspectSites] = new InspectSites($source)->withFakeBatch();
     $this->app->call([$inspectSites, 'handle']);
-});
+})->throws(InvalidArgumentException::class);
 
 test('lock key is the source', function (): void {
     $source = fake()->slug();

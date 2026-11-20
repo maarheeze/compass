@@ -127,11 +127,9 @@ test('assign to me refuses a done alert', function (): void {
         ->done()
         ->create();
 
-    $this->expectException(ModelNotFoundException::class);
-
     $alertAssigner = $this->app->make(AlertAssigner::class);
     $alertAssigner->assignToMe($alert, User::factory()->create());
-});
+})->throws(ModelNotFoundException::class);
 
 test('assign to me refuses an alert assigned to the user', function (): void {
     $user = User::factory()->create();
@@ -140,11 +138,9 @@ test('assign to me refuses an alert assigned to the user', function (): void {
         ->for($user, 'assignee')
         ->create();
 
-    $this->expectException(ModelNotFoundException::class);
-
     $alertAssigner = $this->app->make(AlertAssigner::class);
     $alertAssigner->assignToMe($alert, $user);
-});
+})->throws(ModelNotFoundException::class);
 
 test('unassign clears the assignee', function (): void {
     $alert = Alert::factory()
@@ -186,8 +182,6 @@ test('unassign refuses an alert without an assignee', function (): void {
         ->active()
         ->create(['assignee_id' => null]);
 
-    $this->expectException(ModelNotFoundException::class);
-
     $alertAssigner = $this->app->make(AlertAssigner::class);
     $alertAssigner->unassign($alert, User::factory()->create());
-});
+})->throws(ModelNotFoundException::class);

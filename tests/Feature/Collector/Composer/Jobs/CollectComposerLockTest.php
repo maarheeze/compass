@@ -167,11 +167,9 @@ test('handle refuses a source without a composer files collector', function (): 
     ]);
     $repository = Repository::factory()->create(['source' => $key]);
 
-    $this->expectException(InvalidArgumentException::class);
-
     $collectComposerLock = new CollectComposerLock($repository);
     $this->app->call([$collectComposerLock, 'handle']);
-});
+})->throws(InvalidArgumentException::class);
 
 test('handle raises composer lock changed for the repository when its file is gone', function (): void {
     $source = fake()->slug();

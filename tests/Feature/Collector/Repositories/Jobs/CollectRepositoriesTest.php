@@ -146,11 +146,9 @@ test('handle refuses a source without a repositories collector', function (): vo
         ],
     ]);
 
-    $this->expectException(InvalidArgumentException::class);
-
     [$collectRepositories] = new CollectRepositories(Uuid::generate(), $key)->withFakeBatch();
     $this->app->call([$collectRepositories, 'handle']);
-});
+})->throws(InvalidArgumentException::class);
 
 test('handle raises repositories collected', function (): void {
     $source = fake()->slug();

@@ -27,8 +27,6 @@ test('encode holds only characters that are safe in a url', function (): void {
 });
 
 test('decode refuses a route parameter that is not encoded', function (): void {
-    $this->expectException(NotFoundHttpException::class);
-
     $endpointPathRouteParameter = $this->app->make(EndpointPathRouteParameter::class);
     $endpointPathRouteParameter->decode('!');
-});
+})->throws(NotFoundHttpException::class);

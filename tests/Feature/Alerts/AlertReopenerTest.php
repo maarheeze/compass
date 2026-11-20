@@ -134,11 +134,9 @@ test('reopen refuses an alert that is not done', function (): void {
         ->resolved()
         ->create();
 
-    $this->expectException(ModelNotFoundException::class);
-
     $alertReopener = $this->app->make(AlertReopener::class);
     $alertReopener->reopen($alert, User::factory()->create());
-});
+})->throws(ModelNotFoundException::class);
 
 test('reopen refuses a done alert whose subject has an alert of that type that is not done', function (): void {
     $site = Site::factory()->create();
@@ -153,8 +151,6 @@ test('reopen refuses a done alert whose subject has an alert of that type that i
         ->for($site, 'subject')
         ->create();
 
-    $this->expectException(ModelNotFoundException::class);
-
     $alertReopener = $this->app->make(AlertReopener::class);
     $alertReopener->reopen($alert, User::factory()->create());
-});
+})->throws(ModelNotFoundException::class);

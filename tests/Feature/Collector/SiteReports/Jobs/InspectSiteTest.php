@@ -71,11 +71,9 @@ test('handle fails when the site cannot be reached', function (): void {
     ]);
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::failedConnection()]);
 
-    $this->expectException(CollectingFailed::class);
-
     $inspectSite = new InspectSite(Site::factory()->create(), $source);
     $this->app->call([$inspectSite, 'handle']);
-});
+})->throws(CollectingFailed::class);
 
 test('handle leaves a missing site alone', function (): void {
     $source = fake()->slug();
@@ -143,11 +141,9 @@ test('handle refuses a source without a site reports collector', function (): vo
         ],
     ]);
 
-    $this->expectException(InvalidArgumentException::class);
-
     $inspectSite = new InspectSite(Site::factory()->create(), $source);
     $this->app->call([$inspectSite, 'handle']);
-});
+})->throws(InvalidArgumentException::class);
 
 test('lock key is the site and the source', function (): void {
     $site = Site::factory()->create();

@@ -19,10 +19,8 @@ test('alert type is the registered alert type with the identifier', function ():
 test('alert type refuses an identifier no registered alert type has', function (): void {
     $alertTypes = new AlertTypes();
 
-    $this->expectException(InvalidArgumentException::class);
-
     $alertTypes->alertType(fake()->slug());
-});
+})->throws(InvalidArgumentException::class);
 
 test('alert types are the registered alert types', function (): void {
     $repositoryMissing = new RepositoryMissing();
@@ -70,7 +68,5 @@ test('register refuses an alert type whose identifier is already registered', fu
     $alertTypes = new AlertTypes();
     $alertTypes->register(new RepositoryMissing());
 
-    $this->expectException(LogicException::class);
-
     $alertTypes->register(new RepositoryMissing());
-});
+})->throws(LogicException::class);

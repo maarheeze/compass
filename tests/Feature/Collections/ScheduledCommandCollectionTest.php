@@ -50,7 +50,5 @@ test('with mutex name refuses a mutex name of no scheduled command', function ()
         new ScheduledCommand(fake()->slug(), fake()->unique()->sha1(), CarbonImmutable::instance(fake()->dateTime())),
     ]);
 
-    $this->expectException(ItemNotFoundException::class);
-
     $scheduledCommandCollection->withMutexName(fake()->unique()->sha1());
-});
+})->throws(ItemNotFoundException::class);

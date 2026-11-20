@@ -161,11 +161,9 @@ test('handle refuses a source without a composer files collector', function (): 
     ]);
     $repository = Repository::factory()->create(['source' => $key]);
 
-    $this->expectException(InvalidArgumentException::class);
-
     $collectComposerJson = new CollectComposerJson($repository);
     $this->app->call([$collectComposerJson, 'handle']);
-});
+})->throws(InvalidArgumentException::class);
 
 test('handle raises composer json changed for the repository when its file is gone', function (): void {
     $source = fake()->slug();

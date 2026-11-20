@@ -121,7 +121,11 @@ async function sendWithoutRefresh(form) {
 
     if (!response.ok) {
         form.submit();
+
+        return;
     }
+
+    await refreshLiveRegions();
 }
 
 function listen(toastStack) {

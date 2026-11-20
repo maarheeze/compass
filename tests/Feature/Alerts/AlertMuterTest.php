@@ -112,11 +112,9 @@ test('mute refuses a done alert', function (): void {
         ->done()
         ->create();
 
-    $this->expectException(ModelNotFoundException::class);
-
     $alertMuter = $this->app->make(AlertMuter::class);
     $alertMuter->mute($alert, User::factory()->create());
-});
+})->throws(ModelNotFoundException::class);
 
 test('mute refuses a muted alert', function (): void {
     $alert = Alert::factory()
@@ -124,11 +122,9 @@ test('mute refuses a muted alert', function (): void {
         ->muted()
         ->create();
 
-    $this->expectException(ModelNotFoundException::class);
-
     $alertMuter = $this->app->make(AlertMuter::class);
     $alertMuter->mute($alert, User::factory()->create());
-});
+})->throws(ModelNotFoundException::class);
 
 test('unmute unmutes the alert', function (): void {
     $alert = Alert::factory()
@@ -170,8 +166,6 @@ test('unmute refuses an alert that is not muted', function (): void {
         ->active()
         ->create();
 
-    $this->expectException(ModelNotFoundException::class);
-
     $alertMuter = $this->app->make(AlertMuter::class);
     $alertMuter->unmute($alert, User::factory()->create());
-});
+})->throws(ModelNotFoundException::class);

@@ -94,11 +94,9 @@ test('collector refuses a forge source with a setting it needs missing or unset'
     $key = fake()->slug();
     $this->setConfiguration('compass.sources', [$key => $sourceConfig]);
 
-    $this->expectException(InvalidArgumentException::class);
-
     $sitesCollectorManager = $this->app->make(SitesCollectorManager::class);
     $sitesCollectorManager->collector($key);
-})->with([
+})->throws(InvalidArgumentException::class)->with([
     'without an organisation' => [
         function (): array {
             return [

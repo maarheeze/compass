@@ -91,10 +91,8 @@ test('badge type is not given when the deployment state is unknown', function ()
 
     $deploymentStateBadge = $this->app->make(DeploymentStateBadge::class, ['site' => $site]);
 
-    $this->expectException(LogicException::class);
-
     $deploymentStateBadge->badgeType();
-});
+})->throws(LogicException::class);
 
 test('should not render when the deployment state is unknown', function (): void {
     $site = Site::factory()->create(['repository_url' => null]);

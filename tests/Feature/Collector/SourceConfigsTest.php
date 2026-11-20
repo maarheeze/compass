@@ -26,10 +26,8 @@ test('get refuses a key no source is configured under', function (): void {
 
     $sourceConfigs = $this->app->make(SourceConfigs::class);
 
-    $this->expectException(InvalidArgumentException::class);
-
     $sourceConfigs->get(fake()->slug());
-});
+})->throws(InvalidArgumentException::class);
 
 test('all is the config of every source, by its key', function (): void {
     $sources = [fake()->unique()->slug(), fake()->unique()->slug()];

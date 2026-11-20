@@ -72,15 +72,13 @@ test('handle refuses an observation of an alert type that is not registered', fu
 
     $observationHandler = $this->app->make(ObservationHandler::class);
 
-    $this->expectException(LogicException::class);
-
     $observationHandler->handle(new ConditionObservation(
         $unregisteredAlertType,
         SiteEndpoint::factory()->create(),
         ConditionState::ACTIVE,
         CarbonImmutable::now(),
     ));
-});
+})->throws(LogicException::class);
 
 test('handle raises alert opened with the opened alert', function (): void {
     $eventFake = new EventFake($this->app->make(Dispatcher::class));

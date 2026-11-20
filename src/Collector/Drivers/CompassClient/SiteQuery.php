@@ -25,7 +25,7 @@ readonly class SiteQuery
      */
     public function report(SiteReport $siteReport, string $key): ClientReport
     {
-        $reportResponse = $this->getReportResponse($this->siteClient->get($siteReport, $key));
+        $reportResponse = $this->getReportResponse($this->siteClient->post($siteReport, $key));
 
         try {
             return $this->getClientReport($reportResponse);

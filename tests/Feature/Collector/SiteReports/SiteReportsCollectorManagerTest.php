@@ -3,12 +3,14 @@
 declare(strict_types=1);
 
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\CompassClientSiteReportsCollector;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteClient;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollectorManager;
 use Maarheeze\Compass\Collector\SourceConfig;
+use Maarheeze\Compass\Console\ScheduledCommands;
 use Maarheeze\Compass\Models\SiteReport;
 use Random\Randomizer;
 
@@ -42,7 +44,13 @@ test('collector is the collector its extension makes from its config', function 
     ]);
     $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
         new Randomizer(),
-        new SiteClient($this->app->make(HttpFactory::class), sprintf('/%s', fake()->slug())),
+        new SiteClient(
+            $this->app->make(HttpFactory::class),
+            sprintf('/%s', fake()->slug()),
+            $this->app->make(ScheduledCommands::class),
+            fake()->slug(),
+            $this->app->make(UrlGenerator::class),
+        ),
     );
 
     $siteReportsCollectorManager = $this->app->make(SiteReportsCollectorManager::class);
@@ -86,8 +94,6 @@ test('collector refuses a compass client source without a path', function (): vo
         ],
     ]);
 
-    $this->expectException(InvalidArgumentException::class);
-
     $siteReportsCollectorManager = $this->app->make(SiteReportsCollectorManager::class);
     $siteReportsCollectorManager->collector($source);
-});
+})->throws(InvalidArgumentException::class);

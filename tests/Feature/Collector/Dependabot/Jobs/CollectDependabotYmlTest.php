@@ -145,11 +145,9 @@ test('handle refuses a source without a Dependabot files collector', function ()
     ]);
     $repository = Repository::factory()->create(['source' => $key]);
 
-    $this->expectException(InvalidArgumentException::class);
-
     $collectDependabotYml = new CollectDependabotYml($repository);
     $this->app->call([$collectDependabotYml, 'handle']);
-});
+})->throws(InvalidArgumentException::class);
 
 test('handle raises dependabot yml changed for the repository when its file is gone', function (): void {
     $source = fake()->slug();

@@ -30,19 +30,15 @@ test('setting is the setting of the source under its name', function (): void {
 test('setting refuses a setting the source does not have', function (): void {
     $sourceConfig = new SourceConfig(fake()->slug(), []);
 
-    $this->expectException(InvalidArgumentException::class);
-
     $sourceConfig->setting(fake()->word());
-});
+})->throws(InvalidArgumentException::class);
 
 test('setting refuses a setting that is unset, empty or not a string', function (mixed $settingValue): void {
     $settingName = fake()->word();
     $sourceConfig = new SourceConfig(fake()->slug(), [$settingName => $settingValue]);
 
-    $this->expectException(InvalidArgumentException::class);
-
     $sourceConfig->setting($settingName);
-})->with([
+})->throws(InvalidArgumentException::class)->with([
     'unset' => [null],
     'empty' => [''],
     'not a string' => [
@@ -77,19 +73,15 @@ test('integer setting reads a whole number given as a string, as env gives it', 
 test('integer setting refuses a setting the source does not have', function (): void {
     $sourceConfig = new SourceConfig(fake()->slug(), []);
 
-    $this->expectException(InvalidArgumentException::class);
-
     $sourceConfig->integerSetting(fake()->word());
-});
+})->throws(InvalidArgumentException::class);
 
 test('integer setting refuses a setting that is unset or not a whole number', function (mixed $settingValue): void {
     $settingName = fake()->word();
     $sourceConfig = new SourceConfig(fake()->slug(), [$settingName => $settingValue]);
 
-    $this->expectException(InvalidArgumentException::class);
-
     $sourceConfig->integerSetting($settingName);
-})->with([
+})->throws(InvalidArgumentException::class)->with([
     'unset' => [null],
     'not a number' => [
         function (): string {
@@ -130,7 +122,5 @@ test('schedule refuses a frequency that is not a schedule frequency', function (
         ],
     ]);
 
-    $this->expectException(InvalidArgumentException::class);
-
     $sourceConfig->schedule();
-});
+})->throws(InvalidArgumentException::class);

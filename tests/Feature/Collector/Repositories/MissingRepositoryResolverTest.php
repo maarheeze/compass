@@ -83,11 +83,9 @@ test('delete keeps the alerts of another repository', function (): void {
 test('delete refuses a collected repository', function (): void {
     $repository = Repository::factory()->create();
 
-    $this->expectException(ModelNotFoundException::class);
-
     $missingRepositoryResolver = $this->app->make(MissingRepositoryResolver::class);
     $missingRepositoryResolver->delete($repository);
-});
+})->throws(ModelNotFoundException::class);
 
 test('ignore marks a missing repository ignored now', function (): void {
     $now = CarbonImmutable::parse(fake()->iso8601());
@@ -119,11 +117,9 @@ test('ignore raises repository missing ignored with the repository', function ()
 test('ignore refuses a collected repository', function (): void {
     $repository = Repository::factory()->create();
 
-    $this->expectException(ModelNotFoundException::class);
-
     $missingRepositoryResolver = $this->app->make(MissingRepositoryResolver::class);
     $missingRepositoryResolver->ignore($repository);
-});
+})->throws(ModelNotFoundException::class);
 
 test('ignore refuses a repository that is already ignored', function (): void {
     $repository = Repository::factory()->create([
@@ -131,8 +127,6 @@ test('ignore refuses a repository that is already ignored', function (): void {
         'missing_ignored_at' => fake()->dateTime(),
     ]);
 
-    $this->expectException(ModelNotFoundException::class);
-
     $missingRepositoryResolver = $this->app->make(MissingRepositoryResolver::class);
     $missingRepositoryResolver->ignore($repository);
-});
+})->throws(ModelNotFoundException::class);

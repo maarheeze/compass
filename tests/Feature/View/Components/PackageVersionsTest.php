@@ -25,10 +25,8 @@ test('package names are the configured dashboard packages', function (): void {
 test('package names refuse a dashboard package that is not a string', function (): void {
     $this->app->make(Config::class)->set('compass.dashboard_packages', [fake()->randomNumber()]);
 
-    $this->expectException(InvalidArgumentException::class);
-
     $this->app->make(PackageVersions::class);
-});
+})->throws(InvalidArgumentException::class);
 
 test('should render with dashboard packages', function (): void {
     $this->app->make(Config::class)->set('compass.dashboard_packages', [sprintf('%s/%s', fake()->slug(), fake()->slug())]);

@@ -41,10 +41,8 @@ test('collector hands the creator the config of the source', function (): void {
 test('collector refuses a source whose driver has no creator', function (): void {
     $collectorDrivers = new CollectorDrivers($this->app->make(Container::class));
 
-    $this->expectException(InvalidArgumentException::class);
-
     $collectorDrivers->collector(new SourceConfig(fake()->slug(), ['driver' => fake()->slug()]));
-});
+})->throws(InvalidArgumentException::class);
 
 test('has is true for a driver with a creator', function (): void {
     $driverName = fake()->slug();

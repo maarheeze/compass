@@ -135,11 +135,9 @@ test('handle refuses a source without an issues collector', function (): void {
         ],
     ]);
 
-    $this->expectException(InvalidArgumentException::class);
-
     $collectIssues = new CollectIssues(Uuid::generate(), $key);
     $this->app->call([$collectIssues, 'handle']);
-});
+})->throws(InvalidArgumentException::class);
 
 test('lock key is the source', function (): void {
     $source = fake()->slug();

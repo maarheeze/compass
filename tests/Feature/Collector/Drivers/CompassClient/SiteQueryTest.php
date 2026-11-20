@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\RequestException;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\ClientIncompatible;
@@ -12,6 +13,7 @@ use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteClient;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteQuery;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteEndpoint;
+use Maarheeze\Compass\Console\ScheduledCommands;
 use Maarheeze\Compass\Models\SiteReport;
 
 test('report holds what the client reported', function (): void {
@@ -34,7 +36,13 @@ test('report holds what the client reported', function (): void {
     ]),
     ]);
 
-    $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
+    $siteQuery = new SiteQuery(new SiteClient(
+        $http,
+        sprintf('/%s', fake()->slug()),
+        $this->app->make(ScheduledCommands::class),
+        fake()->slug(),
+        $this->app->make(UrlGenerator::class),
+    ));
     $clientReport = $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
 
     expect($clientReport)
@@ -62,11 +70,15 @@ test('report throws when the client reports an endpoint without a frequency', fu
     ]),
     ]);
 
-    $this->expectException(ClientIncompatible::class);
-
-    $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
+    $siteQuery = new SiteQuery(new SiteClient(
+        $http,
+        sprintf('/%s', fake()->slug()),
+        $this->app->make(ScheduledCommands::class),
+        fake()->slug(),
+        $this->app->make(UrlGenerator::class),
+    ));
     $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
-});
+})->throws(ClientIncompatible::class);
 
 test('report throws when the client reports an endpoint as a bare path', function (): void {
     $http = $this->app->make(HttpFactory::class);
@@ -78,31 +90,43 @@ test('report throws when the client reports an endpoint as a bare path', functio
     ]),
     ]);
 
-    $this->expectException(ClientIncompatible::class);
-
-    $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
+    $siteQuery = new SiteQuery(new SiteClient(
+        $http,
+        sprintf('/%s', fake()->slug()),
+        $this->app->make(ScheduledCommands::class),
+        fake()->slug(),
+        $this->app->make(UrlGenerator::class),
+    ));
     $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
-});
+})->throws(ClientIncompatible::class);
 
 test('report throws when the site has no client', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(null, 404)]);
 
-    $this->expectException(ClientNotInstalled::class);
-
-    $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
+    $siteQuery = new SiteQuery(new SiteClient(
+        $http,
+        sprintf('/%s', fake()->slug()),
+        $this->app->make(ScheduledCommands::class),
+        fake()->slug(),
+        $this->app->make(UrlGenerator::class),
+    ));
     $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
-});
+})->throws(ClientNotInstalled::class);
 
 test('report throws when the site answers without a site report', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(fake()->randomHtml())]);
 
-    $this->expectException(ClientNotInstalled::class);
-
-    $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
+    $siteQuery = new SiteQuery(new SiteClient(
+        $http,
+        sprintf('/%s', fake()->slug()),
+        $this->app->make(ScheduledCommands::class),
+        fake()->slug(),
+        $this->app->make(UrlGenerator::class),
+    ));
     $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
-});
+})->throws(ClientNotInstalled::class);
 
 test('report throws when the client reports without a field', function (): void {
     $http = $this->app->make(HttpFactory::class);
@@ -113,11 +137,15 @@ test('report throws when the client reports without a field', function (): void 
     ]),
     ]);
 
-    $this->expectException(ClientIncompatible::class);
-
-    $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
+    $siteQuery = new SiteQuery(new SiteClient(
+        $http,
+        sprintf('/%s', fake()->slug()),
+        $this->app->make(ScheduledCommands::class),
+        fake()->slug(),
+        $this->app->make(UrlGenerator::class),
+    ));
     $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
-});
+})->throws(ClientIncompatible::class);
 
 test('report throws when the client reports a field of another type', function (): void {
     $http = $this->app->make(HttpFactory::class);
@@ -129,41 +157,57 @@ test('report throws when the client reports a field of another type', function (
     ]),
     ]);
 
-    $this->expectException(ClientIncompatible::class);
-
-    $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
+    $siteQuery = new SiteQuery(new SiteClient(
+        $http,
+        sprintf('/%s', fake()->slug()),
+        $this->app->make(ScheduledCommands::class),
+        fake()->slug(),
+        $this->app->make(UrlGenerator::class),
+    ));
     $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
-});
+})->throws(ClientIncompatible::class);
 
 test('report throws when the client refuses the key', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(null, 401)]);
 
-    $this->expectException(ClientUnauthorised::class);
-
-    $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
+    $siteQuery = new SiteQuery(new SiteClient(
+        $http,
+        sprintf('/%s', fake()->slug()),
+        $this->app->make(ScheduledCommands::class),
+        fake()->slug(),
+        $this->app->make(UrlGenerator::class),
+    ));
     $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
-});
+})->throws(ClientUnauthorised::class);
 
 test('report throws when the client forbids the request', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(null, 403)]);
 
-    $this->expectException(ClientUnauthorised::class);
-
-    $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
+    $siteQuery = new SiteQuery(new SiteClient(
+        $http,
+        sprintf('/%s', fake()->slug()),
+        $this->app->make(ScheduledCommands::class),
+        fake()->slug(),
+        $this->app->make(UrlGenerator::class),
+    ));
     $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
-});
+})->throws(ClientUnauthorised::class);
 
 test('report throws when the site fails', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(null, 500)]);
 
-    $this->expectException(ClientUnreachable::class);
-
-    $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
+    $siteQuery = new SiteQuery(new SiteClient(
+        $http,
+        sprintf('/%s', fake()->slug()),
+        $this->app->make(ScheduledCommands::class),
+        fake()->slug(),
+        $this->app->make(UrlGenerator::class),
+    ));
     $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
-});
+})->throws(ClientUnreachable::class);
 
 test('report puts the error of the response behind the failure of the site', function (): void {
     $status = fake()->numberBetween(500, 599);
@@ -171,7 +215,13 @@ test('report puts the error of the response behind the failure of the site', fun
     $http->fake(['*' => HttpFactory::response(null, $status)]);
     $siteReport = SiteReport::factory()->create();
 
-    $siteQuery = new SiteQuery(new SiteClient($http, sprintf('/%s', fake()->slug())));
+    $siteQuery = new SiteQuery(new SiteClient(
+        $http,
+        sprintf('/%s', fake()->slug()),
+        $this->app->make(ScheduledCommands::class),
+        fake()->slug(),
+        $this->app->make(UrlGenerator::class),
+    ));
 
     expect(static function () use ($siteQuery, $siteReport) {
         return $siteQuery->report($siteReport, fake()->sha1());

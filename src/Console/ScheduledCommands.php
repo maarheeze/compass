@@ -9,7 +9,9 @@ use Illuminate\Console\Application;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Support\ProcessUtils;
 use Maarheeze\Compass\Collections\ScheduledCommandCollection;
+use Maarheeze\Compass\Collector\CollectorType;
 use Psr\Clock\ClockInterface;
 
 use function sprintf;
@@ -43,6 +45,20 @@ readonly class ScheduledCommands
         }
 
         return $scheduledCommands;
+    }
+
+    public function collectorNextRunAt(string $source, CollectorType $collectorType): ?CarbonImmutable
+    {
+        $collectCommand = sprintf(
+            '%s %s %s',
+            CollectCommand::SIGNATURE,
+            ProcessUtils::escapeArgument($source),
+            ProcessUtils::escapeArgument($collectorType->value),
+        );
+
+        return $this->all()->first(static function (ScheduledCommand $scheduledCommand) use ($collectCommand): bool {
+            return $scheduledCommand->command === $collectCommand;
+        })?->nextRunAt;
     }
 
     public function run(string $mutexName): void

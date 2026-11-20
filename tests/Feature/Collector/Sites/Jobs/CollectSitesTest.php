@@ -118,11 +118,9 @@ test('handle refuses a source without a sites collector', function (): void {
         ],
     ]);
 
-    $this->expectException(InvalidArgumentException::class);
-
     [$collectSites] = new CollectSites(Uuid::generate(), $key)->withFakeBatch();
     $this->app->call([$collectSites, 'handle']);
-});
+})->throws(InvalidArgumentException::class);
 
 test('handle refuses a source without auto deploy grace minutes before collecting', function (): void {
     $source = fake()->slug();
@@ -136,11 +134,9 @@ test('handle refuses a source without auto deploy grace minutes before collectin
     ]);
     $this->app->make(HttpFactory::class)->preventStrayRequests();
 
-    $this->expectException(InvalidArgumentException::class);
-
     [$collectSites] = new CollectSites(Uuid::generate(), $source)->withFakeBatch();
     $this->app->call([$collectSites, 'handle']);
-});
+})->throws(InvalidArgumentException::class);
 
 test('handle raises sites collected', function (): void {
     $source = fake()->slug();

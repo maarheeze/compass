@@ -114,11 +114,9 @@ test('delete keeps the alerts of another site', function (): void {
 test('delete refuses a collected site', function (): void {
     $site = Site::factory()->create();
 
-    $this->expectException(ModelNotFoundException::class);
-
     $missingSiteResolver = $this->app->make(MissingSiteResolver::class);
     $missingSiteResolver->delete($site);
-});
+})->throws(ModelNotFoundException::class);
 
 test('ignore marks a missing site ignored now', function (): void {
     $now = CarbonImmutable::parse(fake()->iso8601());
@@ -150,11 +148,9 @@ test('ignore raises site missing ignored with the site', function (): void {
 test('ignore refuses a collected site', function (): void {
     $site = Site::factory()->create();
 
-    $this->expectException(ModelNotFoundException::class);
-
     $missingSiteResolver = $this->app->make(MissingSiteResolver::class);
     $missingSiteResolver->ignore($site);
-});
+})->throws(ModelNotFoundException::class);
 
 test('ignore refuses a site that is already ignored', function (): void {
     $site = Site::factory()->create([
@@ -162,8 +158,6 @@ test('ignore refuses a site that is already ignored', function (): void {
         'missing_ignored_at' => fake()->dateTime(),
     ]);
 
-    $this->expectException(ModelNotFoundException::class);
-
     $missingSiteResolver = $this->app->make(MissingSiteResolver::class);
     $missingSiteResolver->ignore($site);
-});
+})->throws(ModelNotFoundException::class);

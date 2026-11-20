@@ -143,11 +143,9 @@ test('handle refuses a source without a pull requests collector', function (): v
         ],
     ]);
 
-    $this->expectException(InvalidArgumentException::class);
-
     $collectPullRequests = new CollectPullRequests(Uuid::generate(), $key);
     $this->app->call([$collectPullRequests, 'handle']);
-});
+})->throws(InvalidArgumentException::class);
 
 test('lock key is the source', function (): void {
     $source = fake()->slug();

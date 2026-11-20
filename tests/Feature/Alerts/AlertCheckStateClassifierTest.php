@@ -54,8 +54,6 @@ test('classify is muted for an active check whose alert is muted', function (): 
 test('classify refuses a check that does not apply', function (): void {
     $alertCheck = AlertCheck::factory()->make(['condition' => ConditionState::NOT_APPLICABLE]);
 
-    $this->expectException(LogicException::class);
-
     $alertCheckStateClassifier = $this->app->make(AlertCheckStateClassifier::class);
     $alertCheckStateClassifier->classify($alertCheck);
-});
+})->throws(LogicException::class);
