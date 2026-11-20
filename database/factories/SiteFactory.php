@@ -35,6 +35,7 @@ class SiteFactory extends Factory
             'repository_branch' => fake()->optional()->word(),
             'auto_deploy' => fake()->optional()->boolean(),
             'auto_deploy_grace_minutes' => fake()->numberBetween(1, 60),
+            'server_external_id' => fake()->numerify('####'),
             'server_name' => fake()->slug(),
             'server_ip_address' => fake()->optional()->ipv4(),
             'deployment_status' => fake()->optional()->randomElement(DeploymentStatus::cases()),

@@ -16,6 +16,7 @@ readonly class CollectedSite
         public ?string $repositoryUrl,
         public ?string $repositoryBranch,
         public ?bool $autoDeploy,
+        public string $serverExternalId,
         public string $serverName,
         public ?string $serverIpAddress,
         public ?DeploymentStatus $deploymentStatus,

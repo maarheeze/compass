@@ -46,6 +46,7 @@ use Maarheeze\Uuid\Uuid;
  * @property ?string $repository_branch
  * @property ?string $repository_url
  * @property Uuid $run_id
+ * @property string $server_external_id
  * @property ?string $server_ip_address
  * @property string $server_name
  * @property string $source
@@ -95,6 +96,7 @@ class Site extends Model implements AlertSubject
             'repository_branch',
             'repository_url',
             'run_id',
+            'server_external_id',
             'server_ip_address',
             'server_name',
             'source',

@@ -64,7 +64,6 @@ test('pages request the next page with their server and latest deployment from t
 
 test('pages hold the collected sites in the response', function (): void {
     $collectedSite = CollectedSiteFactory::withDeploymentStatus(DeploymentStatus::SUCCEEDED);
-    $serverId = fake()->numerify('####');
     $deploymentId = fake()->numerify('####');
     $http = $this->app->make(HttpFactory::class);
     $http->fake([
@@ -88,7 +87,7 @@ test('pages hold the collected sites in the response', function (): void {
                         'server' => [
                             'data' => [
                                 'type' => 'servers',
-                                'id' => $serverId,
+                                'id' => $collectedSite->serverExternalId,
                             ],
                         ],
                         'latestDeployment' => [
@@ -102,7 +101,7 @@ test('pages hold the collected sites in the response', function (): void {
             ],
             'included' => [
                 [
-                    'id' => $serverId,
+                    'id' => $collectedSite->serverExternalId,
                     'type' => 'servers',
                     'attributes' => [
                         'slug' => fake()->slug(),

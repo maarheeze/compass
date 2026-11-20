@@ -48,6 +48,7 @@ readonly class SiteSynchroniser
                 'repository_branch' => $collectedSite->repositoryBranch,
                 'auto_deploy' => $collectedSite->autoDeploy,
                 'auto_deploy_grace_minutes' => $autoDeployGraceMinutes,
+                'server_external_id' => $collectedSite->serverExternalId,
                 'server_name' => $collectedSite->serverName,
                 'server_ip_address' => $collectedSite->serverIpAddress,
                 'deployment_status' => $collectedSite->deploymentStatus,

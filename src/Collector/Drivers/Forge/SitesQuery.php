@@ -50,10 +50,8 @@ readonly class SitesQuery
         $siteAttributes = Assert::isArray($siteResource['attributes']);
         $repositoryAttributes = Assert::isArray($siteAttributes['repository']);
         $relationships = Assert::isArray($siteResource['relationships']);
-        $serverAttributes = $this->getIncludedAttributes(
-            Assert::isArray($relationships['server'])['data'],
-            $includedResources,
-        );
+        $serverIdentifier = Assert::isArray(Assert::isArray($relationships['server'])['data']);
+        $serverAttributes = $this->getIncludedAttributes($serverIdentifier, $includedResources);
         $deploymentAttributes = $this->getDeploymentAttributes(
             Assert::isArray($relationships['latestDeployment'])['data'],
             $includedResources,
@@ -67,6 +65,7 @@ readonly class SitesQuery
             Assert::nullOrString($repositoryAttributes['url']),
             Assert::nullOrString($repositoryAttributes['branch']),
             Assert::nullOrBoolean($siteAttributes['quick_deploy']),
+            Assert::string($serverIdentifier['id']),
             Assert::string($serverAttributes['name']),
             Assert::nullOrString($serverAttributes['ip_address']),
             $this->getDeploymentStatus($deploymentAttributes),

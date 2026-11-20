@@ -27,6 +27,7 @@ return new class extends Migration
             $table->string('repository_branch')->nullable();
             $table->boolean('auto_deploy')->nullable();
             $table->unsignedInteger('auto_deploy_grace_minutes');
+            $table->string('server_external_id');
             $table->string('server_name');
             $table->string('server_ip_address')->nullable();
             $table->string('deployment_status')->nullable();
