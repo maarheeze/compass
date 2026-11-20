@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Webmozart\Assert\Assert;
+
 return [
 
     /*
@@ -75,7 +77,7 @@ return [
     |
     */
 
-    'items_per_page' => env('COMPASS_ITEMS_PER_PAGE', 10),
+    'items_per_page' => (int) Assert::integerish(env('COMPASS_ITEMS_PER_PAGE', 10)),
 
     /*
     |--------------------------------------------------------------------------
@@ -100,9 +102,9 @@ return [
     |
     */
 
-    'lock_retry_seconds' => env('COMPASS_LOCK_RETRY_SECONDS', 60),
+    'lock_retry_seconds' => (int) Assert::integerish(env('COMPASS_LOCK_RETRY_SECONDS', 60)),
 
-    'lock_expiry_minutes' => env('COMPASS_LOCK_EXPIRY_MINUTES', 15),
+    'lock_expiry_minutes' => (int) Assert::integerish(env('COMPASS_LOCK_EXPIRY_MINUTES', 15)),
 
     /*
     |--------------------------------------------------------------------------
@@ -115,7 +117,7 @@ return [
     |
     */
 
-    'inspection_requests_per_minute' => env('COMPASS_INSPECTION_REQUESTS_PER_MINUTE', 60),
+    'inspection_requests_per_minute' => (int) Assert::integerish(env('COMPASS_INSPECTION_REQUESTS_PER_MINUTE', 60)),
 
     /*
     |--------------------------------------------------------------------------
@@ -130,7 +132,7 @@ return [
     */
 
     'authentication' => [
-        'remember_minutes' => env('COMPASS_REMEMBER_MINUTES', 1440),
+        'remember_minutes' => (int) Assert::integerish(env('COMPASS_REMEMBER_MINUTES', 1440)),
         'github' => [
             'client_id' => env('GITHUB_CLIENT_ID'),
             'client_secret' => env('GITHUB_CLIENT_SECRET'),
