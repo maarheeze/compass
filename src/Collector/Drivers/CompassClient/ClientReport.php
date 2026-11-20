@@ -16,6 +16,7 @@ readonly class ClientReport
         public string $appEnv,
         public string $appName,
         public array $endpoints,
+        public bool $maintenanceMode,
     ) {
     }
 }

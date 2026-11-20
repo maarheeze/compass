@@ -11,6 +11,7 @@ return [
     'details' => 'Details',
     'edit' => 'Edit settings',
     'environment' => 'Environment',
+    'maintenance_mode' => 'Maintenance mode',
     'not_checked' => 'Not checked',
     'off' => 'Off',
     'on' => 'On',

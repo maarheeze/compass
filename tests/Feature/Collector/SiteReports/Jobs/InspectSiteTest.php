@@ -27,6 +27,7 @@ test('handle stores the report the collector of its source collected', function 
         'app_debug' => fake()->boolean(),
         'app_env' => fake()->word(),
         'app_name' => fake()->company(),
+        'maintenance_mode' => fake()->boolean(),
         'endpoints' => [],
     ]),
     ]);

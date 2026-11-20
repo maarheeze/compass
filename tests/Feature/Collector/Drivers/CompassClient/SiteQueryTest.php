@@ -20,6 +20,7 @@ test('report holds what the client reported', function (): void {
     $appDebug = fake()->boolean();
     $appEnv = fake()->word();
     $appName = fake()->company();
+    $maintenanceMode = fake()->boolean();
     $path = sprintf('/%s', fake()->slug());
     $frequencyMinutes = fake()->numberBetween(1, 60);
     $http = $this->app->make(HttpFactory::class);
@@ -27,6 +28,7 @@ test('report holds what the client reported', function (): void {
         'app_debug' => $appDebug,
         'app_env' => $appEnv,
         'app_name' => $appName,
+        'maintenance_mode' => $maintenanceMode,
         'endpoints' => [
             [
                 'path' => $path,
@@ -52,6 +54,8 @@ test('report holds what the client reported', function (): void {
         ->toBe($appEnv)
         ->appName
         ->toBe($appName)
+        ->maintenanceMode
+        ->toBe($maintenanceMode)
         ->endpoints
         ->toEqual([new CollectedSiteEndpoint(new EndpointPath($path), $frequencyMinutes)]);
 });
@@ -62,6 +66,7 @@ test('report throws when the client reports an endpoint without a frequency', fu
         'app_debug' => fake()->boolean(),
         'app_env' => fake()->word(),
         'app_name' => fake()->company(),
+        'maintenance_mode' => fake()->boolean(),
         'endpoints' => [
             [
                 'path' => sprintf('/%s', fake()->slug()),
@@ -86,6 +91,7 @@ test('report throws when the client reports an endpoint as a bare path', functio
         'app_debug' => fake()->boolean(),
         'app_env' => fake()->word(),
         'app_name' => fake()->company(),
+        'maintenance_mode' => fake()->boolean(),
         'endpoints' => [sprintf('/%s', fake()->slug())],
     ]),
     ]);
@@ -153,6 +159,7 @@ test('report throws when the client reports a field of another type', function (
         'app_debug' => fake()->word(),
         'app_env' => fake()->word(),
         'app_name' => fake()->company(),
+        'maintenance_mode' => fake()->boolean(),
         'endpoints' => [],
     ]),
     ]);

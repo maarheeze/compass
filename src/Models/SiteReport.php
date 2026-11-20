@@ -29,6 +29,7 @@ use Maarheeze\Uuid\Uuid;
  * @property CarbonImmutable $collected_at
  * @property CarbonImmutable $created_at
  * @property Uuid $id
+ * @property ?bool $maintenance_mode
  * @property ?string $path
  * @property Uuid $site_id
  * @property string $source
@@ -61,6 +62,7 @@ class SiteReport extends Model implements AlertSubject
             'app_env',
             'app_name',
             'collected_at',
+            'maintenance_mode',
             'path',
             'site_id',
             'source',
@@ -98,6 +100,7 @@ class SiteReport extends Model implements AlertSubject
             'app_debug' => 'boolean',
             'collected_at' => 'immutable_datetime',
             'created_at' => 'immutable_datetime',
+            'maintenance_mode' => 'boolean',
             'site_id' => UuidCast::class,
             'status' => SiteReportStatus::class,
             'updated_at' => 'immutable_datetime',

@@ -80,6 +80,7 @@ readonly class SiteReportSynchroniser
             'app_debug' => $collectedSiteReport->appDebug,
             'app_env' => $collectedSiteReport->appEnv,
             'app_name' => $collectedSiteReport->appName,
+            'maintenance_mode' => $collectedSiteReport->maintenanceMode,
             'collected_at' => $collectedAt,
         ]);
         $siteReport->save();

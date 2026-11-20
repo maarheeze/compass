@@ -20,6 +20,7 @@ test('site report holds what the client reported', function (): void {
     $appDebug = fake()->boolean();
     $appEnv = fake()->word();
     $appName = fake()->company();
+    $maintenanceMode = fake()->boolean();
     $path = sprintf('/%s', fake()->slug());
     $frequencyMinutes = fake()->numberBetween(1, 60);
     $http = $this->app->make(HttpFactory::class);
@@ -27,6 +28,7 @@ test('site report holds what the client reported', function (): void {
         'app_debug' => $appDebug,
         'app_env' => $appEnv,
         'app_name' => $appName,
+        'maintenance_mode' => $maintenanceMode,
         'endpoints' => [
             [
                 'path' => $path,
@@ -51,7 +53,7 @@ test('site report holds what the client reported', function (): void {
     expect($collectedSiteReport)
         ->toEqual(CollectedSiteReport::installed($appDebug, $appEnv, $appName, [
             new CollectedSiteEndpoint(new EndpointPath($path), $frequencyMinutes),
-        ]));
+        ], $maintenanceMode));
 });
 
 test('site report is incompatible when the client reports without a field', function (): void {

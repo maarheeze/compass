@@ -15,29 +15,35 @@ readonly class CollectedSiteReport
         public ?string $appEnv,
         public ?string $appName,
         public array $endpoints,
+        public ?bool $maintenanceMode,
     ) {
     }
 
     public static function incompatible(): self
     {
-        return new self(SiteReportStatus::INCOMPATIBLE, null, null, null, []);
+        return new self(SiteReportStatus::INCOMPATIBLE, null, null, null, [], null);
     }
 
     /**
      * @param list<CollectedSiteEndpoint> $endpoints
      */
-    public static function installed(bool $appDebug, string $appEnv, string $appName, array $endpoints): self
-    {
-        return new self(SiteReportStatus::INSTALLED, $appDebug, $appEnv, $appName, $endpoints);
+    public static function installed(
+        bool $appDebug,
+        string $appEnv,
+        string $appName,
+        array $endpoints,
+        bool $maintenanceMode,
+    ): self {
+        return new self(SiteReportStatus::INSTALLED, $appDebug, $appEnv, $appName, $endpoints, $maintenanceMode);
     }
 
     public static function notInstalled(): self
     {
-        return new self(SiteReportStatus::NOT_INSTALLED, null, null, null, []);
+        return new self(SiteReportStatus::NOT_INSTALLED, null, null, null, [], null);
     }
 
     public static function unauthorised(): self
     {
-        return new self(SiteReportStatus::UNAUTHORISED, null, null, null, []);
+        return new self(SiteReportStatus::UNAUTHORISED, null, null, null, [], null);
     }
 }

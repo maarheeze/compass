@@ -29,6 +29,16 @@
                     @endif
                 </x-compass::fact>
             @endif
+
+            @if ($siteReport->maintenance_mode !== null)
+                <x-compass::fact :label="__('compass::site-report.maintenance_mode')">
+                    @if ($siteReport->maintenance_mode)
+                        {{ __('compass::site-report.on') }}
+                    @else
+                        {{ __('compass::site-report.off') }}
+                    @endif
+                </x-compass::fact>
+            @endif
         </dl>
 
         <p class="mt-2">

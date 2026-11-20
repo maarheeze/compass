@@ -45,6 +45,7 @@ readonly class CompassClientSiteReportsCollector implements SiteReportsCollector
             $clientReport->appEnv,
             $clientReport->appName,
             $clientReport->endpoints,
+            $clientReport->maintenanceMode,
         );
     }
 

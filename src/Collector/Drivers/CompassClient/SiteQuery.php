@@ -43,12 +43,14 @@ readonly class SiteQuery
         Assert::keyExists($reportResponse, 'app_env');
         Assert::keyExists($reportResponse, 'app_name');
         Assert::keyExists($reportResponse, 'endpoints');
+        Assert::keyExists($reportResponse, 'maintenance_mode');
 
         return new ClientReport(
             Assert::boolean($reportResponse['app_debug']),
             Assert::string($reportResponse['app_env']),
             Assert::string($reportResponse['app_name']),
             $this->getEndpoints(Assert::isList($reportResponse['endpoints'])),
+            Assert::boolean($reportResponse['maintenance_mode']),
         );
     }
 
