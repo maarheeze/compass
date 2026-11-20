@@ -1,0 +1,58 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Maarheeze\Compass\Collector\SiteDomains\Jobs;
+
+use Illuminate\Bus\Batchable;
+use Illuminate\Bus\Queueable;
+use Illuminate\Log\Context\Repository as Context;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Maarheeze\Compass\Collector\CollectingFailed;
+use Maarheeze\Compass\Collector\CollectorLogger;
+use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
+use Maarheeze\Compass\Collector\LockedJob;
+use Maarheeze\Compass\Collector\SiteDomains\SiteDomainsCollectorManager;
+use Maarheeze\Compass\Collector\SiteDomains\SiteDomainSynchroniser;
+use Maarheeze\Compass\Models\Site;
+use Throwable;
+
+class CollectSiteDomains implements LockedJob
+{
+    use Batchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use RetriesWhileLocked;
+    use SerializesModels;
+
+    public function __construct(
+        public readonly Site $site,
+    ) {
+    }
+
+    /**
+     * @throws CollectingFailed
+     * @throws Throwable
+     */
+    public function handle(
+        CollectorLogger $collectorLogger,
+        Context $context,
+        SiteDomainsCollectorManager $siteDomainsCollectorManager,
+        SiteDomainSynchroniser $siteDomainSynchroniser,
+    ): void {
+        $siteDomainsCollector = $siteDomainsCollectorManager->collector($this->site->source);
+
+        $context->add('site', $this->site->name);
+
+        $collectedSiteDomains = $siteDomainsCollector->siteDomains($this->site);
+        $siteDomainSynchroniser->storeSiteDomains($this->site, $collectedSiteDomains);
+
+        $collectorLogger->debug('Site domains collected', ['domain_count' => $collectedSiteDomains->count()]);
+    }
+
+    public function lockKey(): string
+    {
+        return $this->site->id->toString();
+    }
+}

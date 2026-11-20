@@ -10,6 +10,7 @@ return [
     'checked' => 'checked',
     'collected' => 'Collected',
     'deployment' => 'Deployment',
+    'domains' => 'Domains',
     'due' => 'due',
     'endpoints' => 'Endpoints',
     'endpoints_down' => ':count down',

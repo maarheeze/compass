@@ -7,6 +7,7 @@ use Maarheeze\Compass\Collector\Dependabot\DependabotFilesCollectorManager;
 use Maarheeze\Compass\Collector\Issues\IssuesCollectorManager;
 use Maarheeze\Compass\Collector\PullRequests\PullRequestsCollectorManager;
 use Maarheeze\Compass\Collector\Repositories\RepositoriesCollectorManager;
+use Maarheeze\Compass\Collector\SiteDomains\SiteDomainsCollectorManager;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollectorManager;
 use Maarheeze\Compass\Collector\Sites\SitesCollectorManager;
 
@@ -19,6 +20,7 @@ arch('only the collector managers build the drivers')
         IssuesCollectorManager::class,
         PullRequestsCollectorManager::class,
         RepositoriesCollectorManager::class,
+        SiteDomainsCollectorManager::class,
         SiteReportsCollectorManager::class,
         SitesCollectorManager::class,
     ]);

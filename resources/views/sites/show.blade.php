@@ -51,6 +51,19 @@
                                 <span class="text-foreground-muted">&middot; {{ $site->php_version }}</span>
                             @endif
                         </x-compass::fact>
+                        @if ($site->domains->isNotEmpty())
+                            <x-compass::fact :label="__('compass::site.domains')">
+                                @foreach ($site->domains as $siteDomain)
+                                    <div>
+                                        {{ $siteDomain->name }}
+                                        <span class="text-foreground-muted">
+                                            &middot; <x-compass::enum-label :labelled-enum="$siteDomain->type" />
+                                            &middot; <x-compass::enum-label :labelled-enum="$siteDomain->status" />
+                                        </span>
+                                    </div>
+                                @endforeach
+                            </x-compass::fact>
+                        @endif
                     </dl>
                 </x-compass::sidebar-section>
 

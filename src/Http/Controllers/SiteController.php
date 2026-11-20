@@ -59,7 +59,7 @@ readonly class SiteController
 
     public function show(Site $site): View
     {
-        $site->load(['reports', 'repository']);
+        $site->load(['domains', 'reports', 'repository']);
 
         return $this->view->make('compass::sites.show', [
             'alertChecks' => AlertCheck::query()->ofSiteOrItsReports($site)->listed(),

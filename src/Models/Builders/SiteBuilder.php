@@ -59,4 +59,9 @@ class SiteBuilder extends Builder
     {
         return $this->where('source', $source);
     }
+
+    public function returnedByRun(Uuid $runId): self
+    {
+        return $this->where('run_id', $runId);
+    }
 }

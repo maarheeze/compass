@@ -69,7 +69,9 @@ Collects the repositories of an organisation, with their latest commit, composer
 
 ### Laravel Forge
 
-Collects the sites of a Forge organisation, with what is deployed and how that deployment went. Alerts on sites that are behind their repository, deployments that are overdue and sites that disappeared.
+Collects the sites of a Forge organisation, with what is deployed and how that deployment went, and their domains. Alerts on sites that are behind their repository, deployments that are overdue and sites that disappeared.
+
+The token needs the scopes `server:view`, for the sites, and `site:meta`, for their domains.
 
 ```php
 'sources' => [

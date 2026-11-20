@@ -7,6 +7,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
+use Maarheeze\Compass\Collector\SiteDomains\Jobs\CollectSiteDomainsOfSites;
 use Maarheeze\Compass\Collector\Sites\Jobs\CollectSites;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Uuid\Uuid;
@@ -169,6 +170,33 @@ test('handle raises sites collected', function (): void {
             return $sitesCollected->source === $source;
         },
     );
+});
+
+test('handle adds the collection of the site domains to its batch', function (): void {
+    $source = fake()->slug();
+    $this->setConfiguration('compass.sources', [
+        $source => [
+            'driver' => 'forge',
+            'organisation' => fake()->slug(),
+            'token' => fake()->sha1(),
+            'auto_deploy_grace_minutes' => fake()->numberBetween(1, 60),
+            'server_pattern' => '/.*/',
+        ],
+    ]);
+    $this->app->make(HttpFactory::class)->fake([
+        '*' => HttpFactory::response([
+            'data' => [],
+            'meta' => [
+                'next_cursor' => null,
+            ],
+        ]),
+    ]);
+
+    [$collectSites, $batchFake] = new CollectSites(Uuid::generate(), $source)->withFakeBatch();
+    $this->app->call([$collectSites, 'handle']);
+
+    expect(array_map(get_class(...), $batchFake->added))
+        ->toBe([CollectSiteDomainsOfSites::class]);
 });
 
 test('lock key is the source', function (): void {

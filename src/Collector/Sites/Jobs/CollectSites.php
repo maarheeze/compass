@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Collector\Sites\Jobs;
 
+use Illuminate\Bus\Batch;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -13,10 +14,12 @@ use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Collector\LockedJob;
+use Maarheeze\Compass\Collector\SiteDomains\Jobs\CollectSiteDomainsOfSites;
 use Maarheeze\Compass\Collector\Sites\SitesCollectorManager;
 use Maarheeze\Compass\Collector\Sites\SiteSynchroniser;
 use Maarheeze\Compass\Collector\SourceConfigs;
 use Maarheeze\Uuid\Uuid;
+use Webmozart\Assert\Assert;
 
 class CollectSites implements LockedJob
 {
@@ -61,6 +64,9 @@ class CollectSites implements LockedJob
         $events->dispatch(new SitesCollected($this->source));
 
         $collectorLogger->info('Sites collector ended');
+
+        Assert::isInstanceOf($this->batch(), Batch::class)
+            ->add([new CollectSiteDomainsOfSites($this->runId, $this->source)]);
     }
 
     public function lockKey(): string

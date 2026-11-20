@@ -15,6 +15,7 @@ use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collections\AlertCheckCollection;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\SiteCollection;
+use Maarheeze\Compass\Collections\SiteDomainCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
 use Maarheeze\Compass\Collections\SiteReportCollection;
 use Maarheeze\Compass\Collector\Sites\DeploymentStatus;
@@ -55,6 +56,7 @@ use Maarheeze\Uuid\Uuid;
  *
  * @property-read AlertCheckCollection $alertChecks
  * @property-read AlertCollection $alerts
+ * @property-read SiteDomainCollection $domains
  * @property-read SiteEndpointCheckCollection $endpointChecks
  * @property-read SiteReportCollection $reports
  * @property-read ?Repository $repository
@@ -107,6 +109,14 @@ class Site extends Model implements AlertSubject
     public function getTable(): string
     {
         return 'compass_sites';
+    }
+
+    /**
+     * @return HasMany<SiteDomain, $this>
+     */
+    public function domains(): HasMany
+    {
+        return $this->hasMany(SiteDomain::class);
     }
 
     /**
