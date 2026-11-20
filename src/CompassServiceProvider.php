@@ -7,10 +7,13 @@ namespace Maarheeze\Compass;
 use Carbon\FactoryImmutable;
 use Illuminate\Broadcasting\Broadcasters\Broadcaster;
 use Illuminate\Broadcasting\BroadcastManager;
+use Illuminate\Cache\RateLimiter;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Config\Repository as ConfigurationRepository;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Http\Request;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Blade;
@@ -25,6 +28,7 @@ use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Http\Controllers\RunController;
 use Maarheeze\Compass\Http\Controllers\SiteEndpointCheckController;
 use Maarheeze\Compass\Http\EndpointPathRouteParameter;
+use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Run;
 use Maarheeze\Compass\Models\Site;
@@ -73,8 +77,10 @@ class CompassServiceProvider extends ServiceProvider
 
     public function boot(
         BroadcastManager $broadcastManager,
+        ConfigurationRepository $configuration,
         Dispatcher $events,
         EndpointPathRouteParameter $endpointPathRouteParameter,
+        RateLimiter $rateLimiter,
         Router $router,
     ): void {
         $events->listen(JobFailed::class, RecordRunFailure::class);
@@ -92,6 +98,12 @@ class CompassServiceProvider extends ServiceProvider
 
         $router->bind('endpointPath', static function (string $routeParameter) use ($endpointPathRouteParameter): EndpointPath {
             return $endpointPathRouteParameter->decode($routeParameter);
+        });
+
+        $rateLimiter->for(RouteName::API_CLIENT, static function (Request $request) use ($configuration): Limit {
+            $inspectionRequestsPerMinute = $configuration->integer('compass.inspection_requests_per_minute');
+
+            return Limit::perMinute($inspectionRequestsPerMinute)->by($request->ip());
         });
 
         $this->loadTranslationsFrom(sprintf('%s/../lang', __DIR__), 'compass');

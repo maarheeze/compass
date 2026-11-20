@@ -17,9 +17,13 @@ return new class extends Migration
             $table->string('external_id');
             $table->string('name');
             $table->string('url');
-            $table->string('key')->nullable();
+            $table->string('key')
+                ->nullable()
+                ->unique();
             $table->string('php_version')->nullable();
-            $table->string('repository_url')->nullable()->index();
+            $table->string('repository_url')
+                ->nullable()
+                ->index();
             $table->string('repository_branch')->nullable();
             $table->boolean('auto_deploy')->nullable();
             $table->unsignedInteger('auto_deploy_grace_minutes');

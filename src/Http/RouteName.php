@@ -13,6 +13,7 @@ enum RouteName: string
     case ALERT_REOPEN = 'compass.alert.reopen';
     case ALERT_UNASSIGN = 'compass.alert.unassign';
     case ALERT_UNMUTE = 'compass.alert.unmute';
+    case API_CLIENT = 'compass.api.client';
     case DASHBOARD = 'compass.dashboard';
     case GITHUB_CALLBACK = 'compass.auth.github.callback';
     case GITHUB_REDIRECT = 'compass.auth.github';

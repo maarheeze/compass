@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Route;
 use Maarheeze\Compass\Http\Controllers\AlertController;
+use Maarheeze\Compass\Http\Controllers\ClientController;
 use Maarheeze\Compass\Http\Controllers\DashboardController;
 use Maarheeze\Compass\Http\Controllers\GitHubController;
 use Maarheeze\Compass\Http\Controllers\IssueController;
@@ -79,4 +81,10 @@ Route::middleware('web')
 
             Route::post('/logout', [GitHubController::class, 'logout'])->name(RouteName::LOGOUT);
         });
+    });
+
+Route::prefix(config('compass.path'))
+    ->middleware(ThrottleRequests::using(RouteName::API_CLIENT))
+    ->group(static function (): void {
+        Route::post('/api/client', [ClientController::class, 'store'])->name(RouteName::API_CLIENT);
     });

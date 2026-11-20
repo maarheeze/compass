@@ -106,6 +106,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Inspection requests
+    |--------------------------------------------------------------------------
+    |
+    | The number of requests a minute the sites may send from one IP address
+    | to ask to be inspected again. Several sites on one server share its
+    | IP address, so this stays well above what one server sends at once.
+    |
+    */
+
+    'inspection_requests_per_minute' => env('COMPASS_INSPECTION_REQUESTS_PER_MINUTE', 60),
+
+    /*
+    |--------------------------------------------------------------------------
     | Signing in
     |--------------------------------------------------------------------------
     |
