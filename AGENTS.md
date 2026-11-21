@@ -1,3 +1,47 @@
+=== project ===
+
+# Compass
+
+A self-hosted, read-only status dashboard for the GitHub repositories of one organisation and the Laravel Forge sites they deploy to, shipped as the Laravel package `maarheeze/compass`.
+
+## Problem
+
+Our code lives in GitHub repositories and is deployed through Laravel Forge. There is no single place that shows, per repository, what the latest commit is, what is actually deployed, whether that deployment succeeded, what the project depends on, and which issues and pull requests are open. Answering those questions means clicking through GitHub and Forge one repository at a time.
+
+## Goal
+
+A web application that periodically collects status data from GitHub and Forge, stores it in a database, and shows it to people who sign in with their GitHub account.
+
+## Distribution
+
+Each organisation runs its own installation: a standard Laravel app that requires `maarheeze/compass` and publishes `config/compass.php`. This repository is the package, not an app. It is tested with Orchestra Testbench.
+
+The package never touches the host's `users` table or default guard: it brings its own `compass_users` table, `compass` guard and middleware, and registers routes (named `compass.*`) under the `compass.path` prefix.
+
+## Core principles
+
+- **Collected data is a cache, not a source of truth.** GitHub and Forge stay authoritative; the database is refreshed periodically. Issues and pull requests a sync no longer returns are deleted; repositories and sites are marked missing instead and shown on the dashboard, because a sync that silently returns too little must not take their settings with it. Only the user deletes them, or ignores the missing mark; a row that comes back has its marks cleared.
+- **Open source by design.** No hardcoded tokens or org-specific values in code. The README documents what is required.
+- **A job per request that cannot be combined.** A collector hands over what one request to its provider returns, such as a page of repositories or sites, as one batch in one job. Where every subject needs a request of its own, such as a site's report, an endpoint check or a composer file, the requests cannot be combined: the collector takes one subject, and a job per subject calls it, so a slow or failing subject only holds up or fails its own job.
+
+## Tech stack
+
+- **Laravel 13 package** (namespace `Maarheeze\Compass`) with Blade
+- **Orchestra Testbench** for package tests
+- **Laravel Socialite** (GitHub provider) for sign-in
+- **GitHub API** (GraphQL where it saves round-trips, REST where simpler) and the **Forge API**
+- **Laravel scheduler + queue** for the collector
+
+## Non-goals
+
+- Not a replacement for any org's Project board.
+- Not real-time — periodic polling is enough.
+- Read-only — Compass never changes anything on GitHub or Forge: no write actions on issues or pull requests, no triggering deployments.
+
+## Working name
+
+**Compass** — deliberately not GitHub-branded (see GitHub's trademark/naming guidance, which discourages names implying GitHub endorsement), and broad enough to cover repositories, deployments, issues and pull requests without a rename.
+
 === foundation rules ===
 
 # Guidelines
