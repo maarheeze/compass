@@ -7,10 +7,8 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Console\ClosureCommand;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use Maarheeze\Compass\Collector\CollectorType;
 use Maarheeze\Compass\Console\CheckSiteEndpointsCommand;
-use Maarheeze\Compass\Console\CollectCommand;
-use Maarheeze\Compass\Console\ScheduledCommands;
+use Maarheeze\Compass\Scheduling\ScheduledCommands;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 use Webmozart\Assert\Assert;
@@ -79,39 +77,6 @@ test('all gives the next run of a scheduled command after the current time', fun
         ->toBe($now->addDay()
             ->startOfDay()
             ->getTimestamp());
-});
-
-test('collector next run at gives the next run of the collector of the source', function (): void {
-    $now = CarbonImmutable::instance(fake()->dateTime());
-    $this->app->instance(ClockInterface::class, new MockClock($now));
-    $source = fake()->slug();
-    $collectorType = fake()->randomElement(CollectorType::cases());
-    $schedule = new Schedule();
-    $schedule
-        ->command(CollectCommand::SIGNATURE, [$source, $collectorType->value])
-        ->daily();
-    $this->app->instance(Schedule::class, $schedule);
-
-    $scheduledCommands = $this->app->make(ScheduledCommands::class);
-    $collectorNextRunAt = $scheduledCommands->collectorNextRunAt($source, $collectorType);
-
-    expect($collectorNextRunAt?->getTimestamp())
-        ->toBe($now->addDay()
-            ->startOfDay()
-            ->getTimestamp());
-});
-
-test('collector next run at is null when the collector of the source is not scheduled', function (): void {
-    $collectorType = fake()->randomElement(CollectorType::cases());
-    $schedule = new Schedule();
-    $schedule->command(CollectCommand::SIGNATURE, [fake()->unique()->slug(), $collectorType->value]);
-    $this->app->instance(Schedule::class, $schedule);
-
-    $scheduledCommands = $this->app->make(ScheduledCommands::class);
-    $collectorNextRunAt = $scheduledCommands->collectorNextRunAt(fake()->unique()->slug(), $collectorType);
-
-    expect($collectorNextRunAt)
-        ->toBeNull();
 });
 
 test('run runs the scheduled command of the mutex name with its arguments', function (): void {

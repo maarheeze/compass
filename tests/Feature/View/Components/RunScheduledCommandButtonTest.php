@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
-use Maarheeze\Compass\Console\ScheduledCommand;
 use Maarheeze\Compass\Http\RouteName;
+use Maarheeze\Compass\Scheduling\ScheduledCommand;
 use Maarheeze\Compass\View\Components\RunScheduledCommandButton;
 
 test('run url is the run route', function (): void {

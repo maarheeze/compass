@@ -7,7 +7,7 @@ namespace Maarheeze\Compass\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\In;
-use Maarheeze\Compass\Console\ScheduledCommands;
+use Maarheeze\Compass\Scheduling\ScheduledCommands;
 use Webmozart\Assert\Assert;
 
 class RunScheduledCommandRequest extends FormRequest

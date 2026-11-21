@@ -7,11 +7,11 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
+use Maarheeze\Compass\Collector\CollectorSchedule;
 use Maarheeze\Compass\Collector\CollectorType;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\ClientUnreachable;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteClient;
 use Maarheeze\Compass\Console\CollectCommand;
-use Maarheeze\Compass\Console\ScheduledCommands;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteReport;
@@ -24,9 +24,9 @@ test('post requests the path of the site report from its site', function (): voi
     $http->fake();
 
     $siteClient = new SiteClient(
+        $this->app->make(CollectorSchedule::class),
         $http,
         sprintf('/%s', fake()->slug()),
-        $this->app->make(ScheduledCommands::class),
         fake()->slug(),
         $this->app->make(UrlGenerator::class),
     );
@@ -44,9 +44,9 @@ test('post requests the path of the source for a site report without one', funct
     $http->fake();
 
     $siteClient = new SiteClient(
+        $this->app->make(CollectorSchedule::class),
         $http,
         $path,
-        $this->app->make(ScheduledCommands::class),
         fake()->slug(),
         $this->app->make(UrlGenerator::class),
     );
@@ -67,9 +67,9 @@ test('post joins a site url ending in a slash with one slash', function (): void
     $http->fake();
 
     $siteClient = new SiteClient(
+        $this->app->make(CollectorSchedule::class),
         $http,
         sprintf('/%s', fake()->slug()),
-        $this->app->make(ScheduledCommands::class),
         fake()->slug(),
         $this->app->make(UrlGenerator::class),
     );
@@ -86,9 +86,9 @@ test('post sends the key', function (): void {
     $http->fake();
 
     $siteClient = new SiteClient(
+        $this->app->make(CollectorSchedule::class),
         $http,
         sprintf('/%s', fake()->slug()),
-        $this->app->make(ScheduledCommands::class),
         fake()->slug(),
         $this->app->make(UrlGenerator::class),
     );
@@ -104,9 +104,9 @@ test('post throws when the site cannot be reached', function (): void {
     $http->fake(['*' => HttpFactory::failedConnection()]);
 
     $siteClient = new SiteClient(
+        $this->app->make(CollectorSchedule::class),
         $http,
         sprintf('/%s', fake()->slug()),
-        $this->app->make(ScheduledCommands::class),
         fake()->slug(),
         $this->app->make(UrlGenerator::class),
     );
@@ -122,9 +122,9 @@ test('post sends the url of the compass api when the site reports collector of i
     $http->fake();
 
     $siteClient = new SiteClient(
+        $this->app->make(CollectorSchedule::class),
         $http,
         sprintf('/%s', fake()->slug()),
-        $this->app->make(ScheduledCommands::class),
         $source,
         $this->app->make(UrlGenerator::class),
     );
@@ -143,21 +143,21 @@ test('post sends the url of the compass api as valid until an hour after the nex
         ->command(CollectCommand::SIGNATURE, [$source, CollectorType::SITE_REPORTS->value])
         ->hourly();
     $this->app->instance(Schedule::class, $schedule);
-    $scheduledCommands = $this->app->make(ScheduledCommands::class);
+    $collectorSchedule = $this->app->make(CollectorSchedule::class);
     $http = $this->app->make(HttpFactory::class);
     $http->fake();
 
     $siteClient = new SiteClient(
+        $collectorSchedule,
         $http,
         sprintf('/%s', fake()->slug()),
-        $scheduledCommands,
         $source,
         $this->app->make(UrlGenerator::class),
     );
     $siteClient->post(SiteReport::factory()->create(), fake()->sha1());
 
-    $http->assertSent(static function (HttpRequest $request) use ($scheduledCommands, $source): bool {
-        $siteReportsNextRunAt = $scheduledCommands->collectorNextRunAt($source, CollectorType::SITE_REPORTS);
+    $http->assertSent(static function (HttpRequest $request) use ($collectorSchedule, $source): bool {
+        $siteReportsNextRunAt = $collectorSchedule->nextRunAt($source, CollectorType::SITE_REPORTS);
 
         return $request['compass_api_url_valid_until'] === $siteReportsNextRunAt?->addHour()->toIso8601String();
     });
@@ -169,9 +169,9 @@ test('post leaves out the compass api when the site reports collector of its sou
     $http->fake();
 
     $siteClient = new SiteClient(
+        $this->app->make(CollectorSchedule::class),
         $http,
         sprintf('/%s', fake()->slug()),
-        $this->app->make(ScheduledCommands::class),
         fake()->slug(),
         $this->app->make(UrlGenerator::class),
     );

@@ -8,8 +8,8 @@ use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
-use Maarheeze\Compass\Console\ScheduledCommand;
 use Maarheeze\Compass\Http\RouteName;
+use Maarheeze\Compass\Scheduling\ScheduledCommand;
 
 class RunScheduledCommandButton extends Component
 {

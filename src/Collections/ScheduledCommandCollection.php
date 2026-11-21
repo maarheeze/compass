@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Collections;
 
 use Illuminate\Support\Collection;
-use Maarheeze\Compass\Console\ScheduledCommand;
+use Maarheeze\Compass\Scheduling\ScheduledCommand;
 
 use function array_values;
 
@@ -25,6 +25,13 @@ class ScheduledCommandCollection extends Collection
                 return $scheduledCommand->mutexName;
             })
             ->all());
+    }
+
+    public function withCommand(string $command): ?ScheduledCommand
+    {
+        return $this->first(static function (ScheduledCommand $scheduledCommand) use ($command): bool {
+            return $scheduledCommand->command === $command;
+        });
     }
 
     public function withMutexName(string $mutexName): ScheduledCommand

@@ -6,12 +6,12 @@ use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collector\CollectingFailed;
+use Maarheeze\Compass\Collector\CollectorSchedule;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\CompassClientSiteReportsCollector;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteClient;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteEndpoint;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteReport;
-use Maarheeze\Compass\Console\ScheduledCommands;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteReport;
 use Random\Randomizer;
@@ -41,9 +41,9 @@ test('site report holds what the client reported', function (): void {
     $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
         new Randomizer(),
         new SiteClient(
+            $this->app->make(CollectorSchedule::class),
             $http,
             sprintf('/%s', fake()->slug()),
-            $this->app->make(ScheduledCommands::class),
             fake()->slug(),
             $this->app->make(UrlGenerator::class),
         ),
@@ -68,9 +68,9 @@ test('site report is incompatible when the client reports without a field', func
     $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
         new Randomizer(),
         new SiteClient(
+            $this->app->make(CollectorSchedule::class),
             $http,
             sprintf('/%s', fake()->slug()),
-            $this->app->make(ScheduledCommands::class),
             fake()->slug(),
             $this->app->make(UrlGenerator::class),
         ),
@@ -88,9 +88,9 @@ test('site report is not installed when the site has no client', function (): vo
     $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
         new Randomizer(),
         new SiteClient(
+            $this->app->make(CollectorSchedule::class),
             $http,
             sprintf('/%s', fake()->slug()),
-            $this->app->make(ScheduledCommands::class),
             fake()->slug(),
             $this->app->make(UrlGenerator::class),
         ),
@@ -108,9 +108,9 @@ test('site report is unauthorised when the client refuses the key', function ():
     $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
         new Randomizer(),
         new SiteClient(
+            $this->app->make(CollectorSchedule::class),
             $http,
             sprintf('/%s', fake()->slug()),
-            $this->app->make(ScheduledCommands::class),
             fake()->slug(),
             $this->app->make(UrlGenerator::class),
         ),
@@ -128,9 +128,9 @@ test('site report throws collecting failed when the site cannot be reached', fun
     $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
         new Randomizer(),
         new SiteClient(
+            $this->app->make(CollectorSchedule::class),
             $http,
             sprintf('/%s', fake()->slug()),
-            $this->app->make(ScheduledCommands::class),
             fake()->slug(),
             $this->app->make(UrlGenerator::class),
         ),
@@ -146,9 +146,9 @@ test('site report asks the site with its key', function (): void {
     $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
         new Randomizer(),
         new SiteClient(
+            $this->app->make(CollectorSchedule::class),
             $http,
             sprintf('/%s', fake()->slug()),
-            $this->app->make(ScheduledCommands::class),
             fake()->slug(),
             $this->app->make(UrlGenerator::class),
         ),
@@ -168,9 +168,9 @@ test('site report gives a site without a key a new one', function (): void {
     $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
         new Randomizer(),
         new SiteClient(
+            $this->app->make(CollectorSchedule::class),
             $http,
             sprintf('/%s', fake()->slug()),
-            $this->app->make(ScheduledCommands::class),
             fake()->slug(),
             $this->app->make(UrlGenerator::class),
         ),
@@ -189,9 +189,9 @@ test('site report asks a site without a key with the key it gave it', function (
     $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
         new Randomizer(),
         new SiteClient(
+            $this->app->make(CollectorSchedule::class),
             $http,
             sprintf('/%s', fake()->slug()),
-            $this->app->make(ScheduledCommands::class),
             fake()->slug(),
             $this->app->make(UrlGenerator::class),
         ),

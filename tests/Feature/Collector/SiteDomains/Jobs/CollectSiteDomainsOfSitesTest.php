@@ -45,3 +45,13 @@ test('handle leaves out a site of another source', function (): void {
     expect($batchFake->added)
         ->toBe([]);
 });
+
+test('lock key is the source', function (): void {
+    $source = fake()->slug();
+
+    $collectSiteDomainsOfSites = new CollectSiteDomainsOfSites(Uuid::generate(), $source);
+    $lockKey = $collectSiteDomainsOfSites->lockKey();
+
+    expect($lockKey)
+        ->toBe($source);
+});

@@ -6,11 +6,11 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
+use Maarheeze\Compass\Collector\CollectorSchedule;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\CompassClientSiteReportsCollector;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteClient;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollectorManager;
 use Maarheeze\Compass\Collector\SourceConfig;
-use Maarheeze\Compass\Console\ScheduledCommands;
 use Maarheeze\Compass\Models\SiteReport;
 use Random\Randomizer;
 
@@ -45,9 +45,9 @@ test('collector is the collector its extension makes from its config', function 
     $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
         new Randomizer(),
         new SiteClient(
+            $this->app->make(CollectorSchedule::class),
             $this->app->make(HttpFactory::class),
             sprintf('/%s', fake()->slug()),
-            $this->app->make(ScheduledCommands::class),
             fake()->slug(),
             $this->app->make(UrlGenerator::class),
         ),

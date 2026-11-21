@@ -10,10 +10,10 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Redirector;
-use Maarheeze\Compass\Console\ScheduledCommands;
 use Maarheeze\Compass\Http\Requests\RunScheduledCommandRequest;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Run;
+use Maarheeze\Compass\Scheduling\ScheduledCommands;
 
 readonly class RunController
 {
