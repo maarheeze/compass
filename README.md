@@ -22,6 +22,24 @@ Import Compass's JavaScript in the host's `resources/js/app.js`, after Echo if t
 import '../../vendor/maarheeze/compass/resources/js/compass.js';
 ```
 
+## Signing in
+
+People sign in with their GitHub account. Register an OAuth App under the organisation's developer settings on GitHub, with as its callback URL the host's address followed by `/auth/github/callback`, after `COMPASS_PATH` when Compass is not served from the root:
+
+```
+https://compass.example.com/auth/github/callback
+```
+
+Then set its credentials and the organisation whose members may sign in:
+
+```dotenv
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+COMPASS_GITHUB_ORGANISATION=
+```
+
+Only active members of that organisation get in, and only with a verified email address on their GitHub account. Compass asks for the `read:org` and `user:email` scopes; an organisation that restricts OAuth App access has to approve the app first. Membership is checked when signing in, and a sign-in lasts `COMPASS_REMEMBER_MINUTES`, a day by default.
+
 ## Live updates
 
 With broadcasting set up on the host, Compass pages update themselves while open and show runs and alerts in toasts as they happen:
@@ -90,7 +108,7 @@ The token needs the scopes `server:view`, for the sites, and `site:meta`, for th
 
 ### Compass client
 
-Install [maarheeze/compass-client-laravel](https://github.com/maarheeze/compass-client-laravel) on a site to report what cannot be seen from outside: debug mode, the environment and the endpoints to monitor. Compass checks those endpoints, and alerts on a site in debug mode, a site not in production, an endpoint that is down, a client that refuses Compass's key and a client too outdated to report.
+Install [maarheeze/compass-client-laravel](https://github.com/maarheeze/compass-client-laravel) on a site to report what cannot be seen from outside: debug mode, the environment, maintenance mode and the endpoints to monitor. Compass checks those endpoints, and alerts on a site in debug mode, a site not in production, a site reachable on a Forge domain outside maintenance mode, an endpoint that is down, a client that refuses Compass's key and a client too outdated to report.
 
 ```php
 'sources' => [
