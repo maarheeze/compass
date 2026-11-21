@@ -11,6 +11,7 @@
                     <h1 class="text-lg font-semibold text-foreground">{{ $site->name }}</h1>
                 </x-compass::subject-name>
                 <x-compass::deployment-state-badge :site="$site" />
+                <x-compass::site-maintenance-mode-badge :site="$site" />
             </div>
             <a href="{{ $site->url }}" target="_blank" rel="noopener" class="text-sm text-accent hover:underline">{{ $site->url }}</a>
         </div>

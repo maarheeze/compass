@@ -3,6 +3,7 @@
         <x-compass::subject-name :subject="$site">
             <a href="{{ $url }}" class="truncate text-base font-semibold text-foreground hover:text-accent">{{ $site->name }}</a>
             <x-compass::deployment-state-badge :site="$site" />
+            <x-compass::site-maintenance-mode-badge :site="$site" />
             @forelse ($site->reports as $siteReport)
                 <x-compass::site-report-status-badge :status="$siteReport->status" />
             @empty

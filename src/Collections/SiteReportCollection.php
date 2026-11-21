@@ -12,4 +12,10 @@ use Maarheeze\Compass\Models\SiteReport;
  */
 class SiteReportCollection extends Collection
 {
+    public function hasMaintenanceModeOn(): bool
+    {
+        return $this->contains(static function (SiteReport $siteReport): bool {
+            return $siteReport->maintenance_mode === true;
+        });
+    }
 }
