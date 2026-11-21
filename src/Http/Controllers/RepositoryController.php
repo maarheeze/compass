@@ -11,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Maarheeze\Compass\Analyser\Composer\RepositoryKindClassifier;
 use Maarheeze\Compass\Collector\Repositories\MissingRepositoryResolver;
+use Maarheeze\Compass\Http\IssueTypeOrder;
 use Maarheeze\Compass\Http\ItemsPerPage;
 use Maarheeze\Compass\Http\Requests\RepositoryFilterRequest;
 use Maarheeze\Compass\Http\RouteName;
@@ -23,6 +24,7 @@ use Throwable;
 readonly class RepositoryController
 {
     public function __construct(
+        private IssueTypeOrder $issueTypeOrder,
         private ItemsPerPage $itemsPerPage,
         private MissingRepositoryResolver $missingRepositoryResolver,
         private Redirector $redirector,
@@ -71,7 +73,7 @@ readonly class RepositoryController
                 ->ofRepository($repository)
                 ->development()
                 ->listed(),
-            'issues' => $repository->issues()->listed(),
+            'issues' => $repository->issues()->listed($this->issueTypeOrder),
             'kind' => $this->repositoryKindClassifier->classify($repository),
             'lockedPackages' => ComposerLockPackage::query()->ofRepository($repository)->listed(),
             'productionPackages' => ComposerJsonPackage::query()

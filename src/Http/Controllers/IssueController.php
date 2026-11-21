@@ -9,6 +9,7 @@ use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Maarheeze\Compass\Http\AssigneeFilter;
 use Maarheeze\Compass\Http\IssueTypeFilter;
+use Maarheeze\Compass\Http\IssueTypeOrder;
 use Maarheeze\Compass\Http\ItemsPerPage;
 use Maarheeze\Compass\Http\Requests\AssigneeFilterRequest;
 use Maarheeze\Compass\Http\Requests\IssueTypeFilterRequest;
@@ -17,6 +18,7 @@ use Maarheeze\Compass\Models\Issue;
 readonly class IssueController
 {
     public function __construct(
+        private IssueTypeOrder $issueTypeOrder,
         private ItemsPerPage $itemsPerPage,
         private Translator $translator,
         private ViewFactory $view,
@@ -27,7 +29,7 @@ readonly class IssueController
         AssigneeFilterRequest $assigneeFilterRequest,
         IssueTypeFilterRequest $issueTypeFilterRequest,
     ): View {
-        $issues = Issue::query()->listed();
+        $issues = Issue::query()->listed($this->issueTypeOrder);
         $issuesOfAssignee = $assigneeFilterRequest
             ->assigneeFilter()
             ->issues(Issue::query());
@@ -41,7 +43,7 @@ readonly class IssueController
             'issues' => $issueTypeFilterRequest
                 ->issueTypeFilter()
                 ->issues($issuesOfAssignee)
-                ->listedPage($this->itemsPerPage),
+                ->listedPage($this->itemsPerPage, $this->issueTypeOrder),
         ]);
     }
 }

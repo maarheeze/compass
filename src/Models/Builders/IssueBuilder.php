@@ -10,6 +10,7 @@ use Illuminate\Support\Collection;
 use Maarheeze\Compass\Collections\IssueCollection;
 use Maarheeze\Compass\Collector\Issues\IssueType;
 use Maarheeze\Compass\Http\Assignee;
+use Maarheeze\Compass\Http\IssueTypeOrder;
 use Maarheeze\Compass\Http\ItemsPerPage;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Uuid\Uuid;
@@ -34,18 +35,18 @@ class IssueBuilder extends Builder
         return $this->latest('opened_at');
     }
 
-    public function listed(): IssueCollection
+    public function listed(IssueTypeOrder $issueTypeOrder): IssueCollection
     {
-        return Assert::isInstanceOf($this->inListedOrder()->get(), IssueCollection::class);
+        return Assert::isInstanceOf($this->inListedOrder($issueTypeOrder)->get(), IssueCollection::class);
     }
 
     /**
      * @return LengthAwarePaginator<int, Issue>
      */
-    public function listedPage(ItemsPerPage $itemsPerPage): LengthAwarePaginator
+    public function listedPage(ItemsPerPage $itemsPerPage, IssueTypeOrder $issueTypeOrder): LengthAwarePaginator
     {
         return $this
-            ->inListedOrder()
+            ->inListedOrder($issueTypeOrder)
             ->paginate($itemsPerPage->value)
             ->withQueryString();
     }
@@ -84,10 +85,11 @@ class IssueBuilder extends Builder
         return $this->whereNull('type');
     }
 
-    private function inListedOrder(): self
+    private function inListedOrder(IssueTypeOrder $issueTypeOrder): self
     {
         return $this
             ->with(['assignees', 'repository'])
+            ->inOrderOf('type', $issueTypeOrder->issueTypes)
             ->latestOpened();
     }
 }

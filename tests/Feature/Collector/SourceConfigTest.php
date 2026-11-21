@@ -115,7 +115,7 @@ test('map setting is empty for a setting the source does not have', function ():
         ->toBeEmpty();
 });
 
-test('map setting refuses a setting that is not a map of strings', function (mixed $settingValue): void {
+test('map setting refuses a setting that is not a map', function (mixed $settingValue): void {
     $settingName = fake()->word();
     $sourceConfig = new SourceConfig(fake()->slug(), [$settingName => $settingValue]);
 
@@ -129,11 +129,6 @@ test('map setting refuses a setting that is not a map of strings', function (mix
     'a list' => [
         function (): array {
             return [fake()->word()];
-        },
-    ],
-    'a value that is not a string' => [
-        function (): array {
-            return [fake()->word() => fake()->randomNumber()];
         },
     ],
 ]);

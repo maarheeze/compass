@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Collector\Issues;
 
 use Maarheeze\Compass\Collector\SourceConfig;
+use Webmozart\Assert\Assert;
 
 use function array_key_exists;
 
@@ -18,8 +19,8 @@ readonly class IssueTypeMapping
     ) {
         $issueTypes = [];
 
-        foreach ($sourceConfig->mapSetting('issue_types') as $issueTypeName => $issueTypeValue) {
-            $issueTypes[$issueTypeName] = IssueType::from($issueTypeValue);
+        foreach ($sourceConfig->mapSetting('issue_types') as $issueTypeName => $configuredIssueType) {
+            $issueTypes[$issueTypeName] = Assert::isInstanceOf($configuredIssueType, IssueType::class);
         }
 
         $this->issueTypes = $issueTypes;

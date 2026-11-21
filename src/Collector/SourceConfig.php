@@ -32,7 +32,7 @@ readonly class SourceConfig
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, mixed>
      */
     public function mapSetting(string $settingName): array
     {
@@ -40,13 +40,7 @@ readonly class SourceConfig
             return [];
         }
 
-        $mapSetting = [];
-
-        foreach (Assert::isMap($this->settings[$settingName]) as $key => $value) {
-            $mapSetting[$key] = Assert::string($value);
-        }
-
-        return $mapSetting;
+        return Assert::isMap($this->settings[$settingName]);
     }
 
     /**

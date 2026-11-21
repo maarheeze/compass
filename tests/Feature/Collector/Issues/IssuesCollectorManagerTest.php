@@ -47,7 +47,7 @@ test('collector of a github source maps the issue types of its config', function
             'driver' => 'github',
             'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
-            'issue_types' => [$issueTypeName => $issueType->value],
+            'issue_types' => [$issueTypeName => $issueType],
         ],
     ]);
     $this->app->make(HttpFactory::class)->fake([

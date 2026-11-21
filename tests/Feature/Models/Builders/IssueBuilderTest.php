@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Collection;
 use Maarheeze\Compass\Collector\Issues\IssueType;
 use Maarheeze\Compass\Http\Assignee;
+use Maarheeze\Compass\Http\IssueTypeOrder;
 use Maarheeze\Compass\Http\ItemsPerPage;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\IssueAssignee;
@@ -92,7 +93,7 @@ test('listed is the issues opened latest first', function (): void {
     $olderIssue = Issue::factory()->create(['opened_at' => fake()->dateTimeBetween('-2 months', '-1 month')]);
     $newerIssue = Issue::factory()->create(['opened_at' => fake()->dateTimeBetween('-1 week')]);
 
-    $listedIssues = Issue::query()->listed();
+    $listedIssues = Issue::query()->listed(new IssueTypeOrder([]));
 
     expect($listedIssues->modelKeys())
         ->toEqual([$newerIssue->getKey(), $olderIssue->getKey()]);
@@ -156,11 +157,69 @@ test('unassigned leaves out an issue with an assignee', function (): void {
         ->toBeEmpty();
 });
 
+test('listed is the issues of the ordered types first, in the order of their types', function (): void {
+    $featureIssue = Issue::factory()->create(['type' => IssueType::FEATURE]);
+    $bugIssue = Issue::factory()->create(['type' => IssueType::BUG]);
+
+    $listedIssues = Issue::query()->listed(new IssueTypeOrder([IssueType::BUG, IssueType::FEATURE]));
+
+    expect($listedIssues->modelKeys())
+        ->toEqual([$bugIssue->getKey(), $featureIssue->getKey()]);
+});
+
+test('listed is the issues of every other type or without a type after the ordered ones', function (): void {
+    $otherIssue = Issue::factory()->create([
+        'type' => fake()->randomElement([IssueType::FEATURE, IssueType::TASK, null]),
+        'opened_at' => fake()->dateTimeBetween('-1 week'),
+    ]);
+    $bugIssue = Issue::factory()->create([
+        'type' => IssueType::BUG,
+        'opened_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
+    ]);
+
+    $listedIssues = Issue::query()->listed(new IssueTypeOrder([IssueType::BUG]));
+
+    expect($listedIssues->modelKeys())
+        ->toEqual([$bugIssue->getKey(), $otherIssue->getKey()]);
+});
+
+test('listed is the issues of one place in the order opened latest first', function (): void {
+    $olderIssue = Issue::factory()->create([
+        'type' => IssueType::BUG,
+        'opened_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
+    ]);
+    $newerIssue = Issue::factory()->create([
+        'type' => IssueType::BUG,
+        'opened_at' => fake()->dateTimeBetween('-1 week'),
+    ]);
+
+    $listedIssues = Issue::query()->listed(new IssueTypeOrder([IssueType::BUG]));
+
+    expect($listedIssues->modelKeys())
+        ->toEqual([$newerIssue->getKey(), $olderIssue->getKey()]);
+});
+
+test('listed page is the issues of the ordered types first', function (): void {
+    $featureIssue = Issue::factory()->create(['type' => IssueType::FEATURE]);
+    $bugIssue = Issue::factory()->create(['type' => IssueType::BUG]);
+
+    $listedIssuesPage = Issue::query()->listedPage(
+        new ItemsPerPage(fake()->numberBetween(2, 100)),
+        new IssueTypeOrder([IssueType::BUG, IssueType::FEATURE]),
+    );
+
+    expect($listedIssuesPage->getCollection()->modelKeys())
+        ->toEqual([$bugIssue->getKey(), $featureIssue->getKey()]);
+});
+
 test('listed page is the issues opened latest first', function (): void {
     $olderIssue = Issue::factory()->create(['opened_at' => fake()->dateTimeBetween('-2 months', '-1 month')]);
     $newerIssue = Issue::factory()->create(['opened_at' => fake()->dateTimeBetween('-1 week')]);
 
-    $listedIssuesPage = Issue::query()->listedPage(new ItemsPerPage(fake()->numberBetween(2, 100)));
+    $listedIssuesPage = Issue::query()->listedPage(
+        new ItemsPerPage(fake()->numberBetween(2, 100)),
+        new IssueTypeOrder([]),
+    );
 
     expect($listedIssuesPage->getCollection()->modelKeys())
         ->toEqual([$newerIssue->getKey(), $olderIssue->getKey()]);
@@ -169,7 +228,7 @@ test('listed page is the issues opened latest first', function (): void {
 test('listed page has the given number of issues per page', function (): void {
     $itemsPerPage = fake()->numberBetween(1, 100);
 
-    $listedIssuesPage = Issue::query()->listedPage(new ItemsPerPage($itemsPerPage));
+    $listedIssuesPage = Issue::query()->listedPage(new ItemsPerPage($itemsPerPage), new IssueTypeOrder([]));
 
     expect($listedIssuesPage->perPage())
         ->toBe($itemsPerPage);

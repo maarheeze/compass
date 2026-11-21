@@ -88,6 +88,27 @@ test('index refuses an assignee without a source', function (): void {
     $response->assertInvalid('source');
 });
 
+test('index orders the issues by the configured issue type order', function (): void {
+    $featureIssue = Issue::factory()->create(['type' => IssueType::FEATURE]);
+    $bugIssue = Issue::factory()->create(['type' => IssueType::BUG]);
+    $this->setConfiguration('compass.issue_type_order', [IssueType::BUG, IssueType::FEATURE]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::ISSUES));
+
+    $response->assertViewHas(
+        'issues',
+        static function (LengthAwarePaginator $viewIssues) use ($bugIssue, $featureIssue): bool {
+            return $viewIssues->getCollection()
+                ->first()
+                ->is($bugIssue)
+                && $viewIssues->getCollection()
+                ->last()
+                ->is($featureIssue);
+        },
+    );
+});
+
 test('index on an issue type contains only the issues of that type', function (): void {
     $bugIssue = Issue::factory()->create(['type' => IssueType::BUG]);
     Issue::factory()->create(['type' => fake()->randomElement([IssueType::FEATURE, IssueType::TASK, null])]);

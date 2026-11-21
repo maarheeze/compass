@@ -22,10 +22,12 @@ use Maarheeze\Compass\Alerts\Listeners\BroadcastAlertHistoryEntry;
 use Maarheeze\Compass\Broadcasting\CompassChannel;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Events\RunSaved;
+use Maarheeze\Compass\Collector\Issues\IssueType;
 use Maarheeze\Compass\Collector\Listeners\BroadcastRunStatus;
 use Maarheeze\Compass\Collector\Listeners\RecordRunFailure;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Http\EndpointPathRouteParameter;
+use Maarheeze\Compass\Http\IssueTypeOrder;
 use Maarheeze\Compass\Http\ItemsPerPage;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Repository;
@@ -60,6 +62,17 @@ class CompassServiceProvider extends ServiceProvider
             ->when([BroadcastAlertHistoryEntry::class, BroadcastRunStatus::class])
             ->needs('$broadcastQueue')
             ->giveConfig('compass.broadcast_queue');
+
+        $this->app->bind(IssueTypeOrder::class, static function (Container $container): IssueTypeOrder {
+            $configuredIssueTypes = $container->make(ConfigurationRepository::class)->array('compass.issue_type_order');
+            $issueTypes = [];
+
+            foreach ($configuredIssueTypes as $configuredIssueType) {
+                $issueTypes[] = Assert::isInstanceOf($configuredIssueType, IssueType::class);
+            }
+
+            return new IssueTypeOrder($issueTypes);
+        });
 
         $this->app->bind(ItemsPerPage::class, static function (Container $container): ItemsPerPage {
             return new ItemsPerPage($container->make(ConfigurationRepository::class)->integer('compass.items_per_page'));

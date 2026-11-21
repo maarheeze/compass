@@ -16,6 +16,7 @@ use Maarheeze\Compass\Collections\IssueCollection;
 use Maarheeze\Compass\Collections\PullRequestCollection;
 use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collector\Composer\PackageSection;
+use Maarheeze\Compass\Collector\Issues\IssueType;
 use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
 use Maarheeze\Compass\Http\RepositoryFilter;
 use Maarheeze\Compass\Http\RouteName;
@@ -298,6 +299,30 @@ test('show contains the issues of the repository newest first', function (): voi
         return $viewIssues->first()->id->equals($newerIssue->id)
             && $viewIssues->last()->id->equals($olderIssue->id);
     });
+});
+
+test('show orders the issues of the repository by the configured issue type order', function (): void {
+    $repository = Repository::factory()->create();
+    $featureIssue = Issue::factory()->create([
+        'repository_id' => $repository->id,
+        'type' => IssueType::FEATURE,
+    ]);
+    $bugIssue = Issue::factory()->create([
+        'repository_id' => $repository->id,
+        'type' => IssueType::BUG,
+    ]);
+    $this->setConfiguration('compass.issue_type_order', [IssueType::BUG, IssueType::FEATURE]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::REPOSITORY, $repository));
+
+    $response->assertViewHas(
+        'issues',
+        static function (IssueCollection $viewIssues) use ($bugIssue, $featureIssue): bool {
+            return $viewIssues->first()->is($bugIssue)
+                && $viewIssues->last()->is($featureIssue);
+        },
+    );
 });
 
 test('show contains the pull requests of the repository newest first', function (): void {

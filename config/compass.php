@@ -81,6 +81,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Issue type order
+    |--------------------------------------------------------------------------
+    |
+    | The issue types the issue lists show first, in this order, such as
+    | [IssueType::BUG, IssueType::FEATURE]. Every other issue follows,
+    | typed or not. Within each, the newest opened issue comes first.
+    |
+    */
+
+    'issue_type_order' => [],
+
+    /*
+    |--------------------------------------------------------------------------
     | Dashboard packages
     |--------------------------------------------------------------------------
     |

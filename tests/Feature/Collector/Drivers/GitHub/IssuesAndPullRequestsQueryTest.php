@@ -252,7 +252,7 @@ test('issues hold the collected issues in the response', function (): void {
     ]);
 
     $issueTypeMapping = new IssueTypeMapping(new SourceConfig(fake()->slug(), [
-        'issue_types' => [$issueTypeName => $collectedIssue->type->value],
+        'issue_types' => [$issueTypeName => $collectedIssue->type],
     ]));
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
         new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
@@ -357,7 +357,7 @@ test('issues hold no type for an issue without a type', function (): void {
     ]);
 
     $issueTypeMapping = new IssueTypeMapping(new SourceConfig(fake()->slug(), [
-        'issue_types' => [fake()->word() => fake()->randomElement(IssueType::cases())->value],
+        'issue_types' => [fake()->word() => fake()->randomElement(IssueType::cases())],
     ]));
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
         new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),

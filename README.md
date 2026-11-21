@@ -79,9 +79,9 @@ Collects the repositories of an organisation, with their latest commit, composer
         'organisation' => env('COMPASS_GITHUB_ORGANISATION'),
         'token' => env('COMPASS_GITHUB_TOKEN'),
         'issue_types' => [
-            'Bug' => 'bug',
-            'Feature' => 'feature',
-            'Task' => 'task',
+            'Bug' => IssueType::BUG,
+            'Feature' => IssueType::FEATURE,
+            'Task' => IssueType::TASK,
         ],
         'schedule' => [
             'repositories' => ScheduleFrequency::HOURLY,
@@ -92,7 +92,7 @@ Collects the repositories of an organisation, with their latest commit, composer
 ],
 ```
 
-`issue_types` maps the names of the organisation's issue types onto Compass's types: `bug`, `feature` and `task`. An issue whose type is not listed, or that has no type, has no type in Compass. Left out, no issue has a type.
+`issue_types` maps the names of the organisation's issue types onto Compass's types: `IssueType::BUG`, `IssueType::FEATURE` and `IssueType::TASK`. An issue whose type is not listed, or that has no type, has no type in Compass. Left out, no issue has a type.
 
 ### Laravel Forge
 
