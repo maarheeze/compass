@@ -25,9 +25,12 @@
                     <ul class="divide-y divide-border">
                         @foreach ($alertTypes->ofGroup($alertTypeGroup) as $alertType)
                             <li class="flex items-center justify-between px-4 py-2">
-                                <span class="text-foreground">
-                                    <x-compass::alert-type-label :identifier="$alertType->identifier()" />
-                                </span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-foreground">
+                                        <x-compass::alert-type-label :identifier="$alertType->identifier()" />
+                                    </span>
+                                    <x-compass::alert-level-badge :identifier="$alertType->identifier()" />
+                                </div>
                                 <div class="flex items-center gap-4">
                                     @foreach ($notificationChannels as $notificationChannel)
                                         <x-compass::notification-channel-checkbox
