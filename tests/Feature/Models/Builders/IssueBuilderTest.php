@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Collection;
+use Maarheeze\Compass\Collector\Issues\IssueType;
 use Maarheeze\Compass\Http\Assignee;
 use Maarheeze\Compass\Http\ItemsPerPage;
 use Maarheeze\Compass\Models\Issue;
@@ -172,4 +173,52 @@ test('listed page has the given number of issues per page', function (): void {
 
     expect($listedIssuesPage->perPage())
         ->toBe($itemsPerPage);
+});
+
+test('of issue type keeps an issue of the type', function (): void {
+    $issueType = fake()->randomElement(IssueType::cases());
+    $issueOfType = Issue::factory()->create(['type' => $issueType]);
+
+    $issuesOfType = Issue::query()
+        ->ofIssueType($issueType)
+        ->get();
+
+    expect($issuesOfType->sole()->is($issueOfType))
+        ->toBeTrue();
+});
+
+test('of issue type leaves out an issue of another type or without one', function (?IssueType $otherIssueType): void {
+    Issue::factory()->create(['type' => $otherIssueType]);
+
+    $issuesOfType = Issue::query()
+        ->ofIssueType(IssueType::BUG)
+        ->get();
+
+    expect($issuesOfType)
+        ->toBeEmpty();
+})->with([
+    'another type' => [IssueType::FEATURE],
+    'no type' => [null],
+]);
+
+test('untyped keeps an issue without a type', function (): void {
+    $untypedIssue = Issue::factory()->create(['type' => null]);
+
+    $untypedIssues = Issue::query()
+        ->untyped()
+        ->get();
+
+    expect($untypedIssues->sole()->is($untypedIssue))
+        ->toBeTrue();
+});
+
+test('untyped leaves out an issue with a type', function (): void {
+    Issue::factory()->create(['type' => fake()->randomElement(IssueType::cases())]);
+
+    $untypedIssues = Issue::query()
+        ->untyped()
+        ->get();
+
+    expect($untypedIssues)
+        ->toBeEmpty();
 });

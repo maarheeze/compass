@@ -12,6 +12,7 @@
 
             <x-slot:aside>
                 <x-compass::filter-section :filter="$assigneesFilter" />
+                <x-compass::filter-section :filter="$issueTypesFilter" />
             </x-slot:aside>
         </x-compass::page-columns>
     </main>

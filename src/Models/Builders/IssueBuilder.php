@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Maarheeze\Compass\Collections\IssueCollection;
+use Maarheeze\Compass\Collector\Issues\IssueType;
 use Maarheeze\Compass\Http\Assignee;
 use Maarheeze\Compass\Http\ItemsPerPage;
 use Maarheeze\Compass\Models\Issue;
@@ -63,6 +64,11 @@ class IssueBuilder extends Builder
         return $this->whereIn('external_id', $externalIds);
     }
 
+    public function ofIssueType(IssueType $issueType): self
+    {
+        return $this->where('type', $issueType);
+    }
+
     public function ofSource(string $source): self
     {
         return $this->where('source', $source);
@@ -71,6 +77,11 @@ class IssueBuilder extends Builder
     public function unassigned(): self
     {
         return $this->whereDoesntHave('assignees');
+    }
+
+    public function untyped(): self
+    {
+        return $this->whereNull('type');
     }
 
     private function inListedOrder(): self

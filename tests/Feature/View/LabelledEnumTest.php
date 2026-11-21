@@ -14,6 +14,7 @@ use Maarheeze\Compass\Analyser\Composer\RepositoryKind;
 use Maarheeze\Compass\Analyser\Deployment\DeploymentState;
 use Maarheeze\Compass\Collector\CollectorType;
 use Maarheeze\Compass\Collector\Composer\PackageSection;
+use Maarheeze\Compass\Collector\Issues\IssueType;
 use Maarheeze\Compass\Collector\MissingState;
 use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
 use Maarheeze\Compass\Collector\RunStatus;
@@ -42,6 +43,7 @@ test('label key has a translation', function (LabelledEnum $labelledEnum): void 
     ConditionState::cases(),
     DeploymentState::cases(),
     DeploymentStatus::cases(),
+    IssueType::cases(),
     MissingState::cases(),
     NotificationChannel::cases(),
     PackageSection::cases(),

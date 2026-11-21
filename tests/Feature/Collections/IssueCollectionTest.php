@@ -5,8 +5,10 @@ declare(strict_types=1);
 use Illuminate\Contracts\Translation\Translator;
 use Maarheeze\Compass\Collections\IssueAssigneeCollection;
 use Maarheeze\Compass\Collections\IssueCollection;
+use Maarheeze\Compass\Collector\Issues\IssueType;
 use Maarheeze\Compass\Http\Assignee;
 use Maarheeze\Compass\Http\AssigneeFilter;
+use Maarheeze\Compass\Http\IssueTypeFilter;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\IssueAssignee;
 use Maarheeze\Compass\View\FilterOption;
@@ -66,4 +68,48 @@ test('unassigned is the issues without an assignee', function (): void {
 
     expect($unassignedIssues->sole())
         ->toBe($unassignedIssue);
+});
+
+test('issue type filter options count the issues per type in display order, then those without one', function (): void {
+    $issues = new IssueCollection([
+        Issue::factory()->make(['type' => IssueType::FEATURE]),
+        Issue::factory()->make(['type' => IssueType::FEATURE]),
+        Issue::factory()->make(['type' => null]),
+    ]);
+
+    $issueTypeFilterOptions = $issues->issueTypeFilterOptions($this->app->make(Translator::class));
+
+    expect($issueTypeFilterOptions->all())
+        ->toEqual([
+            new FilterOption('Bug', 0, IssueTypeFilter::issueTypeRouteParameters(IssueType::BUG), null),
+            new FilterOption('Feature', 2, IssueTypeFilter::issueTypeRouteParameters(IssueType::FEATURE), null),
+            new FilterOption('Task', 0, IssueTypeFilter::issueTypeRouteParameters(IssueType::TASK), null),
+            new FilterOption('No type', 1, IssueTypeFilter::untypedRouteParameters(), null),
+        ]);
+});
+
+test('of issue type is the issues of that type', function (): void {
+    $bugIssue = Issue::factory()->make(['type' => IssueType::BUG]);
+    $issues = new IssueCollection([
+        $bugIssue,
+        Issue::factory()->make(['type' => fake()->randomElement([IssueType::FEATURE, IssueType::TASK, null])]),
+    ]);
+
+    $bugIssues = $issues->ofIssueType(IssueType::BUG);
+
+    expect($bugIssues->sole())
+        ->toBe($bugIssue);
+});
+
+test('untyped is the issues without a type', function (): void {
+    $untypedIssue = Issue::factory()->make(['type' => null]);
+    $issues = new IssueCollection([
+        $untypedIssue,
+        Issue::factory()->make(['type' => fake()->randomElement(IssueType::cases())]),
+    ]);
+
+    $untypedIssues = $issues->untyped();
+
+    expect($untypedIssues->sole())
+        ->toBe($untypedIssue);
 });
