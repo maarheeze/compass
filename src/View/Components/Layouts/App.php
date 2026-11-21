@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\View\Components\Layouts;
 
+use Illuminate\Config\Repository;
 use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
@@ -13,12 +14,15 @@ use function str_replace;
 
 class App extends Component
 {
+    public readonly string $applicationName;
     public readonly string $htmlLanguage;
 
     public function __construct(
+        Repository $config,
         Translator $translator,
         private readonly ViewFactory $view,
     ) {
+        $this->applicationName = $config->string('app.name');
         $this->htmlLanguage = str_replace('_', '-', $translator->getLocale());
     }
 
