@@ -30,7 +30,7 @@ class RepositoryFactory extends Factory
             'external_id' => fake()->unique()->sha1(),
             'name' => fake()->unique()->slug(),
             'full_name' => sprintf('%s/%s', fake()->slug(), fake()->unique()->slug()),
-            'url' => fake()->url(),
+            'source_url' => fake()->optional()->url(),
             'default_branch' => fake()->word(),
             'last_commit_sha' => fake()->sha1(),
             'last_commit_committed_at' => fake()->dateTime(),

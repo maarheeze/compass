@@ -31,6 +31,7 @@ test('store sites creates a site for a new collected site', function (): void {
         'external_id' => $collectedSite->externalId,
         'name' => $collectedSite->name,
         'url' => $collectedSite->url,
+        'source_url' => $collectedSite->sourceUrl,
         'php_version' => $collectedSite->phpVersion,
         'repository_url' => $collectedSite->repositoryUrl,
         'repository_branch' => $collectedSite->repositoryBranch,
@@ -107,6 +108,7 @@ test('store sites updates the name of a known site', function (): void {
     $renamedCollectedSite = new CollectedSite(
         $site->external_id,
         fake()->unique()->domainName(),
+        fake()->url(),
         fake()->url(),
         fake()->numerify('php8#'),
         fake()->url(),

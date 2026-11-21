@@ -12,7 +12,7 @@ readonly class CollectedRepository
         public string $externalId,
         public string $name,
         public string $fullName,
-        public string $url,
+        public ?string $sourceUrl,
         public string $defaultBranch,
         public string $lastCommitSha,
         public CarbonImmutable $lastCommitCommittedAt,

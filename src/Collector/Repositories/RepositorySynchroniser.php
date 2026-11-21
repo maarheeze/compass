@@ -60,7 +60,7 @@ readonly class RepositorySynchroniser
                 'external_id' => $collectedRepository->externalId,
                 'name' => $collectedRepository->name,
                 'full_name' => $collectedRepository->fullName,
-                'url' => $collectedRepository->url,
+                'source_url' => $collectedRepository->sourceUrl,
                 'default_branch' => $collectedRepository->defaultBranch,
                 'last_commit_sha' => $collectedRepository->lastCommitSha,
                 'last_commit_committed_at' => $collectedRepository->lastCommitCommittedAt,

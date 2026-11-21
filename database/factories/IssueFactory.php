@@ -34,7 +34,7 @@ class IssueFactory extends Factory
             'number' => fake()->numberBetween(1, 9999),
             'title' => fake()->sentence(),
             'type' => fake()->optional()->randomElement(IssueType::cases()),
-            'url' => fake()->url(),
+            'source_url' => fake()->optional()->url(),
             'author_login' => fake()->optional()->userName(),
             'opened_at' => fake()->dateTime(),
             'run_id' => Uuid::generate(),

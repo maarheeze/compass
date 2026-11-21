@@ -47,7 +47,7 @@ readonly class PullRequestSynchroniser
                 'repository_lookup_key' => $collectedPullRequest->repositoryLookupKey,
                 'number' => $collectedPullRequest->number,
                 'title' => $collectedPullRequest->title,
-                'url' => $collectedPullRequest->url,
+                'source_url' => $collectedPullRequest->sourceUrl,
                 'author_login' => $collectedPullRequest->authorLogin,
                 'is_draft' => $collectedPullRequest->isDraft,
                 'opened_at' => $collectedPullRequest->openedAt,

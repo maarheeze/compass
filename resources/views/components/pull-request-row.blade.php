@@ -8,7 +8,7 @@
                     'text-open' => !$pullRequest->is_draft,
                 ]) />
             <div class="min-w-0">
-                <a href="{{ $pullRequest->url }}" target="_blank" rel="noopener" class="text-base font-semibold text-foreground hover:text-accent">{{ $pullRequest->title }}</a>
+                <x-compass::source-link :source-url="$pullRequest->source_url" class="text-base font-semibold text-foreground">{{ $pullRequest->title }}</x-compass::source-link>
                 <div class="mt-0.5 text-xs text-foreground-muted">
                     <x-compass::issue-reference :number="$pullRequest->number" :repository="$pullRequest->repository" />
                     ·

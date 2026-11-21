@@ -23,11 +23,12 @@ test('handle observes an overdue deployment now', function (): void {
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $repository = Repository::factory()->create([
+        'source_url' => fake()->url(),
         'last_commit_sha' => fake()->unique()->sha1(),
         'last_commit_committed_at' => $now->subSeconds(fake()->numberBetween($autoDeployGraceMinutes * 60, 86400)),
     ]);
     $site = Site::factory()->create([
-        'repository_url' => $repository->url,
+        'repository_url' => $repository->source_url,
         'repository_branch' => $repository->default_branch,
         'deployed_commit_hash' => fake()->unique()->sha1(),
         'auto_deploy' => true,
@@ -56,9 +57,9 @@ test('handle observes an up-to-date site without an overdue deployment now', fun
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $repository = Repository::factory()->create();
+    $repository = Repository::factory()->create(['source_url' => fake()->url()]);
     $site = Site::factory()->create([
-        'repository_url' => $repository->url,
+        'repository_url' => $repository->source_url,
         'repository_branch' => $repository->default_branch,
         'deployed_commit_hash' => $repository->last_commit_sha,
     ]);
@@ -85,9 +86,12 @@ test('handle observes a site deploying another branch not applicable now', funct
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $repository = Repository::factory()->create(['default_branch' => fake()->unique()->slug()]);
+    $repository = Repository::factory()->create([
+        'source_url' => fake()->url(),
+        'default_branch' => fake()->unique()->slug(),
+    ]);
     $site = Site::factory()->create([
-        'repository_url' => $repository->url,
+        'repository_url' => $repository->source_url,
         'repository_branch' => fake()->unique()->slug(),
     ]);
 

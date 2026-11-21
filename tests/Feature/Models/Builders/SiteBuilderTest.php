@@ -152,8 +152,8 @@ test('of source leaves out a site of another source', function (): void {
 });
 
 test('of repository source keeps a site whose repository belongs to the source', function (): void {
-    $repository = Repository::factory()->create();
-    $siteOfRepositorySource = Site::factory()->create(['repository_url' => $repository->url]);
+    $repository = Repository::factory()->create(['source_url' => fake()->url()]);
+    $siteOfRepositorySource = Site::factory()->create(['repository_url' => $repository->source_url]);
 
     $sitesOfRepositorySource = Site::query()
         ->ofRepositorySource($repository->source)
@@ -164,8 +164,11 @@ test('of repository source keeps a site whose repository belongs to the source',
 });
 
 test('of repository source leaves out a site whose repository belongs to another source', function (): void {
-    $repository = Repository::factory()->create(['source' => fake()->unique()->slug()]);
-    Site::factory()->create(['repository_url' => $repository->url]);
+    $repository = Repository::factory()->create([
+        'source_url' => fake()->url(),
+        'source' => fake()->unique()->slug(),
+    ]);
+    Site::factory()->create(['repository_url' => $repository->source_url]);
 
     $sitesOfRepositorySource = Site::query()
         ->ofRepositorySource(fake()->unique()->slug())

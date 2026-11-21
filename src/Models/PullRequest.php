@@ -32,9 +32,9 @@ use Maarheeze\Uuid\Uuid;
  * @property string $repository_lookup_key
  * @property Uuid $run_id
  * @property string $source
+ * @property ?string $source_url
  * @property string $title
  * @property CarbonImmutable $updated_at
- * @property string $url
  *
  * @property-read PullRequestAssigneeCollection $assignees
  * @property-read ?Repository $repository
@@ -68,8 +68,8 @@ class PullRequest extends Model
             'repository_lookup_key',
             'run_id',
             'source',
+            'source_url',
             'title',
-            'url',
         ];
     }
 

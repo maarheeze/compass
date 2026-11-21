@@ -4,7 +4,7 @@
             <x-compass::icons.issue-opened class="mt-1 size-4 shrink-0 text-open" />
             <div class="min-w-0">
                 <div class="flex flex-wrap items-center gap-2">
-                    <a href="{{ $issue->url }}" target="_blank" rel="noopener" class="text-base font-semibold text-foreground hover:text-accent">{{ $issue->title }}</a>
+                    <x-compass::source-link :source-url="$issue->source_url" class="text-base font-semibold text-foreground">{{ $issue->title }}</x-compass::source-link>
                     @if ($issue->type !== null)
                         <x-compass::issue-type-badge :issue-type="$issue->type" />
                     @endif

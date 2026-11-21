@@ -235,7 +235,7 @@ test('issues hold the collected issues in the response', function (): void {
                     'number' => $collectedIssue->number,
                     'title' => $collectedIssue->title,
                     'type' => ['name' => $issueTypeName],
-                    'html_url' => $collectedIssue->url,
+                    'html_url' => $collectedIssue->sourceUrl,
                     'user' => [
                         'login' => $collectedIssue->authorLogin,
                     ],
@@ -278,7 +278,7 @@ test('pull requests hold the collected pull requests in the response', function 
                     ),
                     'number' => $collectedPullRequest->number,
                     'title' => $collectedPullRequest->title,
-                    'html_url' => $collectedPullRequest->url,
+                    'html_url' => $collectedPullRequest->sourceUrl,
                     'user' => [
                         'login' => $collectedPullRequest->authorLogin,
                     ],

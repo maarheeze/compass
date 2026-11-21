@@ -15,7 +15,7 @@ readonly class CollectedIssue
         public int $number,
         public string $title,
         public ?IssueType $type,
-        public string $url,
+        public ?string $sourceUrl,
         public ?string $authorLogin,
         public CarbonImmutable $openedAt,
         public CollectedAssigneeCollection $assignees,

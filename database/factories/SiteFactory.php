@@ -29,6 +29,7 @@ class SiteFactory extends Factory
             'external_id' => fake()->unique()->numerify('#######'),
             'name' => fake()->domainName(),
             'url' => fake()->url(),
+            'source_url' => fake()->optional()->url(),
             'key' => fake()->optional()->sha1(),
             'php_version' => fake()->optional()->numerify('php8#'),
             'repository_url' => fake()->optional()->url(),

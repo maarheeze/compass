@@ -19,6 +19,7 @@ class CollectedSiteFactory
             $site->external_id,
             $site->name,
             fake()->url(),
+            fake()->url(),
             fake()->numerify('php8#'),
             fake()->url(),
             fake()->word(),
@@ -44,6 +45,7 @@ class CollectedSiteFactory
             fake()->unique()->numerify('#######'),
             fake()->domainName(),
             fake()->url(),
+            fake()->url(),
             fake()->numerify('php8#'),
             fake()->url(),
             fake()->word(),
@@ -63,6 +65,7 @@ class CollectedSiteFactory
         return new CollectedSite(
             fake()->unique()->numerify('#######'),
             fake()->domainName(),
+            fake()->url(),
             fake()->url(),
             fake()->numerify('php8#'),
             fake()->url(),

@@ -32,10 +32,10 @@ use Maarheeze\Uuid\Uuid;
  * @property string $repository_lookup_key
  * @property Uuid $run_id
  * @property string $source
+ * @property ?string $source_url
  * @property string $title
  * @property ?IssueType $type
  * @property CarbonImmutable $updated_at
- * @property string $url
  *
  * @property-read IssueAssigneeCollection $assignees
  * @property-read ?Repository $repository
@@ -68,9 +68,9 @@ class Issue extends Model
             'repository_lookup_key',
             'run_id',
             'source',
+            'source_url',
             'title',
             'type',
-            'url',
         ];
     }
 

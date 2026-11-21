@@ -14,9 +14,12 @@ use Symfony\Component\Clock\MockClock;
 test('conditionObservation observes a site behind now', function (): void {
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $repository = Repository::factory()->create(['last_commit_sha' => fake()->unique()->sha1()]);
+    $repository = Repository::factory()->create([
+        'source_url' => fake()->url(),
+        'last_commit_sha' => fake()->unique()->sha1(),
+    ]);
     $site = Site::factory()->create([
-        'repository_url' => $repository->url,
+        'repository_url' => $repository->source_url,
         'repository_branch' => $repository->default_branch,
         'deployed_commit_hash' => fake()->unique()->sha1(),
         'auto_deploy' => false,
@@ -38,9 +41,9 @@ test('conditionObservation observes a site behind now', function (): void {
 test('conditionObservation observes an up-to-date site no longer behind now', function (): void {
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $repository = Repository::factory()->create();
+    $repository = Repository::factory()->create(['source_url' => fake()->url()]);
     $site = Site::factory()->create([
-        'repository_url' => $repository->url,
+        'repository_url' => $repository->source_url,
         'repository_branch' => $repository->default_branch,
         'deployed_commit_hash' => $repository->last_commit_sha,
     ]);
@@ -61,9 +64,12 @@ test('conditionObservation observes an up-to-date site no longer behind now', fu
 test('conditionObservation observes a site deploying another branch not applicable now', function (): void {
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $repository = Repository::factory()->create(['default_branch' => fake()->unique()->slug()]);
+    $repository = Repository::factory()->create([
+        'source_url' => fake()->url(),
+        'default_branch' => fake()->unique()->slug(),
+    ]);
     $site = Site::factory()->create([
-        'repository_url' => $repository->url,
+        'repository_url' => $repository->source_url,
         'repository_branch' => fake()->unique()->slug(),
     ]);
 

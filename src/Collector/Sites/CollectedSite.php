@@ -12,6 +12,7 @@ readonly class CollectedSite
         public string $externalId,
         public string $name,
         public string $url,
+        public ?string $sourceUrl,
         public ?string $phpVersion,
         public ?string $repositoryUrl,
         public ?string $repositoryBranch,

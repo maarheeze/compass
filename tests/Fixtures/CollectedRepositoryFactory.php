@@ -20,7 +20,7 @@ class CollectedRepositoryFactory
             $repository->external_id,
             $repository->name,
             $repository->full_name,
-            $repository->url,
+            $repository->source_url,
             fake()->unique()->word(),
             fake()->sha1(),
             CarbonImmutable::parse(fake()->iso8601()),

@@ -51,6 +51,7 @@ use Maarheeze\Uuid\Uuid;
  * @property ?string $server_ip_address
  * @property string $server_name
  * @property string $source
+ * @property ?string $source_url
  * @property CarbonImmutable $updated_at
  * @property string $url
  *
@@ -102,6 +103,7 @@ class Site extends Model implements AlertSubject
             'server_ip_address',
             'server_name',
             'source',
+            'source_url',
             'url',
         ];
     }
@@ -140,7 +142,7 @@ class Site extends Model implements AlertSubject
      */
     public function repository(): BelongsTo
     {
-        return $this->belongsTo(Repository::class, 'repository_url', 'url');
+        return $this->belongsTo(Repository::class, 'repository_url', 'source_url');
     }
 
     public function alertsIncludingChildren(): AlertBuilder

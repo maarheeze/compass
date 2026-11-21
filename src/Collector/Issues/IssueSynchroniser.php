@@ -48,7 +48,7 @@ readonly class IssueSynchroniser
                 'number' => $collectedIssue->number,
                 'title' => $collectedIssue->title,
                 'type' => $collectedIssue->type,
-                'url' => $collectedIssue->url,
+                'source_url' => $collectedIssue->sourceUrl,
                 'author_login' => $collectedIssue->authorLogin,
                 'opened_at' => $collectedIssue->openedAt,
                 'run_id' => $runId,

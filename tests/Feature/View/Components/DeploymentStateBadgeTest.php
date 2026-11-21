@@ -9,9 +9,12 @@ use Maarheeze\Compass\View\BadgeType;
 use Maarheeze\Compass\View\Components\DeploymentStateBadge;
 
 test('deployment state is the classified deployment state of the site', function (): void {
-    $repository = Repository::factory()->create(['last_commit_sha' => fake()->unique()->sha1()]);
+    $repository = Repository::factory()->create([
+        'source_url' => fake()->url(),
+        'last_commit_sha' => fake()->unique()->sha1(),
+    ]);
     $site = Site::factory()->create([
-        'repository_url' => $repository->url,
+        'repository_url' => $repository->source_url,
         'repository_branch' => $repository->default_branch,
         'deployed_commit_hash' => fake()->unique()->sha1(),
         'auto_deploy' => false,
@@ -24,9 +27,12 @@ test('deployment state is the classified deployment state of the site', function
 });
 
 test('badge type is warning when the site is behind', function (): void {
-    $repository = Repository::factory()->create(['last_commit_sha' => fake()->unique()->sha1()]);
+    $repository = Repository::factory()->create([
+        'source_url' => fake()->url(),
+        'last_commit_sha' => fake()->unique()->sha1(),
+    ]);
     $site = Site::factory()->create([
-        'repository_url' => $repository->url,
+        'repository_url' => $repository->source_url,
         'repository_branch' => $repository->default_branch,
         'deployed_commit_hash' => fake()->unique()->sha1(),
         'auto_deploy' => false,
@@ -40,10 +46,11 @@ test('badge type is warning when the site is behind', function (): void {
 
 test('badge type is info when the site is deploying', function (): void {
     $repository = Repository::factory()->create([
+        'source_url' => fake()->url(),
         'last_commit_committed_at' => fake()->dateTimeBetween('+1 minute', '+1 day'),
     ]);
     $site = Site::factory()->create([
-        'repository_url' => $repository->url,
+        'repository_url' => $repository->source_url,
         'repository_branch' => $repository->default_branch,
         'deployed_commit_hash' => fake()->unique()->sha1(),
         'auto_deploy' => true,
@@ -57,10 +64,11 @@ test('badge type is info when the site is deploying', function (): void {
 
 test('badge type is danger when the deployment is overdue', function (): void {
     $repository = Repository::factory()->create([
+        'source_url' => fake()->url(),
         'last_commit_committed_at' => fake()->dateTimeBetween('-2 years', '-1 year'),
     ]);
     $site = Site::factory()->create([
-        'repository_url' => $repository->url,
+        'repository_url' => $repository->source_url,
         'repository_branch' => $repository->default_branch,
         'deployed_commit_hash' => fake()->unique()->sha1(),
         'auto_deploy' => true,
@@ -73,9 +81,9 @@ test('badge type is danger when the deployment is overdue', function (): void {
 });
 
 test('badge type is success when the site is up to date', function (): void {
-    $repository = Repository::factory()->create();
+    $repository = Repository::factory()->create(['source_url' => fake()->url()]);
     $site = Site::factory()->create([
-        'repository_url' => $repository->url,
+        'repository_url' => $repository->source_url,
         'repository_branch' => $repository->default_branch,
         'deployed_commit_hash' => $repository->last_commit_sha,
     ]);

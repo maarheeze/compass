@@ -43,6 +43,7 @@ readonly class SiteSynchroniser
                 'external_id' => $collectedSite->externalId,
                 'name' => $collectedSite->name,
                 'url' => $collectedSite->url,
+                'source_url' => $collectedSite->sourceUrl,
                 'php_version' => $collectedSite->phpVersion,
                 'repository_url' => $collectedSite->repositoryUrl,
                 'repository_branch' => $collectedSite->repositoryBranch,

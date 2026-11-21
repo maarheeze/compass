@@ -61,6 +61,12 @@ readonly class SitesQuery
             Assert::string($siteResource['id']),
             Assert::string($siteAttributes['name']),
             Assert::string($siteAttributes['url']),
+            sprintf(
+                'https://forge.laravel.com/%s/%s/%s',
+                $this->organisation,
+                Assert::string($serverAttributes['slug']),
+                Assert::string($siteResource['id']),
+            ),
             Assert::nullOrString($siteAttributes['php_version']),
             Assert::nullOrString($repositoryAttributes['url']),
             Assert::nullOrString($repositoryAttributes['branch']),

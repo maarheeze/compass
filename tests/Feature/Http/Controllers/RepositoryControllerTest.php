@@ -402,8 +402,8 @@ test('show contains the locked packages of the repository', function (): void {
 });
 
 test('show contains the sites of the repository', function (): void {
-    $repository = Repository::factory()->create();
-    $site = Site::factory()->create(['repository_url' => $repository->url]);
+    $repository = Repository::factory()->create(['source_url' => fake()->url()]);
+    $site = Site::factory()->create(['repository_url' => $repository->source_url]);
     Site::factory()->create();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 

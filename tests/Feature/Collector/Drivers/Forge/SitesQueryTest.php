@@ -7,6 +7,7 @@ use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collections\CollectedSiteCollection;
 use Maarheeze\Compass\Collector\Drivers\Forge\ForgeClient;
 use Maarheeze\Compass\Collector\Drivers\Forge\SitesQuery;
+use Maarheeze\Compass\Collector\Sites\CollectedSite;
 use Maarheeze\Compass\Collector\Sites\DeploymentStatus;
 use Maarheeze\Compass\Tests\Fixtures\CollectedSiteFactory;
 
@@ -64,6 +65,8 @@ test('pages request the next page with their server and latest deployment from t
 
 test('pages hold the collected sites in the response', function (): void {
     $collectedSite = CollectedSiteFactory::withDeploymentStatus(DeploymentStatus::SUCCEEDED);
+    $organisation = fake()->slug();
+    $serverSlug = fake()->slug();
     $deploymentId = fake()->numerify('####');
     $http = $this->app->make(HttpFactory::class);
     $http->fake([
@@ -104,7 +107,7 @@ test('pages hold the collected sites in the response', function (): void {
                     'id' => $collectedSite->serverExternalId,
                     'type' => 'servers',
                     'attributes' => [
-                        'slug' => fake()->slug(),
+                        'slug' => $serverSlug,
                         'name' => $collectedSite->serverName,
                         'ip_address' => $collectedSite->serverIpAddress,
                     ],
@@ -129,11 +132,29 @@ test('pages hold the collected sites in the response', function (): void {
         ]),
     ]);
 
-    $sitesQuery = new SitesQuery(new ForgeClient($http, fake()->sha1()), fake()->slug());
+    $sitesQuery = new SitesQuery(new ForgeClient($http, fake()->sha1()), $organisation);
     $sitesQueryResult = $sitesQuery->pages()->current();
 
     expect($sitesQueryResult->collectedSites)
-        ->toEqual(new CollectedSiteCollection([$collectedSite]));
+        ->toEqual(new CollectedSiteCollection([
+            new CollectedSite(
+                $collectedSite->externalId,
+                $collectedSite->name,
+                $collectedSite->url,
+                sprintf('https://forge.laravel.com/%s/%s/%s', $organisation, $serverSlug, $collectedSite->externalId),
+                $collectedSite->phpVersion,
+                $collectedSite->repositoryUrl,
+                $collectedSite->repositoryBranch,
+                $collectedSite->autoDeploy,
+                $collectedSite->serverExternalId,
+                $collectedSite->serverName,
+                $collectedSite->serverIpAddress,
+                $collectedSite->deploymentStatus,
+                $collectedSite->deployedCommitHash,
+                $collectedSite->deploymentStartedAt,
+                $collectedSite->deploymentEndedAt,
+            ),
+        ]));
 });
 
 test('pages map the deployment status of forge to the deployment status of the collected site', function (

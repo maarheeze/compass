@@ -129,7 +129,7 @@ test('pages hold the collected repositories in the response', function (): void 
                                 'id' => $collectedRepository->externalId,
                                 'name' => $collectedRepository->name,
                                 'nameWithOwner' => $collectedRepository->fullName,
-                                'url' => $collectedRepository->url,
+                                'url' => $collectedRepository->sourceUrl,
                                 'visibility' => 'PUBLIC',
                                 'defaultBranchRef' => [
                                     'name' => $collectedRepository->defaultBranch,

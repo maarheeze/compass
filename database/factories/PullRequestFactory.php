@@ -32,7 +32,7 @@ class PullRequestFactory extends Factory
             'repository_lookup_key' => sprintf('%s/%s', fake()->slug(), fake()->slug()),
             'number' => fake()->numberBetween(1, 9999),
             'title' => fake()->sentence(),
-            'url' => fake()->url(),
+            'source_url' => fake()->optional()->url(),
             'author_login' => fake()->optional()->userName(),
             'is_draft' => fake()->boolean(),
             'opened_at' => fake()->dateTime(),

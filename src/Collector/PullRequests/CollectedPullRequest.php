@@ -14,7 +14,7 @@ readonly class CollectedPullRequest
         public string $repositoryLookupKey,
         public int $number,
         public string $title,
-        public string $url,
+        public ?string $sourceUrl,
         public ?string $authorLogin,
         public bool $isDraft,
         public CarbonImmutable $openedAt,

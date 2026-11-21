@@ -45,8 +45,8 @@ use Maarheeze\Uuid\Uuid;
  * @property ?string $package_json_version
  * @property Uuid $run_id
  * @property string $source
+ * @property ?string $source_url
  * @property CarbonImmutable $updated_at
- * @property string $url
  * @property RepositoryVisibility $visibility
  *
  * @property-read AlertCheckCollection $alertChecks
@@ -96,7 +96,7 @@ class Repository extends Model implements AlertSubject
             'package_json_version',
             'run_id',
             'source',
-            'url',
+            'source_url',
             'visibility',
         ];
     }
@@ -146,7 +146,7 @@ class Repository extends Model implements AlertSubject
      */
     public function sites(): HasMany
     {
-        return $this->hasMany(Site::class, 'repository_url', 'url');
+        return $this->hasMany(Site::class, 'repository_url', 'source_url');
     }
 
     public function getTable(): string

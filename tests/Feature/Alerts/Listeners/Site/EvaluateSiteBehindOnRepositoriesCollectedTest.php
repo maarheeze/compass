@@ -15,8 +15,8 @@ use Maarheeze\Compass\Models\Site;
 test('handle observes a site whose repository belongs to the source', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
-    $repository = Repository::factory()->create();
-    $site = Site::factory()->create(['repository_url' => $repository->url]);
+    $repository = Repository::factory()->create(['source_url' => fake()->url()]);
+    $site = Site::factory()->create(['repository_url' => $repository->source_url]);
 
     $evaluateSiteBehindOnRepositoriesCollected = $this->app->make(EvaluateSiteBehindOnRepositoriesCollected::class);
     $evaluateSiteBehindOnRepositoriesCollected->handle(new RepositoriesCollected($repository->source));
@@ -36,8 +36,11 @@ test('handle observes a site whose repository belongs to the source', function (
 test('handle observes nothing for a site whose repository belongs to another source', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
-    $repository = Repository::factory()->create(['source' => fake()->unique()->slug()]);
-    Site::factory()->create(['repository_url' => $repository->url]);
+    $repository = Repository::factory()->create([
+        'source_url' => fake()->url(),
+        'source' => fake()->unique()->slug(),
+    ]);
+    Site::factory()->create(['repository_url' => $repository->source_url]);
 
     $evaluateSiteBehindOnRepositoriesCollected = $this->app->make(EvaluateSiteBehindOnRepositoriesCollected::class);
     $evaluateSiteBehindOnRepositoriesCollected->handle(new RepositoriesCollected(fake()->unique()->slug()));

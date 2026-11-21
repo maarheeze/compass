@@ -11,9 +11,12 @@ use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
 
 test('classify is behind when the deployed commit is not the last commit of the repository', function (): void {
-    $repository = Repository::factory()->create(['last_commit_sha' => fake()->unique()->sha1()]);
+    $repository = Repository::factory()->create([
+        'source_url' => fake()->url(),
+        'last_commit_sha' => fake()->unique()->sha1(),
+    ]);
     $site = Site::factory()->create([
-        'repository_url' => $repository->url,
+        'repository_url' => $repository->source_url,
         'repository_branch' => $repository->default_branch,
         'deployed_commit_hash' => fake()->unique()->sha1(),
         'auto_deploy' => false,
@@ -31,11 +34,12 @@ test('classify is deploying when auto-deploy is still within its grace period fo
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $repository = Repository::factory()->create([
+        'source_url' => fake()->url(),
         'last_commit_sha' => fake()->unique()->sha1(),
         'last_commit_committed_at' => $now->subSeconds(fake()->numberBetween(0, $autoDeployGraceMinutes * 60 - 1)),
     ]);
     $site = Site::factory()->create([
-        'repository_url' => $repository->url,
+        'repository_url' => $repository->source_url,
         'repository_branch' => $repository->default_branch,
         'deployed_commit_hash' => fake()->unique()->sha1(),
         'auto_deploy' => true,
@@ -54,11 +58,12 @@ test('classify is deployment overdue when auto-deploy has passed its grace perio
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $repository = Repository::factory()->create([
+        'source_url' => fake()->url(),
         'last_commit_sha' => fake()->unique()->sha1(),
         'last_commit_committed_at' => $now->subSeconds(fake()->numberBetween($autoDeployGraceMinutes * 60, 86400)),
     ]);
     $site = Site::factory()->create([
-        'repository_url' => $repository->url,
+        'repository_url' => $repository->source_url,
         'repository_branch' => $repository->default_branch,
         'deployed_commit_hash' => fake()->unique()->sha1(),
         'auto_deploy' => true,
@@ -73,9 +78,9 @@ test('classify is deployment overdue when auto-deploy has passed its grace perio
 });
 
 test('classify is up to date when the deployed commit is the last commit of the repository', function (): void {
-    $repository = Repository::factory()->create();
+    $repository = Repository::factory()->create(['source_url' => fake()->url()]);
     $site = Site::factory()->create([
-        'repository_url' => $repository->url,
+        'repository_url' => $repository->source_url,
         'repository_branch' => $repository->default_branch,
         'deployed_commit_hash' => $repository->last_commit_sha,
     ]);
@@ -88,9 +93,12 @@ test('classify is up to date when the deployed commit is the last commit of the 
 });
 
 test('classify is unknown when the site deploys another branch than the default branch', function (): void {
-    $repository = Repository::factory()->create(['default_branch' => fake()->unique()->word()]);
+    $repository = Repository::factory()->create([
+        'source_url' => fake()->url(),
+        'default_branch' => fake()->unique()->word(),
+    ]);
     $site = Site::factory()->create([
-        'repository_url' => $repository->url,
+        'repository_url' => $repository->source_url,
         'repository_branch' => fake()->unique()->word(),
         'deployed_commit_hash' => fake()->sha1(),
     ]);
@@ -103,9 +111,9 @@ test('classify is unknown when the site deploys another branch than the default 
 });
 
 test('classify is unknown when the site was never deployed', function (): void {
-    $repository = Repository::factory()->create();
+    $repository = Repository::factory()->create(['source_url' => fake()->url()]);
     $site = Site::factory()->create([
-        'repository_url' => $repository->url,
+        'repository_url' => $repository->source_url,
         'repository_branch' => $repository->default_branch,
         'deployed_commit_hash' => null,
     ]);

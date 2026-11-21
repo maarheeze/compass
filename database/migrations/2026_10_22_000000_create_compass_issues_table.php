@@ -24,7 +24,6 @@ return new class extends Migration
             $table->string('repository_lookup_key');
             $table->unsignedInteger('number');
             $table->string('title');
-            $table->string('type')->nullable();
             $table->string('url');
             $table->string('author_login')->nullable();
             $table->timestamp('opened_at');
