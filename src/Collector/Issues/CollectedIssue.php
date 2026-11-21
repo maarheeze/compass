@@ -14,6 +14,7 @@ readonly class CollectedIssue
         public string $repositoryLookupKey,
         public int $number,
         public string $title,
+        public ?IssueType $type,
         public string $url,
         public ?string $authorLogin,
         public CarbonImmutable $openedAt,

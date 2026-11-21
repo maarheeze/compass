@@ -11,6 +11,7 @@ use Maarheeze\Compass\Collections\CollectedIssueCollection;
 use Maarheeze\Compass\Collections\CollectedPullRequestCollection;
 use Maarheeze\Compass\Collector\CollectedAssignee;
 use Maarheeze\Compass\Collector\Issues\CollectedIssue;
+use Maarheeze\Compass\Collector\Issues\IssueTypeMapping;
 use Maarheeze\Compass\Collector\PullRequests\CollectedPullRequest;
 use Webmozart\Assert\Assert;
 
@@ -38,13 +39,13 @@ readonly class IssuesAndPullRequestsQuery
      *
      * @throws GitHubQueryFailed
      */
-    public function issues(): Generator
+    public function issues(IssueTypeMapping $issueTypeMapping): Generator
     {
         foreach ($this->searchPages('is:issue') as $itemResponses) {
             $collectedIssues = new CollectedIssueCollection();
 
             foreach ($itemResponses as $itemResponse) {
-                $collectedIssues->push($this->getCollectedIssue($itemResponse));
+                $collectedIssues->push($this->getCollectedIssue($itemResponse, $issueTypeMapping));
             }
 
             yield $collectedIssues;
@@ -100,13 +101,14 @@ readonly class IssuesAndPullRequestsQuery
     /**
      * @param array<mixed> $itemResponse
      */
-    private function getCollectedIssue(array $itemResponse): CollectedIssue
+    private function getCollectedIssue(array $itemResponse, IssueTypeMapping $issueTypeMapping): CollectedIssue
     {
         return new CollectedIssue(
             Assert::string($itemResponse['node_id']),
             $this->getRepositoryFullName($itemResponse),
             Assert::integer($itemResponse['number']),
             Assert::string($itemResponse['title']),
+            $issueTypeMapping->issueType($this->getIssueTypeName($itemResponse['type'])),
             Assert::string($itemResponse['html_url']),
             $this->getAuthorLogin($itemResponse['user']),
             CarbonImmutable::parse(Assert::string($itemResponse['created_at'])),
@@ -130,6 +132,15 @@ readonly class IssuesAndPullRequestsQuery
             CarbonImmutable::parse(Assert::string($itemResponse['created_at'])),
             $this->getAssignees($itemResponse),
         );
+    }
+
+    private function getIssueTypeName(mixed $typeResponse): ?string
+    {
+        if ($typeResponse === null) {
+            return null;
+        }
+
+        return Assert::string(Assert::isArray($typeResponse)['name']);
     }
 
     /**

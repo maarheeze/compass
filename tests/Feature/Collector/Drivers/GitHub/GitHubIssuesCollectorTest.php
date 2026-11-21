@@ -7,12 +7,18 @@ use Maarheeze\Compass\Collections\CollectedIssueCollection;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubIssuesCollector;
+use Maarheeze\Compass\Collector\Issues\IssueTypeMapping;
+use Maarheeze\Compass\Collector\SourceConfig;
 
 test('issues yields the collected issues of each page', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(['incomplete_results' => false, 'items' => []])]);
 
-    $gitHubIssuesCollector = new GitHubIssuesCollector(new GitHubClient($http, fake()->sha1()), fake()->slug());
+    $gitHubIssuesCollector = new GitHubIssuesCollector(
+        new GitHubClient($http, fake()->sha1()),
+        fake()->slug(),
+        new IssueTypeMapping(new SourceConfig(fake()->slug(), [])),
+    );
     $collectedIssuesPerPage = iterator_to_array($gitHubIssuesCollector->issues());
 
     expect($collectedIssuesPerPage)
@@ -23,6 +29,10 @@ test('issues throws collecting failed when github fails', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(null, 500)]);
 
-    $gitHubIssuesCollector = new GitHubIssuesCollector(new GitHubClient($http, fake()->sha1()), fake()->slug());
+    $gitHubIssuesCollector = new GitHubIssuesCollector(
+        new GitHubClient($http, fake()->sha1()),
+        fake()->slug(),
+        new IssueTypeMapping(new SourceConfig(fake()->slug(), [])),
+    );
     iterator_to_array($gitHubIssuesCollector->issues());
 })->throws(CollectingFailed::class);

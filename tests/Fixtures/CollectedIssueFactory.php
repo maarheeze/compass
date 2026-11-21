@@ -8,6 +8,7 @@ use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collections\CollectedAssigneeCollection;
 use Maarheeze\Compass\Collector\CollectedAssignee;
 use Maarheeze\Compass\Collector\Issues\CollectedIssue;
+use Maarheeze\Compass\Collector\Issues\IssueType;
 
 use function fake;
 use function sprintf;
@@ -21,6 +22,7 @@ class CollectedIssueFactory
             sprintf('%s/%s', fake()->slug(), fake()->slug()),
             fake()->numberBetween(1, 9999),
             fake()->sentence(),
+            fake()->randomElement(IssueType::cases()),
             fake()->url(),
             fake()->userName(),
             CarbonImmutable::parse(fake()->iso8601()),

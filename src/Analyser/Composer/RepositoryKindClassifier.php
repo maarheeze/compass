@@ -6,6 +6,9 @@ namespace Maarheeze\Compass\Analyser\Composer;
 
 use Maarheeze\Compass\Collector\Composer\ComposerType;
 use Maarheeze\Compass\Models\Repository;
+use Webmozart\Assert\Assert;
+
+use function array_find;
 
 readonly class RepositoryKindClassifier
 {
@@ -13,17 +16,12 @@ readonly class RepositoryKindClassifier
     {
         $composerType = $this->composerType($repository);
 
-        if ($composerType === null) {
-            return RepositoryKind::OTHER;
-        }
-
-        foreach (RepositoryKind::cases() as $kind) {
-            if ($kind->composerType() === $composerType) {
-                return $kind;
-            }
-        }
-
-        return RepositoryKind::OTHER;
+        return Assert::isInstanceOf(
+            array_find(RepositoryKind::cases(), static function (RepositoryKind $kind) use ($composerType): bool {
+                return $kind->composerType() === $composerType;
+            }),
+            RepositoryKind::class,
+        );
     }
 
     private function composerType(Repository $repository): ?ComposerType

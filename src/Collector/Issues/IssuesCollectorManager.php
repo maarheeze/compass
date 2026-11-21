@@ -30,6 +30,7 @@ readonly class IssuesCollectorManager
                 return new GitHubIssuesCollector(
                     new GitHubClient($this->http, $sourceConfig->setting('token')),
                     $sourceConfig->setting('organisation'),
+                    new IssueTypeMapping($sourceConfig),
                 );
             },
         );

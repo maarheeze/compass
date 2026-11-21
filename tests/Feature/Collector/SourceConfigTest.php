@@ -95,6 +95,49 @@ test('integer setting refuses a setting that is unset or not a whole number', fu
     ],
 ]);
 
+test('map setting is the setting of the source under its name', function (): void {
+    $settingName = fake()->word();
+    $settingValue = [fake()->unique()->word() => fake()->word()];
+    $sourceConfig = new SourceConfig(fake()->slug(), [$settingName => $settingValue]);
+
+    $mapSetting = $sourceConfig->mapSetting($settingName);
+
+    expect($mapSetting)
+        ->toBe($settingValue);
+});
+
+test('map setting is empty for a setting the source does not have', function (): void {
+    $sourceConfig = new SourceConfig(fake()->slug(), []);
+
+    $mapSetting = $sourceConfig->mapSetting(fake()->word());
+
+    expect($mapSetting)
+        ->toBeEmpty();
+});
+
+test('map setting refuses a setting that is not a map of strings', function (mixed $settingValue): void {
+    $settingName = fake()->word();
+    $sourceConfig = new SourceConfig(fake()->slug(), [$settingName => $settingValue]);
+
+    $sourceConfig->mapSetting($settingName);
+})->throws(InvalidArgumentException::class)->with([
+    'a string' => [
+        function (): string {
+            return fake()->word();
+        },
+    ],
+    'a list' => [
+        function (): array {
+            return [fake()->word()];
+        },
+    ],
+    'a value that is not a string' => [
+        function (): array {
+            return [fake()->word() => fake()->randomNumber()];
+        },
+    ],
+]);
+
 test('schedule is the frequency of each collector the source schedules', function (): void {
     $collector = fake()->randomElement(CollectorType::cases())->value;
     $scheduleFrequency = fake()->randomElement(ScheduleFrequency::cases());

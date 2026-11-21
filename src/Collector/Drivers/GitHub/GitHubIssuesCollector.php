@@ -8,12 +8,14 @@ use Generator;
 use Maarheeze\Compass\Collections\CollectedIssueCollection;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\Issues\IssuesCollector;
+use Maarheeze\Compass\Collector\Issues\IssueTypeMapping;
 
 readonly class GitHubIssuesCollector implements IssuesCollector
 {
     public function __construct(
         private GitHubClient $gitHubClient,
         private string $organisation,
+        private IssueTypeMapping $issueTypeMapping,
     ) {
     }
 
@@ -27,7 +29,7 @@ readonly class GitHubIssuesCollector implements IssuesCollector
         $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery($this->gitHubClient, $this->organisation);
 
         try {
-            yield from $issuesAndPullRequestsQuery->issues();
+            yield from $issuesAndPullRequestsQuery->issues($this->issueTypeMapping);
         } catch (GitHubQueryFailed $gitHubQueryFailed) {
             throw CollectingFailed::fromThrowable($gitHubQueryFailed);
         }

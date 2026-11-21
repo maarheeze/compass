@@ -47,6 +47,7 @@ readonly class IssueSynchroniser
                 'repository_lookup_key' => $collectedIssue->repositoryLookupKey,
                 'number' => $collectedIssue->number,
                 'title' => $collectedIssue->title,
+                'type' => $collectedIssue->type,
                 'url' => $collectedIssue->url,
                 'author_login' => $collectedIssue->authorLogin,
                 'opened_at' => $collectedIssue->openedAt,

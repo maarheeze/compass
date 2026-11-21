@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Maarheeze\Compass\Collections\IssueAssigneeCollection;
 use Maarheeze\Compass\Collections\IssueCollection;
+use Maarheeze\Compass\Collector\Issues\IssueType;
 use Maarheeze\Compass\Database\Factories\IssueFactory;
 use Maarheeze\Compass\Models\Builders\IssueBuilder;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
@@ -32,6 +33,7 @@ use Maarheeze\Uuid\Uuid;
  * @property Uuid $run_id
  * @property string $source
  * @property string $title
+ * @property ?IssueType $type
  * @property CarbonImmutable $updated_at
  * @property string $url
  *
@@ -67,6 +69,7 @@ class Issue extends Model
             'run_id',
             'source',
             'title',
+            'type',
             'url',
         ];
     }
@@ -104,6 +107,7 @@ class Issue extends Model
             'opened_at' => 'immutable_datetime',
             'repository_id' => UuidCast::class,
             'run_id' => UuidCast::class,
+            'type' => IssueType::class,
             'updated_at' => 'immutable_datetime',
         ];
     }

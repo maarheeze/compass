@@ -32,6 +32,24 @@ readonly class SourceConfig
     }
 
     /**
+     * @return array<string, string>
+     */
+    public function mapSetting(string $settingName): array
+    {
+        if (!array_key_exists($settingName, $this->settings)) {
+            return [];
+        }
+
+        $mapSetting = [];
+
+        foreach (Assert::isMap($this->settings[$settingName]) as $key => $value) {
+            $mapSetting[$key] = Assert::string($value);
+        }
+
+        return $mapSetting;
+    }
+
+    /**
      * @return array<string, ScheduleFrequency>
      */
     public function schedule(): array

@@ -10,6 +10,9 @@ use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubQueryFailed;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubSearchIncomplete;
 use Maarheeze\Compass\Collector\Drivers\GitHub\IssuesAndPullRequestsQuery;
+use Maarheeze\Compass\Collector\Issues\IssueType;
+use Maarheeze\Compass\Collector\Issues\IssueTypeMapping;
+use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Tests\Fixtures\CollectedIssueFactory;
 use Maarheeze\Compass\Tests\Fixtures\CollectedPullRequestFactory;
 
@@ -19,11 +22,12 @@ test('issues search the open issues of the unarchived repositories, oldest first
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(['incomplete_results' => false, 'items' => []])]);
 
+    $issueTypeMapping = new IssueTypeMapping(new SourceConfig(fake()->slug(), []));
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
         new GitHubClient($http, fake()->sha1()),
         $organisation,
     );
-    iterator_to_array($issuesAndPullRequestsQuery->issues());
+    iterator_to_array($issuesAndPullRequestsQuery->issues($issueTypeMapping));
 
     $http->assertSent(static function (HttpRequest $request) use ($organisation): bool {
         return str_starts_with($request->url(), 'https://api.github.com/search/issues?')
@@ -64,6 +68,7 @@ test('issues continue a full page from the creation date of its last issue', fun
             'repository_url' => fake()->url(),
             'number' => fake()->numberBetween(1, 9999),
             'title' => fake()->sentence(),
+            'type' => null,
             'html_url' => fake()->url(),
             'user' => null,
             'created_at' => fake()->iso8601(),
@@ -77,11 +82,12 @@ test('issues continue a full page from the creation date of its last issue', fun
     $responseSequence->push(['incomplete_results' => false, 'items' => []]);
     $http->fake(['*' => $responseSequence]);
 
+    $issueTypeMapping = new IssueTypeMapping(new SourceConfig(fake()->slug(), []));
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
         new GitHubClient($http, fake()->sha1()),
         fake()->slug(),
     );
-    iterator_to_array($issuesAndPullRequestsQuery->issues());
+    iterator_to_array($issuesAndPullRequestsQuery->issues($issueTypeMapping));
 
     $lastCreatedAt = $itemResponses[99]['created_at'];
     $http->assertSent(static function (HttpRequest $request) use ($lastCreatedAt): bool {
@@ -99,6 +105,7 @@ test('issues leave out the issues already collected at the date they continue fr
             'repository_url' => fake()->url(),
             'number' => fake()->numberBetween(1, 9999),
             'title' => fake()->sentence(),
+            'type' => null,
             'html_url' => fake()->url(),
             'user' => null,
             'created_at' => $lastCreatedAt,
@@ -111,6 +118,7 @@ test('issues leave out the issues already collected at the date they continue fr
         'repository_url' => fake()->url(),
         'number' => fake()->numberBetween(1, 9999),
         'title' => fake()->sentence(),
+        'type' => null,
         'html_url' => fake()->url(),
         'user' => null,
         'created_at' => $lastCreatedAt,
@@ -123,11 +131,12 @@ test('issues leave out the issues already collected at the date they continue fr
     $responseSequence->push(['incomplete_results' => false, 'items' => [$itemResponses[99], $unseenItemResponse]]);
     $http->fake(['*' => $responseSequence]);
 
+    $issueTypeMapping = new IssueTypeMapping(new SourceConfig(fake()->slug(), []));
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
         new GitHubClient($http, fake()->sha1()),
         fake()->slug(),
     );
-    $collectedIssuesPerPage = iterator_to_array($issuesAndPullRequestsQuery->issues());
+    $collectedIssuesPerPage = iterator_to_array($issuesAndPullRequestsQuery->issues($issueTypeMapping));
 
     expect($collectedIssuesPerPage[1]->sole()->externalId)
         ->toBe($unseenItemResponse['node_id']);
@@ -144,6 +153,7 @@ test('issues keep leaving out the issues seen at the date they continue from acr
             'repository_url' => fake()->url(),
             'number' => fake()->numberBetween(1, 9999),
             'title' => fake()->sentence(),
+            'type' => null,
             'html_url' => fake()->url(),
             'user' => null,
             'created_at' => $lastCreatedAt,
@@ -154,6 +164,7 @@ test('issues keep leaving out the issues seen at the date they continue from acr
             'repository_url' => fake()->url(),
             'number' => fake()->numberBetween(1, 9999),
             'title' => fake()->sentence(),
+            'type' => null,
             'html_url' => fake()->url(),
             'user' => null,
             'created_at' => $lastCreatedAt,
@@ -166,6 +177,7 @@ test('issues keep leaving out the issues seen at the date they continue from acr
         'repository_url' => fake()->url(),
         'number' => fake()->numberBetween(1, 9999),
         'title' => fake()->sentence(),
+        'type' => null,
         'html_url' => fake()->url(),
         'user' => null,
         'created_at' => $lastCreatedAt,
@@ -182,11 +194,12 @@ test('issues keep leaving out the issues seen at the date they continue from acr
     ]);
     $http->fake(['*' => $responseSequence]);
 
+    $issueTypeMapping = new IssueTypeMapping(new SourceConfig(fake()->slug(), []));
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
         new GitHubClient($http, fake()->sha1()),
         fake()->slug(),
     );
-    $collectedIssuesPerPage = iterator_to_array($issuesAndPullRequestsQuery->issues());
+    $collectedIssuesPerPage = iterator_to_array($issuesAndPullRequestsQuery->issues($issueTypeMapping));
 
     expect($collectedIssuesPerPage[2]->sole()->externalId)
         ->toBe($unseenItemResponse['node_id']);
@@ -196,17 +209,19 @@ test('issues end with a page that is not full', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(['incomplete_results' => false, 'items' => []])]);
 
+    $issueTypeMapping = new IssueTypeMapping(new SourceConfig(fake()->slug(), []));
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
         new GitHubClient($http, fake()->sha1()),
         fake()->slug(),
     );
-    iterator_to_array($issuesAndPullRequestsQuery->issues());
+    iterator_to_array($issuesAndPullRequestsQuery->issues($issueTypeMapping));
 
     $http->assertSentCount(1);
 });
 
 test('issues hold the collected issues in the response', function (): void {
     $collectedIssue = CollectedIssueFactory::make();
+    $issueTypeName = fake()->word();
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             'incomplete_results' => false,
@@ -219,6 +234,7 @@ test('issues hold the collected issues in the response', function (): void {
                     ),
                     'number' => $collectedIssue->number,
                     'title' => $collectedIssue->title,
+                    'type' => ['name' => $issueTypeName],
                     'html_url' => $collectedIssue->url,
                     'user' => [
                         'login' => $collectedIssue->authorLogin,
@@ -235,11 +251,14 @@ test('issues hold the collected issues in the response', function (): void {
         ]),
     ]);
 
+    $issueTypeMapping = new IssueTypeMapping(new SourceConfig(fake()->slug(), [
+        'issue_types' => [$issueTypeName => $collectedIssue->type->value],
+    ]));
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
         new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
         fake()->slug(),
     );
-    $collectedIssues = $issuesAndPullRequestsQuery->issues()->current();
+    $collectedIssues = $issuesAndPullRequestsQuery->issues($issueTypeMapping)->current();
 
     expect($collectedIssues)
         ->toEqual(new CollectedIssueCollection([$collectedIssue]));
@@ -296,6 +315,7 @@ test('issues hold no author login for an issue without a user', function (): voi
                     'repository_url' => fake()->url(),
                     'number' => fake()->numberBetween(1, 9999),
                     'title' => fake()->sentence(),
+                    'type' => null,
                     'html_url' => fake()->url(),
                     'user' => null,
                     'created_at' => fake()->iso8601(),
@@ -305,13 +325,47 @@ test('issues hold no author login for an issue without a user', function (): voi
         ]),
     ]);
 
+    $issueTypeMapping = new IssueTypeMapping(new SourceConfig(fake()->slug(), []));
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
         new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
         fake()->slug(),
     );
-    $collectedIssues = $issuesAndPullRequestsQuery->issues()->current();
+    $collectedIssues = $issuesAndPullRequestsQuery->issues($issueTypeMapping)->current();
 
     expect($collectedIssues->sole()->authorLogin)
+        ->toBeNull();
+});
+
+test('issues hold no type for an issue without a type', function (): void {
+    $this->app->make(HttpFactory::class)->fake([
+        '*' => HttpFactory::response([
+            'incomplete_results' => false,
+            'items' => [
+                [
+                    'node_id' => fake()->sha1(),
+                    'repository_url' => fake()->url(),
+                    'number' => fake()->numberBetween(1, 9999),
+                    'title' => fake()->sentence(),
+                    'type' => null,
+                    'html_url' => fake()->url(),
+                    'user' => null,
+                    'created_at' => fake()->iso8601(),
+                    'assignees' => [],
+                ],
+            ],
+        ]),
+    ]);
+
+    $issueTypeMapping = new IssueTypeMapping(new SourceConfig(fake()->slug(), [
+        'issue_types' => [fake()->word() => fake()->randomElement(IssueType::cases())->value],
+    ]));
+    $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
+        new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
+        fake()->slug(),
+    );
+    $collectedIssues = $issuesAndPullRequestsQuery->issues($issueTypeMapping)->current();
+
+    expect($collectedIssues->sole()->type)
         ->toBeNull();
 });
 
@@ -320,13 +374,14 @@ test('issues throw with github search incomplete behind it when github could not
         '*' => HttpFactory::response(['incomplete_results' => true, 'items' => []]),
     ]);
 
+    $issueTypeMapping = new IssueTypeMapping(new SourceConfig(fake()->slug(), []));
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
         new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
         fake()->slug(),
     );
 
-    expect(static function () use ($issuesAndPullRequestsQuery): void {
-        $issuesAndPullRequestsQuery->issues()->current();
+    expect(static function () use ($issuesAndPullRequestsQuery, $issueTypeMapping): void {
+        $issuesAndPullRequestsQuery->issues($issueTypeMapping)->current();
     })->toThrow(static function (GitHubQueryFailed $gitHubQueryFailed): void {
         expect($gitHubQueryFailed->getPrevious())
             ->toBeInstanceOf(GitHubSearchIncomplete::class);
@@ -336,9 +391,10 @@ test('issues throw with github search incomplete behind it when github could not
 test('issues throw when github refuses the request', function (): void {
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, 401)]);
 
+    $issueTypeMapping = new IssueTypeMapping(new SourceConfig(fake()->slug(), []));
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
         new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
         fake()->slug(),
     );
-    $issuesAndPullRequestsQuery->issues()->current();
+    $issuesAndPullRequestsQuery->issues($issueTypeMapping)->current();
 })->throws(GitHubQueryFailed::class);

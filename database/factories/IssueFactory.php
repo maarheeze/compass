@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Maarheeze\Compass\Collector\Issues\IssueType;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
@@ -32,6 +33,7 @@ class IssueFactory extends Factory
             'repository_lookup_key' => sprintf('%s/%s', fake()->slug(), fake()->slug()),
             'number' => fake()->numberBetween(1, 9999),
             'title' => fake()->sentence(),
+            'type' => fake()->optional()->randomElement(IssueType::cases()),
             'url' => fake()->url(),
             'author_login' => fake()->optional()->userName(),
             'opened_at' => fake()->dateTime(),

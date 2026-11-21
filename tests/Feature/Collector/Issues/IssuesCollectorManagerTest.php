@@ -8,6 +8,8 @@ use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubIssuesCollector;
 use Maarheeze\Compass\Collector\Issues\IssuesCollectorManager;
+use Maarheeze\Compass\Collector\Issues\IssueType;
+use Maarheeze\Compass\Collector\Issues\IssueTypeMapping;
 use Maarheeze\Compass\Collector\SourceConfig;
 
 test('collector of a github source collects the issues of its organisation with its token', function (): void {
@@ -36,6 +38,46 @@ test('collector of a github source collects the issues of its organisation with 
     });
 });
 
+test('collector of a github source maps the issue types of its config', function (): void {
+    $key = fake()->slug();
+    $issueTypeName = fake()->word();
+    $issueType = fake()->randomElement(IssueType::cases());
+    $this->setConfiguration('compass.sources', [
+        $key => [
+            'driver' => 'github',
+            'organisation' => fake()->slug(),
+            'token' => fake()->sha1(),
+            'issue_types' => [$issueTypeName => $issueType->value],
+        ],
+    ]);
+    $this->app->make(HttpFactory::class)->fake([
+        '*' => HttpFactory::response([
+            'incomplete_results' => false,
+            'items' => [
+                [
+                    'node_id' => fake()->sha1(),
+                    'repository_url' => fake()->url(),
+                    'number' => fake()->numberBetween(1, 9999),
+                    'title' => fake()->sentence(),
+                    'type' => ['name' => $issueTypeName],
+                    'html_url' => fake()->url(),
+                    'user' => null,
+                    'created_at' => fake()->iso8601(),
+                    'assignees' => [],
+                ],
+            ],
+        ]),
+    ]);
+
+    $issuesCollectorManager = $this->app->make(IssuesCollectorManager::class);
+    $collectedIssues = $issuesCollectorManager->collector($key)
+        ->issues()
+        ->current();
+
+    expect($collectedIssues->sole()->type)
+        ->toBe($issueType);
+});
+
 test('collector is the collector its extension makes from its config', function (): void {
     $key = fake()->slug();
     $driverName = fake()->slug();
@@ -47,6 +89,7 @@ test('collector is the collector its extension makes from its config', function 
     $gitHubIssuesCollector = new GitHubIssuesCollector(
         new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
         fake()->slug(),
+        new IssueTypeMapping(new SourceConfig(fake()->slug(), [])),
     );
 
     $issuesCollectorManager = $this->app->make(IssuesCollectorManager::class);
