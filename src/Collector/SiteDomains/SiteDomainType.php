@@ -12,6 +12,7 @@ enum SiteDomainType: string implements LabelledEnum
 {
     case ALIAS = 'alias';
     case PRIMARY = 'primary';
+    case REVERB = 'reverb';
 
     public function labelKey(): string
     {
