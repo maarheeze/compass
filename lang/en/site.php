@@ -33,5 +33,4 @@ return [
     'save' => 'Save',
     'server' => 'Server',
     'settings_explanation' => 'Site settings.',
-    'site_count' => ':count site|:count sites',
 ];

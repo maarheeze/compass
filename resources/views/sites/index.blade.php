@@ -5,7 +5,7 @@
     <main class="mx-auto max-w-7xl px-4 py-6 md:px-6 lg:px-8">
         <x-compass::page-columns>
             <div class="space-y-3">
-                <x-compass::site-list :sites="$sites" :site-count="$sites->total()" />
+                <x-compass::site-list :sites="$sites" />
 
                 {{ $sites->links('compass::pagination') }}
             </div>
