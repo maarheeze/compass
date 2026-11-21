@@ -4,7 +4,11 @@
 
     <main class="mx-auto max-w-7xl px-4 py-6 md:px-6 lg:px-8">
         <x-compass::page-columns>
-            <x-compass::pull-request-list :pull-requests="$pullRequests" />
+            <div class="space-y-3">
+                <x-compass::pull-request-list :pull-requests="$pullRequests" :open-count="$pullRequests->total()" />
+
+                {{ $pullRequests->links('compass::pagination') }}
+            </div>
 
             <x-slot:aside>
                 <x-compass::filter-section :filter="$assigneesFilter" />

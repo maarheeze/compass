@@ -1,4 +1,4 @@
-@props(['sites'])
+@props(['sites', 'siteCount'])
 
 <x-compass::list>
     <x-slot:icon>
@@ -8,7 +8,7 @@
     <x-slot:empty>{{ __('compass::site.none') }}</x-slot:empty>
     <x-slot:counts>
         @if ($sites->isNotEmpty())
-            <x-compass::badge type="neutral">{{ trans_choice('compass::site.site_count', $sites->count()) }}</x-compass::badge>
+            <x-compass::badge type="neutral">{{ trans_choice('compass::site.site_count', $siteCount) }}</x-compass::badge>
         @endif
     </x-slot:counts>
     <x-slot:rows>

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Maarheeze\Compass\Http\ItemsPerPage;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Uuid\Uuid;
@@ -182,4 +183,67 @@ test('listed is the sites in the order of their name', function (): void {
 
     expect($listedSites->modelKeys())
         ->toEqual([$alphaSite->getKey(), $bravoSite->getKey()]);
+});
+
+test('of php version keeps a site on the php version', function (): void {
+    $site = Site::factory()->create(['php_version' => 'php84']);
+
+    $sitesOfPhpVersion = Site::query()
+        ->ofPhpVersion('php84')
+        ->get();
+
+    expect($sitesOfPhpVersion->sole()->is($site))
+        ->toBeTrue();
+});
+
+test('of php version leaves out a site on another php version', function (): void {
+    Site::factory()->create(['php_version' => 'php83']);
+
+    $sitesOfPhpVersion = Site::query()
+        ->ofPhpVersion('php84')
+        ->get();
+
+    expect($sitesOfPhpVersion)
+        ->toBeEmpty();
+});
+
+test('of server keeps a site on the server', function (): void {
+    $site = Site::factory()->create();
+
+    $sitesOfServer = Site::query()
+        ->ofServer($site->server_name)
+        ->get();
+
+    expect($sitesOfServer->sole()->is($site))
+        ->toBeTrue();
+});
+
+test('of server leaves out a site on another server', function (): void {
+    Site::factory()->create(['server_name' => fake()->unique()->slug()]);
+
+    $sitesOfServer = Site::query()
+        ->ofServer(fake()->unique()->slug())
+        ->get();
+
+    expect($sitesOfServer)
+        ->toBeEmpty();
+});
+
+test('listed page is the sites in the order of their name', function (): void {
+    $bravoSite = Site::factory()->create(['name' => 'bravo']);
+    $alphaSite = Site::factory()->create(['name' => 'alpha']);
+
+    $listedSitesPage = Site::query()->listedPage(new ItemsPerPage(fake()->numberBetween(2, 100)));
+
+    expect($listedSitesPage->getCollection()->modelKeys())
+        ->toEqual([$alphaSite->getKey(), $bravoSite->getKey()]);
+});
+
+test('listed page has the given number of sites per page', function (): void {
+    $itemsPerPage = fake()->numberBetween(1, 100);
+
+    $listedSitesPage = Site::query()->listedPage(new ItemsPerPage($itemsPerPage));
+
+    expect($listedSitesPage->perPage())
+        ->toBe($itemsPerPage);
 });

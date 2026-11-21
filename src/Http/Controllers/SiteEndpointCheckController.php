@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointCheckHistory;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
+use Maarheeze\Compass\Http\ItemsPerPage;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Site;
 use Throwable;
@@ -18,7 +19,7 @@ readonly class SiteEndpointCheckController
 {
     public function __construct(
         private EndpointCheckHistory $endpointCheckHistory,
-        private int $itemsPerPage,
+        private ItemsPerPage $itemsPerPage,
         private Redirector $redirector,
         private ViewFactory $view,
     ) {
@@ -41,7 +42,7 @@ readonly class SiteEndpointCheckController
                 ->endpointChecks()
                 ->ofPath($endpointPath)
                 ->latest('id')
-                ->paginate($this->itemsPerPage),
+                ->paginate($this->itemsPerPage->value),
             'endpointPath' => $endpointPath,
             'site' => $site,
         ]);

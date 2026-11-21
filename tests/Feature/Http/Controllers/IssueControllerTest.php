@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Maarheeze\Compass\Collections\IssueCollection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Maarheeze\Compass\Http\AssigneeFilter;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Issue;
@@ -17,7 +17,7 @@ test('index contains the open issues', function (): void {
 
     $response = $this->get(route(RouteName::ISSUES));
 
-    $response->assertViewHas('issues', static function (IssueCollection $viewIssues) use ($issue): bool {
+    $response->assertViewHas('issues', static function (LengthAwarePaginator $viewIssues) use ($issue): bool {
         return $viewIssues->sole()->is($issue);
     });
 });
@@ -35,7 +35,7 @@ test('index on an assignee contains only the issues assigned to them', function 
 
     $response->assertViewHas(
         'issues',
-        static function (IssueCollection $viewIssues) use ($issue): bool {
+        static function (LengthAwarePaginator $viewIssues) use ($issue): bool {
             return $viewIssues->sole()->is($issue);
         },
     );
@@ -64,7 +64,7 @@ test('index on unassigned contains only the issues without an assignee', functio
 
     $response = $this->get(route(RouteName::ISSUES, AssigneeFilter::unassignedRouteParameters()));
 
-    $response->assertViewHas('issues', static function (IssueCollection $viewIssues) use ($unassignedIssue): bool {
+    $response->assertViewHas('issues', static function (LengthAwarePaginator $viewIssues) use ($unassignedIssue): bool {
         return $viewIssues->sole()->is($unassignedIssue);
     });
 });
@@ -83,4 +83,35 @@ test('index refuses an assignee without a source', function (): void {
     $response = $this->get(route(RouteName::ISSUES, ['assignee' => fake()->userName()]));
 
     $response->assertInvalid('source');
+});
+
+test('index shows the configured number of issues per page', function (): void {
+    $itemsPerPage = fake()->numberBetween(1, 100);
+    $this->setConfiguration('compass.items_per_page', $itemsPerPage);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::ISSUES));
+
+    $response->assertViewHas('issues', static function (LengthAwarePaginator $viewIssues) use ($itemsPerPage): bool {
+        return $viewIssues->perPage() === $itemsPerPage;
+    });
+});
+
+test('index on an assignee keeps the assignee on the other pages', function (): void {
+    $issue = Issue::factory()->create();
+    $assignee = IssueAssignee::factory()->create(['issue_id' => $issue->id]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::ISSUES, [
+        'source' => $issue->source,
+        'assignee' => $assignee->login,
+    ]));
+
+    $response->assertViewHas('issues', static function (LengthAwarePaginator $viewIssues) use ($issue, $assignee): bool {
+        return $viewIssues->url(2) === route(RouteName::ISSUES, [
+            'source' => $issue->source,
+            'assignee' => $assignee->login,
+            'page' => 2,
+        ]);
+    });
 });

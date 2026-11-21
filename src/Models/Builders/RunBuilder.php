@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Models\Builders;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Maarheeze\Compass\Http\ItemsPerPage;
 use Maarheeze\Compass\Models\Run;
 
 /**
@@ -16,11 +17,11 @@ class RunBuilder extends Builder
     /**
      * @return LengthAwarePaginator<int, Run>
      */
-    public function listed(int $itemsPerPage): LengthAwarePaginator
+    public function listed(ItemsPerPage $itemsPerPage): LengthAwarePaginator
     {
         return $this
             ->with('failures')
             ->latest()
-            ->paginate($itemsPerPage);
+            ->paginate($itemsPerPage->value);
     }
 }

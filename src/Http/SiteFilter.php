@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Http;
 
 use Illuminate\Contracts\Translation\Translator;
-use Maarheeze\Compass\Collections\SiteCollection;
+use Maarheeze\Compass\Models\Builders\SiteBuilder;
 use Maarheeze\Compass\View\Filter;
 use Webmozart\Assert\Assert;
 
@@ -20,34 +20,36 @@ readonly class SiteFilter
     ) {
     }
 
-    public function phpVersionFilter(SiteCollection $sites, Translator $translator): Filter
+    public function phpVersionFilter(SiteBuilder $sites, Translator $translator): Filter
     {
         return new Filter(
             Assert::string($translator->get('compass::site.php_version')),
             [self::PHP_VERSION_PARAMETER],
             $this
                 ->sitesOfServer($sites)
+                ->listed()
                 ->phpVersionFilterOptions(),
         );
     }
 
-    public function serverFilter(SiteCollection $sites, Translator $translator): Filter
+    public function serverFilter(SiteBuilder $sites, Translator $translator): Filter
     {
         return new Filter(
             Assert::string($translator->get('compass::site.server')),
             [self::SERVER_PARAMETER],
             $this
                 ->sitesOfPhpVersion($sites)
+                ->listed()
                 ->serverFilterOptions(),
         );
     }
 
-    public function sites(SiteCollection $sites): SiteCollection
+    public function sites(SiteBuilder $sites): SiteBuilder
     {
         return $this->sitesOfPhpVersion($this->sitesOfServer($sites));
     }
 
-    private function sitesOfPhpVersion(SiteCollection $sites): SiteCollection
+    private function sitesOfPhpVersion(SiteBuilder $sites): SiteBuilder
     {
         if ($this->phpVersion === null) {
             return $sites;
@@ -56,7 +58,7 @@ readonly class SiteFilter
         return $sites->ofPhpVersion($this->phpVersion);
     }
 
-    private function sitesOfServer(SiteCollection $sites): SiteCollection
+    private function sitesOfServer(SiteBuilder $sites): SiteBuilder
     {
         if ($this->serverName === null) {
             return $sites;

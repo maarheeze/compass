@@ -13,20 +13,6 @@ use Maarheeze\Compass\Models\Site;
  */
 class SiteCollection extends Collection
 {
-    public function ofPhpVersion(string $phpVersion): self
-    {
-        return $this->filter(static function (Site $site) use ($phpVersion): bool {
-            return $site->php_version === $phpVersion;
-        });
-    }
-
-    public function ofServer(string $serverName): self
-    {
-        return $this->filter(static function (Site $site) use ($serverName): bool {
-            return $site->server_name === $serverName;
-        });
-    }
-
     public function phpVersionFilterOptions(): FilterOptionCollection
     {
         $phpVersionFilterOptions = new FilterOptionCollection();

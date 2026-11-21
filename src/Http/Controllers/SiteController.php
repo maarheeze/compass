@@ -11,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Maarheeze\Compass\Collector\Sites\MissingSiteResolver;
+use Maarheeze\Compass\Http\ItemsPerPage;
 use Maarheeze\Compass\Http\Requests\SiteFilterRequest;
 use Maarheeze\Compass\Http\Requests\UpdateSiteRequest;
 use Maarheeze\Compass\Http\RouteName;
@@ -23,6 +24,7 @@ use Throwable;
 readonly class SiteController
 {
     public function __construct(
+        private ItemsPerPage $itemsPerPage,
         private MissingSiteResolver $missingSiteResolver,
         private Redirector $redirector,
         private Translator $translator,
@@ -57,13 +59,14 @@ readonly class SiteController
 
     public function index(SiteFilterRequest $siteFilterRequest): View
     {
-        $sites = Site::query()->listed();
         $siteFilter = $siteFilterRequest->siteFilter();
 
         return $this->view->make('compass::sites.index', [
-            'phpVersionFilter' => $siteFilter->phpVersionFilter($sites, $this->translator),
-            'serverFilter' => $siteFilter->serverFilter($sites, $this->translator),
-            'sites' => $siteFilter->sites($sites),
+            'phpVersionFilter' => $siteFilter->phpVersionFilter(Site::query(), $this->translator),
+            'serverFilter' => $siteFilter->serverFilter(Site::query(), $this->translator),
+            'sites' => $siteFilter
+                ->sites(Site::query())
+                ->listedPage($this->itemsPerPage),
         ]);
     }
 

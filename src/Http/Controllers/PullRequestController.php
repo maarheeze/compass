@@ -8,12 +8,14 @@ use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Maarheeze\Compass\Http\AssigneeFilter;
+use Maarheeze\Compass\Http\ItemsPerPage;
 use Maarheeze\Compass\Http\Requests\AssigneeFilterRequest;
 use Maarheeze\Compass\Models\PullRequest;
 
 readonly class PullRequestController
 {
     public function __construct(
+        private ItemsPerPage $itemsPerPage,
         private Translator $translator,
         private ViewFactory $view,
     ) {
@@ -25,7 +27,10 @@ readonly class PullRequestController
 
         return $this->view->make('compass::pull-requests.index', [
             'assigneesFilter' => AssigneeFilter::assigneesFilter($pullRequests->assigneeFilterOptions($this->translator), $this->translator),
-            'pullRequests' => $assigneeFilterRequest->assigneeFilter()->pullRequests($pullRequests),
+            'pullRequests' => $assigneeFilterRequest
+                ->assigneeFilter()
+                ->pullRequests(PullRequest::query())
+                ->listedPage($this->itemsPerPage),
         ]);
     }
 }

@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Maarheeze\Compass\Http\Assignee;
 use Maarheeze\Compass\Http\AssigneeFilter;
 use Maarheeze\Compass\Models\PullRequest;
-use Maarheeze\Compass\Models\PullRequestAssignee;
 use Maarheeze\Compass\View\FilterOption;
 use Webmozart\Assert\Assert;
 
@@ -18,16 +17,6 @@ use Webmozart\Assert\Assert;
  */
 class PullRequestCollection extends Collection
 {
-    public function assignedTo(Assignee $assignee): self
-    {
-        return $this->filter(static function (PullRequest $pullRequest) use ($assignee): bool {
-            return $pullRequest->source === $assignee->source
-                && $pullRequest->assignees->contains(static function (PullRequestAssignee $pullRequestAssignee) use ($assignee): bool {
-                    return $pullRequestAssignee->login === $assignee->login;
-                });
-        });
-    }
-
     public function assigneeFilterOptions(Translator $translator): FilterOptionCollection
     {
         $assigneeFilterOptions = new FilterOptionCollection();

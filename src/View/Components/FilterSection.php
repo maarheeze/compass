@@ -16,6 +16,8 @@ use function sprintf;
 
 class FilterSection extends Component
 {
+    private const string PAGE_PARAMETER = 'page';
+
     public readonly bool $isFiltered;
     public readonly string $unfilteredUrl;
 
@@ -41,9 +43,9 @@ class FilterSection extends Component
 
     public function optionUrl(FilterOption $filterOption): string
     {
-        $queryWithoutFilter = Arr::except($this->request->query->all(), $this->filter->parameterNames);
+        $queryWithoutFilterAndPage = Arr::except($this->request->query->all(), [...$this->filter->parameterNames, self::PAGE_PARAMETER]);
 
-        return sprintf('%s?%s', $this->request->url(), Arr::query([...$queryWithoutFilter, ...$filterOption->queryParameters]));
+        return sprintf('%s?%s', $this->request->url(), Arr::query([...$queryWithoutFilterAndPage, ...$filterOption->queryParameters]));
     }
 
     public function render(): View

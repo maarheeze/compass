@@ -10,6 +10,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Redirector;
+use Maarheeze\Compass\Http\ItemsPerPage;
 use Maarheeze\Compass\Http\Requests\RunScheduledCommandRequest;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Run;
@@ -18,7 +19,7 @@ use Maarheeze\Compass\Scheduling\ScheduledCommands;
 readonly class RunController
 {
     public function __construct(
-        private int $itemsPerPage,
+        private ItemsPerPage $itemsPerPage,
         private Redirector $redirector,
         private ResponseFactory $responseFactory,
         private ScheduledCommands $scheduledCommands,

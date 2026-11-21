@@ -25,9 +25,8 @@ use Maarheeze\Compass\Collector\Events\RunSaved;
 use Maarheeze\Compass\Collector\Listeners\BroadcastRunStatus;
 use Maarheeze\Compass\Collector\Listeners\RecordRunFailure;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
-use Maarheeze\Compass\Http\Controllers\RunController;
-use Maarheeze\Compass\Http\Controllers\SiteEndpointCheckController;
 use Maarheeze\Compass\Http\EndpointPathRouteParameter;
+use Maarheeze\Compass\Http\ItemsPerPage;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Models\Run;
@@ -62,12 +61,9 @@ class CompassServiceProvider extends ServiceProvider
             ->needs('$broadcastQueue')
             ->giveConfig('compass.broadcast_queue');
 
-        $this->app
-            ->when([RunController::class, SiteEndpointCheckController::class])
-            ->needs('$itemsPerPage')
-            ->give(static function (Container $container): int {
-                return $container->make(ConfigurationRepository::class)->integer('compass.items_per_page');
-            });
+        $this->app->bind(ItemsPerPage::class, static function (Container $container): ItemsPerPage {
+            return new ItemsPerPage($container->make(ConfigurationRepository::class)->integer('compass.items_per_page'));
+        });
 
         $this->app->register(AlertProvider::class);
         $this->app->register(AuthenticationProvider::class);

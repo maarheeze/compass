@@ -14,11 +14,11 @@
 
             <x-compass::alert-check-table :alert-checks="$alertChecks" />
 
-            <x-compass::issue-list :issues="$issues" />
+            <x-compass::issue-list :issues="$issues" :open-count="$issues->count()" />
 
-            <x-compass::pull-request-list :pull-requests="$pullRequests" />
+            <x-compass::pull-request-list :pull-requests="$pullRequests" :open-count="$pullRequests->count()" />
 
-            <x-compass::site-list :sites="$sites" />
+            <x-compass::site-list :sites="$sites" :site-count="$sites->count()" />
 
             @if ($repository->composerJson)
                 <x-compass::list>

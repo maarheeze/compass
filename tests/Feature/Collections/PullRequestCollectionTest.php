@@ -37,34 +37,6 @@ test('assignee filter options count the pull requests per assignee', function ()
         ]);
 });
 
-test('assigned to is the pull requests of the source assigned to the login', function (): void {
-    $assignedPullRequest = PullRequest::factory()
-        ->make()
-        ->setRelation('assignees', new PullRequestAssigneeCollection([PullRequestAssignee::factory()->make()]));
-    $unassignedPullRequest = PullRequest::factory()
-        ->make()
-        ->setRelation('assignees', new PullRequestAssigneeCollection());
-    $pullRequests = new PullRequestCollection([$assignedPullRequest, $unassignedPullRequest]);
-
-    $pullRequestsAssignedTo = $pullRequests->assignedTo(new Assignee($assignedPullRequest->source, $assignedPullRequest->assignees->sole()->login));
-
-    expect($pullRequestsAssignedTo->sole())
-        ->toBe($assignedPullRequest);
-});
-
-test('assigned to leaves out the pull requests of another source assigned to the same login', function (): void {
-    $login = fake()->userName();
-    $pullRequest = PullRequest::factory()
-        ->make(['source' => fake()->unique()->slug()])
-        ->setRelation('assignees', new PullRequestAssigneeCollection([PullRequestAssignee::factory()->make(['login' => $login])]));
-    $pullRequests = new PullRequestCollection([$pullRequest]);
-
-    $pullRequestsAssignedTo = $pullRequests->assignedTo(new Assignee(fake()->unique()->slug(), $login));
-
-    expect($pullRequestsAssignedTo)
-        ->toBeEmpty();
-});
-
 test('assignee filter options start with the pull requests without an assignee', function (): void {
     $pullRequests = new PullRequestCollection([
         PullRequest::factory()

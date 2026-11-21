@@ -1,4 +1,4 @@
-@props(['issues'])
+@props(['issues', 'openCount'])
 
 <x-compass::list>
     <x-slot:icon>
@@ -8,7 +8,7 @@
     <x-slot:empty>{{ __('compass::issue.none') }}</x-slot:empty>
     <x-slot:counts>
         @if ($issues->isNotEmpty())
-            <x-compass::badge type="neutral">{{ __('compass::issue.open_count', ['count' => $issues->count()]) }}</x-compass::badge>
+            <x-compass::badge type="neutral">{{ __('compass::issue.open_count', ['count' => $openCount]) }}</x-compass::badge>
         @endif
     </x-slot:counts>
     <x-slot:rows>

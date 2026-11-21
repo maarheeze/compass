@@ -7,29 +7,6 @@ use Maarheeze\Compass\Http\SiteFilter;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\View\FilterOption;
 
-test('of php version is the sites on that php version', function (): void {
-    $siteOnPhp84 = Site::factory()->make(['php_version' => 'php84']);
-    $siteOnPhp83 = Site::factory()->make(['php_version' => 'php83']);
-    $sites = new SiteCollection([$siteOnPhp84, $siteOnPhp83]);
-
-    $sitesOnPhp84 = $sites->ofPhpVersion('php84');
-
-    expect($sitesOnPhp84->sole())
-        ->toBe($siteOnPhp84);
-});
-
-test('of server is the sites on that server', function (): void {
-    $serverName = fake()->unique()->slug();
-    $siteOnServer = Site::factory()->make(['server_name' => $serverName]);
-    $siteOnOtherServer = Site::factory()->make(['server_name' => fake()->unique()->slug()]);
-    $sites = new SiteCollection([$siteOnServer, $siteOnOtherServer]);
-
-    $sitesOnServer = $sites->ofServer($serverName);
-
-    expect($sitesOnServer->sole())
-        ->toBe($siteOnServer);
-});
-
 test('php version filter options count the sites per php version, newest first', function (): void {
     $sites = new SiteCollection([
         Site::factory()->make(['php_version' => 'php83']),

@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Models\Builders;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Maarheeze\Compass\Collections\IssueCollection;
+use Maarheeze\Compass\Http\Assignee;
+use Maarheeze\Compass\Http\ItemsPerPage;
 use Maarheeze\Compass\Models\Issue;
 use Maarheeze\Uuid\Uuid;
 use Webmozart\Assert\Assert;
@@ -16,6 +19,15 @@ use Webmozart\Assert\Assert;
  */
 class IssueBuilder extends Builder
 {
+    public function assignedTo(Assignee $assignee): self
+    {
+        return $this
+            ->ofSource($assignee->source)
+            ->whereHas('assignees', static function (IssueAssigneeBuilder $issueAssignees) use ($assignee): void {
+                $issueAssignees->where('login', $assignee->login);
+            });
+    }
+
     public function latestOpened(): self
     {
         return $this->latest('opened_at');
@@ -23,13 +35,18 @@ class IssueBuilder extends Builder
 
     public function listed(): IssueCollection
     {
-        return Assert::isInstanceOf(
-            $this
-                ->with(['assignees', 'repository'])
-                ->latestOpened()
-                ->get(),
-            IssueCollection::class,
-        );
+        return Assert::isInstanceOf($this->inListedOrder()->get(), IssueCollection::class);
+    }
+
+    /**
+     * @return LengthAwarePaginator<int, Issue>
+     */
+    public function listedPage(ItemsPerPage $itemsPerPage): LengthAwarePaginator
+    {
+        return $this
+            ->inListedOrder()
+            ->paginate($itemsPerPage->value)
+            ->withQueryString();
     }
 
     public function notReturnedByRun(Uuid $runId): self
@@ -49,5 +66,17 @@ class IssueBuilder extends Builder
     public function ofSource(string $source): self
     {
         return $this->where('source', $source);
+    }
+
+    public function unassigned(): self
+    {
+        return $this->whereDoesntHave('assignees');
+    }
+
+    private function inListedOrder(): self
+    {
+        return $this
+            ->with(['assignees', 'repository'])
+            ->latestOpened();
     }
 }

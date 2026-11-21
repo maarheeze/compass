@@ -6,8 +6,8 @@ namespace Maarheeze\Compass\Http;
 
 use Illuminate\Contracts\Translation\Translator;
 use Maarheeze\Compass\Collections\FilterOptionCollection;
-use Maarheeze\Compass\Collections\IssueCollection;
-use Maarheeze\Compass\Collections\PullRequestCollection;
+use Maarheeze\Compass\Models\Builders\IssueBuilder;
+use Maarheeze\Compass\Models\Builders\PullRequestBuilder;
 use Maarheeze\Compass\View\Filter;
 use Webmozart\Assert\Assert;
 
@@ -55,7 +55,7 @@ readonly class AssigneeFilter
         return [self::UNASSIGNED_PARAMETER => self::UNASSIGNED_VALUE];
     }
 
-    public function issues(IssueCollection $issues): IssueCollection
+    public function issues(IssueBuilder $issues): IssueBuilder
     {
         return match (true) {
             $this->selection instanceof Assignee => $issues->assignedTo($this->selection),
@@ -64,7 +64,7 @@ readonly class AssigneeFilter
         };
     }
 
-    public function pullRequests(PullRequestCollection $pullRequests): PullRequestCollection
+    public function pullRequests(PullRequestBuilder $pullRequests): PullRequestBuilder
     {
         return match (true) {
             $this->selection instanceof Assignee => $pullRequests->assignedTo($this->selection),

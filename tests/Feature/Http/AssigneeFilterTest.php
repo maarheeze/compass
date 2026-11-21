@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 use Illuminate\Contracts\Translation\Translator;
 use Maarheeze\Compass\Collections\FilterOptionCollection;
-use Maarheeze\Compass\Collections\IssueAssigneeCollection;
-use Maarheeze\Compass\Collections\IssueCollection;
-use Maarheeze\Compass\Collections\PullRequestAssigneeCollection;
-use Maarheeze\Compass\Collections\PullRequestCollection;
 use Maarheeze\Compass\Http\Assignee;
 use Maarheeze\Compass\Http\AssigneeFilter;
 use Maarheeze\Compass\Models\Issue;
@@ -32,89 +28,73 @@ test('assignees filter holds the assignee filter options', function (): void {
 });
 
 test('issues for everyone are all the issues', function (): void {
-    $issues = new IssueCollection([
-        Issue::factory()->make(),
-        Issue::factory()->make(),
-    ]);
+    $issues = Issue::factory()
+        ->count(2)
+        ->create();
     $assigneeFilter = AssigneeFilter::everyone();
 
-    $filteredIssues = $assigneeFilter->issues($issues);
+    $filteredIssues = $assigneeFilter->issues(Issue::query())->get();
 
-    expect($filteredIssues->all())
-        ->toBe($issues->all());
+    expect($filteredIssues->modelKeys())
+        ->toEqualCanonicalizing($issues->modelKeys());
 });
 
 test('issues on an assignee are the issues assigned to them', function (): void {
-    $assignedIssue = Issue::factory()
-        ->make()
-        ->setRelation('assignees', new IssueAssigneeCollection([IssueAssignee::factory()->make()]));
-    $unassignedIssue = Issue::factory()
-        ->make()
-        ->setRelation('assignees', new IssueAssigneeCollection());
-    $assigneeFilter = AssigneeFilter::onAssignee(new Assignee($assignedIssue->source, $assignedIssue->assignees->sole()->login));
+    $assignedIssue = Issue::factory()->create();
+    $issueAssignee = IssueAssignee::factory()->create(['issue_id' => $assignedIssue->id]);
+    Issue::factory()->create();
+    $assigneeFilter = AssigneeFilter::onAssignee(new Assignee($assignedIssue->source, $issueAssignee->login));
 
-    $filteredIssues = $assigneeFilter->issues(new IssueCollection([$assignedIssue, $unassignedIssue]));
+    $filteredIssues = $assigneeFilter->issues(Issue::query())->get();
 
-    expect($filteredIssues->sole())
-        ->toBe($assignedIssue);
+    expect($filteredIssues->sole()->is($assignedIssue))
+        ->toBeTrue();
 });
 
 test('pull requests for everyone are all the pull requests', function (): void {
-    $pullRequests = new PullRequestCollection([
-        PullRequest::factory()->make(),
-        PullRequest::factory()->make(),
-    ]);
+    $pullRequests = PullRequest::factory()
+        ->count(2)
+        ->create();
     $assigneeFilter = AssigneeFilter::everyone();
 
-    $filteredPullRequests = $assigneeFilter->pullRequests($pullRequests);
+    $filteredPullRequests = $assigneeFilter->pullRequests(PullRequest::query())->get();
 
-    expect($filteredPullRequests->all())
-        ->toBe($pullRequests->all());
+    expect($filteredPullRequests->modelKeys())
+        ->toEqualCanonicalizing($pullRequests->modelKeys());
 });
 
 test('pull requests on an assignee are the pull requests assigned to them', function (): void {
-    $assignedPullRequest = PullRequest::factory()
-        ->make()
-        ->setRelation('assignees', new PullRequestAssigneeCollection([PullRequestAssignee::factory()->make()]));
-    $unassignedPullRequest = PullRequest::factory()
-        ->make()
-        ->setRelation('assignees', new PullRequestAssigneeCollection());
-    $assigneeFilter = AssigneeFilter::onAssignee(new Assignee($assignedPullRequest->source, $assignedPullRequest->assignees->sole()->login));
+    $assignedPullRequest = PullRequest::factory()->create();
+    $pullRequestAssignee = PullRequestAssignee::factory()->create(['pull_request_id' => $assignedPullRequest->id]);
+    PullRequest::factory()->create();
+    $assigneeFilter = AssigneeFilter::onAssignee(new Assignee($assignedPullRequest->source, $pullRequestAssignee->login));
 
-    $filteredPullRequests = $assigneeFilter->pullRequests(new PullRequestCollection([$assignedPullRequest, $unassignedPullRequest]));
+    $filteredPullRequests = $assigneeFilter->pullRequests(PullRequest::query())->get();
 
-    expect($filteredPullRequests->sole())
-        ->toBe($assignedPullRequest);
+    expect($filteredPullRequests->sole()->is($assignedPullRequest))
+        ->toBeTrue();
 });
 
 test('issues unassigned are the issues without an assignee', function (): void {
-    $assignedIssue = Issue::factory()
-        ->make()
-        ->setRelation('assignees', new IssueAssigneeCollection([IssueAssignee::factory()->make()]));
-    $unassignedIssue = Issue::factory()
-        ->make()
-        ->setRelation('assignees', new IssueAssigneeCollection());
+    IssueAssignee::factory()->create();
+    $unassignedIssue = Issue::factory()->create();
     $assigneeFilter = AssigneeFilter::unassigned();
 
-    $filteredIssues = $assigneeFilter->issues(new IssueCollection([$assignedIssue, $unassignedIssue]));
+    $filteredIssues = $assigneeFilter->issues(Issue::query())->get();
 
-    expect($filteredIssues->sole())
-        ->toBe($unassignedIssue);
+    expect($filteredIssues->sole()->is($unassignedIssue))
+        ->toBeTrue();
 });
 
 test('pull requests unassigned are the pull requests without an assignee', function (): void {
-    $assignedPullRequest = PullRequest::factory()
-        ->make()
-        ->setRelation('assignees', new PullRequestAssigneeCollection([PullRequestAssignee::factory()->make()]));
-    $unassignedPullRequest = PullRequest::factory()
-        ->make()
-        ->setRelation('assignees', new PullRequestAssigneeCollection());
+    PullRequestAssignee::factory()->create();
+    $unassignedPullRequest = PullRequest::factory()->create();
     $assigneeFilter = AssigneeFilter::unassigned();
 
-    $filteredPullRequests = $assigneeFilter->pullRequests(new PullRequestCollection([$assignedPullRequest, $unassignedPullRequest]));
+    $filteredPullRequests = $assigneeFilter->pullRequests(PullRequest::query())->get();
 
-    expect($filteredPullRequests->sole())
-        ->toBe($unassignedPullRequest);
+    expect($filteredPullRequests->sole()->is($unassignedPullRequest))
+        ->toBeTrue();
 });
 
 test('unassigned route parameters filter on unassigned', function (): void {

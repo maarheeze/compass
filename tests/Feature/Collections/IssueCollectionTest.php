@@ -37,34 +37,6 @@ test('assignee filter options count the issues per assignee', function (): void 
         ]);
 });
 
-test('assigned to is the issues of the source assigned to the login', function (): void {
-    $assignedIssue = Issue::factory()
-        ->make()
-        ->setRelation('assignees', new IssueAssigneeCollection([IssueAssignee::factory()->make()]));
-    $unassignedIssue = Issue::factory()
-        ->make()
-        ->setRelation('assignees', new IssueAssigneeCollection());
-    $issues = new IssueCollection([$assignedIssue, $unassignedIssue]);
-
-    $issuesAssignedTo = $issues->assignedTo(new Assignee($assignedIssue->source, $assignedIssue->assignees->sole()->login));
-
-    expect($issuesAssignedTo->sole())
-        ->toBe($assignedIssue);
-});
-
-test('assigned to leaves out the issues of another source assigned to the same login', function (): void {
-    $login = fake()->userName();
-    $issue = Issue::factory()
-        ->make(['source' => fake()->unique()->slug()])
-        ->setRelation('assignees', new IssueAssigneeCollection([IssueAssignee::factory()->make(['login' => $login])]));
-    $issues = new IssueCollection([$issue]);
-
-    $issuesAssignedTo = $issues->assignedTo(new Assignee(fake()->unique()->slug(), $login));
-
-    expect($issuesAssignedTo)
-        ->toBeEmpty();
-});
-
 test('assignee filter options start with the issues without an assignee', function (): void {
     $issues = new IssueCollection([
         Issue::factory()

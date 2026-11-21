@@ -3,12 +3,12 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Types\SiteBehind;
 use Maarheeze\Compass\Alerts\Types\SiteMissing;
 use Maarheeze\Compass\Collections\AlertCheckCollection;
 use Maarheeze\Compass\Collections\AlertCollection;
-use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCollection;
 use Maarheeze\Compass\Http\RouteName;
@@ -29,7 +29,7 @@ test('index contains the sites', function (): void {
 
     $response = $this->get(route(RouteName::SITES));
 
-    $response->assertViewHas('sites', static function (SiteCollection $viewSites) use ($site): bool {
+    $response->assertViewHas('sites', static function (LengthAwarePaginator $viewSites) use ($site): bool {
         return $viewSites->sole()->is($site);
     });
 });
@@ -41,7 +41,7 @@ test('index on a server contains only the sites on that server', function (): vo
 
     $response = $this->get(route(RouteName::SITES, [SiteFilter::SERVER_PARAMETER => $site->server_name]));
 
-    $response->assertViewHas('sites', static function (SiteCollection $viewSites) use ($site): bool {
+    $response->assertViewHas('sites', static function (LengthAwarePaginator $viewSites) use ($site): bool {
         return $viewSites->sole()->is($site);
     });
 });
@@ -53,7 +53,7 @@ test('index on a php version contains only the sites on that php version', funct
 
     $response = $this->get(route(RouteName::SITES, [SiteFilter::PHP_VERSION_PARAMETER => 'php84']));
 
-    $response->assertViewHas('sites', static function (SiteCollection $viewSites) use ($site): bool {
+    $response->assertViewHas('sites', static function (LengthAwarePaginator $viewSites) use ($site): bool {
         return $viewSites->sole()->is($site);
     });
 });
@@ -77,6 +77,32 @@ test('index contains the php version filter of the site filter', function (): vo
 
     $response->assertViewHas('phpVersionFilter', static function (Filter $viewPhpVersionFilter): bool {
         return $viewPhpVersionFilter->options->sole()->queryParameters === [SiteFilter::PHP_VERSION_PARAMETER => 'php84'];
+    });
+});
+
+test('index shows the configured number of sites per page', function (): void {
+    $itemsPerPage = fake()->numberBetween(1, 100);
+    $this->setConfiguration('compass.items_per_page', $itemsPerPage);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::SITES));
+
+    $response->assertViewHas('sites', static function (LengthAwarePaginator $viewSites) use ($itemsPerPage): bool {
+        return $viewSites->perPage() === $itemsPerPage;
+    });
+});
+
+test('index on a server keeps the server on the other pages', function (): void {
+    $site = Site::factory()->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::SITES, [SiteFilter::SERVER_PARAMETER => $site->server_name]));
+
+    $response->assertViewHas('sites', static function (LengthAwarePaginator $viewSites) use ($site): bool {
+        return $viewSites->url(2) === route(RouteName::SITES, [
+            SiteFilter::SERVER_PARAMETER => $site->server_name,
+            'page' => 2,
+        ]);
     });
 });
 

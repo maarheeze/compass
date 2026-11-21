@@ -1,4 +1,4 @@
-@props(['pullRequests'])
+@props(['pullRequests', 'openCount'])
 
 <x-compass::list>
     <x-slot:icon>
@@ -8,7 +8,7 @@
     <x-slot:empty>{{ __('compass::pull-request.none') }}</x-slot:empty>
     <x-slot:counts>
         @if ($pullRequests->isNotEmpty())
-            <x-compass::badge type="neutral">{{ __('compass::pull-request.open_count', ['count' => $pullRequests->count()]) }}</x-compass::badge>
+            <x-compass::badge type="neutral">{{ __('compass::pull-request.open_count', ['count' => $openCount]) }}</x-compass::badge>
         @endif
     </x-slot:counts>
     <x-slot:rows>

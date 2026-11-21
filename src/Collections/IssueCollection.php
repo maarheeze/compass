@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Maarheeze\Compass\Http\Assignee;
 use Maarheeze\Compass\Http\AssigneeFilter;
 use Maarheeze\Compass\Models\Issue;
-use Maarheeze\Compass\Models\IssueAssignee;
 use Maarheeze\Compass\View\FilterOption;
 use Webmozart\Assert\Assert;
 
@@ -18,16 +17,6 @@ use Webmozart\Assert\Assert;
  */
 class IssueCollection extends Collection
 {
-    public function assignedTo(Assignee $assignee): self
-    {
-        return $this->filter(static function (Issue $issue) use ($assignee): bool {
-            return $issue->source === $assignee->source
-                && $issue->assignees->contains(static function (IssueAssignee $issueAssignee) use ($assignee): bool {
-                    return $issueAssignee->login === $assignee->login;
-                });
-        });
-    }
-
     public function assigneeFilterOptions(Translator $translator): FilterOptionCollection
     {
         $assigneeFilterOptions = new FilterOptionCollection();

@@ -25,13 +25,26 @@ test('option url replaces the current choice of the filter', function (): void {
     $filterOption = new FilterOption(fake()->word(), fake()->randomDigitNotZero(), ['unassigned' => 'true'], null);
     $filterSection = $this->app->make(FilterSection::class, [
         'filter' => new Filter(fake()->word(), ['source', 'assignee', 'unassigned'], new FilterOptionCollection([$filterOption])),
-        'request' => Request::create('https://compass.test/issues?source=github&assignee=octocat&page=2'),
+        'request' => Request::create('https://compass.test/issues?source=github&assignee=octocat'),
     ]);
 
     $optionUrl = $filterSection->optionUrl($filterOption);
 
     expect($optionUrl)
-        ->toBe('https://compass.test/issues?page=2&unassigned=true');
+        ->toBe('https://compass.test/issues?unassigned=true');
+});
+
+test('option url starts at the first page', function (): void {
+    $filterOption = new FilterOption(fake()->word(), fake()->randomDigitNotZero(), ['unassigned' => 'true'], null);
+    $filterSection = $this->app->make(FilterSection::class, [
+        'filter' => new Filter(fake()->word(), ['source', 'assignee', 'unassigned'], new FilterOptionCollection([$filterOption])),
+        'request' => Request::create('https://compass.test/issues?page=2'),
+    ]);
+
+    $optionUrl = $filterSection->optionUrl($filterOption);
+
+    expect($optionUrl)
+        ->toBe('https://compass.test/issues?unassigned=true');
 });
 
 test('is selected is true when the page has every query parameter of the option', function (): void {
