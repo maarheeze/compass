@@ -22,6 +22,8 @@ Import Compass's JavaScript in the host's `resources/js/app.js`, after Echo if t
 import '../../vendor/maarheeze/compass/resources/js/compass.js';
 ```
 
+The sites Compass monitors can install [maarheeze/compass-client-laravel](https://github.com/maarheeze/compass-client-laravel) to report their debug mode, environment, maintenance mode and endpoints; see [Compass client](#compass-client).
+
 ## Signing in
 
 People sign in with their GitHub account. Register an OAuth App under the organisation's developer settings on GitHub, with as its callback URL the host's address followed by `/auth/github/callback`, after `COMPASS_PATH` when Compass is not served from the root:
