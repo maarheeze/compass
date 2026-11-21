@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Models\Builders;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Maarheeze\Compass\Analyser\Composer\RepositoryKind;
 use Maarheeze\Compass\Collections\RepositoryCollection;
+use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
+use Maarheeze\Compass\Http\ItemsPerPage;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 use Webmozart\Assert\Assert;
@@ -40,14 +44,18 @@ class RepositoryBuilder extends Builder
 
     public function listed(): RepositoryCollection
     {
-        return Assert::isInstanceOf(
-            $this
-                ->with('composerJson')
-                ->withCount(['issues', 'pullRequests'])
-                ->orderBy('name')
-                ->get(),
-            RepositoryCollection::class,
-        );
+        return Assert::isInstanceOf($this->inListedOrder()->get(), RepositoryCollection::class);
+    }
+
+    /**
+     * @return LengthAwarePaginator<int, Repository>
+     */
+    public function listedPage(ItemsPerPage $itemsPerPage): LengthAwarePaginator
+    {
+        return $this
+            ->inListedOrder()
+            ->paginate($itemsPerPage->value)
+            ->withQueryString();
     }
 
     public function missing(): self
@@ -83,14 +91,70 @@ class RepositoryBuilder extends Builder
         return $this->whereIn('full_name', $fullNames);
     }
 
+    public function ofKind(RepositoryKind $kind): self
+    {
+        $composerType = $kind->composerType();
+
+        if ($composerType === null) {
+            return $this->whereNot(static function (self $repositoryOfKindWithComposerTypeQuery): void {
+                $repositoryOfKindWithComposerTypeQuery->ofComposerTypes(self::composerTypesOfKinds());
+            });
+        }
+
+        return $this->ofComposerTypes([$composerType]);
+    }
+
     public function ofSource(string $source): self
     {
         return $this->where('source', $source);
     }
 
+    public function ofVisibility(RepositoryVisibility $visibility): self
+    {
+        return $this->where('visibility', $visibility);
+    }
+
     public function returnedByRun(Uuid $runId): self
     {
         return $this->where('run_id', $runId);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function composerTypesOfKinds(): array
+    {
+        $composerTypesOfKinds = [];
+
+        foreach (RepositoryKind::cases() as $kind) {
+            $composerType = $kind->composerType();
+
+            if ($composerType !== null) {
+                $composerTypesOfKinds[] = $composerType;
+            }
+        }
+
+        return $composerTypesOfKinds;
+    }
+
+    private function inListedOrder(): self
+    {
+        return $this
+            ->with('composerJson')
+            ->withCount(['issues', 'pullRequests'])
+            ->orderBy('name');
+    }
+
+    /**
+     * @param list<string> $composerTypes
+     */
+    private function ofComposerTypes(array $composerTypes): self
+    {
+        return $this
+            ->whereNotNull('composer_json_version')
+            ->whereHas('composerJson', static function (Builder $composerJsonQuery) use ($composerTypes): void {
+                $composerJsonQuery->whereIn('type', $composerTypes);
+            });
     }
 
     private function storedFileOutOfDate(string $versionColumn, string $storedFileRelation): self

@@ -12,7 +12,6 @@ use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
 use Maarheeze\Compass\Http\RepositoryFilter;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\View\FilterOption;
-use Maarheeze\Compass\View\RepositoryGroup;
 use Webmozart\Assert\Assert;
 
 /**
@@ -50,20 +49,6 @@ class RepositoryCollection extends Collection
         return $this->filter(static function (Repository $repository) use ($visibility): bool {
             return $repository->visibility === $visibility;
         });
-    }
-
-    /**
-     * @param list<RepositoryKind> $kinds
-     */
-    public function repositoryGroups(array $kinds, RepositoryKindClassifier $repositoryKindClassifier): RepositoryGroupCollection
-    {
-        $repositoryGroups = new RepositoryGroupCollection();
-
-        foreach ($kinds as $kind) {
-            $repositoryGroups->push(new RepositoryGroup($kind, $this->ofKind($kind, $repositoryKindClassifier)));
-        }
-
-        return $repositoryGroups;
     }
 
     public function visibilityFilterOptions(Translator $translator): FilterOptionCollection

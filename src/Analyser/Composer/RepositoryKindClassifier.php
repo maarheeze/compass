@@ -14,10 +14,14 @@ readonly class RepositoryKindClassifier
             return RepositoryKind::OTHER;
         }
 
-        return match ($repository->composerJson?->type) {
-            'library' => RepositoryKind::LIBRARY,
-            'project' => RepositoryKind::PROJECT,
-            default => RepositoryKind::OTHER,
-        };
+        $composerType = $repository->composerJson?->type;
+
+        foreach (RepositoryKind::cases() as $kind) {
+            if ($composerType !== null && $kind->composerType() === $composerType) {
+                return $kind;
+            }
+        }
+
+        return RepositoryKind::OTHER;
     }
 }

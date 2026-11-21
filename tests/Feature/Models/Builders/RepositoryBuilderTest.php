@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Collection;
+use Maarheeze\Compass\Analyser\Composer\RepositoryKind;
+use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
+use Maarheeze\Compass\Http\ItemsPerPage;
 use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\ComposerLock;
 use Maarheeze\Compass\Models\DependabotYml;
@@ -386,4 +389,131 @@ test('listed is the repositories in the order of their name', function (): void 
 
     expect($listedRepositories->modelKeys())
         ->toEqual([$alphaRepository->getKey(), $bravoRepository->getKey()]);
+});
+
+test('listed page is the repositories in the order of their name', function (): void {
+    $bravoRepository = Repository::factory()->create(['name' => 'bravo']);
+    $alphaRepository = Repository::factory()->create(['name' => 'alpha']);
+
+    $listedRepositoriesPage = Repository::query()->listedPage(new ItemsPerPage(fake()->numberBetween(2, 100)));
+
+    expect($listedRepositoriesPage->getCollection()->modelKeys())
+        ->toEqual([$alphaRepository->getKey(), $bravoRepository->getKey()]);
+});
+
+test('listed page has the given number of repositories per page', function (): void {
+    $itemsPerPage = fake()->numberBetween(1, 100);
+
+    $listedRepositoriesPage = Repository::query()->listedPage(new ItemsPerPage($itemsPerPage));
+
+    expect($listedRepositoriesPage->perPage())
+        ->toBe($itemsPerPage);
+});
+
+test('of kind keeps a repository whose composer.json has the type of the kind', function (): void {
+    $libraryRepository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
+    ComposerJson::factory()->create([
+        'repository_id' => $libraryRepository->id,
+        'type' => 'library',
+    ]);
+
+    $libraryRepositories = Repository::query()
+        ->ofKind(RepositoryKind::LIBRARY)
+        ->get();
+
+    expect($libraryRepositories->sole()->is($libraryRepository))
+        ->toBeTrue();
+});
+
+test('of kind leaves out a repository whose composer.json has the type of another kind', function (): void {
+    $projectRepository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
+    ComposerJson::factory()->create([
+        'repository_id' => $projectRepository->id,
+        'type' => 'project',
+    ]);
+
+    $libraryRepositories = Repository::query()
+        ->ofKind(RepositoryKind::LIBRARY)
+        ->get();
+
+    expect($libraryRepositories)
+        ->toBeEmpty();
+});
+
+test('of kind leaves out a repository whose composer.json was removed', function (): void {
+    $repository = Repository::factory()->create(['composer_json_version' => null]);
+    ComposerJson::factory()->create([
+        'repository_id' => $repository->id,
+        'type' => 'library',
+    ]);
+
+    $libraryRepositories = Repository::query()
+        ->ofKind(RepositoryKind::LIBRARY)
+        ->get();
+
+    expect($libraryRepositories)
+        ->toBeEmpty();
+});
+
+test('of other kind keeps a repository without a composer.json', function (): void {
+    $repository = Repository::factory()->create(['composer_json_version' => null]);
+
+    $otherRepositories = Repository::query()
+        ->ofKind(RepositoryKind::OTHER)
+        ->get();
+
+    expect($otherRepositories->sole()->is($repository))
+        ->toBeTrue();
+});
+
+test('of other kind keeps a repository whose composer.json has no type of a kind', function (): void {
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
+    ComposerJson::factory()->create([
+        'repository_id' => $repository->id,
+        'type' => fake()->optional()->passthrough('metapackage'),
+    ]);
+
+    $otherRepositories = Repository::query()
+        ->ofKind(RepositoryKind::OTHER)
+        ->get();
+
+    expect($otherRepositories->sole()->is($repository))
+        ->toBeTrue();
+});
+
+test('of other kind leaves out a repository whose composer.json has the type of a kind', function (): void {
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
+    ComposerJson::factory()->create([
+        'repository_id' => $repository->id,
+        'type' => fake()->randomElement(['library', 'project']),
+    ]);
+
+    $otherRepositories = Repository::query()
+        ->ofKind(RepositoryKind::OTHER)
+        ->get();
+
+    expect($otherRepositories)
+        ->toBeEmpty();
+});
+
+test('of visibility keeps a repository of the visibility', function (): void {
+    $privateRepository = Repository::factory()->create(['visibility' => RepositoryVisibility::PRIVATE]);
+
+    $privateRepositories = Repository::query()
+        ->ofVisibility(RepositoryVisibility::PRIVATE)
+        ->get();
+
+    expect($privateRepositories->sole()->is($privateRepository))
+        ->toBeTrue();
+});
+
+test('of visibility leaves out a repository of another visibility', function (): void {
+    Repository::factory()->create(['visibility' => RepositoryVisibility::PUBLIC]);
+
+    $privateRepositories = Repository::query()
+        ->ofVisibility(RepositoryVisibility::PRIVATE)
+        ->get();
+
+    expect($privateRepositories)
+        ->toBeEmpty();
 });

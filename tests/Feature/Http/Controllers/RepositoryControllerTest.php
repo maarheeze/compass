@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Types\ComposerLibraryWithLock;
 use Maarheeze\Compass\Alerts\Types\ComposerProjectWithoutLock;
@@ -13,7 +14,6 @@ use Maarheeze\Compass\Collections\ComposerJsonPackageCollection;
 use Maarheeze\Compass\Collections\ComposerLockPackageCollection;
 use Maarheeze\Compass\Collections\IssueCollection;
 use Maarheeze\Compass\Collections\PullRequestCollection;
-use Maarheeze\Compass\Collections\RepositoryGroupCollection;
 use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collector\Composer\PackageSection;
 use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
@@ -32,145 +32,93 @@ use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 use Maarheeze\Compass\View\Filter;
 use Maarheeze\Compass\View\FilterOption;
-use Maarheeze\Compass\View\RepositoryGroup;
 
-test('index contains the projects', function (): void {
-    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
-    ComposerJson::factory()->create([
-        'repository_id' => $repository->id,
-        'type' => 'project',
-    ]);
+test('index contains the repositories', function (): void {
+    $repository = Repository::factory()->create();
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
     $response = $this->get(route(RouteName::REPOSITORIES));
 
-    $response->assertViewHas(
-        'repositoryGroups',
-        static function (RepositoryGroupCollection $viewRepositoryGroups) use ($repository): bool {
-            $projectGroup = $viewRepositoryGroups->firstOrFail(static function (RepositoryGroup $repositoryGroup): bool {
-                return $repositoryGroup->kind === RepositoryKind::PROJECT;
-            });
-
-            return $projectGroup->repositories->sole()->is($repository);
-        },
-    );
-});
-
-test('index contains the libraries', function (): void {
-    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
-    ComposerJson::factory()->create([
-        'repository_id' => $repository->id,
-        'type' => 'library',
-    ]);
-    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
-
-    $response = $this->get(route(RouteName::REPOSITORIES));
-
-    $response->assertViewHas(
-        'repositoryGroups',
-        static function (RepositoryGroupCollection $viewRepositoryGroups) use ($repository): bool {
-            $libraryGroup = $viewRepositoryGroups->firstOrFail(static function (RepositoryGroup $repositoryGroup): bool {
-                return $repositoryGroup->kind === RepositoryKind::LIBRARY;
-            });
-
-            return $libraryGroup->repositories->sole()->is($repository);
-        },
-    );
-});
-
-test('index contains the other repositories', function (): void {
-    $repository = Repository::factory()->create(['composer_json_version' => null]);
-    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
-
-    $response = $this->get(route(RouteName::REPOSITORIES));
-
-    $response->assertViewHas(
-        'repositoryGroups',
-        static function (RepositoryGroupCollection $viewRepositoryGroups) use ($repository): bool {
-            $otherGroup = $viewRepositoryGroups->firstOrFail(static function (RepositoryGroup $repositoryGroup): bool {
-                return $repositoryGroup->kind === RepositoryKind::OTHER;
-            });
-
-            return $otherGroup->repositories->sole()->is($repository);
-        },
-    );
+    $response->assertViewHas('repositories', static function (LengthAwarePaginator $viewRepositories) use ($repository): bool {
+        return $viewRepositories->sole()->is($repository);
+    });
 });
 
 test('index counts the issues of the repositories', function (): void {
-    $repository = Repository::factory()->create(['composer_json_version' => null]);
+    $repository = Repository::factory()->create();
     Issue::factory()->create(['repository_id' => $repository->id]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
     $response = $this->get(route(RouteName::REPOSITORIES));
 
-    $response->assertViewHas(
-        'repositoryGroups',
-        static function (RepositoryGroupCollection $viewRepositoryGroups): bool {
-            $otherGroup = $viewRepositoryGroups->firstOrFail(static function (RepositoryGroup $repositoryGroup): bool {
-                return $repositoryGroup->kind === RepositoryKind::OTHER;
-            });
-
-            return $otherGroup->repositories->sole()->issues_count === 1;
-        },
-    );
+    $response->assertViewHas('repositories', static function (LengthAwarePaginator $viewRepositories): bool {
+        return $viewRepositories->sole()->issues_count === 1;
+    });
 });
 
 test('index counts the pull requests of the repositories', function (): void {
-    $repository = Repository::factory()->create(['composer_json_version' => null]);
+    $repository = Repository::factory()->create();
     PullRequest::factory()->create(['repository_id' => $repository->id]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
     $response = $this->get(route(RouteName::REPOSITORIES));
 
-    $response->assertViewHas(
-        'repositoryGroups',
-        static function (RepositoryGroupCollection $viewRepositoryGroups): bool {
-            $otherGroup = $viewRepositoryGroups->firstOrFail(static function (RepositoryGroup $repositoryGroup): bool {
-                return $repositoryGroup->kind === RepositoryKind::OTHER;
-            });
-
-            return $otherGroup->repositories->sole()->pull_requests_count === 1;
-        },
-    );
+    $response->assertViewHas('repositories', static function (LengthAwarePaginator $viewRepositories): bool {
+        return $viewRepositories->sole()->pull_requests_count === 1;
+    });
 });
 
-test('index on a kind contains only the group of that kind', function (): void {
+test('index on a kind contains only the repositories of that kind', function (): void {
+    $repository = Repository::factory()->create(['composer_json_version' => fake()->sha1()]);
+    ComposerJson::factory()->create([
+        'repository_id' => $repository->id,
+        'type' => 'library',
+    ]);
     Repository::factory()->create(['composer_json_version' => null]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
-    $response = $this->get(route(RouteName::REPOSITORIES, [RepositoryFilter::KIND_PARAMETER => RepositoryKind::OTHER->value]));
+    $response = $this->get(route(RouteName::REPOSITORIES, [RepositoryFilter::KIND_PARAMETER => RepositoryKind::LIBRARY->value]));
 
-    $response->assertViewHas(
-        'repositoryGroups',
-        static function (RepositoryGroupCollection $viewRepositoryGroups): bool {
-            return $viewRepositoryGroups->sole()->kind === RepositoryKind::OTHER;
-        },
-    );
+    $response->assertViewHas('repositories', static function (LengthAwarePaginator $viewRepositories) use ($repository): bool {
+        return $viewRepositories->sole()->is($repository);
+    });
 });
 
 test('index on a visibility contains only the repositories of that visibility', function (): void {
-    $repository = Repository::factory()->create([
-        'composer_json_version' => null,
-        'visibility' => RepositoryVisibility::PRIVATE,
-    ]);
-    Repository::factory()->create([
-        'composer_json_version' => null,
-        'visibility' => RepositoryVisibility::PUBLIC,
-    ]);
+    $repository = Repository::factory()->create(['visibility' => RepositoryVisibility::PRIVATE]);
+    Repository::factory()->create(['visibility' => RepositoryVisibility::PUBLIC]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
     $response = $this->get(route(RouteName::REPOSITORIES, [RepositoryFilter::VISIBILITY_PARAMETER => RepositoryVisibility::PRIVATE->value]));
 
-    $response->assertViewHas(
-        'repositoryGroups',
-        static function (RepositoryGroupCollection $viewRepositoryGroups) use ($repository): bool {
-            $otherGroup = $viewRepositoryGroups->firstOrFail(static function (RepositoryGroup $repositoryGroup): bool {
-                return $repositoryGroup->kind === RepositoryKind::OTHER;
-            });
+    $response->assertViewHas('repositories', static function (LengthAwarePaginator $viewRepositories) use ($repository): bool {
+        return $viewRepositories->sole()->is($repository);
+    });
+});
 
-            return $otherGroup->repositories->sole()->is($repository);
-        },
-    );
+test('index shows the configured number of repositories per page', function (): void {
+    $itemsPerPage = fake()->numberBetween(1, 100);
+    $this->setConfiguration('compass.items_per_page', $itemsPerPage);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::REPOSITORIES));
+
+    $response->assertViewHas('repositories', static function (LengthAwarePaginator $viewRepositories) use ($itemsPerPage): bool {
+        return $viewRepositories->perPage() === $itemsPerPage;
+    });
+});
+
+test('index on a kind keeps the kind on the other pages', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::REPOSITORIES, [RepositoryFilter::KIND_PARAMETER => RepositoryKind::OTHER->value]));
+
+    $response->assertViewHas('repositories', static function (LengthAwarePaginator $viewRepositories): bool {
+        return $viewRepositories->url(2) === route(RouteName::REPOSITORIES, [
+            RepositoryFilter::KIND_PARAMETER => RepositoryKind::OTHER->value,
+            'page' => 2,
+        ]);
+    });
 });
 
 test('index contains the kind filter of the repository filter', function (): void {

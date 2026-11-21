@@ -11,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Maarheeze\Compass\Analyser\Composer\RepositoryKindClassifier;
 use Maarheeze\Compass\Collector\Repositories\MissingRepositoryResolver;
+use Maarheeze\Compass\Http\ItemsPerPage;
 use Maarheeze\Compass\Http\Requests\RepositoryFilterRequest;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\AlertCheck;
@@ -22,6 +23,7 @@ use Throwable;
 readonly class RepositoryController
 {
     public function __construct(
+        private ItemsPerPage $itemsPerPage,
         private MissingRepositoryResolver $missingRepositoryResolver,
         private Redirector $redirector,
         private RepositoryKindClassifier $repositoryKindClassifier,
@@ -49,13 +51,14 @@ readonly class RepositoryController
 
     public function index(RepositoryFilterRequest $repositoryFilterRequest): View
     {
-        $repositories = Repository::query()->listed();
         $repositoryFilter = $repositoryFilterRequest->repositoryFilter();
 
         return $this->view->make('compass::repositories.index', [
-            'kindFilter' => $repositoryFilter->kindFilter($repositories, $this->repositoryKindClassifier, $this->translator),
-            'repositoryGroups' => $repositoryFilter->repositoryGroups($repositories, $this->repositoryKindClassifier),
-            'visibilityFilter' => $repositoryFilter->visibilityFilter($repositories, $this->repositoryKindClassifier, $this->translator),
+            'kindFilter' => $repositoryFilter->kindFilter(Repository::query(), $this->repositoryKindClassifier, $this->translator),
+            'repositories' => $repositoryFilter
+                ->repositories(Repository::query())
+                ->listedPage($this->itemsPerPage),
+            'visibilityFilter' => $repositoryFilter->visibilityFilter(Repository::query(), $this->translator),
         ]);
     }
 

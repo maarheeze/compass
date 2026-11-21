@@ -11,7 +11,6 @@ use Maarheeze\Compass\Http\RepositoryFilter;
 use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\View\FilterOption;
-use Maarheeze\Compass\View\RepositoryGroup;
 
 test('kind filter options count the repositories per kind in display order', function (): void {
     $repositories = new RepositoryCollection([
@@ -76,31 +75,4 @@ test('visibility filter options count the repositories per visibility in display
             new FilterOption('Private', 0, [RepositoryFilter::VISIBILITY_PARAMETER => RepositoryVisibility::PRIVATE->value], null),
             new FilterOption('Internal', 1, [RepositoryFilter::VISIBILITY_PARAMETER => RepositoryVisibility::INTERNAL->value], null),
         ]);
-});
-
-test('repository groups are a group per kind in the order of the kinds', function (): void {
-    $repositories = new RepositoryCollection();
-
-    $repositoryGroups = $repositories->repositoryGroups(
-        [RepositoryKind::OTHER, RepositoryKind::PROJECT],
-        $this->app->make(RepositoryKindClassifier::class),
-    );
-
-    expect($repositoryGroups->map(static function (RepositoryGroup $repositoryGroup): RepositoryKind {
-        return $repositoryGroup->kind;
-    })->all())
-        ->toBe([RepositoryKind::OTHER, RepositoryKind::PROJECT]);
-});
-
-test('repository groups hold the repositories of their kind', function (): void {
-    $otherRepository = Repository::factory()->make(['composer_json_version' => null]);
-    $repositories = new RepositoryCollection([$otherRepository]);
-
-    $repositoryGroups = $repositories->repositoryGroups(
-        [RepositoryKind::OTHER],
-        $this->app->make(RepositoryKindClassifier::class),
-    );
-
-    expect($repositoryGroups->sole()->repositories->sole())
-        ->toBe($otherRepository);
 });

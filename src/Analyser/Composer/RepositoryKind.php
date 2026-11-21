@@ -20,6 +20,15 @@ enum RepositoryKind: string implements LabelledEnum
         self::OTHER,
     ];
 
+    public function composerType(): ?string
+    {
+        return match ($this) {
+            self::LIBRARY => 'library',
+            self::OTHER => null,
+            self::PROJECT => 'project',
+        };
+    }
+
     public function labelKey(): string
     {
         return sprintf('compass::repository-kind.%s', $this->name);
