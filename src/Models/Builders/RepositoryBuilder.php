@@ -9,6 +9,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Maarheeze\Compass\Analyser\Composer\RepositoryKind;
 use Maarheeze\Compass\Collections\RepositoryCollection;
+use Maarheeze\Compass\Collector\Composer\ComposerType;
 use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
 use Maarheeze\Compass\Http\ItemsPerPage;
 use Maarheeze\Compass\Models\Repository;
@@ -96,8 +97,8 @@ class RepositoryBuilder extends Builder
         $composerType = $kind->composerType();
 
         if ($composerType === null) {
-            return $this->whereNot(static function (self $repositoryOfKindWithComposerTypeQuery): void {
-                $repositoryOfKindWithComposerTypeQuery->ofComposerTypes(self::composerTypesOfKinds());
+            return $this->whereNot(static function (self $repositoryOfComposerTypeQuery): void {
+                $repositoryOfComposerTypeQuery->ofComposerTypes(ComposerType::cases());
             });
         }
 
@@ -119,24 +120,6 @@ class RepositoryBuilder extends Builder
         return $this->where('run_id', $runId);
     }
 
-    /**
-     * @return list<string>
-     */
-    private static function composerTypesOfKinds(): array
-    {
-        $composerTypesOfKinds = [];
-
-        foreach (RepositoryKind::cases() as $kind) {
-            $composerType = $kind->composerType();
-
-            if ($composerType !== null) {
-                $composerTypesOfKinds[] = $composerType;
-            }
-        }
-
-        return $composerTypesOfKinds;
-    }
-
     private function inListedOrder(): self
     {
         return $this
@@ -146,7 +129,7 @@ class RepositoryBuilder extends Builder
     }
 
     /**
-     * @param list<string> $composerTypes
+     * @param list<ComposerType> $composerTypes
      */
     private function ofComposerTypes(array $composerTypes): self
     {

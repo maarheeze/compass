@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Analyser\Composer;
 
+use Maarheeze\Compass\Collector\Composer\ComposerType;
 use Maarheeze\Compass\View\LabelledEnum;
 
 use function sprintf;
@@ -14,19 +15,25 @@ enum RepositoryKind: string implements LabelledEnum
     case OTHER = 'other';
     case PROJECT = 'project';
 
-    public const array DISPLAY_ORDER = [
-        self::PROJECT,
-        self::LIBRARY,
-        self::OTHER,
-    ];
-
-    public function composerType(): ?string
+    public function composerType(): ?ComposerType
     {
         return match ($this) {
-            self::LIBRARY => 'library',
+            self::LIBRARY => ComposerType::LIBRARY,
             self::OTHER => null,
-            self::PROJECT => 'project',
+            self::PROJECT => ComposerType::PROJECT,
         };
+    }
+
+    /**
+     * @return list<self>
+     */
+    public static function displayOrder(): array
+    {
+        return [
+            self::PROJECT,
+            self::LIBRARY,
+            self::OTHER,
+        ];
     }
 
     public function labelKey(): string

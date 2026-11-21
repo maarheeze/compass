@@ -14,11 +14,17 @@ enum RepositoryVisibility: string implements LabelledEnum
     case PRIVATE = 'private';
     case PUBLIC = 'public';
 
-    public const array DISPLAY_ORDER = [
-        self::PUBLIC,
-        self::PRIVATE,
-        self::INTERNAL,
-    ];
+    /**
+     * @return list<self>
+     */
+    public static function displayOrder(): array
+    {
+        return [
+            self::PUBLIC,
+            self::PRIVATE,
+            self::INTERNAL,
+        ];
+    }
 
     public function labelKey(): string
     {

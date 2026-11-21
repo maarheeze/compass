@@ -25,7 +25,7 @@ class RepositoryCollection extends Collection
     ): FilterOptionCollection {
         $kindFilterOptions = new FilterOptionCollection();
 
-        foreach (RepositoryKind::DISPLAY_ORDER as $kind) {
+        foreach (RepositoryKind::displayOrder() as $kind) {
             $kindFilterOptions->push(new FilterOption(
                 Assert::string($translator->get($kind->labelKey())),
                 $this->ofKind($kind, $repositoryKindClassifier)->count(),
@@ -55,7 +55,7 @@ class RepositoryCollection extends Collection
     {
         $visibilityFilterOptions = new FilterOptionCollection();
 
-        foreach (RepositoryVisibility::DISPLAY_ORDER as $visibility) {
+        foreach (RepositoryVisibility::displayOrder() as $visibility) {
             $visibilityFilterOptions->push(new FilterOption(
                 Assert::string($translator->get($visibility->labelKey())),
                 $this->ofVisibility($visibility)->count(),
