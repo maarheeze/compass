@@ -25,3 +25,12 @@ test('does not render for a site without a report in maintenance mode', function
     expect($siteMaintenanceModeBadge->shouldRender())
         ->toBeFalse();
 });
+
+test('render renders the site maintenance mode badge view', function (): void {
+    $site = Site::factory()->create();
+
+    $siteMaintenanceModeBadge = $this->app->make(SiteMaintenanceModeBadge::class, ['site' => $site]);
+
+    expect($siteMaintenanceModeBadge->render()->name())
+        ->toBe('compass::components.site-maintenance-mode-badge');
+});

@@ -6,13 +6,9 @@
         <x-compass::site-missing-notice :site="$site" />
 
         <div class="space-y-1">
-            <div class="flex items-center gap-3">
-                <x-compass::subject-name :subject="$site">
-                    <h1 class="text-lg font-semibold text-foreground">{{ $site->name }}</h1>
-                </x-compass::subject-name>
-                <x-compass::deployment-state-badge :site="$site" />
-                <x-compass::site-maintenance-mode-badge :site="$site" />
-            </div>
+            <x-compass::site-title :site="$site">
+                <h1 class="text-lg font-semibold text-foreground">{{ $site->name }}</h1>
+            </x-compass::site-title>
             <a href="{{ $site->url }}" target="_blank" rel="noopener" class="text-sm text-accent hover:underline">{{ $site->url }}</a>
         </div>
 

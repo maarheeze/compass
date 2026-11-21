@@ -5,11 +5,9 @@
     <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
         <x-compass::repository-missing-notice :repository="$repository" />
 
-        <div class="flex items-center gap-3">
-            <x-compass::subject-name :subject="$repository">
-                <h1 class="text-lg font-semibold text-foreground">{{ $repository->name }}</h1>
-            </x-compass::subject-name>
-        </div>
+        <x-compass::repository-title :repository="$repository">
+            <h1 class="text-lg font-semibold text-foreground">{{ $repository->name }}</h1>
+        </x-compass::repository-title>
 
         <x-compass::page-columns>
             <x-compass::alert-table :alerts="$alerts" data-compass-live-region="alerts" />

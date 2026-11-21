@@ -1,15 +1,8 @@
 <tr>
     <td class="px-4 py-3">
-        <x-compass::subject-name :subject="$site">
+        <x-compass::site-title :site="$site">
             <a href="{{ $url }}" class="truncate text-base font-semibold text-foreground hover:text-accent">{{ $site->name }}</a>
-            <x-compass::deployment-state-badge :site="$site" />
-            <x-compass::site-maintenance-mode-badge :site="$site" />
-            @forelse ($site->reports as $siteReport)
-                <x-compass::site-report-status-badge :status="$siteReport->status" />
-            @empty
-                <x-compass::site-report-not-checked-badge />
-            @endforelse
-        </x-compass::subject-name>
+        </x-compass::site-title>
         <div class="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-foreground-muted">
             <span title="{{ $site->server_ip_address }}">{{ $site->server_name }}</span>
             @if ($site->php_version)
