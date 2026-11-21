@@ -6,9 +6,12 @@
         <x-compass::site-missing-notice :site="$site" />
 
         <div class="space-y-1">
-            <x-compass::site-title :site="$site">
-                <h1 class="text-lg font-semibold text-foreground">{{ $site->name }}</h1>
-            </x-compass::site-title>
+            <div class="flex items-center gap-2">
+                <x-compass::site-title :site="$site">
+                    <h1 class="text-lg font-semibold text-foreground">{{ $site->name }}</h1>
+                </x-compass::site-title>
+                <x-compass::source-page-link :source-url="$site->source_url" class="ml-auto" />
+            </div>
             <a href="{{ $site->url }}" target="_blank" rel="noopener" class="text-sm text-accent hover:underline">{{ $site->url }}</a>
         </div>
 
