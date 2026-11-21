@@ -8,9 +8,11 @@ use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Maarheeze\Compass\Collector\Sites\MissingSiteResolver;
 use Maarheeze\Compass\Http\Requests\SiteFilterRequest;
+use Maarheeze\Compass\Http\Requests\UpdateSiteRequest;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\AlertCheck;
@@ -36,6 +38,14 @@ readonly class SiteController
         $this->missingSiteResolver->delete($site);
 
         return $this->redirector->route(RouteName::DASHBOARD);
+    }
+
+    public function edit(Site $site, Request $request): View
+    {
+        return $this->view->make('compass::sites.edit', [
+            'key' => $request->old('key', $site->key),
+            'site' => $site,
+        ]);
     }
 
     public function ignore(Site $site): RedirectResponse
@@ -68,5 +78,12 @@ readonly class SiteController
             'reportedSiteEndpoints' => SiteEndpoint::query()->ofSite($site)->listed(),
             'site' => $site,
         ]);
+    }
+
+    public function update(Site $site, UpdateSiteRequest $updateSiteRequest): RedirectResponse
+    {
+        $site->update($updateSiteRequest->validated());
+
+        return $this->redirector->route(RouteName::SITE, $site);
     }
 }

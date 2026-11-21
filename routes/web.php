@@ -61,7 +61,9 @@ Route::middleware('web')
             Route::prefix('/sites')->group(static function (): void {
                 Route::get('/', [SiteController::class, 'index'])->name(RouteName::SITES);
                 Route::get('/{site}', [SiteController::class, 'show'])->name(RouteName::SITE);
+                Route::patch('/{site}', [SiteController::class, 'update'])->name(RouteName::SITE_UPDATE);
                 Route::delete('/{site}', [SiteController::class, 'delete'])->name(RouteName::SITE_DELETE);
+                Route::get('/{site}/edit', [SiteController::class, 'edit'])->name(RouteName::SITE_EDIT);
                 Route::post('/{site}/ignore', [SiteController::class, 'ignore'])->name(RouteName::SITE_IGNORE);
                 Route::get('/{site}/endpoint-checks/{endpointPath}', [SiteEndpointCheckController::class, 'index'])
                     ->name(RouteName::SITE_ENDPOINT_CHECKS);

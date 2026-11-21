@@ -62,6 +62,10 @@
                             </x-compass::fact>
                         @endif
                     </dl>
+
+                    <p>
+                        <x-compass::site-edit-link :site="$site" />
+                    </p>
                 </x-compass::sidebar-section>
 
                 <x-compass::sidebar-section :title="__('compass::site.deployment')">

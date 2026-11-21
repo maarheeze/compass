@@ -34,9 +34,11 @@ enum RouteName: string
     case SITE = 'compass.site';
     case SITES = 'compass.sites';
     case SITE_DELETE = 'compass.site.delete';
+    case SITE_EDIT = 'compass.site.edit';
     case SITE_ENDPOINT_CHECKS = 'compass.site.endpoint-checks';
     case SITE_ENDPOINT_CHECKS_DELETE = 'compass.site.endpoint-checks.delete';
     case SITE_IGNORE = 'compass.site.ignore';
     case SITE_REPORT_EDIT = 'compass.site.report.edit';
     case SITE_REPORT_UPDATE = 'compass.site.report.update';
+    case SITE_UPDATE = 'compass.site.update';
 }

@@ -268,3 +268,104 @@ test('ignore sends the user back to the dashboard', function (): void {
 
     $response->assertRedirect(route(RouteName::DASHBOARD));
 });
+
+test('edit contains the site', function (): void {
+    $site = Site::factory()->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::SITE_EDIT, $site));
+
+    $response->assertViewHas('site', static function (Site $viewSite) use ($site): bool {
+        return $viewSite->is($site);
+    });
+});
+
+test('edit contains the key of the site', function (): void {
+    $site = Site::factory()->create(['key' => fake()->sha1()]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::SITE_EDIT, $site));
+
+    $response->assertViewHas('key', $site->key);
+});
+
+test('edit contains the key that was entered before a refusal', function (): void {
+    $site = Site::factory()->create();
+    $enteredKey = fake()->lexify('???????');
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->withSession(['_old_input' => ['key' => $enteredKey]])
+        ->get(route(RouteName::SITE_EDIT, $site));
+
+    $response->assertViewHas('key', $enteredKey);
+});
+
+test('edit shows why a key was refused', function (): void {
+    $site = Site::factory()->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->followingRedirects()
+        ->from(route(RouteName::SITE_EDIT, $site))
+        ->patch(route(RouteName::SITE_UPDATE, $site), ['key' => fake()->lexify('???????')]);
+
+    $response->assertSeeText('The key field must be at least 8 characters.');
+});
+
+test('update stores the key of the site', function (): void {
+    $site = Site::factory()->create();
+    $key = fake()->sha1();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $this->patch(route(RouteName::SITE_UPDATE, $site), ['key' => $key]);
+
+    $this->assertDatabaseHas(Site::class, [
+        'id' => $site->id,
+        'key' => $key,
+    ]);
+});
+
+test('update keeps the key the site already has', function (): void {
+    $site = Site::factory()->create(['key' => fake()->sha1()]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->patch(route(RouteName::SITE_UPDATE, $site), ['key' => $site->key]);
+
+    $response->assertSessionHasNoErrors();
+});
+
+test('update refuses an empty key', function (): void {
+    $site = Site::factory()->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->patch(route(RouteName::SITE_UPDATE, $site), ['key' => '']);
+
+    $response->assertSessionHasErrors('key');
+});
+
+test('update refuses a key shorter than 8 characters', function (): void {
+    $site = Site::factory()->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->patch(route(RouteName::SITE_UPDATE, $site), ['key' => fake()->lexify('???????')]);
+
+    $response->assertSessionHasErrors('key');
+});
+
+test('update refuses the key of another site', function (): void {
+    $site = Site::factory()->create();
+    $otherSite = Site::factory()->create(['key' => fake()->sha1()]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->patch(route(RouteName::SITE_UPDATE, $site), ['key' => $otherSite->key]);
+
+    $response->assertSessionHasErrors('key');
+});
+
+test('update sends the user back to the site', function (): void {
+    $site = Site::factory()->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->patch(route(RouteName::SITE_UPDATE, $site), ['key' => fake()->sha1()]);
+
+    $response->assertRedirect(route(RouteName::SITE, $site));
+});

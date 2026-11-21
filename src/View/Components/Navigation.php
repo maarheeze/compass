@@ -110,6 +110,7 @@ class Navigation extends Component
                 $request->routeIs(
                     RouteName::SITES->value,
                     RouteName::SITE->value,
+                    RouteName::SITE_EDIT->value,
                     RouteName::SITE_ENDPOINT_CHECKS->value,
                     RouteName::SITE_REPORT_EDIT->value,
                 ),
