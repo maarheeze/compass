@@ -55,16 +55,16 @@ test('of external ids leaves out a issue with another id', function (): void {
         ->toBeEmpty();
 });
 
-test('latest opened orders the issues from the most recently opened', function (): void {
-    $olderIssue = Issue::factory()->create(['opened_at' => fake()->dateTimeBetween('-2 years', '-1 year')]);
+test('oldest opened orders the issues from the first opened', function (): void {
     $newerIssue = Issue::factory()->create(['opened_at' => fake()->dateTimeBetween('-1 year')]);
+    $olderIssue = Issue::factory()->create(['opened_at' => fake()->dateTimeBetween('-2 years', '-1 year')]);
 
-    $issuesLatestOpened = Issue::query()
-        ->latestOpened()
+    $issuesOldestOpened = Issue::query()
+        ->oldestOpened()
         ->get();
 
-    expect($issuesLatestOpened->modelKeys())
-        ->toEqual([$newerIssue->id, $olderIssue->id]);
+    expect($issuesOldestOpened->modelKeys())
+        ->toEqual([$olderIssue->id, $newerIssue->id]);
 });
 
 test('of source keeps a issue of the source', function (): void {
@@ -89,14 +89,14 @@ test('of source leaves out a issue of another source', function (): void {
         ->toBeEmpty();
 });
 
-test('listed is the issues opened latest first', function (): void {
-    $olderIssue = Issue::factory()->create(['opened_at' => fake()->dateTimeBetween('-2 months', '-1 month')]);
+test('listed is the issues opened oldest first', function (): void {
     $newerIssue = Issue::factory()->create(['opened_at' => fake()->dateTimeBetween('-1 week')]);
+    $olderIssue = Issue::factory()->create(['opened_at' => fake()->dateTimeBetween('-2 months', '-1 month')]);
 
     $listedIssues = Issue::query()->listed(new IssueTypeOrder([]));
 
     expect($listedIssues->modelKeys())
-        ->toEqual([$newerIssue->getKey(), $olderIssue->getKey()]);
+        ->toEqual([$olderIssue->getKey(), $newerIssue->getKey()]);
 });
 
 test('assigned to keeps an issue assigned to the assignee', function (): void {
@@ -170,11 +170,11 @@ test('listed is the issues of the ordered types first, in the order of their typ
 test('listed is the issues of every other type or without a type after the ordered ones', function (): void {
     $otherIssue = Issue::factory()->create([
         'type' => fake()->randomElement([IssueType::FEATURE, IssueType::TASK, null]),
-        'opened_at' => fake()->dateTimeBetween('-1 week'),
+        'opened_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
     ]);
     $bugIssue = Issue::factory()->create([
         'type' => IssueType::BUG,
-        'opened_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
+        'opened_at' => fake()->dateTimeBetween('-1 week'),
     ]);
 
     $listedIssues = Issue::query()->listed(new IssueTypeOrder([IssueType::BUG]));
@@ -183,20 +183,20 @@ test('listed is the issues of every other type or without a type after the order
         ->toEqual([$bugIssue->getKey(), $otherIssue->getKey()]);
 });
 
-test('listed is the issues of one place in the order opened latest first', function (): void {
-    $olderIssue = Issue::factory()->create([
-        'type' => IssueType::BUG,
-        'opened_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
-    ]);
+test('listed is the issues of one place in the order opened oldest first', function (): void {
     $newerIssue = Issue::factory()->create([
         'type' => IssueType::BUG,
         'opened_at' => fake()->dateTimeBetween('-1 week'),
+    ]);
+    $olderIssue = Issue::factory()->create([
+        'type' => IssueType::BUG,
+        'opened_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
     ]);
 
     $listedIssues = Issue::query()->listed(new IssueTypeOrder([IssueType::BUG]));
 
     expect($listedIssues->modelKeys())
-        ->toEqual([$newerIssue->getKey(), $olderIssue->getKey()]);
+        ->toEqual([$olderIssue->getKey(), $newerIssue->getKey()]);
 });
 
 test('listed page is the issues of the ordered types first', function (): void {
@@ -212,9 +212,9 @@ test('listed page is the issues of the ordered types first', function (): void {
         ->toEqual([$bugIssue->getKey(), $featureIssue->getKey()]);
 });
 
-test('listed page is the issues opened latest first', function (): void {
-    $olderIssue = Issue::factory()->create(['opened_at' => fake()->dateTimeBetween('-2 months', '-1 month')]);
+test('listed page is the issues opened oldest first', function (): void {
     $newerIssue = Issue::factory()->create(['opened_at' => fake()->dateTimeBetween('-1 week')]);
+    $olderIssue = Issue::factory()->create(['opened_at' => fake()->dateTimeBetween('-2 months', '-1 month')]);
 
     $listedIssuesPage = Issue::query()->listedPage(
         new ItemsPerPage(fake()->numberBetween(2, 100)),
@@ -222,7 +222,7 @@ test('listed page is the issues opened latest first', function (): void {
     );
 
     expect($listedIssuesPage->getCollection()->modelKeys())
-        ->toEqual([$newerIssue->getKey(), $olderIssue->getKey()]);
+        ->toEqual([$olderIssue->getKey(), $newerIssue->getKey()]);
 });
 
 test('listed page has the given number of issues per page', function (): void {

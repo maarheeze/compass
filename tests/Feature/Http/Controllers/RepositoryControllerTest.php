@@ -281,23 +281,23 @@ test('show loads whether the alerts of the checks of the repository are muted', 
     });
 });
 
-test('show contains the issues of the repository newest first', function (): void {
+test('show contains the issues of the repository oldest first', function (): void {
     $repository = Repository::factory()->create();
-    $olderIssue = Issue::factory()->create([
-        'repository_id' => $repository->id,
-        'opened_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
-    ]);
     $newerIssue = Issue::factory()->create([
         'repository_id' => $repository->id,
         'opened_at' => fake()->dateTimeBetween('-1 month'),
+    ]);
+    $olderIssue = Issue::factory()->create([
+        'repository_id' => $repository->id,
+        'opened_at' => fake()->dateTimeBetween('-2 months', '-1 month'),
     ]);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
     $response = $this->get(route(RouteName::REPOSITORY, $repository));
 
     $response->assertViewHas('issues', static function (IssueCollection $viewIssues) use ($newerIssue, $olderIssue): bool {
-        return $viewIssues->first()->id->equals($newerIssue->id)
-            && $viewIssues->last()->id->equals($olderIssue->id);
+        return $viewIssues->first()->id->equals($olderIssue->id)
+            && $viewIssues->last()->id->equals($newerIssue->id);
     });
 });
 

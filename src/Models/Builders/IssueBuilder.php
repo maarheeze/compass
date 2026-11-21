@@ -30,11 +30,6 @@ class IssueBuilder extends Builder
             });
     }
 
-    public function latestOpened(): self
-    {
-        return $this->latest('opened_at');
-    }
-
     public function listed(IssueTypeOrder $issueTypeOrder): IssueCollection
     {
         return Assert::isInstanceOf($this->inListedOrder($issueTypeOrder)->get(), IssueCollection::class);
@@ -75,6 +70,11 @@ class IssueBuilder extends Builder
         return $this->where('source', $source);
     }
 
+    public function oldestOpened(): self
+    {
+        return $this->oldest('opened_at');
+    }
+
     public function unassigned(): self
     {
         return $this->whereDoesntHave('assignees');
@@ -90,6 +90,6 @@ class IssueBuilder extends Builder
         return $this
             ->with(['assignees', 'repository'])
             ->inOrderOf('type', $issueTypeOrder->issueTypes)
-            ->latestOpened();
+            ->oldestOpened();
     }
 }
