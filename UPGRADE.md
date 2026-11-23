@@ -49,3 +49,18 @@ longer used:
 - `repository.libraries`, `repository.other`, `repository.projects` and
   `repository.repository_count`
 - `site.site_count`
+
+### `issue_types` added to the `github` source
+
+To give issues a type, add
+`'issue_types' => ['Bug' => IssueType::BUG, 'Feature' => IssueType::FEATURE, 'Task' => IssueType::TASK]`
+to a `github` source, mapping the names of your organisation's issue types onto
+Compass's. Left out, no issue has a type, and `issue_type_order` has nothing to
+order by.
+
+### `issue_type_order` added
+
+To show some issue types first on the issue lists, in that order, add
+`'issue_type_order' => [IssueType::BUG, IssueType::FEATURE]` to your published
+`config/compass.php`. Left out, it is empty and every list shows the oldest
+opened issue first.
