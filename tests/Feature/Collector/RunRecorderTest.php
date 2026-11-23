@@ -22,6 +22,7 @@ use Maarheeze\Compass\Collector\SiteReports\Jobs\InspectSite;
 use Maarheeze\Compass\Collector\TaskType;
 use Maarheeze\Compass\Models\Run;
 use Maarheeze\Compass\Models\Site;
+use Maarheeze\Compass\Models\SiteReport;
 use Maarheeze\Uuid\Uuid;
 use Monolog\Handler\TestHandler;
 use Monolog\LogRecord;
@@ -196,42 +197,44 @@ test('start collector logs the start of the run with its run id in the log conte
         ->toBeTrue();
 });
 
-test('start site inspection records the queued site reports run of the source with the site as its subject', function (): void {
+test('start site inspections records a queued site reports run with the site as its subject for each source of its reports', function (): void {
     $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
-    $runId = Uuid::generate();
     $site = Site::factory()->create();
-    $source = fake()->slug();
+    $siteReports = SiteReport::factory()
+        ->count(2)
+        ->create(['site_id' => $site->id]);
 
     $runRecorder = $this->app->make(RunRecorder::class);
-    $runRecorder->startSiteInspection($runId, $site, $source);
+    $runRecorder->startSiteInspections($site);
 
-    $this->assertDatabaseHas(Run::class, [
-        'id' => $runId,
-        'source' => $source,
-        'collector' => CollectorType::SITE_REPORTS,
-        'status' => RunStatus::QUEUED,
-        'subject_type' => $site->getMorphClass(),
-        'subject_id' => $site->id,
-    ]);
+    $inspectedSources = Run::query()
+        ->where('subject_type', $site->getMorphClass())
+        ->where('subject_id', $site->id)
+        ->where('collector', CollectorType::SITE_REPORTS)
+        ->where('status', RunStatus::QUEUED)
+        ->pluck('source');
+
+    expect($inspectedSources->all())
+        ->toEqualCanonicalizing($siteReports->pluck('source')->all());
 });
 
-test('start site inspection chains the batch of the inspection of the site for the source before finishing the run', function (): void {
+test('start site inspections chains the batch of the inspection of the site for the source of its report before finishing the run', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
-    $runId = Uuid::generate();
     $site = Site::factory()->create();
-    $source = fake()->slug();
+    $siteReport = SiteReport::factory()->create(['site_id' => $site->id]);
 
     $runRecorder = $this->app->make(RunRecorder::class);
-    $runRecorder->startSiteInspection($runId, $site, $source);
+    $runRecorder->startSiteInspections($site);
 
+    $runId = Run::query()->sole()->id;
     $busFake->assertChained([
-        $busFake->chainedBatch(static function (PendingBatch $pendingBatch) use ($site, $source): bool {
+        $busFake->chainedBatch(static function (PendingBatch $pendingBatch) use ($site, $siteReport): bool {
             $inspectSite = $pendingBatch->jobs->sole();
 
             return $inspectSite instanceof InspectSite
                 && $inspectSite->site->id->equals($site->id)
-                && $inspectSite->source === $source;
+                && $inspectSite->source === $siteReport->source;
         }),
         static function (FinishRun $finishRun) use ($runId): bool {
             return $finishRun->runId->equals($runId);

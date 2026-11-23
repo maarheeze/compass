@@ -3,7 +3,10 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
+use Illuminate\Contracts\Bus\QueueingDispatcher;
+use Illuminate\Http\Response;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Testing\Fakes\BusFake;
 use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\Types\SiteBehind;
 use Maarheeze\Compass\Alerts\Types\SiteMissing;
@@ -15,6 +18,7 @@ use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Http\SiteFilter;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\AlertCheck;
+use Maarheeze\Compass\Models\Run;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
@@ -293,6 +297,45 @@ test('ignore sends the user back to the dashboard', function (): void {
     $response = $this->post(route(RouteName::SITE_IGNORE, $site));
 
     $response->assertRedirect(route(RouteName::DASHBOARD));
+});
+
+test('inspect starts a site inspection run of the site for each source of its reports', function (): void {
+    $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
+    $site = Site::factory()->create();
+    $siteReports = SiteReport::factory()
+        ->count(2)
+        ->create(['site_id' => $site->id]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $this->post(route(RouteName::SITE_INSPECT, $site));
+
+    $inspectedSources = Run::query()
+        ->where('subject_type', $site->getMorphClass())
+        ->where('subject_id', $site->id)
+        ->pluck('source');
+
+    expect($inspectedSources->all())
+        ->toEqualCanonicalizing($siteReports->pluck('source')->all());
+});
+
+test('inspect sends the user back to the site', function (): void {
+    $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
+    $site = Site::factory()->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->post(route(RouteName::SITE_INSPECT, $site));
+
+    $response->assertRedirect(route(RouteName::SITE, $site));
+});
+
+test('inspect answers a request for json with an empty accepted', function (): void {
+    $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
+    $site = Site::factory()->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->postJson(route(RouteName::SITE_INSPECT, $site));
+
+    $response->assertNoContent(Response::HTTP_ACCEPTED);
 });
 
 test('edit contains the site', function (): void {

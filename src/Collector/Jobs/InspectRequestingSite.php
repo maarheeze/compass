@@ -9,7 +9,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Maarheeze\Compass\Collector\RunRecorder;
 use Maarheeze\Compass\Models\Site;
-use Maarheeze\Uuid\Uuid;
 
 class InspectRequestingSite implements ShouldQueue
 {
@@ -31,8 +30,6 @@ class InspectRequestingSite implements ShouldQueue
             return;
         }
 
-        foreach ($requestingSite->reports as $siteReport) {
-            $runRecorder->startSiteInspection(Uuid::generate(), $requestingSite, $siteReport->source);
-        }
+        $runRecorder->startSiteInspections($requestingSite);
     }
 }

@@ -65,6 +65,7 @@ Route::middleware('web')
                 Route::delete('/{site}', [SiteController::class, 'delete'])->name(RouteName::SITE_DELETE);
                 Route::get('/{site}/edit', [SiteController::class, 'edit'])->name(RouteName::SITE_EDIT);
                 Route::post('/{site}/ignore', [SiteController::class, 'ignore'])->name(RouteName::SITE_IGNORE);
+                Route::post('/{site}/inspect', [SiteController::class, 'inspect'])->name(RouteName::SITE_INSPECT);
                 Route::get('/{site}/endpoint-checks/{endpointPath}', [SiteEndpointCheckController::class, 'index'])
                     ->name(RouteName::SITE_ENDPOINT_CHECKS);
                 Route::delete('/{site}/endpoint-checks/{endpointPath}', [SiteEndpointCheckController::class, 'delete'])

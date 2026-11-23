@@ -45,22 +45,11 @@ readonly class RunRecorder
         ]);
     }
 
-    public function startSiteInspection(Uuid $runId, Site $site, string $source): void
+    public function startSiteInspections(Site $site): void
     {
-        $run = new Run([
-            'id' => $runId,
-            'source' => $source,
-            'collector' => CollectorType::SITE_REPORTS,
-            'status' => RunStatus::QUEUED,
-        ]);
-        $run->subject()->associate($site);
-        $run->save();
-
-        $this->dispatch($runId, new InspectSite($site, $source), [
-            'source' => $source,
-            'collector' => CollectorType::SITE_REPORTS->value,
-            'site' => $site->name,
-        ]);
+        foreach ($site->reports as $siteReport) {
+            $this->startSiteInspection($site, $siteReport->source);
+        }
     }
 
     public function startTask(Uuid $runId, TaskType $taskType, LockedJob $firstJob): void
@@ -106,5 +95,24 @@ readonly class RunRecorder
             },
             [self::RUN_ID_CONTEXT_KEY => $runId->toString()],
         );
+    }
+
+    private function startSiteInspection(Site $site, string $source): void
+    {
+        $runId = Uuid::generate();
+        $run = new Run([
+            'id' => $runId,
+            'source' => $source,
+            'collector' => CollectorType::SITE_REPORTS,
+            'status' => RunStatus::QUEUED,
+        ]);
+        $run->subject()->associate($site);
+        $run->save();
+
+        $this->dispatch($runId, new InspectSite($site, $source), [
+            'source' => $source,
+            'collector' => CollectorType::SITE_REPORTS->value,
+            'site' => $site->name,
+        ]);
     }
 }

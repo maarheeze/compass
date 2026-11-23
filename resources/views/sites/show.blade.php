@@ -10,7 +10,10 @@
                 <x-compass::site-title :site="$site">
                     <h1 class="text-lg font-semibold text-foreground">{{ $site->name }}</h1>
                 </x-compass::site-title>
-                <x-compass::source-page-link :source-url="$site->source_url" class="ml-auto" />
+                <div class="ml-auto flex items-center gap-2">
+                    <x-compass::source-page-link :source-url="$site->source_url" />
+                    <x-compass::site-inspect-button :site="$site" />
+                </div>
             </div>
             <a href="{{ $site->url }}" target="_blank" rel="noopener" class="text-sm text-accent hover:underline">{{ $site->url }}</a>
         </div>
@@ -32,6 +35,10 @@
 
             <x-slot:aside>
                 <x-compass::sidebar-section :title="__('compass::site.about')">
+                    <x-slot:action>
+                        <x-compass::site-edit-link :site="$site" />
+                    </x-slot:action>
+
                     <dl class="space-y-2">
                         <x-compass::fact :label="__('compass::site.repository')">
                             @if ($site->repository)
@@ -65,10 +72,6 @@
                             </x-compass::fact>
                         @endif
                     </dl>
-
-                    <p>
-                        <x-compass::site-edit-link :site="$site" />
-                    </p>
                 </x-compass::sidebar-section>
 
                 <x-compass::sidebar-section :title="__('compass::site.deployment')">
@@ -94,11 +97,13 @@
                 </x-compass::sidebar-section>
 
                 <x-compass::sidebar-section :title="__('compass::site.report')">
-                    @forelse ($site->reports as $siteReport)
-                        <x-compass::site-report-details :site-report="$siteReport" />
-                    @empty
-                        <x-compass::site-report-not-checked-badge />
-                    @endforelse
+                    <div data-compass-live-region="site-reports" class="space-y-3">
+                        @forelse ($site->reports as $siteReport)
+                            <x-compass::site-report-details :site-report="$siteReport" />
+                        @empty
+                            <x-compass::site-report-not-checked-badge />
+                        @endforelse
+                    </div>
                 </x-compass::sidebar-section>
 
                 <p class="text-xs text-foreground-muted">

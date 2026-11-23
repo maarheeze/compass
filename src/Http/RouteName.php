@@ -38,6 +38,7 @@ enum RouteName: string
     case SITE_ENDPOINT_CHECKS = 'compass.site.endpoint-checks';
     case SITE_ENDPOINT_CHECKS_DELETE = 'compass.site.endpoint-checks.delete';
     case SITE_IGNORE = 'compass.site.ignore';
+    case SITE_INSPECT = 'compass.site.inspect';
     case SITE_REPORT_EDIT = 'compass.site.report.edit';
     case SITE_REPORT_UPDATE = 'compass.site.report.update';
     case SITE_UPDATE = 'compass.site.update';

@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Http\Controllers;
 
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Redirector;
+use Maarheeze\Compass\Collector\RunRecorder;
 use Maarheeze\Compass\Collector\Sites\MissingSiteResolver;
 use Maarheeze\Compass\Http\ItemsPerPage;
 use Maarheeze\Compass\Http\Requests\SiteFilterRequest;
@@ -27,6 +30,8 @@ readonly class SiteController
         private ItemsPerPage $itemsPerPage,
         private MissingSiteResolver $missingSiteResolver,
         private Redirector $redirector,
+        private ResponseFactory $responseFactory,
+        private RunRecorder $runRecorder,
         private Translator $translator,
         private ViewFactory $view,
     ) {
@@ -68,6 +73,17 @@ readonly class SiteController
                 ->sites(Site::query())
                 ->listedPage($this->itemsPerPage),
         ]);
+    }
+
+    public function inspect(Site $site, Request $request): RedirectResponse|Response
+    {
+        $this->runRecorder->startSiteInspections($site);
+
+        if ($request->expectsJson()) {
+            return $this->responseFactory->noContent(Response::HTTP_ACCEPTED);
+        }
+
+        return $this->redirector->route(RouteName::SITE, $site);
     }
 
     public function show(Site $site): View

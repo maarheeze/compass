@@ -20,6 +20,7 @@ return [
     'endpoints_up' => ':count up',
     'frequency' => '{1} every minute|[2,*] every :count minutes',
     'inactive' => 'Inactive',
+    'inspect_now' => 'Inspect now',
     'key' => 'Key',
     'key_hint' => 'At least 8 characters. Set the same key as COMPASS_CLIENT_KEY in the .env of the site.',
     'latest_deployment' => 'Latest deployment',
