@@ -9,7 +9,9 @@ use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Foundation\Bus\PendingChain;
 use Illuminate\Log\Context\Repository as Context;
 use Maarheeze\Compass\Collector\Jobs\FinishRun;
+use Maarheeze\Compass\Collector\SiteReports\Jobs\InspectSite;
 use Maarheeze\Compass\Models\Run;
+use Maarheeze\Compass\Models\Site;
 use Maarheeze\Uuid\Uuid;
 use Webmozart\Assert\Assert;
 
@@ -40,6 +42,24 @@ readonly class RunRecorder
         $this->dispatch($runId, $firstJob, [
             'source' => $source,
             'collector' => $collectorType->value,
+        ]);
+    }
+
+    public function startSiteInspection(Uuid $runId, Site $site, string $source): void
+    {
+        $run = new Run([
+            'id' => $runId,
+            'source' => $source,
+            'collector' => CollectorType::SITE_REPORTS,
+            'status' => RunStatus::QUEUED,
+        ]);
+        $run->subject()->associate($site);
+        $run->save();
+
+        $this->dispatch($runId, new InspectSite($site, $source), [
+            'source' => $source,
+            'collector' => CollectorType::SITE_REPORTS->value,
+            'site' => $site->name,
         ]);
     }
 

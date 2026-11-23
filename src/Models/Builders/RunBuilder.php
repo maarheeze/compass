@@ -20,7 +20,7 @@ class RunBuilder extends Builder
     public function listed(ItemsPerPage $itemsPerPage): LengthAwarePaginator
     {
         return $this
-            ->with('failures')
+            ->with(['failures', 'subject'])
             ->latest()
             ->paginate($itemsPerPage->value);
     }

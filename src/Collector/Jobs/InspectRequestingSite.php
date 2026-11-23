@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Collector\Jobs;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
-use Maarheeze\Compass\Collector\SiteReports\Jobs\InspectSite;
+use Maarheeze\Compass\Collector\RunRecorder;
 use Maarheeze\Compass\Models\Site;
+use Maarheeze\Uuid\Uuid;
 
 class InspectRequestingSite implements ShouldQueue
 {
@@ -21,7 +21,7 @@ class InspectRequestingSite implements ShouldQueue
     ) {
     }
 
-    public function handle(QueueingDispatcher $dispatcher): void
+    public function handle(RunRecorder $runRecorder): void
     {
         $requestingSite = Site::query()
             ->where('key', $this->key)
@@ -32,7 +32,7 @@ class InspectRequestingSite implements ShouldQueue
         }
 
         foreach ($requestingSite->reports as $siteReport) {
-            $dispatcher->dispatch(new InspectSite($requestingSite, $siteReport->source));
+            $runRecorder->startSiteInspection(Uuid::generate(), $requestingSite, $siteReport->source);
         }
     }
 }

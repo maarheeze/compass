@@ -10,6 +10,7 @@ use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Console\Kernel;
 use Maarheeze\Compass\Collections\ScheduledCommandCollection;
+use Maarheeze\Compass\Console\CheckSiteEndpointsCommand;
 use Psr\Clock\ClockInterface;
 
 use function sprintf;
@@ -71,7 +72,7 @@ readonly class ScheduledCommands
     {
         $command = $this->command($event);
 
-        if ($command === null) {
+        if ($command === null || $command === CheckSiteEndpointsCommand::SIGNATURE) {
             return null;
         }
 

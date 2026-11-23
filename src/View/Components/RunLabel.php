@@ -38,7 +38,13 @@ class RunLabel extends Component
             return $this->translatedLabel(Assert::isInstanceOf($run->task, TaskType::class));
         }
 
-        return sprintf('%s · %s', $run->source, $this->translatedLabel($run->collector));
+        $collectorLabel = sprintf('%s · %s', $run->source, $this->translatedLabel($run->collector));
+
+        if ($run->subject === null) {
+            return $collectorLabel;
+        }
+
+        return sprintf('%s · %s', $collectorLabel, $run->subject->name);
     }
 
     private function translatedLabel(LabelledEnum $labelledEnum): string

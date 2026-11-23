@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Maarheeze\Compass\Collector\CollectorType;
 use Maarheeze\Compass\Collector\TaskType;
 use Maarheeze\Compass\Models\Run;
+use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\View\Components\RunLabel;
 
 test('label of a collector run is its source and collector', function (): void {
@@ -14,6 +15,18 @@ test('label of a collector run is its source and collector', function (): void {
 
     expect($runLabel->label)
         ->toBe(sprintf('%s · Repositories', $run->source));
+});
+
+test('label of a collector run with a subject ends with the name of its subject', function (): void {
+    $site = Site::factory()->create();
+    $run = Run::factory()
+        ->for($site, 'subject')
+        ->create(['collector' => CollectorType::SITE_REPORTS]);
+
+    $runLabel = $this->app->make(RunLabel::class, ['run' => $run]);
+
+    expect($runLabel->label)
+        ->toBe(sprintf('%s · Site reports · %s', $run->source, $site->name));
 });
 
 test('label of a task run is its task', function (): void {

@@ -18,8 +18,10 @@ use Maarheeze\Compass\Collector\Jobs\FinishRun;
 use Maarheeze\Compass\Collector\RunRecorder;
 use Maarheeze\Compass\Collector\RunStatus;
 use Maarheeze\Compass\Collector\SiteEndpoint\Jobs\CheckSiteEndpoints;
+use Maarheeze\Compass\Collector\SiteReports\Jobs\InspectSite;
 use Maarheeze\Compass\Collector\TaskType;
 use Maarheeze\Compass\Models\Run;
+use Maarheeze\Compass\Models\Site;
 use Maarheeze\Uuid\Uuid;
 use Monolog\Handler\TestHandler;
 use Monolog\LogRecord;
@@ -192,6 +194,49 @@ test('start collector logs the start of the run with its run id in the log conte
 
     expect($hasLoggedRunStartWithRunId)
         ->toBeTrue();
+});
+
+test('start site inspection records the queued site reports run of the source with the site as its subject', function (): void {
+    $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
+    $runId = Uuid::generate();
+    $site = Site::factory()->create();
+    $source = fake()->slug();
+
+    $runRecorder = $this->app->make(RunRecorder::class);
+    $runRecorder->startSiteInspection($runId, $site, $source);
+
+    $this->assertDatabaseHas(Run::class, [
+        'id' => $runId,
+        'source' => $source,
+        'collector' => CollectorType::SITE_REPORTS,
+        'status' => RunStatus::QUEUED,
+        'subject_type' => $site->getMorphClass(),
+        'subject_id' => $site->id,
+    ]);
+});
+
+test('start site inspection chains the batch of the inspection of the site for the source before finishing the run', function (): void {
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
+    $runId = Uuid::generate();
+    $site = Site::factory()->create();
+    $source = fake()->slug();
+
+    $runRecorder = $this->app->make(RunRecorder::class);
+    $runRecorder->startSiteInspection($runId, $site, $source);
+
+    $busFake->assertChained([
+        $busFake->chainedBatch(static function (PendingBatch $pendingBatch) use ($site, $source): bool {
+            $inspectSite = $pendingBatch->jobs->sole();
+
+            return $inspectSite instanceof InspectSite
+                && $inspectSite->site->id->equals($site->id)
+                && $inspectSite->source === $source;
+        }),
+        static function (FinishRun $finishRun) use ($runId): bool {
+            return $finishRun->runId->equals($runId);
+        },
+    ]);
 });
 
 test('start task records the queued run of the task', function (): void {

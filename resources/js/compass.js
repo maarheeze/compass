@@ -101,6 +101,8 @@ async function refreshLiveRegions() {
                 liveRegion.replaceWith(refreshedLiveRegion);
             }
         });
+
+        refreshRelativeTimes();
     } finally {
         isRefreshing = false;
     }
@@ -156,6 +158,7 @@ function listen(toastStack) {
         });
 }
 
+refreshRelativeTimes();
 setInterval(refreshRelativeTimes, relativeTimeRefreshInMilliseconds);
 
 document.addEventListener('click', (event) => {

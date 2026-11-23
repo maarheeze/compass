@@ -17,6 +17,8 @@ use Maarheeze\Compass\Collector\RunStatus;
 use Maarheeze\Compass\Collector\TaskType;
 use Maarheeze\Compass\Database\Factories\RunFactory;
 use Maarheeze\Compass\Models\Builders\RunBuilder;
+use Maarheeze\Compass\Models\Concerns\HasSubject;
+use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
 
@@ -29,10 +31,13 @@ use Maarheeze\Uuid\Uuid;
  * @property Uuid $id
  * @property ?string $source
  * @property RunStatus $status
+ * @property ?Uuid $subject_id
+ * @property ?string $subject_type
  * @property ?TaskType $task
  * @property CarbonImmutable $updated_at
  *
  * @property-read RunFailureCollection $failures
+ * @property-read ?Site $subject
  */
 class Run extends Model
 {
@@ -42,6 +47,7 @@ class Run extends Model
     use HasCollection;
     /** @use HasFactory<RunFactory> */
     use HasFactory;
+    use HasSubject;
     use HasUuidAsId;
 
     protected static string $builder = RunBuilder::class;
@@ -88,6 +94,7 @@ class Run extends Model
             'failed_job_count' => 'integer',
             'finished_at' => 'immutable_datetime',
             'status' => RunStatus::class,
+            'subject_id' => UuidCast::class,
             'task' => TaskType::class,
             'updated_at' => 'immutable_datetime',
         ];

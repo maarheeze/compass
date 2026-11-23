@@ -3,15 +3,12 @@
 declare(strict_types=1);
 
 use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Console\ClosureCommand;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Http\Response;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Testing\Fakes\BusFake;
 use Maarheeze\Compass\Collections\ScheduledCommandCollection;
-use Maarheeze\Compass\Console\CheckSiteEndpointsCommand;
 use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Models\Run;
 use Maarheeze\Compass\Models\RunFailure;
@@ -58,8 +55,9 @@ test('index shows the configured number of runs per page', function (): void {
 });
 
 test('index lists the scheduled commands', function (): void {
+    $command = sprintf('compass:%s', fake()->slug());
     $schedule = new Schedule();
-    $schedule->command(CheckSiteEndpointsCommand::SIGNATURE);
+    $schedule->command($command);
     $this->app->instance(Schedule::class, $schedule);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
@@ -67,8 +65,8 @@ test('index lists the scheduled commands', function (): void {
 
     $response->assertViewHas(
         'scheduledCommands',
-        static function (ScheduledCommandCollection $viewScheduledCommands): bool {
-            return $viewScheduledCommands->sole()->command === CheckSiteEndpointsCommand::SIGNATURE;
+        static function (ScheduledCommandCollection $viewScheduledCommands) use ($command): bool {
+            return $viewScheduledCommands->sole()->command === $command;
         },
     );
 });
@@ -91,9 +89,11 @@ test('run runs the scheduled command of the mutex name', function (): void {
 });
 
 test('run sends the user back to the runs page', function (): void {
-    $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
+    $kernel = Assert::isInstanceOf($this->app->make(Kernel::class), ConsoleKernel::class);
+    $kernel->registerCommand(new ClosureCommand('compass:fake-command', static function (): void {
+    }));
     $schedule = new Schedule();
-    $event = $schedule->command(CheckSiteEndpointsCommand::SIGNATURE);
+    $event = $schedule->command('compass:fake-command');
     $this->app->instance(Schedule::class, $schedule);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 
@@ -103,9 +103,11 @@ test('run sends the user back to the runs page', function (): void {
 });
 
 test('run answers a request for json with an empty accepted', function (): void {
-    $this->app->instance(QueueingDispatcher::class, new BusFake($this->app->make(QueueingDispatcher::class)));
+    $kernel = Assert::isInstanceOf($this->app->make(Kernel::class), ConsoleKernel::class);
+    $kernel->registerCommand(new ClosureCommand('compass:fake-command', static function (): void {
+    }));
     $schedule = new Schedule();
-    $event = $schedule->command(CheckSiteEndpointsCommand::SIGNATURE);
+    $event = $schedule->command('compass:fake-command');
     $this->app->instance(Schedule::class, $schedule);
     $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
 

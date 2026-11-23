@@ -7,7 +7,7 @@
         <div class="flex flex-wrap items-center gap-x-2 text-xs text-foreground-muted">
             <span>
                 {{ __('compass::run.next_run') }}
-                <x-compass::date-time :time="$scheduledCommand->nextRunAt" />
+                <x-compass::relative-time :time="$scheduledCommand->nextRunAt" />
             </span>
             <span>&middot;</span>
             <x-compass::run-scheduled-command-button :scheduled-command="$scheduledCommand" />

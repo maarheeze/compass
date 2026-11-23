@@ -14,6 +14,19 @@ use Symfony\Component\Clock\MockClock;
 use Webmozart\Assert\Assert;
 
 test('all lists a scheduled command of compass without the php binary and artisan', function (): void {
+    $command = sprintf('compass:%s', fake()->slug());
+    $schedule = new Schedule();
+    $schedule->command($command);
+    $this->app->instance(Schedule::class, $schedule);
+
+    $scheduledCommands = $this->app->make(ScheduledCommands::class);
+    $allScheduledCommands = $scheduledCommands->all();
+
+    expect($allScheduledCommands->sole()->command)
+        ->toBe($command);
+});
+
+test('all leaves out the endpoints check, which runs every minute only to find the endpoints that are due', function (): void {
     $schedule = new Schedule();
     $schedule->command(CheckSiteEndpointsCommand::SIGNATURE);
     $this->app->instance(Schedule::class, $schedule);
@@ -21,8 +34,8 @@ test('all lists a scheduled command of compass without the php binary and artisa
     $scheduledCommands = $this->app->make(ScheduledCommands::class);
     $allScheduledCommands = $scheduledCommands->all();
 
-    expect($allScheduledCommands->sole()->command)
-        ->toBe(CheckSiteEndpointsCommand::SIGNATURE);
+    expect($allScheduledCommands)
+        ->toBeEmpty();
 });
 
 test('all leaves out a scheduled command that is not of compass', function (): void {
@@ -39,7 +52,7 @@ test('all leaves out a scheduled command that is not of compass', function (): v
 
 test('all leaves out a scheduled event that is not an artisan command', function (): void {
     $schedule = new Schedule();
-    $schedule->exec(CheckSiteEndpointsCommand::SIGNATURE);
+    $schedule->exec(sprintf('compass:%s', fake()->slug()));
     $this->app->instance(Schedule::class, $schedule);
 
     $scheduledCommands = $this->app->make(ScheduledCommands::class);
@@ -51,7 +64,7 @@ test('all leaves out a scheduled event that is not an artisan command', function
 
 test('all names a scheduled command by the mutex name of its event', function (): void {
     $schedule = new Schedule();
-    $event = $schedule->command(CheckSiteEndpointsCommand::SIGNATURE);
+    $event = $schedule->command(sprintf('compass:%s', fake()->slug()));
     $this->app->instance(Schedule::class, $schedule);
 
     $scheduledCommands = $this->app->make(ScheduledCommands::class);
@@ -66,7 +79,7 @@ test('all gives the next run of a scheduled command after the current time', fun
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $schedule = new Schedule();
     $schedule
-        ->command(CheckSiteEndpointsCommand::SIGNATURE)
+        ->command(sprintf('compass:%s', fake()->slug()))
         ->daily();
     $this->app->instance(Schedule::class, $schedule);
 
