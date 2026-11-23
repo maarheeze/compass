@@ -202,6 +202,20 @@ test('report throws when the client forbids the request', function (): void {
     $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
 })->throws(ClientUnauthorised::class);
 
+test('report throws when the client does not take the request method, as an outdated client does', function (): void {
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response(null, 405)]);
+
+    $siteQuery = new SiteQuery(new SiteClient(
+        $this->app->make(CollectorSchedule::class),
+        $http,
+        sprintf('/%s', fake()->slug()),
+        fake()->slug(),
+        $this->app->make(UrlGenerator::class),
+    ));
+    $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
+})->throws(ClientIncompatible::class);
+
 test('report throws when the site fails', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(null, 500)]);

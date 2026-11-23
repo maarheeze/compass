@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Collector\Drivers\CompassClient;
 
 use Illuminate\Http\Client\Response;
+use Illuminate\Http\Response as HttpResponse;
 use InvalidArgumentException;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteEndpoint;
@@ -97,6 +98,10 @@ readonly class SiteQuery
 
         if ($response->unauthorized() || $response->forbidden()) {
             throw new ClientUnauthorised();
+        }
+
+        if ($response->status() === HttpResponse::HTTP_METHOD_NOT_ALLOWED) {
+            throw new ClientIncompatible();
         }
 
         if (!$response->ok()) {
