@@ -16,6 +16,8 @@ php artisan migrate
 
 Compass runs on the Laravel scheduler and queue. Everything else is set in `config/compass.php`.
 
+Upgrading from an earlier major version: see [UPGRADE.md](UPGRADE.md) for what changed and what to do.
+
 Import Compass's JavaScript in the host's `resources/js/app.js`, after Echo if the host has it:
 
 ```js
