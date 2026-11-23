@@ -9,6 +9,8 @@ use Maarheeze\Compass\Http\ItemsPerPage;
 use Maarheeze\Compass\Http\RunTypeFilter;
 use Maarheeze\Compass\Models\Run;
 use Maarheeze\Compass\Models\RunFailure;
+use Maarheeze\Compass\Models\RunResult;
+use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\View\FilterOption;
 
 test('listed is the runs newest first', function (): void {
@@ -27,6 +29,40 @@ test('listed loads the failures of the runs', function (): void {
     $listedRuns = Run::query()->listed(new ItemsPerPage(fake()->numberBetween(1, 100)));
 
     expect($listedRuns->sole()->relationLoaded('failures'))
+        ->toBeTrue();
+});
+
+test('listed loads the results of the runs with their subjects', function (): void {
+    RunResult::factory()->create();
+
+    $listedRuns = Run::query()->listed(new ItemsPerPage(fake()->numberBetween(1, 100)));
+
+    $isSubjectLoaded = $listedRuns
+        ->sole()
+        ->results
+        ->sole()
+        ->relationLoaded('subject');
+
+    expect($isSubjectLoaded)
+        ->toBeTrue();
+});
+
+test('listed loads the site of the endpoint a result is of', function (): void {
+    RunResult::factory()
+        ->for(SiteEndpoint::factory(), 'subject')
+        ->create();
+
+    $listedRuns = Run::query()->listed(new ItemsPerPage(fake()->numberBetween(1, 100)));
+
+    $isSiteLoaded = $listedRuns
+        ->sole()
+        ->results
+        ->sole()
+        ->subject
+        ->siteReport
+        ->relationLoaded('site');
+
+    expect($isSiteLoaded)
         ->toBeTrue();
 });
 

@@ -15,6 +15,7 @@ use Maarheeze\Compass\Http\RouteName;
 use Maarheeze\Compass\Http\RunTypeFilter;
 use Maarheeze\Compass\Models\Run;
 use Maarheeze\Compass\Models\RunFailure;
+use Maarheeze\Compass\Models\RunResult;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
 use Maarheeze\Compass\View\Filter;
@@ -44,6 +45,17 @@ test('index loads the failures of the runs', function (): void {
 
     $response->assertViewHas('runs', static function (LengthAwarePaginator $viewRuns): bool {
         return $viewRuns->sole()->relationLoaded('failures');
+    });
+});
+
+test('index loads the results of the runs', function (): void {
+    RunResult::factory()->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::RUNS));
+
+    $response->assertViewHas('runs', static function (LengthAwarePaginator $viewRuns): bool {
+        return $viewRuns->sole()->relationLoaded('results');
     });
 });
 

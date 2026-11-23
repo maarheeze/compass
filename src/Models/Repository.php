@@ -17,12 +17,14 @@ use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\IssueCollection;
 use Maarheeze\Compass\Collections\PullRequestCollection;
 use Maarheeze\Compass\Collections\RepositoryCollection;
+use Maarheeze\Compass\Collections\RunResultCollection;
 use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
 use Maarheeze\Compass\Database\Factories\RepositoryFactory;
 use Maarheeze\Compass\Models\Builders\RepositoryBuilder;
 use Maarheeze\Compass\Models\Concerns\HasAlerts;
 use Maarheeze\Compass\Models\Concerns\HasMissingState;
+use Maarheeze\Compass\Models\Concerns\HasRunResults;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
@@ -58,6 +60,7 @@ use Maarheeze\Uuid\Uuid;
  * @property-read int $issues_count
  * @property-read PullRequestCollection $pullRequests
  * @property-read int $pull_requests_count
+ * @property-read RunResultCollection $runResults
  * @property-read SiteCollection $sites
  */
 class Repository extends Model implements AlertSubject
@@ -70,6 +73,7 @@ class Repository extends Model implements AlertSubject
     /** @use HasFactory<RepositoryFactory> */
     use HasFactory;
     use HasMissingState;
+    use HasRunResults;
     use HasUuidAsId;
 
     protected static string $builder = RepositoryBuilder::class;

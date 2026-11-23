@@ -7,6 +7,7 @@ use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Jobs\SyncJob;
 use Maarheeze\Compass\Collector\Listeners\RecordRunFailure;
 use Maarheeze\Compass\Collector\RunRecorder;
+use Maarheeze\Compass\Collector\SiteReports\Jobs\InspectSite;
 use Maarheeze\Compass\Models\Run;
 use Maarheeze\Compass\Models\RunFailure;
 
@@ -151,6 +152,21 @@ test('handle ignores a failed job in a batch of no run', function (): void {
     $syncJob = new SyncJob(
         $this->app,
         json_encode(['data' => ['batchId' => fake()->uuid()]]),
+        fake()->word(),
+        fake()->word(),
+    );
+
+    $recordRunFailure = $this->app->make(RecordRunFailure::class);
+    $recordRunFailure->handle(new JobFailed(fake()->word(), $syncJob, new LogicException(fake()->sentence())));
+
+    $this->assertDatabaseEmpty(RunFailure::class);
+});
+
+test('handle leaves a failed job of one subject to its run result', function (): void {
+    $run = Run::factory()->create();
+    $syncJob = new SyncJob(
+        $this->app,
+        json_encode(['data' => ['batchId' => $run->batch_id, 'commandName' => InspectSite::class]]),
         fake()->word(),
         fake()->word(),
     );

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Maarheeze\Compass\Collections\RunCollection;
 use Maarheeze\Compass\Collections\RunFailureCollection;
+use Maarheeze\Compass\Collections\RunResultCollection;
 use Maarheeze\Compass\Collector\CollectorType;
 use Maarheeze\Compass\Collector\RunStatus;
 use Maarheeze\Compass\Collector\TaskType;
@@ -37,6 +38,7 @@ use Maarheeze\Uuid\Uuid;
  * @property CarbonImmutable $updated_at
  *
  * @property-read RunFailureCollection $failures
+ * @property-read RunResultCollection $results
  * @property-read ?Site $subject
  */
 class Run extends Model
@@ -81,6 +83,14 @@ class Run extends Model
     public function failures(): HasMany
     {
         return $this->hasMany(RunFailure::class);
+    }
+
+    /**
+     * @return HasMany<RunResult, $this>
+     */
+    public function results(): HasMany
+    {
+        return $this->hasMany(RunResult::class);
     }
 
     /**

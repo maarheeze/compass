@@ -13,12 +13,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collections\AlertCheckCollection;
 use Maarheeze\Compass\Collections\AlertCollection;
+use Maarheeze\Compass\Collections\RunResultCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCollection;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Database\Factories\SiteEndpointFactory;
 use Maarheeze\Compass\Models\Builders\SiteEndpointBuilder;
 use Maarheeze\Compass\Models\Casts\EndpointPathCast;
 use Maarheeze\Compass\Models\Concerns\HasAlerts;
+use Maarheeze\Compass\Models\Concerns\HasRunResults;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
@@ -35,6 +37,7 @@ use Maarheeze\Uuid\Uuid;
  * @property-read AlertCheckCollection $alertChecks
  * @property-read AlertCollection $alerts
  * @property-read ?SiteEndpointCheck $latestCheck
+ * @property-read RunResultCollection $runResults
  * @property-read SiteReport $siteReport
  */
 class SiteEndpoint extends Model implements AlertSubject
@@ -46,6 +49,7 @@ class SiteEndpoint extends Model implements AlertSubject
     use HasCollection;
     /** @use HasFactory<SiteEndpointFactory> */
     use HasFactory;
+    use HasRunResults;
     use HasUuidAsId;
 
     protected static string $builder = SiteEndpointBuilder::class;

@@ -61,3 +61,22 @@ test('lock key is the site', function (): void {
     expect($lockKey)
         ->toBe($site->id->toString());
 });
+
+test('skips subject is false', function (): void {
+    $collectSiteDomains = new CollectSiteDomains(Site::factory()->create());
+
+    $skipsSubject = $collectSiteDomains->skipsSubject();
+
+    expect($skipsSubject)
+        ->toBeFalse();
+});
+
+test('subject is the site', function (): void {
+    $site = Site::factory()->create();
+
+    $collectSiteDomains = new CollectSiteDomains($site);
+    $subject = $collectSiteDomains->subject();
+
+    expect($subject)
+        ->toBe($site);
+});

@@ -156,3 +156,33 @@ test('lock key is the site and the source', function (): void {
     expect($lockKey)
         ->toBe(sprintf('%s:%s', $site->id->toString(), $source));
 });
+
+test('skips subject for a missing site', function (): void {
+    $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
+
+    $inspectSite = new InspectSite($site, fake()->slug());
+    $skipsSubject = $inspectSite->skipsSubject();
+
+    expect($skipsSubject)
+        ->toBeTrue();
+});
+
+test('skips subject is false for a collected site', function (): void {
+    $site = Site::factory()->create();
+
+    $inspectSite = new InspectSite($site, fake()->slug());
+    $skipsSubject = $inspectSite->skipsSubject();
+
+    expect($skipsSubject)
+        ->toBeFalse();
+});
+
+test('subject is the site', function (): void {
+    $site = Site::factory()->create();
+
+    $inspectSite = new InspectSite($site, fake()->slug());
+    $subject = $inspectSite->subject();
+
+    expect($subject)
+        ->toBe($site);
+});

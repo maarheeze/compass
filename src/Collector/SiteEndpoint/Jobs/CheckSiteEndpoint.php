@@ -7,17 +7,19 @@ namespace Maarheeze\Compass\Collector\SiteEndpoint\Jobs;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Response;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
-use Maarheeze\Compass\Collector\LockedJob;
 use Maarheeze\Compass\Collector\SiteEndpoint\SiteEndpointState;
+use Maarheeze\Compass\Collector\SubjectJob;
 use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\Models\SiteEndpointCheck;
 
@@ -25,7 +27,7 @@ use function ltrim;
 use function rtrim;
 use function sprintf;
 
-class CheckSiteEndpoint implements LockedJob
+class CheckSiteEndpoint implements SubjectJob
 {
     use Batchable;
     use InteractsWithQueue;
@@ -77,6 +79,16 @@ class CheckSiteEndpoint implements LockedJob
     public function lockKey(): string
     {
         return $this->siteEndpoint->id->toString();
+    }
+
+    public function skipsSubject(): bool
+    {
+        return false;
+    }
+
+    public function subject(): AlertSubject&Model
+    {
+        return $this->siteEndpoint;
     }
 
     private function getResponse(HttpFactory $http, string $url): ?Response

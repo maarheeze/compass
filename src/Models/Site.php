@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collections\AlertCheckCollection;
 use Maarheeze\Compass\Collections\AlertCollection;
+use Maarheeze\Compass\Collections\RunResultCollection;
 use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collections\SiteDomainCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
@@ -24,6 +25,7 @@ use Maarheeze\Compass\Models\Builders\AlertBuilder;
 use Maarheeze\Compass\Models\Builders\SiteBuilder;
 use Maarheeze\Compass\Models\Concerns\HasAlerts;
 use Maarheeze\Compass\Models\Concerns\HasMissingState;
+use Maarheeze\Compass\Models\Concerns\HasRunResults;
 use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
@@ -61,6 +63,7 @@ use Maarheeze\Uuid\Uuid;
  * @property-read SiteEndpointCheckCollection $endpointChecks
  * @property-read SiteReportCollection $reports
  * @property-read ?Repository $repository
+ * @property-read RunResultCollection $runResults
  */
 class Site extends Model implements AlertSubject
 {
@@ -72,6 +75,7 @@ class Site extends Model implements AlertSubject
     /** @use HasFactory<SiteFactory> */
     use HasFactory;
     use HasMissingState;
+    use HasRunResults;
     use HasUuidAsId;
 
     protected static string $builder = SiteBuilder::class;

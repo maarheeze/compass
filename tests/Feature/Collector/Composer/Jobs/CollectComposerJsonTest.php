@@ -198,3 +198,22 @@ test('lock key is the repository', function (): void {
     expect($lockKey)
         ->toBe($repository->id->toString());
 });
+
+test('skips subject is false', function (): void {
+    $collectComposerJson = new CollectComposerJson(Repository::factory()->create());
+
+    $skipsSubject = $collectComposerJson->skipsSubject();
+
+    expect($skipsSubject)
+        ->toBeFalse();
+});
+
+test('subject is the repository', function (): void {
+    $repository = Repository::factory()->create();
+
+    $collectComposerJson = new CollectComposerJson($repository);
+    $subject = $collectComposerJson->subject();
+
+    expect($subject)
+        ->toBe($repository);
+});

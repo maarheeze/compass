@@ -7,10 +7,12 @@ namespace Maarheeze\Compass\Collector\Composer\Jobs;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use JsonException;
+use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Composer\ComposerFilesCollectorManager;
@@ -18,11 +20,11 @@ use Maarheeze\Compass\Collector\Composer\Json\ComposerJsonReader;
 use Maarheeze\Compass\Collector\Composer\Json\ComposerJsonSynchroniser;
 use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
-use Maarheeze\Compass\Collector\LockedJob;
+use Maarheeze\Compass\Collector\SubjectJob;
 use Maarheeze\Compass\Models\Repository;
 use Throwable;
 
-class CollectComposerJson implements LockedJob
+class CollectComposerJson implements SubjectJob
 {
     use Batchable;
     use InteractsWithQueue;
@@ -76,5 +78,15 @@ class CollectComposerJson implements LockedJob
     public function lockKey(): string
     {
         return $this->repository->id->toString();
+    }
+
+    public function skipsSubject(): bool
+    {
+        return false;
+    }
+
+    public function subject(): AlertSubject&Model
+    {
+        return $this->repository;
     }
 }

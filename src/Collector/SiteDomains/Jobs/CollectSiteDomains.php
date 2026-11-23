@@ -6,19 +6,21 @@ namespace Maarheeze\Compass\Collector\SiteDomains\Jobs;
 
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
-use Maarheeze\Compass\Collector\LockedJob;
 use Maarheeze\Compass\Collector\SiteDomains\SiteDomainsCollectorManager;
 use Maarheeze\Compass\Collector\SiteDomains\SiteDomainSynchroniser;
+use Maarheeze\Compass\Collector\SubjectJob;
 use Maarheeze\Compass\Models\Site;
 use Throwable;
 
-class CollectSiteDomains implements LockedJob
+class CollectSiteDomains implements SubjectJob
 {
     use Batchable;
     use InteractsWithQueue;
@@ -54,5 +56,15 @@ class CollectSiteDomains implements LockedJob
     public function lockKey(): string
     {
         return $this->site->id->toString();
+    }
+
+    public function skipsSubject(): bool
+    {
+        return false;
+    }
+
+    public function subject(): AlertSubject&Model
+    {
+        return $this->site;
     }
 }

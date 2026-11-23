@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Models\Builders;
 
 use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Maarheeze\Compass\Collections\FilterOptionCollection;
 use Maarheeze\Compass\Collector\CollectorType;
@@ -13,6 +14,7 @@ use Maarheeze\Compass\Collector\TaskType;
 use Maarheeze\Compass\Http\ItemsPerPage;
 use Maarheeze\Compass\Http\RunTypeFilter;
 use Maarheeze\Compass\Models\Run;
+use Maarheeze\Compass\Models\SiteEndpoint;
 use Maarheeze\Compass\View\FilterOption;
 use Webmozart\Assert\Assert;
 
@@ -26,10 +28,15 @@ class RunBuilder extends Builder
      */
     public function listed(ItemsPerPage $itemsPerPage): LengthAwarePaginator
     {
-        return $this
-            ->with(['failures', 'subject'])
-            ->latest()
-            ->paginate($itemsPerPage->value);
+        $this->with([
+            'failures',
+            'results.subject' => static function (MorphTo $subjectRelation): void {
+                $subjectRelation->morphWith([SiteEndpoint::class => ['siteReport.site']]);
+            },
+            'subject',
+        ]);
+
+        return $this->latest()->paginate($itemsPerPage->value);
     }
 
     public function ofCollectorType(CollectorType $collectorType): self

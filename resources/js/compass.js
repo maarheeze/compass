@@ -70,11 +70,20 @@ let isRefreshing = false;
 let isRefreshPending = false;
 
 function keepCollapsibleToggles(liveRegion, refreshedLiveRegion) {
-    const refreshedToggles = refreshedLiveRegion.querySelectorAll('[data-compass-collapsible-toggle]');
+    const refreshedUnnamedToggles = refreshedLiveRegion.querySelectorAll('[data-compass-collapsible-toggle=""]');
 
-    liveRegion.querySelectorAll('[data-compass-collapsible-toggle]').forEach((toggle, index) => {
-        if (refreshedToggles[index] !== undefined) {
-            refreshedToggles[index].checked = toggle.checked;
+    liveRegion.querySelectorAll('[data-compass-collapsible-toggle=""]').forEach((toggle, index) => {
+        if (refreshedUnnamedToggles[index] !== undefined) {
+            refreshedUnnamedToggles[index].checked = toggle.checked;
+        }
+    });
+
+    liveRegion.querySelectorAll('[data-compass-collapsible-toggle]:not([data-compass-collapsible-toggle=""])').forEach((toggle) => {
+        const toggleName = toggle.getAttribute('data-compass-collapsible-toggle');
+        const refreshedToggle = refreshedLiveRegion.querySelector(`[data-compass-collapsible-toggle="${toggleName}"]`);
+
+        if (refreshedToggle !== null) {
+            refreshedToggle.checked = toggle.checked;
         }
     });
 }

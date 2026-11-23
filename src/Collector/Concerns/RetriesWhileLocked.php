@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Collector\Concerns;
 
 use Maarheeze\Compass\Collector\JobLock;
+use Maarheeze\Compass\Collector\RecordRunResult;
 
 trait RetriesWhileLocked
 {
@@ -16,6 +17,9 @@ trait RetriesWhileLocked
      */
     public function middleware(): array
     {
-        return [JobLock::class];
+        return [
+            JobLock::class,
+            RecordRunResult::class,
+        ];
     }
 }

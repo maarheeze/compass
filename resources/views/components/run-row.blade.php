@@ -25,6 +25,19 @@
                 <span>{{ __('compass::run.failed_job_count', ['count' => $run->failed_job_count]) }}</span>
             @endif
         </div>
+        @if ($run->results->isNotEmpty())
+            <div class="group/results mt-1 text-xs">
+                <label class="cursor-pointer text-accent hover:underline">
+                    <input type="checkbox" class="sr-only" data-compass-collapsible-toggle="{{ $run->id }}">
+                    {{ trans_choice('compass::run.result_count', $run->results->count()) }}
+                </label>
+                <ul class="mt-2 hidden space-y-1 group-has-checked/results:block">
+                    @foreach ($run->results as $runResult)
+                        <x-compass::run-result-row :run-result="$runResult" />
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         @foreach ($run->failures as $runFailure)
             <p class="mt-1 text-xs text-red-700 dark:text-red-300">
                 @foreach ($runFailure->messages as $message)

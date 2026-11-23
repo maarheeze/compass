@@ -7,24 +7,26 @@ namespace Maarheeze\Compass\Collector\SiteReports\Jobs;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
-use Maarheeze\Compass\Collector\LockedJob;
 use Maarheeze\Compass\Collector\MissingState;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollectorManager;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportSynchroniser;
+use Maarheeze\Compass\Collector\SubjectJob;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteReport;
 use Throwable;
 
 use function sprintf;
 
-class InspectSite implements LockedJob
+class InspectSite implements SubjectJob
 {
     use Batchable;
     use InteractsWithQueue;
@@ -53,7 +55,7 @@ class InspectSite implements LockedJob
 
         $context->add('site', $this->site->name);
 
-        if ($this->site->missingState() !== MissingState::COLLECTED) {
+        if ($this->skipsSubject()) {
             $collectorLogger->debug('Site inspection skipped for a missing site');
 
             return;
@@ -70,5 +72,15 @@ class InspectSite implements LockedJob
     public function lockKey(): string
     {
         return sprintf('%s:%s', $this->site->id->toString(), $this->source);
+    }
+
+    public function skipsSubject(): bool
+    {
+        return $this->site->missingState() !== MissingState::COLLECTED;
+    }
+
+    public function subject(): AlertSubject&Model
+    {
+        return $this->site;
     }
 }

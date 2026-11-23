@@ -169,3 +169,22 @@ test('lock key is the site endpoint', function (): void {
     expect($lockKey)
         ->toBe($siteEndpoint->id->toString());
 });
+
+test('skips subject is false', function (): void {
+    $checkSiteEndpoint = new CheckSiteEndpoint(SiteEndpoint::factory()->create());
+
+    $skipsSubject = $checkSiteEndpoint->skipsSubject();
+
+    expect($skipsSubject)
+        ->toBeFalse();
+});
+
+test('subject is the site endpoint', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+
+    $checkSiteEndpoint = new CheckSiteEndpoint($siteEndpoint);
+    $subject = $checkSiteEndpoint->subject();
+
+    expect($subject)
+        ->toBe($siteEndpoint);
+});

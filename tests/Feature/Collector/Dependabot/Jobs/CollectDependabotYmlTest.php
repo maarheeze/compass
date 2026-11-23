@@ -182,3 +182,22 @@ test('lock key is the repository', function (): void {
     expect($lockKey)
         ->toBe($repository->id->toString());
 });
+
+test('skips subject is false', function (): void {
+    $collectDependabotYml = new CollectDependabotYml(Repository::factory()->create());
+
+    $skipsSubject = $collectDependabotYml->skipsSubject();
+
+    expect($skipsSubject)
+        ->toBeFalse();
+});
+
+test('subject is the repository', function (): void {
+    $repository = Repository::factory()->create();
+
+    $collectDependabotYml = new CollectDependabotYml($repository);
+    $subject = $collectDependabotYml->subject();
+
+    expect($subject)
+        ->toBe($repository);
+});
