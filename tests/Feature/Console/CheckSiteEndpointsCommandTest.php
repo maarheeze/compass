@@ -6,7 +6,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Bus\PendingBatch;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Support\Testing\Fakes\BusFake;
-use Maarheeze\Compass\Collector\Jobs\FinishRun;
+use Maarheeze\Compass\Collector\Runs\FinishRun;
 use Maarheeze\Compass\Collector\SiteEndpoint\Jobs\CheckSiteEndpoints;
 use Maarheeze\Compass\Collector\TaskType;
 use Maarheeze\Compass\Console\CheckSiteEndpointsCommand;

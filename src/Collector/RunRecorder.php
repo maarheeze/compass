@@ -8,7 +8,7 @@ use Illuminate\Bus\Batch;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Foundation\Bus\PendingChain;
 use Illuminate\Log\Context\Repository as Context;
-use Maarheeze\Compass\Collector\Jobs\FinishRun;
+use Maarheeze\Compass\Collector\Runs\FinishRun;
 use Maarheeze\Compass\Collector\SiteReports\Jobs\InspectSite;
 use Maarheeze\Compass\Models\Run;
 use Maarheeze\Compass\Models\Site;

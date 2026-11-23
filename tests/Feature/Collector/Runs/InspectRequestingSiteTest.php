@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Support\Testing\Fakes\BusFake;
 use Maarheeze\Compass\Collector\CollectorType;
-use Maarheeze\Compass\Collector\Jobs\InspectRequestingSite;
+use Maarheeze\Compass\Collector\Runs\InspectRequestingSite;
 use Maarheeze\Compass\Models\Run;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteReport;

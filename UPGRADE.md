@@ -4,6 +4,12 @@ What to change when upgrading to the next major version, newest first.
 
 ## 1.x to 2.0
 
+### Let the queue finish before upgrading
+
+Stop the scheduler and let the queue workers finish their jobs before you
+deploy 2.0. Queued jobs are stored with their class name, and some job classes
+have moved, so a job queued by 1.x fails under 2.0 and leaves its run running.
+
 ### `repository-group-list` component removed
 
 Replace `<x-compass::repository-group-list>` with `<x-compass::repository-list>`.

@@ -8,7 +8,7 @@ use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Maarheeze\Compass\Collector\Jobs\InspectRequestingSite;
+use Maarheeze\Compass\Collector\Runs\InspectRequestingSite;
 
 readonly class ClientController
 {

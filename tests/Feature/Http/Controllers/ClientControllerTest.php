@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Http\Response;
 use Illuminate\Support\Testing\Fakes\BusFake;
-use Maarheeze\Compass\Collector\Jobs\InspectRequestingSite;
+use Maarheeze\Compass\Collector\Runs\InspectRequestingSite;
 use Maarheeze\Compass\Http\RouteName;
 
 test('store queues the inspection of the site with the bearer token as its key', function (): void {

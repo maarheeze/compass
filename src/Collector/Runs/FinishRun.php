@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Maarheeze\Compass\Collector\Jobs;
+namespace Maarheeze\Compass\Collector\Runs;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Bus\Batch;

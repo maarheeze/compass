@@ -7,7 +7,7 @@ use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Support\Testing\Fakes\BusFake;
 use Maarheeze\Compass\Collector\CollectorType;
 use Maarheeze\Compass\Collector\Issues\Jobs\CollectIssues;
-use Maarheeze\Compass\Collector\Jobs\FinishRun;
+use Maarheeze\Compass\Collector\Runs\FinishRun;
 use Maarheeze\Compass\Console\CollectCommand;
 use Maarheeze\Compass\Models\Run;
 

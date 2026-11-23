@@ -6,7 +6,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Support\Testing\Fakes\BatchRepositoryFake;
 use Illuminate\Support\Testing\Fakes\BusFake;
-use Maarheeze\Compass\Collector\Jobs\FinishRun;
+use Maarheeze\Compass\Collector\Runs\FinishRun;
 use Maarheeze\Compass\Collector\RunStatus;
 use Maarheeze\Compass\Models\Run;
 use Psr\Clock\ClockInterface;
