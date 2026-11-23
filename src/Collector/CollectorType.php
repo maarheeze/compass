@@ -22,6 +22,20 @@ enum CollectorType: string implements LabelledEnum
     case SITE_REPORTS = 'site_reports';
     case SITES = 'sites';
 
+    /**
+     * @return list<self>
+     */
+    public static function displayOrder(): array
+    {
+        return [
+            self::REPOSITORIES,
+            self::ISSUES,
+            self::PULL_REQUESTS,
+            self::SITES,
+            self::SITE_REPORTS,
+        ];
+    }
+
     public function job(Uuid $runId, string $source): LockedJob
     {
         return match ($this) {

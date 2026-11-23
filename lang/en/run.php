@@ -12,4 +12,5 @@ return [
     'run_now' => 'Run now',
     'scheduled_commands' => 'Scheduled commands',
     'started' => 'started',
+    'types' => 'Types',
 ];

@@ -12,6 +12,16 @@ enum TaskType: string implements LabelledEnum
 {
     case SITE_ENDPOINTS = 'site_endpoints';
 
+    /**
+     * @return list<self>
+     */
+    public static function displayOrder(): array
+    {
+        return [
+            self::SITE_ENDPOINTS,
+        ];
+    }
+
     public function labelKey(): string
     {
         return sprintf('compass::task-type.%s', $this->name);

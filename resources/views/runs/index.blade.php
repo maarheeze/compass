@@ -22,6 +22,7 @@
             </div>
 
             <x-slot:aside>
+                <x-compass::filter-section :filter="$runTypesFilter" />
                 <x-compass::sidebar-section :title="__('compass::run.scheduled_commands')">
                     @if ($scheduledCommands->isEmpty())
                         <p class="text-foreground-muted">{{ __('compass::run.no_scheduled_commands') }}</p>

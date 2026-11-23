@@ -12,6 +12,9 @@ return new class extends Migration
     {
         Schema::table('compass_runs', static function (Blueprint $table): void {
             $table->nullableUuidMorphs('subject');
+
+            $table->index('collector');
+            $table->index('task');
         });
     }
 };

@@ -9,11 +9,16 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Http\Response;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Maarheeze\Compass\Collections\ScheduledCommandCollection;
+use Maarheeze\Compass\Collector\CollectorType;
+use Maarheeze\Compass\Collector\TaskType;
 use Maarheeze\Compass\Http\RouteName;
+use Maarheeze\Compass\Http\RunTypeFilter;
 use Maarheeze\Compass\Models\Run;
 use Maarheeze\Compass\Models\RunFailure;
 use Maarheeze\Compass\Models\User;
 use Maarheeze\Compass\Providers\AuthenticationProvider;
+use Maarheeze\Compass\View\Filter;
+use Maarheeze\Compass\View\FilterOption;
 use Webmozart\Assert\Assert;
 
 test('index lists the latest run first', function (): void {
@@ -54,6 +59,68 @@ test('index shows the configured number of runs per page', function (): void {
     });
 });
 
+test('index on a collector type contains only the runs of that collector', function (): void {
+    $sitesRun = Run::factory()->create(['collector' => CollectorType::SITES]);
+    Run::factory()->create(['collector' => CollectorType::REPOSITORIES]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::RUNS, RunTypeFilter::collectorTypeRouteParameters(CollectorType::SITES)));
+
+    $response->assertViewHas('runs', static function (LengthAwarePaginator $viewRuns) use ($sitesRun): bool {
+        return $viewRuns->sole()->is($sitesRun);
+    });
+});
+
+test('index on a task type contains only the runs of that task', function (): void {
+    $siteEndpointsRun = Run::factory()->create([
+        'source' => null,
+        'collector' => null,
+        'task' => TaskType::SITE_ENDPOINTS,
+    ]);
+    Run::factory()->create();
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::RUNS, RunTypeFilter::taskTypeRouteParameters(TaskType::SITE_ENDPOINTS)));
+
+    $response->assertViewHas('runs', static function (LengthAwarePaginator $viewRuns) use ($siteEndpointsRun): bool {
+        return $viewRuns->sole()->is($siteEndpointsRun);
+    });
+});
+
+test('index on a collector type contains a run types filter counting all runs', function (): void {
+    Run::factory()->create(['collector' => CollectorType::REPOSITORIES]);
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::RUNS, RunTypeFilter::collectorTypeRouteParameters(CollectorType::SITES)));
+
+    $response->assertViewHas('runTypesFilter', static function (Filter $viewRunTypesFilter): bool {
+        $repositoriesQueryParameters = RunTypeFilter::collectorTypeRouteParameters(CollectorType::REPOSITORIES);
+        $repositoriesOption = $viewRunTypesFilter->options->firstOrFail(
+            static function (FilterOption $filterOption) use ($repositoriesQueryParameters): bool {
+                return $filterOption->queryParameters === $repositoriesQueryParameters;
+            },
+        );
+
+        return $repositoriesOption->count === 1;
+    });
+});
+
+test('index refuses an unknown collector type', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::RUNS, [RunTypeFilter::COLLECTOR_PARAMETER => fake()->word()]));
+
+    $response->assertInvalid(RunTypeFilter::COLLECTOR_PARAMETER);
+});
+
+test('index refuses an unknown task type', function (): void {
+    $this->actingAs(User::factory()->create(), AuthenticationProvider::GUARD);
+
+    $response = $this->get(route(RouteName::RUNS, [RunTypeFilter::TASK_PARAMETER => fake()->word()]));
+
+    $response->assertInvalid(RunTypeFilter::TASK_PARAMETER);
+});
+
 test('index lists the scheduled commands', function (): void {
     $command = sprintf('compass:%s', fake()->slug());
     $schedule = new Schedule();
@@ -90,7 +157,7 @@ test('run runs the scheduled command of the mutex name', function (): void {
 
 test('run sends the user back to the runs page', function (): void {
     $kernel = Assert::isInstanceOf($this->app->make(Kernel::class), ConsoleKernel::class);
-    $kernel->registerCommand(new ClosureCommand('compass:fake-command', static function (): void {
+    $kernel->registerCommand(new ClosureCommand('compass:fake-command', function (): void {
     }));
     $schedule = new Schedule();
     $event = $schedule->command('compass:fake-command');
@@ -104,7 +171,7 @@ test('run sends the user back to the runs page', function (): void {
 
 test('run answers a request for json with an empty accepted', function (): void {
     $kernel = Assert::isInstanceOf($this->app->make(Kernel::class), ConsoleKernel::class);
-    $kernel->registerCommand(new ClosureCommand('compass:fake-command', static function (): void {
+    $kernel->registerCommand(new ClosureCommand('compass:fake-command', function (): void {
     }));
     $schedule = new Schedule();
     $event = $schedule->command('compass:fake-command');
