@@ -45,7 +45,7 @@ readonly class IssueSynchroniser
                 'source' => $source,
                 'external_id' => $collectedIssue->externalId,
                 'repository_lookup_key' => $collectedIssue->repositoryLookupKey,
-                'number' => $collectedIssue->number,
+                'external_reference' => $collectedIssue->externalReference,
                 'title' => $collectedIssue->title,
                 'type' => $collectedIssue->type,
                 'source_url' => $collectedIssue->sourceUrl,

@@ -45,7 +45,7 @@ readonly class PullRequestSynchroniser
                 'source' => $source,
                 'external_id' => $collectedPullRequest->externalId,
                 'repository_lookup_key' => $collectedPullRequest->repositoryLookupKey,
-                'number' => $collectedPullRequest->number,
+                'external_reference' => $collectedPullRequest->externalReference,
                 'title' => $collectedPullRequest->title,
                 'source_url' => $collectedPullRequest->sourceUrl,
                 'author_login' => $collectedPullRequest->authorLogin,

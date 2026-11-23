@@ -10,7 +10,7 @@
             <div class="min-w-0">
                 <x-compass::source-link :source-url="$pullRequest->source_url" class="text-base font-semibold text-foreground">{{ $pullRequest->title }}</x-compass::source-link>
                 <div class="mt-0.5 text-xs text-foreground-muted">
-                    <x-compass::issue-reference :number="$pullRequest->number" :repository="$pullRequest->repository" />
+                    <x-compass::issue-reference :external-reference="$pullRequest->external_reference" :repository="$pullRequest->repository" />
                     ·
                     @if ($pullRequest->author_login !== null)
                         {{ $pullRequest->author_login }}

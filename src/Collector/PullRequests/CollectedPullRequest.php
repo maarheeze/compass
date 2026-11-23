@@ -12,7 +12,7 @@ readonly class CollectedPullRequest
     public function __construct(
         public string $externalId,
         public string $repositoryLookupKey,
-        public int $number,
+        public string $externalReference,
         public string $title,
         public ?string $sourceUrl,
         public ?string $authorLogin,

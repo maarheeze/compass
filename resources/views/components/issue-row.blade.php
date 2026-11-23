@@ -10,7 +10,7 @@
                     @endif
                 </div>
                 <div class="mt-0.5 text-xs text-foreground-muted">
-                    <x-compass::issue-reference :number="$issue->number" :repository="$issue->repository" />
+                    <x-compass::issue-reference :external-reference="$issue->external_reference" :repository="$issue->repository" />
                     ·
                     @if ($issue->author_login !== null)
                         {{ $issue->author_login }}

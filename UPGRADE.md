@@ -27,6 +27,13 @@ The lists no longer show a count badge.
 Read `source_url` instead of `url` on `Repository`, `Issue` and `PullRequest`,
 and allow for null.
 
+### `number` replaced by `external_reference`
+
+Read `external_reference` instead of `number` on `Issue` and `PullRequest`. It
+holds the reference as the provider writes it, such as `owner/repository#123`,
+and is filled at the next collect: until then it holds the bare number. The
+`issue-reference` component takes `external-reference` instead of `number`.
+
 ### `DISPLAY_ORDER` replaced by `displayOrder()`
 
 Call `RepositoryKind::displayOrder()` and `RepositoryVisibility::displayOrder()`

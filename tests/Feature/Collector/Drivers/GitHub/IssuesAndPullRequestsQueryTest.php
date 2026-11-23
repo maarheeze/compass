@@ -10,8 +10,10 @@ use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubQueryFailed;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubSearchIncomplete;
 use Maarheeze\Compass\Collector\Drivers\GitHub\IssuesAndPullRequestsQuery;
+use Maarheeze\Compass\Collector\Issues\CollectedIssue;
 use Maarheeze\Compass\Collector\Issues\IssueType;
 use Maarheeze\Compass\Collector\Issues\IssueTypeMapping;
+use Maarheeze\Compass\Collector\PullRequests\CollectedPullRequest;
 use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Tests\Fixtures\CollectedIssueFactory;
 use Maarheeze\Compass\Tests\Fixtures\CollectedPullRequestFactory;
@@ -222,6 +224,7 @@ test('issues end with a page that is not full', function (): void {
 test('issues hold the collected issues in the response', function (): void {
     $collectedIssue = CollectedIssueFactory::make();
     $issueTypeName = fake()->word();
+    $number = fake()->numberBetween(1, 9999);
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             'incomplete_results' => false,
@@ -232,7 +235,7 @@ test('issues hold the collected issues in the response', function (): void {
                         'https://api.github.com/repos/%s',
                         $collectedIssue->repositoryLookupKey,
                     ),
-                    'number' => $collectedIssue->number,
+                    'number' => $number,
                     'title' => $collectedIssue->title,
                     'type' => ['name' => $issueTypeName],
                     'html_url' => $collectedIssue->sourceUrl,
@@ -261,11 +264,24 @@ test('issues hold the collected issues in the response', function (): void {
     $collectedIssues = $issuesAndPullRequestsQuery->issues($issueTypeMapping)->current();
 
     expect($collectedIssues)
-        ->toEqual(new CollectedIssueCollection([$collectedIssue]));
+        ->toEqual(new CollectedIssueCollection([
+            new CollectedIssue(
+                $collectedIssue->externalId,
+                $collectedIssue->repositoryLookupKey,
+                sprintf('%s#%d', $collectedIssue->repositoryLookupKey, $number),
+                $collectedIssue->title,
+                $collectedIssue->type,
+                $collectedIssue->sourceUrl,
+                $collectedIssue->authorLogin,
+                $collectedIssue->openedAt,
+                $collectedIssue->assignees,
+            ),
+        ]));
 });
 
 test('pull requests hold the collected pull requests in the response', function (): void {
     $collectedPullRequest = CollectedPullRequestFactory::make();
+    $number = fake()->numberBetween(1, 9999);
     $this->app->make(HttpFactory::class)->fake([
         '*' => HttpFactory::response([
             'incomplete_results' => false,
@@ -276,7 +292,7 @@ test('pull requests hold the collected pull requests in the response', function 
                         'https://api.github.com/repos/%s',
                         $collectedPullRequest->repositoryLookupKey,
                     ),
-                    'number' => $collectedPullRequest->number,
+                    'number' => $number,
                     'title' => $collectedPullRequest->title,
                     'html_url' => $collectedPullRequest->sourceUrl,
                     'user' => [
@@ -302,7 +318,19 @@ test('pull requests hold the collected pull requests in the response', function 
     $collectedPullRequests = $issuesAndPullRequestsQuery->pullRequests()->current();
 
     expect($collectedPullRequests)
-        ->toEqual(new CollectedPullRequestCollection([$collectedPullRequest]));
+        ->toEqual(new CollectedPullRequestCollection([
+            new CollectedPullRequest(
+                $collectedPullRequest->externalId,
+                $collectedPullRequest->repositoryLookupKey,
+                sprintf('%s#%d', $collectedPullRequest->repositoryLookupKey, $number),
+                $collectedPullRequest->title,
+                $collectedPullRequest->sourceUrl,
+                $collectedPullRequest->authorLogin,
+                $collectedPullRequest->isDraft,
+                $collectedPullRequest->openedAt,
+                $collectedPullRequest->assignees,
+            ),
+        ]));
 });
 
 test('issues hold no author login for an issue without a user', function (): void {

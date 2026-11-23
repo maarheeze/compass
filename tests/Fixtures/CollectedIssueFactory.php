@@ -20,7 +20,7 @@ class CollectedIssueFactory
         return new CollectedIssue(
             fake()->unique()->sha1(),
             sprintf('%s/%s', fake()->slug(), fake()->slug()),
-            fake()->numberBetween(1, 9999),
+            sprintf('#%d', fake()->numberBetween(1, 9999)),
             fake()->sentence(),
             fake()->randomElement(IssueType::cases()),
             fake()->url(),

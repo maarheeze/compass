@@ -30,7 +30,7 @@ class PullRequestFactory extends Factory
             'source' => fake()->slug(),
             'external_id' => fake()->unique()->sha1(),
             'repository_lookup_key' => sprintf('%s/%s', fake()->slug(), fake()->slug()),
-            'number' => fake()->numberBetween(1, 9999),
+            'external_reference' => sprintf('#%d', fake()->numberBetween(1, 9999)),
             'title' => fake()->sentence(),
             'source_url' => fake()->optional()->url(),
             'author_login' => fake()->optional()->userName(),

@@ -12,7 +12,7 @@ readonly class CollectedIssue
     public function __construct(
         public string $externalId,
         public string $repositoryLookupKey,
-        public int $number,
+        public string $externalReference,
         public string $title,
         public ?IssueType $type,
         public ?string $sourceUrl,

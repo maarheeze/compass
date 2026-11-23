@@ -106,7 +106,7 @@ readonly class IssuesAndPullRequestsQuery
         return new CollectedIssue(
             Assert::string($itemResponse['node_id']),
             $this->getRepositoryFullName($itemResponse),
-            Assert::integer($itemResponse['number']),
+            $this->getExternalReference($itemResponse),
             Assert::string($itemResponse['title']),
             $issueTypeMapping->issueType($this->getIssueTypeName($itemResponse['type'])),
             Assert::string($itemResponse['html_url']),
@@ -124,13 +124,25 @@ readonly class IssuesAndPullRequestsQuery
         return new CollectedPullRequest(
             Assert::string($itemResponse['node_id']),
             $this->getRepositoryFullName($itemResponse),
-            Assert::integer($itemResponse['number']),
+            $this->getExternalReference($itemResponse),
             Assert::string($itemResponse['title']),
             Assert::string($itemResponse['html_url']),
             $this->getAuthorLogin($itemResponse['user']),
             Assert::boolean($itemResponse['draft']),
             CarbonImmutable::parse(Assert::string($itemResponse['created_at'])),
             $this->getAssignees($itemResponse),
+        );
+    }
+
+    /**
+     * @param array<mixed> $itemResponse
+     */
+    private function getExternalReference(array $itemResponse): string
+    {
+        return sprintf(
+            '%s#%d',
+            $this->getRepositoryFullName($itemResponse),
+            Assert::integer($itemResponse['number']),
         );
     }
 

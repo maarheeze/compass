@@ -24,9 +24,9 @@ use Maarheeze\Uuid\Uuid;
  * @property CarbonImmutable $collected_at
  * @property CarbonImmutable $created_at
  * @property string $external_id
+ * @property string $external_reference
  * @property Uuid $id
  * @property bool $is_draft
- * @property int $number
  * @property CarbonImmutable $opened_at
  * @property ?Uuid $repository_id
  * @property string $repository_lookup_key
@@ -61,8 +61,8 @@ class PullRequest extends Model
             'author_login',
             'collected_at',
             'external_id',
+            'external_reference',
             'is_draft',
-            'number',
             'opened_at',
             'repository_id',
             'repository_lookup_key',
@@ -103,7 +103,6 @@ class PullRequest extends Model
             'collected_at' => 'immutable_datetime',
             'created_at' => 'immutable_datetime',
             'is_draft' => 'boolean',
-            'number' => 'integer',
             'opened_at' => 'immutable_datetime',
             'repository_id' => UuidCast::class,
             'run_id' => UuidCast::class,
