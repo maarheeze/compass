@@ -7,6 +7,7 @@ namespace Maarheeze\Compass\Collector\Drivers\Forge;
 use Generator;
 use Maarheeze\Compass\Collections\CollectedSiteCollection;
 use Maarheeze\Compass\Collector\CollectingFailed;
+use Maarheeze\Compass\Collector\RequestBudgetExhausted;
 use Maarheeze\Compass\Collector\Sites\SitesCollector;
 
 readonly class ForgeSitesCollector implements SitesCollector
@@ -22,6 +23,7 @@ readonly class ForgeSitesCollector implements SitesCollector
      * @return Generator<int, CollectedSiteCollection>
      *
      * @throws CollectingFailed
+     * @throws RequestBudgetExhausted
      */
     public function sites(): Generator
     {

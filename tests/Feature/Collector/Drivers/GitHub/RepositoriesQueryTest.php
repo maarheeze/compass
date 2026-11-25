@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Cache\RateLimiter;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collections\CollectedRepositoryCollection;
@@ -9,6 +10,7 @@ use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubQueryFailed;
 use Maarheeze\Compass\Collector\Drivers\GitHub\RepositoriesQuery;
 use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
+use Maarheeze\Compass\Collector\RequestBudget;
 use Maarheeze\Compass\Tests\Fixtures\CollectedRepositoryFactory;
 
 test('pages are queried at the github graphql api', function (): void {
@@ -29,7 +31,14 @@ test('pages are queried at the github graphql api', function (): void {
         ]),
     ]);
 
-    $repositoriesQuery = new RepositoriesQuery(new GitHubClient($http, fake()->sha1()), fake()->slug());
+    $repositoriesQuery = new RepositoriesQuery(
+        new GitHubClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
+        fake()->slug(),
+    );
     $repositoriesQuery->pages()->current();
 
     $http->assertSent(static function (HttpRequest $request): bool {
@@ -61,7 +70,14 @@ test('pages query the first page for the organisation without a cursor', functio
         ]),
     ]);
 
-    $repositoriesQuery = new RepositoriesQuery(new GitHubClient($http, fake()->sha1()), $organisation);
+    $repositoriesQuery = new RepositoriesQuery(
+        new GitHubClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
+        $organisation,
+    );
     $repositoriesQuery->pages()->current();
 
     $http->assertSent(static function (HttpRequest $request) use ($organisation): bool {
@@ -105,7 +121,14 @@ test('pages query the next page from the end cursor of the page before it', func
     ]);
     $http->fake(['*' => $responseSequence]);
 
-    $repositoriesQuery = new RepositoriesQuery(new GitHubClient($http, fake()->sha1()), fake()->slug());
+    $repositoriesQuery = new RepositoriesQuery(
+        new GitHubClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
+        fake()->slug(),
+    );
     iterator_to_array($repositoriesQuery->pages());
 
     $http->assertSent(static function (HttpRequest $request) use ($endCursor): bool {
@@ -159,7 +182,11 @@ test('pages hold the collected repositories in the response', function (): void 
     ]);
 
     $repositoriesQuery = new RepositoriesQuery(
-        new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
+        new GitHubClient(
+            $this->app->make(HttpFactory::class),
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
     );
     $repositoriesQueryResult = $repositoriesQuery->pages()->current();
@@ -208,7 +235,14 @@ test('pages map the visibility of github to the visibility of the collected repo
         ]),
     ]);
 
-    $repositoriesQuery = new RepositoriesQuery(new GitHubClient($http, fake()->sha1()), fake()->slug());
+    $repositoriesQuery = new RepositoriesQuery(
+        new GitHubClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
+        fake()->slug(),
+    );
     $repositoriesQueryResult = $repositoriesQuery->pages()->current();
 
     expect($repositoriesQueryResult->collectedRepositories->sole()->visibility)
@@ -249,7 +283,11 @@ test('pages skip repositories without a default branch', function (): void {
     ]);
 
     $repositoriesQuery = new RepositoriesQuery(
-        new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
+        new GitHubClient(
+            $this->app->make(HttpFactory::class),
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
     );
     $repositoriesQueryResult = $repositoriesQuery->pages()->current();
@@ -276,7 +314,14 @@ test('pages end with the page without a next page', function (): void {
         ]),
     ]);
 
-    $repositoriesQuery = new RepositoriesQuery(new GitHubClient($http, fake()->sha1()), fake()->slug());
+    $repositoriesQuery = new RepositoriesQuery(
+        new GitHubClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
+        fake()->slug(),
+    );
     iterator_to_array($repositoriesQuery->pages());
 
     $http->assertSentCount(1);
@@ -297,7 +342,11 @@ test('pages throw when github answers with errors', function (): void {
     ]);
 
     $repositoriesQuery = new RepositoriesQuery(
-        new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
+        new GitHubClient(
+            $this->app->make(HttpFactory::class),
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
     );
     $repositoriesQuery->pages()->current();
@@ -307,7 +356,11 @@ test('pages throw when github refuses the request', function (): void {
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, 401)]);
 
     $repositoriesQuery = new RepositoriesQuery(
-        new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
+        new GitHubClient(
+            $this->app->make(HttpFactory::class),
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
     );
     $repositoriesQuery->pages()->current();

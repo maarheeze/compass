@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use Illuminate\Cache\RateLimiter;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Maarheeze\Compass\Collections\CollectedSiteCollection;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\Drivers\Forge\ForgeClient;
 use Maarheeze\Compass\Collector\Drivers\Forge\ForgeSitesCollector;
+use Maarheeze\Compass\Collector\RequestBudget;
 
 test('sites yields the collected sites of each page', function (): void {
     $http = $this->app->make(HttpFactory::class);
@@ -26,7 +28,11 @@ test('sites yields the collected sites of each page', function (): void {
     $http->fake(['*' => $responseSequence]);
 
     $forgeSitesCollector = new ForgeSitesCollector(
-        new ForgeClient($http, fake()->sha1()),
+        new ForgeClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
         '/.*/',
     );
@@ -87,7 +93,11 @@ test('sites yields only the collected sites on servers matching the server patte
     ]);
 
     $forgeSitesCollector = new ForgeSitesCollector(
-        new ForgeClient($http, fake()->sha1()),
+        new ForgeClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
         '/\A\z/',
     );
@@ -101,7 +111,11 @@ test('sites throws collecting failed when forge fails', function (): void {
     $http->fake(['*' => HttpFactory::response(null, 500)]);
 
     $forgeSitesCollector = new ForgeSitesCollector(
-        new ForgeClient($http, fake()->sha1()),
+        new ForgeClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
         '/.*/',
     );

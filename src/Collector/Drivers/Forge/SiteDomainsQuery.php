@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Collector\Drivers\Forge;
 
 use Maarheeze\Compass\Collections\CollectedSiteDomainCollection;
+use Maarheeze\Compass\Collector\RequestBudgetExhausted;
 use Maarheeze\Compass\Collector\SiteDomains\CollectedSiteDomain;
 use Maarheeze\Compass\Collector\SiteDomains\SiteDomainStatus;
 use Maarheeze\Compass\Collector\SiteDomains\SiteDomainType;
@@ -23,6 +24,7 @@ readonly class SiteDomainsQuery
 
     /**
      * @throws ForgeRequestFailed
+     * @throws RequestBudgetExhausted
      */
     public function siteDomains(Site $site): CollectedSiteDomainCollection
     {
@@ -60,6 +62,7 @@ readonly class SiteDomainsQuery
      * @return array<mixed>
      *
      * @throws ForgeRequestFailed
+     * @throws RequestBudgetExhausted
      */
     private function getSiteDomainsResponse(Site $site, ?string $cursor): array
     {

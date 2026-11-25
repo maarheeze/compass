@@ -93,6 +93,7 @@ Collects the repositories of an organisation, with their latest commit, composer
         'driver' => 'github',
         'organisation' => env('COMPASS_GITHUB_ORGANISATION'),
         'token' => env('COMPASS_GITHUB_TOKEN'),
+        'requests_per_minute' => env('COMPASS_GITHUB_REQUESTS_PER_MINUTE', 60),
         'issue_types' => [
             'Bug' => IssueType::BUG,
             'Feature' => IssueType::FEATURE,
@@ -109,6 +110,8 @@ Collects the repositories of an organisation, with their latest commit, composer
 
 `issue_types` maps the names of the organisation's issue types onto Compass's types: `IssueType::BUG`, `IssueType::FEATURE` and `IssueType::TASK`. An issue whose type is not listed, or that has no type, has no type in Compass. Left out, no issue has a type.
 
+`requests_per_minute` caps the requests Compass sends to GitHub a minute, REST and GraphQL together. A job that would go over waits until the minute has room, and so does a job GitHub answers with its rate limit, for as long as GitHub asks.
+
 ### Laravel Forge
 
 Collects the sites of a Forge organisation, with what is deployed and how that deployment went, and their domains. Alerts on sites that are behind their repository, deployments that are overdue and sites that disappeared.
@@ -121,6 +124,7 @@ The token needs the scopes `server:view`, for the sites, and `site:meta`, for th
         'driver' => 'forge',
         'organisation' => env('COMPASS_FORGE_ORGANISATION'),
         'token' => env('COMPASS_FORGE_TOKEN'),
+        'requests_per_minute' => env('COMPASS_FORGE_REQUESTS_PER_MINUTE', 60),
         'auto_deploy_grace_minutes' => env('COMPASS_FORGE_AUTO_DEPLOY_GRACE_MINUTES', 5),
         'server_pattern' => env('COMPASS_FORGE_SERVER_PATTERN', '/.*/'),
         'schedule' => [
@@ -129,6 +133,8 @@ The token needs the scopes `server:view`, for the sites, and `site:meta`, for th
     ],
 ],
 ```
+
+`requests_per_minute` caps the requests Compass sends to Forge a minute. A job that would go over waits until the minute has room, and so does a job Forge answers with too many requests, for as long as Forge asks.
 
 ### Compass client
 

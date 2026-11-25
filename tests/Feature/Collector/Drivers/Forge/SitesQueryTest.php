@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use Illuminate\Cache\RateLimiter;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collections\CollectedSiteCollection;
 use Maarheeze\Compass\Collector\Drivers\Forge\ForgeClient;
 use Maarheeze\Compass\Collector\Drivers\Forge\SitesQuery;
+use Maarheeze\Compass\Collector\RequestBudget;
 use Maarheeze\Compass\Collector\Sites\CollectedSite;
 use Maarheeze\Compass\Collector\Sites\DeploymentStatus;
 use Maarheeze\Compass\Tests\Fixtures\CollectedSiteFactory;
@@ -24,7 +26,14 @@ test('pages request the sites of the forge organisation', function (): void {
         ]),
     ]);
 
-    $sitesQuery = new SitesQuery(new ForgeClient($http, fake()->sha1()), $organisation);
+    $sitesQuery = new SitesQuery(
+        new ForgeClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
+        $organisation,
+    );
     $sitesQuery->pages()->current();
 
     $http->assertSent(static function (HttpRequest $request) use ($organisation): bool {
@@ -51,7 +60,14 @@ test('pages request the next page with their server and latest deployment from t
     ]);
     $http->fake(['*' => $responseSequence]);
 
-    $sitesQuery = new SitesQuery(new ForgeClient($http, fake()->sha1()), fake()->slug());
+    $sitesQuery = new SitesQuery(
+        new ForgeClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
+        fake()->slug(),
+    );
     iterator_to_array($sitesQuery->pages());
 
     $http->assertSent(static function (HttpRequest $request) use ($nextCursor): bool {
@@ -132,7 +148,14 @@ test('pages hold the collected sites in the response', function (): void {
         ]),
     ]);
 
-    $sitesQuery = new SitesQuery(new ForgeClient($http, fake()->sha1()), $organisation);
+    $sitesQuery = new SitesQuery(
+        new ForgeClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
+        $organisation,
+    );
     $sitesQueryResult = $sitesQuery->pages()->current();
 
     expect($sitesQueryResult->collectedSites)
@@ -226,7 +249,14 @@ test('pages map the deployment status of forge to the deployment status of the c
         ]),
     ]);
 
-    $sitesQuery = new SitesQuery(new ForgeClient($this->app->make(HttpFactory::class), fake()->sha1()), fake()->slug());
+    $sitesQuery = new SitesQuery(
+        new ForgeClient(
+            $this->app->make(HttpFactory::class),
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
+        fake()->slug(),
+    );
     $sitesQueryResult = $sitesQuery->pages()->current();
 
     expect($sitesQueryResult->collectedSites->sole()->deploymentStatus)
@@ -290,7 +320,14 @@ test('pages hold no deployment for a site that was never deployed', function ():
         ]),
     ]);
 
-    $sitesQuery = new SitesQuery(new ForgeClient($this->app->make(HttpFactory::class), fake()->sha1()), fake()->slug());
+    $sitesQuery = new SitesQuery(
+        new ForgeClient(
+            $this->app->make(HttpFactory::class),
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
+        fake()->slug(),
+    );
     $collectedSite = $sitesQuery->pages()
         ->current()
         ->collectedSites
@@ -372,7 +409,14 @@ test('pages hold no end time for a deployment that has not ended', function (): 
         ]),
     ]);
 
-    $sitesQuery = new SitesQuery(new ForgeClient($this->app->make(HttpFactory::class), fake()->sha1()), fake()->slug());
+    $sitesQuery = new SitesQuery(
+        new ForgeClient(
+            $this->app->make(HttpFactory::class),
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
+        fake()->slug(),
+    );
     $sitesQueryResult = $sitesQuery->pages()->current();
 
     expect($sitesQueryResult->collectedSites->sole()->deploymentEndedAt)
@@ -390,7 +434,14 @@ test('pages end with the page without a next cursor', function (): void {
         ]),
     ]);
 
-    $sitesQuery = new SitesQuery(new ForgeClient($http, fake()->sha1()), fake()->slug());
+    $sitesQuery = new SitesQuery(
+        new ForgeClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
+        fake()->slug(),
+    );
     iterator_to_array($sitesQuery->pages());
 
     $http->assertSentCount(1);

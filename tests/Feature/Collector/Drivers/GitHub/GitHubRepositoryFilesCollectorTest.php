@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
+use Illuminate\Cache\RateLimiter;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubRepositoryFilesCollector;
+use Maarheeze\Compass\Collector\RequestBudget;
 
 test('content is the content of the file at its version', function (): void {
     $text = fake()->text();
@@ -18,7 +20,11 @@ test('content is the content of the file at its version', function (): void {
     ]);
 
     $gitHubRepositoryFilesCollector = new GitHubRepositoryFilesCollector(
-        new GitHubClient($http, fake()->sha1()),
+        new GitHubClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
     );
 
@@ -31,7 +37,11 @@ test('content throws collecting failed when github fails', function (): void {
     $http->fake(['*' => HttpFactory::response(null, 500)]);
 
     $gitHubRepositoryFilesCollector = new GitHubRepositoryFilesCollector(
-        new GitHubClient($http, fake()->sha1()),
+        new GitHubClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
     );
     $gitHubRepositoryFilesCollector->content(fake()->slug(), fake()->sha1());

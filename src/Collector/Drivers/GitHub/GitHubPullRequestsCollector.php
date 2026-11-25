@@ -8,6 +8,7 @@ use Generator;
 use Maarheeze\Compass\Collections\CollectedPullRequestCollection;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\PullRequests\PullRequestsCollector;
+use Maarheeze\Compass\Collector\RequestBudgetExhausted;
 
 readonly class GitHubPullRequestsCollector implements PullRequestsCollector
 {
@@ -21,6 +22,7 @@ readonly class GitHubPullRequestsCollector implements PullRequestsCollector
      * @return Generator<int, CollectedPullRequestCollection>
      *
      * @throws CollectingFailed
+     * @throws RequestBudgetExhausted
      */
     public function pullRequests(): Generator
     {

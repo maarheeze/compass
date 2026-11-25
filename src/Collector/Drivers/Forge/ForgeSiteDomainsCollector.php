@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Collector\Drivers\Forge;
 
 use Maarheeze\Compass\Collections\CollectedSiteDomainCollection;
 use Maarheeze\Compass\Collector\CollectingFailed;
+use Maarheeze\Compass\Collector\RequestBudgetExhausted;
 use Maarheeze\Compass\Collector\SiteDomains\SiteDomainsCollector;
 use Maarheeze\Compass\Models\Site;
 
@@ -19,6 +20,7 @@ readonly class ForgeSiteDomainsCollector implements SiteDomainsCollector
 
     /**
      * @throws CollectingFailed
+     * @throws RequestBudgetExhausted
      */
     public function siteDomains(Site $site): CollectedSiteDomainCollection
     {

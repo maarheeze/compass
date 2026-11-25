@@ -19,6 +19,7 @@ use Maarheeze\Compass\Collector\Dependabot\DependabotFilesCollectorManager;
 use Maarheeze\Compass\Collector\Dependabot\DependabotYmlReader;
 use Maarheeze\Compass\Collector\Dependabot\DependabotYmlSynchroniser;
 use Maarheeze\Compass\Collector\Events\DependabotYmlChanged;
+use Maarheeze\Compass\Collector\RequestBudgetExhausted;
 use Maarheeze\Compass\Collector\SubjectJob;
 use Maarheeze\Compass\Models\Repository;
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -39,6 +40,7 @@ class CollectDependabotYml implements SubjectJob
     /**
      * @throws CollectingFailed
      * @throws ParseException
+     * @throws RequestBudgetExhausted
      */
     public function handle(
         CollectorLogger $collectorLogger,

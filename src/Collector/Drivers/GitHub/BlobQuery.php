@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Collector\Drivers\GitHub;
 
+use Maarheeze\Compass\Collector\RequestBudgetExhausted;
 use Webmozart\Assert\Assert;
 
 use function base64_decode;
@@ -19,6 +20,7 @@ readonly class BlobQuery
 
     /**
      * @throws GitHubQueryFailed
+     * @throws RequestBudgetExhausted
      */
     public function text(string $repositoryName, string $oid): string
     {

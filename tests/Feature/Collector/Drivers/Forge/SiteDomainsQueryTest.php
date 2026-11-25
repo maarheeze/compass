@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use Illuminate\Cache\RateLimiter;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collections\CollectedSiteDomainCollection;
 use Maarheeze\Compass\Collector\Drivers\Forge\ForgeClient;
 use Maarheeze\Compass\Collector\Drivers\Forge\SiteDomainsQuery;
+use Maarheeze\Compass\Collector\RequestBudget;
 use Maarheeze\Compass\Collector\SiteDomains\CollectedSiteDomain;
 use Maarheeze\Compass\Collector\SiteDomains\SiteDomainStatus;
 use Maarheeze\Compass\Collector\SiteDomains\SiteDomainType;
@@ -25,7 +27,14 @@ test('site domains request the domains of the site on its server', function (): 
         ]),
     ]);
 
-    $siteDomainsQuery = new SiteDomainsQuery(new ForgeClient($http, fake()->sha1()), $organisation);
+    $siteDomainsQuery = new SiteDomainsQuery(
+        new ForgeClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
+        $organisation,
+    );
     $siteDomainsQuery->siteDomains($site);
 
     $http->assertSent(static function (HttpRequest $request) use ($organisation, $site): bool {
@@ -64,7 +73,14 @@ test('site domains hold the domains in the response', function (): void {
         ]),
     ]);
 
-    $siteDomainsQuery = new SiteDomainsQuery(new ForgeClient($http, fake()->sha1()), fake()->slug());
+    $siteDomainsQuery = new SiteDomainsQuery(
+        new ForgeClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
+        fake()->slug(),
+    );
     $collectedSiteDomains = $siteDomainsQuery->siteDomains(Site::factory()->create());
 
     expect($collectedSiteDomains)
@@ -89,7 +105,14 @@ test('site domains request the next page from the cursor of the page before it',
     ]);
     $http->fake(['*' => $responseSequence]);
 
-    $siteDomainsQuery = new SiteDomainsQuery(new ForgeClient($http, fake()->sha1()), fake()->slug());
+    $siteDomainsQuery = new SiteDomainsQuery(
+        new ForgeClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
+        fake()->slug(),
+    );
     $siteDomainsQuery->siteDomains(Site::factory()->create());
 
     $http->assertSent(static function (HttpRequest $request) use ($nextCursor): bool {

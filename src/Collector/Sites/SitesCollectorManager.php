@@ -10,6 +10,7 @@ use Illuminate\Http\Client\Factory as HttpFactory;
 use Maarheeze\Compass\Collector\CollectorDrivers;
 use Maarheeze\Compass\Collector\Drivers\Forge\ForgeClient;
 use Maarheeze\Compass\Collector\Drivers\Forge\ForgeSitesCollector;
+use Maarheeze\Compass\Collector\RequestBudgets;
 use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Collector\SourceConfigs;
 
@@ -21,6 +22,7 @@ readonly class SitesCollectorManager
     public function __construct(
         Container $container,
         private HttpFactory $http,
+        private RequestBudgets $requestBudgets,
         private SourceConfigs $sourceConfigs,
     ) {
         $this->collectorDrivers = new CollectorDrivers($container);
@@ -28,7 +30,11 @@ readonly class SitesCollectorManager
             'forge',
             function (Container $container, SourceConfig $sourceConfig): ForgeSitesCollector {
                 return new ForgeSitesCollector(
-                    new ForgeClient($this->http, $sourceConfig->setting('token')),
+                    new ForgeClient(
+                        $this->http,
+                        $sourceConfig->setting('token'),
+                        $this->requestBudgets->forSource($sourceConfig),
+                    ),
                     $sourceConfig->setting('organisation'),
                     $sourceConfig->setting('server_pattern'),
                 );

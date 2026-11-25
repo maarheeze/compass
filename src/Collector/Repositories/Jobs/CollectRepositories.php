@@ -21,6 +21,7 @@ use Maarheeze\Compass\Collector\Events\RepositoriesCollected;
 use Maarheeze\Compass\Collector\LockedJob;
 use Maarheeze\Compass\Collector\Repositories\RepositoriesCollectorManager;
 use Maarheeze\Compass\Collector\Repositories\RepositorySynchroniser;
+use Maarheeze\Compass\Collector\RequestBudgetExhausted;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 use Webmozart\Assert\Assert;
@@ -40,6 +41,7 @@ class CollectRepositories implements LockedJob
 
     /**
      * @throws CollectingFailed
+     * @throws RequestBudgetExhausted
      */
     public function handle(
         CollectorLogger $collectorLogger,

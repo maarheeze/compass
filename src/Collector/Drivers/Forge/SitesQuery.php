@@ -7,6 +7,7 @@ namespace Maarheeze\Compass\Collector\Drivers\Forge;
 use Carbon\CarbonImmutable;
 use Generator;
 use Maarheeze\Compass\Collections\CollectedSiteCollection;
+use Maarheeze\Compass\Collector\RequestBudgetExhausted;
 use Maarheeze\Compass\Collector\Sites\CollectedSite;
 use Maarheeze\Compass\Collector\Sites\DeploymentStatus;
 use UnexpectedValueException;
@@ -27,6 +28,7 @@ readonly class SitesQuery
      * @return Generator<int, SitesQueryResult>
      *
      * @throws ForgeRequestFailed
+     * @throws RequestBudgetExhausted
      */
     public function pages(): Generator
     {
@@ -217,6 +219,7 @@ readonly class SitesQuery
 
     /**
      * @throws ForgeRequestFailed
+     * @throws RequestBudgetExhausted
      */
     private function getSitesQueryResult(?string $cursor): SitesQueryResult
     {

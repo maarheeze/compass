@@ -14,6 +14,7 @@ use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
+use Maarheeze\Compass\Collector\RequestBudgetExhausted;
 use Maarheeze\Compass\Collector\SiteDomains\SiteDomainsCollectorManager;
 use Maarheeze\Compass\Collector\SiteDomains\SiteDomainSynchroniser;
 use Maarheeze\Compass\Collector\SubjectJob;
@@ -35,6 +36,7 @@ class CollectSiteDomains implements SubjectJob
 
     /**
      * @throws CollectingFailed
+     * @throws RequestBudgetExhausted
      * @throws Throwable
      */
     public function handle(

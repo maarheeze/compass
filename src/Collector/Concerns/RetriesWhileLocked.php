@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Collector\Concerns;
 
 use Maarheeze\Compass\Collector\JobLock;
 use Maarheeze\Compass\Collector\RecordRunResult;
+use Maarheeze\Compass\Collector\WaitsForRequestBudget;
 
 trait RetriesWhileLocked
 {
@@ -18,8 +19,14 @@ trait RetriesWhileLocked
     public function middleware(): array
     {
         return [
+            WaitsForRequestBudget::class,
             JobLock::class,
             RecordRunResult::class,
         ];
+    }
+
+    public function releaseAfter(int $seconds): void
+    {
+        $this->release($seconds);
     }
 }

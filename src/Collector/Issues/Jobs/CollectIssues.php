@@ -13,6 +13,7 @@ use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\Issues\IssuesCollectorManager;
 use Maarheeze\Compass\Collector\Issues\IssueSynchroniser;
 use Maarheeze\Compass\Collector\LockedJob;
+use Maarheeze\Compass\Collector\RequestBudgetExhausted;
 use Maarheeze\Uuid\Uuid;
 
 class CollectIssues implements LockedJob
@@ -30,6 +31,7 @@ class CollectIssues implements LockedJob
 
     /**
      * @throws CollectingFailed
+     * @throws RequestBudgetExhausted
      */
     public function handle(
         CollectorLogger $collectorLogger,

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Cache\RateLimiter;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
@@ -10,6 +11,7 @@ use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubIssuesCollector;
 use Maarheeze\Compass\Collector\Issues\IssuesCollectorManager;
 use Maarheeze\Compass\Collector\Issues\IssueType;
 use Maarheeze\Compass\Collector\Issues\IssueTypeMapping;
+use Maarheeze\Compass\Collector\RequestBudget;
 use Maarheeze\Compass\Collector\SourceConfig;
 
 test('collector of a github source collects the issues of its organisation with its token', function (): void {
@@ -21,6 +23,7 @@ test('collector of a github source collects the issues of its organisation with 
             'driver' => 'github',
             'organisation' => $organisation,
             'token' => $token,
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $http = $this->app->make(HttpFactory::class);
@@ -47,6 +50,7 @@ test('collector of a github source maps the issue types of its config', function
             'driver' => 'github',
             'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
             'issue_types' => [$issueTypeName => $issueType],
         ],
     ]);
@@ -87,7 +91,11 @@ test('collector is the collector its extension makes from its config', function 
         ],
     ]);
     $gitHubIssuesCollector = new GitHubIssuesCollector(
-        new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
+        new GitHubClient(
+            $this->app->make(HttpFactory::class),
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
         new IssueTypeMapping(new SourceConfig(fake()->slug(), [])),
     );
@@ -140,6 +148,7 @@ test('collector refuses a github source with a setting it needs missing or unset
             return [
                 'driver' => 'github',
                 'token' => fake()->sha1(),
+                'requests_per_minute' => fake()->numberBetween(10, 100),
             ];
         },
     ],
@@ -149,6 +158,16 @@ test('collector refuses a github source with a setting it needs missing or unset
                 'driver' => 'github',
                 'organisation' => fake()->slug(),
                 'token' => null,
+                'requests_per_minute' => fake()->numberBetween(10, 100),
+            ];
+        },
+    ],
+    'without requests per minute' => [
+        function (): array {
+            return [
+                'driver' => 'github',
+                'organisation' => fake()->slug(),
+                'token' => fake()->sha1(),
             ];
         },
     ],

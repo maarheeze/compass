@@ -9,6 +9,7 @@ use Maarheeze\Compass\Collections\CollectedIssueCollection;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\Issues\IssuesCollector;
 use Maarheeze\Compass\Collector\Issues\IssueTypeMapping;
+use Maarheeze\Compass\Collector\RequestBudgetExhausted;
 
 readonly class GitHubIssuesCollector implements IssuesCollector
 {
@@ -23,6 +24,7 @@ readonly class GitHubIssuesCollector implements IssuesCollector
      * @return Generator<int, CollectedIssueCollection>
      *
      * @throws CollectingFailed
+     * @throws RequestBudgetExhausted
      */
     public function issues(): Generator
     {

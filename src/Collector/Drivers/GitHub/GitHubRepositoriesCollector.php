@@ -8,6 +8,7 @@ use Generator;
 use Maarheeze\Compass\Collections\CollectedRepositoryCollection;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\Repositories\RepositoriesCollector;
+use Maarheeze\Compass\Collector\RequestBudgetExhausted;
 
 readonly class GitHubRepositoriesCollector implements RepositoriesCollector
 {
@@ -21,6 +22,7 @@ readonly class GitHubRepositoriesCollector implements RepositoriesCollector
      * @return Generator<int, CollectedRepositoryCollection>
      *
      * @throws CollectingFailed
+     * @throws RequestBudgetExhausted
      */
     public function repositories(): Generator
     {

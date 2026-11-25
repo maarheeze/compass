@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use Illuminate\Cache\RateLimiter;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collector\Drivers\Forge\ForgeClient;
 use Maarheeze\Compass\Collector\Drivers\Forge\ForgeSiteDomainsCollector;
+use Maarheeze\Compass\Collector\RequestBudget;
 use Maarheeze\Compass\Collector\SiteDomains\SiteDomainsCollectorManager;
 use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Models\Site;
@@ -20,6 +22,7 @@ test('collector of a forge source collects the domains of a site of its organisa
             'driver' => 'forge',
             'organisation' => $organisation,
             'token' => $token,
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $site = Site::factory()->create();
@@ -51,7 +54,11 @@ test('collector is the collector its extension makes from its config', function 
         ],
     ]);
     $forgeSiteDomainsCollector = new ForgeSiteDomainsCollector(
-        new ForgeClient($this->app->make(HttpFactory::class), fake()->sha1()),
+        new ForgeClient(
+            $this->app->make(HttpFactory::class),
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
     );
 

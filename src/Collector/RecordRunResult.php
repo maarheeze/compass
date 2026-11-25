@@ -34,6 +34,8 @@ readonly class RecordRunResult
 
         try {
             $next($lockedJob);
+        } catch (RequestBudgetExhausted $requestBudgetExhausted) {
+            throw $requestBudgetExhausted;
         } catch (Throwable $exception) {
             $this->storeRunResult($lockedJob, RunResultStatus::FAILED, $this->exceptionMessages->messages($exception));
 

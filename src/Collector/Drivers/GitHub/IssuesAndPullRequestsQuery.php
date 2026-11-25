@@ -13,6 +13,7 @@ use Maarheeze\Compass\Collector\CollectedAssignee;
 use Maarheeze\Compass\Collector\Issues\CollectedIssue;
 use Maarheeze\Compass\Collector\Issues\IssueTypeMapping;
 use Maarheeze\Compass\Collector\PullRequests\CollectedPullRequest;
+use Maarheeze\Compass\Collector\RequestBudgetExhausted;
 use Webmozart\Assert\Assert;
 
 use function array_key_last;
@@ -38,6 +39,7 @@ readonly class IssuesAndPullRequestsQuery
      * @return Generator<int, CollectedIssueCollection>
      *
      * @throws GitHubQueryFailed
+     * @throws RequestBudgetExhausted
      */
     public function issues(IssueTypeMapping $issueTypeMapping): Generator
     {
@@ -56,6 +58,7 @@ readonly class IssuesAndPullRequestsQuery
      * @return Generator<int, CollectedPullRequestCollection>
      *
      * @throws GitHubQueryFailed
+     * @throws RequestBudgetExhausted
      */
     public function pullRequests(): Generator
     {
@@ -179,6 +182,7 @@ readonly class IssuesAndPullRequestsQuery
      * @return list<array<mixed>>
      *
      * @throws GitHubQueryFailed
+     * @throws RequestBudgetExhausted
      */
     private function getItemResponses(string $typeQualifier, ?string $createdFrom): array
     {
@@ -249,6 +253,7 @@ readonly class IssuesAndPullRequestsQuery
      * @return Generator<int, list<array<mixed>>>
      *
      * @throws GitHubQueryFailed
+     * @throws RequestBudgetExhausted
      */
     private function searchPages(string $typeQualifier): Generator
     {

@@ -22,6 +22,7 @@ test('handle stores the repositories of the page', function (): void {
             'driver' => 'github',
             'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $repositoryResponse = [
@@ -76,6 +77,7 @@ test('handle marks the repositories of another run missing on the last page', fu
             'driver' => 'github',
             'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $repository = Repository::factory()->create(['source' => $source]);
@@ -109,6 +111,7 @@ test('handle adds the collection of the composer files and dependabot yml to its
             'driver' => 'github',
             'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $this->app->make(HttpFactory::class)->fake([
@@ -157,6 +160,7 @@ test('handle raises repositories collected', function (): void {
             'driver' => 'github',
             'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $eventFake = new EventFake($this->app->make(Dispatcher::class));
@@ -195,6 +199,7 @@ test('handle raises package json changed for a repository whose package json ver
             'driver' => 'github',
             'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $eventFake = new EventFake($this->app->make(Dispatcher::class));

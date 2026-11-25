@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Log\Context\Repository as Context;
 use Maarheeze\Compass\Collector\RecordRunResult;
+use Maarheeze\Compass\Collector\RequestBudgetExhausted;
 use Maarheeze\Compass\Collector\RunRecorder;
 use Maarheeze\Compass\Collector\RunResultStatus;
 use Maarheeze\Compass\Collector\SiteEndpoint\Jobs\CheckSiteEndpoints;
@@ -99,4 +100,19 @@ test('handle runs the job', function (): void {
 
     expect($ranInspectSite)
         ->toBe($inspectSite);
+});
+
+test('handle records nothing for a job waiting for its request budget', function (): void {
+    $run = Run::factory()->create();
+    $this->app->make(Context::class)->add(RunRecorder::RUN_ID_CONTEXT_KEY, $run->id->toString());
+
+    $recordRunResult = $this->app->make(RecordRunResult::class);
+
+    expect(static function () use ($recordRunResult): void {
+        $recordRunResult->handle(new InspectSite(Site::factory()->create(), fake()->slug()), static function (): void {
+            throw new RequestBudgetExhausted(fake()->numberBetween(1, 60));
+        });
+    })
+        ->toThrow(RequestBudgetExhausted::class);
+    $this->assertDatabaseEmpty(RunResult::class);
 });

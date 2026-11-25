@@ -9,6 +9,7 @@ use Generator;
 use Maarheeze\Compass\Collections\CollectedRepositoryCollection;
 use Maarheeze\Compass\Collector\Repositories\CollectedRepository;
 use Maarheeze\Compass\Collector\Repositories\RepositoryVisibility;
+use Maarheeze\Compass\Collector\RequestBudgetExhausted;
 use UnexpectedValueException;
 use Webmozart\Assert\Assert;
 
@@ -24,6 +25,7 @@ readonly class RepositoriesQuery
      * @return Generator<int, RepositoriesQueryResult>
      *
      * @throws GitHubQueryFailed
+     * @throws RequestBudgetExhausted
      */
     public function pages(): Generator
     {
@@ -124,6 +126,7 @@ readonly class RepositoriesQuery
 
     /**
      * @throws GitHubQueryFailed
+     * @throws RequestBudgetExhausted
      */
     private function getRepositoriesQueryResult(?string $cursor): RepositoriesQueryResult
     {

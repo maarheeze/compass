@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Cache\RateLimiter;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collections\CollectedIssueCollection;
@@ -14,6 +15,7 @@ use Maarheeze\Compass\Collector\Issues\CollectedIssue;
 use Maarheeze\Compass\Collector\Issues\IssueType;
 use Maarheeze\Compass\Collector\Issues\IssueTypeMapping;
 use Maarheeze\Compass\Collector\PullRequests\CollectedPullRequest;
+use Maarheeze\Compass\Collector\RequestBudget;
 use Maarheeze\Compass\Collector\SourceConfig;
 use Maarheeze\Compass\Tests\Fixtures\CollectedIssueFactory;
 use Maarheeze\Compass\Tests\Fixtures\CollectedPullRequestFactory;
@@ -26,7 +28,11 @@ test('issues search the open issues of the unarchived repositories, oldest first
 
     $issueTypeMapping = new IssueTypeMapping(new SourceConfig(fake()->slug(), []));
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
-        new GitHubClient($http, fake()->sha1()),
+        new GitHubClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         $organisation,
     );
     iterator_to_array($issuesAndPullRequestsQuery->issues($issueTypeMapping));
@@ -47,7 +53,11 @@ test('pull requests search the open pull requests of the unarchived repositories
     $http->fake(['*' => HttpFactory::response(['incomplete_results' => false, 'items' => []])]);
 
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
-        new GitHubClient($http, fake()->sha1()),
+        new GitHubClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         $organisation,
     );
     iterator_to_array($issuesAndPullRequestsQuery->pullRequests());
@@ -86,7 +96,11 @@ test('issues continue a full page from the creation date of its last issue', fun
 
     $issueTypeMapping = new IssueTypeMapping(new SourceConfig(fake()->slug(), []));
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
-        new GitHubClient($http, fake()->sha1()),
+        new GitHubClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
     );
     iterator_to_array($issuesAndPullRequestsQuery->issues($issueTypeMapping));
@@ -135,7 +149,11 @@ test('issues leave out the issues already collected at the date they continue fr
 
     $issueTypeMapping = new IssueTypeMapping(new SourceConfig(fake()->slug(), []));
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
-        new GitHubClient($http, fake()->sha1()),
+        new GitHubClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
     );
     $collectedIssuesPerPage = iterator_to_array($issuesAndPullRequestsQuery->issues($issueTypeMapping));
@@ -198,7 +216,11 @@ test('issues keep leaving out the issues seen at the date they continue from acr
 
     $issueTypeMapping = new IssueTypeMapping(new SourceConfig(fake()->slug(), []));
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
-        new GitHubClient($http, fake()->sha1()),
+        new GitHubClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
     );
     $collectedIssuesPerPage = iterator_to_array($issuesAndPullRequestsQuery->issues($issueTypeMapping));
@@ -213,7 +235,11 @@ test('issues end with a page that is not full', function (): void {
 
     $issueTypeMapping = new IssueTypeMapping(new SourceConfig(fake()->slug(), []));
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
-        new GitHubClient($http, fake()->sha1()),
+        new GitHubClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
     );
     iterator_to_array($issuesAndPullRequestsQuery->issues($issueTypeMapping));
@@ -258,7 +284,11 @@ test('issues hold the collected issues in the response', function (): void {
         'issue_types' => [$issueTypeName => $collectedIssue->type],
     ]));
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
-        new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
+        new GitHubClient(
+            $this->app->make(HttpFactory::class),
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
     );
     $collectedIssues = $issuesAndPullRequestsQuery->issues($issueTypeMapping)->current();
@@ -312,7 +342,11 @@ test('pull requests hold the collected pull requests in the response', function 
     ]);
 
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
-        new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
+        new GitHubClient(
+            $this->app->make(HttpFactory::class),
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
     );
     $collectedPullRequests = $issuesAndPullRequestsQuery->pullRequests()->current();
@@ -355,7 +389,11 @@ test('issues hold no author login for an issue without a user', function (): voi
 
     $issueTypeMapping = new IssueTypeMapping(new SourceConfig(fake()->slug(), []));
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
-        new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
+        new GitHubClient(
+            $this->app->make(HttpFactory::class),
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
     );
     $collectedIssues = $issuesAndPullRequestsQuery->issues($issueTypeMapping)->current();
@@ -388,7 +426,11 @@ test('issues hold no type for an issue without a type', function (): void {
         'issue_types' => [fake()->word() => fake()->randomElement(IssueType::cases())],
     ]));
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
-        new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
+        new GitHubClient(
+            $this->app->make(HttpFactory::class),
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
     );
     $collectedIssues = $issuesAndPullRequestsQuery->issues($issueTypeMapping)->current();
@@ -404,7 +446,11 @@ test('issues throw with github search incomplete behind it when github could not
 
     $issueTypeMapping = new IssueTypeMapping(new SourceConfig(fake()->slug(), []));
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
-        new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
+        new GitHubClient(
+            $this->app->make(HttpFactory::class),
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
     );
 
@@ -421,7 +467,11 @@ test('issues throw when github refuses the request', function (): void {
 
     $issueTypeMapping = new IssueTypeMapping(new SourceConfig(fake()->slug(), []));
     $issuesAndPullRequestsQuery = new IssuesAndPullRequestsQuery(
-        new GitHubClient($this->app->make(HttpFactory::class), fake()->sha1()),
+        new GitHubClient(
+            $this->app->make(HttpFactory::class),
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
     );
     $issuesAndPullRequestsQuery->issues($issueTypeMapping)->current();

@@ -14,6 +14,7 @@ use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Collector\LockedJob;
+use Maarheeze\Compass\Collector\RequestBudgetExhausted;
 use Maarheeze\Compass\Collector\SiteDomains\Jobs\CollectSiteDomainsOfSites;
 use Maarheeze\Compass\Collector\Sites\SitesCollectorManager;
 use Maarheeze\Compass\Collector\Sites\SiteSynchroniser;
@@ -36,6 +37,7 @@ class CollectSites implements LockedJob
 
     /**
      * @throws CollectingFailed
+     * @throws RequestBudgetExhausted
      */
     public function handle(
         CollectorLogger $collectorLogger,

@@ -9,4 +9,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 interface LockedJob extends ShouldQueue
 {
     public function lockKey(): string;
+
+    public function releaseAfter(int $seconds): void;
 }

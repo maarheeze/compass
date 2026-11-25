@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use Illuminate\Cache\RateLimiter;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collector\Drivers\Forge\ForgeClient;
 use Maarheeze\Compass\Collector\Drivers\Forge\ForgeSitesCollector;
+use Maarheeze\Compass\Collector\RequestBudget;
 use Maarheeze\Compass\Collector\Sites\SitesCollectorManager;
 use Maarheeze\Compass\Collector\SourceConfig;
 
@@ -19,6 +21,7 @@ test('collector of a forge source collects the sites of its organisation with it
             'driver' => 'forge',
             'organisation' => $organisation,
             'token' => $token,
+            'requests_per_minute' => fake()->numberBetween(10, 100),
             'server_pattern' => '/.*/',
         ],
     ]);
@@ -52,7 +55,11 @@ test('collector is the collector its extension makes from its config', function 
         ],
     ]);
     $forgeSitesCollector = new ForgeSitesCollector(
-        new ForgeClient($this->app->make(HttpFactory::class), fake()->sha1()),
+        new ForgeClient(
+            $this->app->make(HttpFactory::class),
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
         '/.*/',
     );
@@ -102,6 +109,7 @@ test('collector refuses a forge source with a setting it needs missing or unset'
             return [
                 'driver' => 'forge',
                 'token' => fake()->sha1(),
+                'requests_per_minute' => fake()->numberBetween(10, 100),
             ];
         },
     ],
@@ -111,6 +119,16 @@ test('collector refuses a forge source with a setting it needs missing or unset'
                 'driver' => 'forge',
                 'organisation' => fake()->slug(),
                 'token' => null,
+                'requests_per_minute' => fake()->numberBetween(10, 100),
+            ];
+        },
+    ],
+    'without requests per minute' => [
+        function (): array {
+            return [
+                'driver' => 'forge',
+                'organisation' => fake()->slug(),
+                'token' => fake()->sha1(),
             ];
         },
     ],

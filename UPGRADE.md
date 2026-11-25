@@ -72,3 +72,11 @@ for by a site, go first, set `COMPASS_HIGH_QUEUE` and `COMPASS_LOW_QUEUE` and
 start the worker with the high queue before the default queue and the low
 queue after it, as in `--queue=high,default,low`. Left unset, every run stays
 on the default queue.
+
+### `requests_per_minute` added to the `github` and `forge` sources
+
+Add `'requests_per_minute' => env('COMPASS_GITHUB_REQUESTS_PER_MINUTE', 60)` to a
+`github` source and `'requests_per_minute' => env('COMPASS_FORGE_REQUESTS_PER_MINUTE', 60)`
+to a `forge` source. Compass sends at most that many requests a minute to the
+source, and a job that would go over waits instead of failing. A source without
+it cannot be collected.

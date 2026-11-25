@@ -7,6 +7,7 @@ namespace Maarheeze\Compass\Collector\Drivers\GitHub;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\Composer\ComposerFilesCollector;
 use Maarheeze\Compass\Collector\Dependabot\DependabotFilesCollector;
+use Maarheeze\Compass\Collector\RequestBudgetExhausted;
 
 readonly class GitHubRepositoryFilesCollector implements ComposerFilesCollector, DependabotFilesCollector
 {
@@ -18,6 +19,7 @@ readonly class GitHubRepositoryFilesCollector implements ComposerFilesCollector,
 
     /**
      * @throws CollectingFailed
+     * @throws RequestBudgetExhausted
      */
     public function content(string $repositoryName, string $version): string
     {

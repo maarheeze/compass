@@ -96,6 +96,7 @@ test('handle removes the composer json when the repository no longer has one', f
             'driver' => 'github',
             'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $repository = Repository::factory()->create([
@@ -117,6 +118,7 @@ test('handle adds the repository to the log context', function (): void {
             'driver' => 'github',
             'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $repository = Repository::factory()->create([
@@ -138,6 +140,7 @@ test('handle adds the file to the log context', function (): void {
             'driver' => 'github',
             'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $repository = Repository::factory()->create([
@@ -172,6 +175,7 @@ test('handle raises composer json changed for the repository when its file is go
             'driver' => 'github',
             'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $eventFake = new EventFake($this->app->make(Dispatcher::class));

@@ -20,6 +20,7 @@ use Maarheeze\Compass\Collector\Composer\Lock\ComposerLockReader;
 use Maarheeze\Compass\Collector\Composer\Lock\ComposerLockSynchroniser;
 use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\Events\ComposerLockChanged;
+use Maarheeze\Compass\Collector\RequestBudgetExhausted;
 use Maarheeze\Compass\Collector\SubjectJob;
 use Maarheeze\Compass\Models\Repository;
 use Throwable;
@@ -40,6 +41,7 @@ class CollectComposerLock implements SubjectJob
     /**
      * @throws CollectingFailed
      * @throws JsonException
+     * @throws RequestBudgetExhausted
      * @throws Throwable
      */
     public function handle(

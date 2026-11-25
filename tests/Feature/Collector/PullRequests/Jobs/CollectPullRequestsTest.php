@@ -15,6 +15,7 @@ test('handle stores the pull requests of the page', function (): void {
             'driver' => 'github',
             'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $pullRequestResponse = [
@@ -57,6 +58,7 @@ test('handle deletes the pull requests of another run on the last page', functio
             'driver' => 'github',
             'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $pullRequest = PullRequest::factory()->create(['source' => $source]);
@@ -77,6 +79,7 @@ test('handle keeps the pull requests collected on an earlier page', function ():
             'driver' => 'github',
             'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $pullRequestResponse = [
@@ -122,6 +125,7 @@ test('handle leaves the issues alone', function (): void {
             'driver' => 'github',
             'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $issue = Issue::factory()->create(['source' => $source]);

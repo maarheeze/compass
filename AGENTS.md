@@ -22,6 +22,7 @@ The package never touches the host's `users` table or default guard: it brings i
 
 - **Collected data is a cache, not a source of truth.** GitHub and Forge stay authoritative; the database is refreshed periodically. Issues and pull requests a sync no longer returns are deleted; repositories and sites are marked missing instead and shown on the dashboard, because a sync that silently returns too little must not take their settings with it. Only the user deletes them, or ignores the missing mark; a row that comes back has its marks cleared.
 - **Open source by design.** No hardcoded tokens or org-specific values in code. The README documents what is required.
+- **A setting's default lives in the host's config, never as a fallback in code.** A setting with a value to choose is required, and its default is written where the host sees it: `config/compass.php`, or the README's example of a source, as `env('COMPASS_…', 60)`. A fallback in code is a decision the host cannot see. Settings whose absence means "none", such as a source's `issue_types` or `schedule`, are not defaults and stay optional.
 - **A job per request that cannot be combined.** A collector hands over what one request to its provider returns, such as a page of repositories or sites, as one batch in one job. Where every subject needs a request of its own, such as a site's report, an endpoint check or a composer file, the requests cannot be combined: the collector takes one subject, and a job per subject calls it, so a slow or failing subject only holds up or fails its own job.
 
 ## Tech stack

@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use Illuminate\Cache\RateLimiter;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Maarheeze\Compass\Collections\CollectedRepositoryCollection;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubClient;
 use Maarheeze\Compass\Collector\Drivers\GitHub\GitHubRepositoriesCollector;
+use Maarheeze\Compass\Collector\RequestBudget;
 
 test('repositories yields the collected repositories of each page', function (): void {
     $http = $this->app->make(HttpFactory::class);
@@ -40,7 +42,11 @@ test('repositories yields the collected repositories of each page', function ():
     $http->fake(['*' => $responseSequence]);
 
     $gitHubRepositoriesCollector = new GitHubRepositoriesCollector(
-        new GitHubClient($http, fake()->sha1()),
+        new GitHubClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
     );
     $collectedRepositoriesPerPage = iterator_to_array($gitHubRepositoriesCollector->repositories());
@@ -54,7 +60,11 @@ test('repositories throws collecting failed when github fails', function (): voi
     $http->fake(['*' => HttpFactory::response(null, 500)]);
 
     $gitHubRepositoriesCollector = new GitHubRepositoriesCollector(
-        new GitHubClient($http, fake()->sha1()),
+        new GitHubClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
         fake()->slug(),
     );
     iterator_to_array($gitHubRepositoriesCollector->repositories());
