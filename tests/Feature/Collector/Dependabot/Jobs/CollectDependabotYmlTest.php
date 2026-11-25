@@ -6,10 +6,10 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Support\Testing\Fakes\EventFake;
-use Maarheeze\Compass\Collector\Dependabot\DependabotFilesCollectorManager;
 use Maarheeze\Compass\Collector\Dependabot\Jobs\CollectDependabotYml;
 use Maarheeze\Compass\Collector\Events\DependabotYmlChanged;
 use Maarheeze\Compass\Collector\SourceConfig;
+use Maarheeze\Compass\Collector\SourceDrivers;
 use Maarheeze\Compass\Models\DependabotYml;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Tests\Fixtures\RecordingRepositoryFilesCollector;
@@ -24,8 +24,8 @@ test('handle asks the collector of the source for the dependabot yml at the stor
         ],
     ]);
     $recordingRepositoryFilesCollector = new RecordingRepositoryFilesCollector(Yaml::dump(['version' => 2]));
-    $dependabotFilesCollectorManager = $this->app->make(DependabotFilesCollectorManager::class);
-    $dependabotFilesCollectorManager->extend(
+    $sourceDrivers = $this->app->make(SourceDrivers::class);
+    $sourceDrivers->extend(
         $driverName,
         static function (
             Container $container,
@@ -69,8 +69,8 @@ test('handle stores the package ecosystems of the dependabot yml with its versio
             ],
         ],
     ]));
-    $dependabotFilesCollectorManager = $this->app->make(DependabotFilesCollectorManager::class);
-    $dependabotFilesCollectorManager->extend(
+    $sourceDrivers = $this->app->make(SourceDrivers::class);
+    $sourceDrivers->extend(
         $driverName,
         static function (
             Container $container,

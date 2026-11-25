@@ -20,6 +20,9 @@ test('conditionObservations observes an uncovered package ecosystem active now',
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
+            'organisation' => fake()->slug(),
+            'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $repository = Repository::factory()->create([
@@ -47,6 +50,9 @@ test('conditionObservations observes a package ecosystem the repository does not
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
+            'organisation' => fake()->slug(),
+            'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $repository = Repository::factory()->create([
@@ -76,6 +82,9 @@ test('conditionObservations judges the dependabot yml stored now, not one loaded
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
+            'organisation' => fake()->slug(),
+            'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $repository = Repository::factory()->create([

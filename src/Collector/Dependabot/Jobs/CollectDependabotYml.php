@@ -15,11 +15,12 @@ use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
-use Maarheeze\Compass\Collector\Dependabot\DependabotFilesCollectorManager;
+use Maarheeze\Compass\Collector\Dependabot\DependabotFilesCollector;
 use Maarheeze\Compass\Collector\Dependabot\DependabotYmlReader;
 use Maarheeze\Compass\Collector\Dependabot\DependabotYmlSynchroniser;
 use Maarheeze\Compass\Collector\Events\DependabotYmlChanged;
 use Maarheeze\Compass\Collector\RequestBudgetExhausted;
+use Maarheeze\Compass\Collector\SourceDrivers;
 use Maarheeze\Compass\Collector\SubjectJob;
 use Maarheeze\Compass\Models\Repository;
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -45,12 +46,15 @@ class CollectDependabotYml implements SubjectJob
     public function handle(
         CollectorLogger $collectorLogger,
         Context $context,
-        Dispatcher $events,
-        DependabotFilesCollectorManager $dependabotFilesCollectorManager,
         DependabotYmlReader $dependabotYmlReader,
         DependabotYmlSynchroniser $dependabotYmlSynchroniser,
+        Dispatcher $events,
+        SourceDrivers $sourceDrivers,
     ): void {
-        $dependabotFilesCollector = $dependabotFilesCollectorManager->collector($this->repository->source);
+        $dependabotFilesCollector = $sourceDrivers->collector(
+            $this->repository->source,
+            DependabotFilesCollector::class,
+        );
 
         $context->add('repository', $this->repository->name);
 

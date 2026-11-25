@@ -10,10 +10,11 @@ use Illuminate\Queue\InteractsWithQueue;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
-use Maarheeze\Compass\Collector\Issues\IssuesCollectorManager;
+use Maarheeze\Compass\Collector\Issues\IssuesCollector;
 use Maarheeze\Compass\Collector\Issues\IssueSynchroniser;
 use Maarheeze\Compass\Collector\LockedJob;
 use Maarheeze\Compass\Collector\RequestBudgetExhausted;
+use Maarheeze\Compass\Collector\SourceDrivers;
 use Maarheeze\Uuid\Uuid;
 
 class CollectIssues implements LockedJob
@@ -36,9 +37,9 @@ class CollectIssues implements LockedJob
     public function handle(
         CollectorLogger $collectorLogger,
         IssueSynchroniser $issueSynchroniser,
-        IssuesCollectorManager $issuesCollectorManager,
+        SourceDrivers $sourceDrivers,
     ): void {
-        $issuesCollector = $issuesCollectorManager->collector($this->source);
+        $issuesCollector = $sourceDrivers->collector($this->source, IssuesCollector::class);
 
         $collectorLogger->info('Issues collector started');
 

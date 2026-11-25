@@ -80,3 +80,13 @@ Add `'requests_per_minute' => env('COMPASS_GITHUB_REQUESTS_PER_MINUTE', 60)` to 
 to a `forge` source. Compass sends at most that many requests a minute to the
 source, and a job that would go over waits instead of failing. A source without
 it cannot be collected.
+
+### Collector managers replaced by `SourceDrivers`
+
+If you added a provider, register its driver once with
+`SourceDrivers::extend('gitlab', fn (Container $container, SourceConfig $sourceConfig) => new GitLabDriver(...))`
+instead of extending a `*CollectorManager` per kind; the managers are removed.
+The driver is one class implementing every collector contract the provider
+can deliver, such as `RepositoriesCollector` and `IssuesCollector`. The
+built-in collectors are replaced by `GitHubDriver`, `ForgeDriver` and
+`CompassClientDriver`.

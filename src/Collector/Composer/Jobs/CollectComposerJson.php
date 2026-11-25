@@ -15,12 +15,13 @@ use JsonException;
 use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
-use Maarheeze\Compass\Collector\Composer\ComposerFilesCollectorManager;
+use Maarheeze\Compass\Collector\Composer\ComposerFilesCollector;
 use Maarheeze\Compass\Collector\Composer\Json\ComposerJsonReader;
 use Maarheeze\Compass\Collector\Composer\Json\ComposerJsonSynchroniser;
 use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
 use Maarheeze\Compass\Collector\RequestBudgetExhausted;
+use Maarheeze\Compass\Collector\SourceDrivers;
 use Maarheeze\Compass\Collector\SubjectJob;
 use Maarheeze\Compass\Models\Repository;
 use Throwable;
@@ -46,13 +47,13 @@ class CollectComposerJson implements SubjectJob
      */
     public function handle(
         CollectorLogger $collectorLogger,
-        ComposerFilesCollectorManager $composerFilesCollectorManager,
         ComposerJsonReader $composerJsonReader,
         ComposerJsonSynchroniser $composerJsonSynchroniser,
         Context $context,
         Dispatcher $events,
+        SourceDrivers $sourceDrivers,
     ): void {
-        $composerFilesCollector = $composerFilesCollectorManager->collector($this->repository->source);
+        $composerFilesCollector = $sourceDrivers->collector($this->repository->source, ComposerFilesCollector::class);
 
         $context->add('repository', $this->repository->name);
         $context->add('file', 'composer.json');

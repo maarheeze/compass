@@ -11,9 +11,10 @@ use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\LockedJob;
-use Maarheeze\Compass\Collector\PullRequests\PullRequestsCollectorManager;
+use Maarheeze\Compass\Collector\PullRequests\PullRequestsCollector;
 use Maarheeze\Compass\Collector\PullRequests\PullRequestSynchroniser;
 use Maarheeze\Compass\Collector\RequestBudgetExhausted;
+use Maarheeze\Compass\Collector\SourceDrivers;
 use Maarheeze\Uuid\Uuid;
 
 class CollectPullRequests implements LockedJob
@@ -36,9 +37,9 @@ class CollectPullRequests implements LockedJob
     public function handle(
         CollectorLogger $collectorLogger,
         PullRequestSynchroniser $pullRequestSynchroniser,
-        PullRequestsCollectorManager $pullRequestsCollectorManager,
+        SourceDrivers $sourceDrivers,
     ): void {
-        $pullRequestsCollector = $pullRequestsCollectorManager->collector($this->source);
+        $pullRequestsCollector = $sourceDrivers->collector($this->source, PullRequestsCollector::class);
 
         $collectorLogger->info('Pull requests collector started');
 

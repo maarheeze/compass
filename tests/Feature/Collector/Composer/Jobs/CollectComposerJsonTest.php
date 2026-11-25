@@ -6,10 +6,10 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Support\Testing\Fakes\EventFake;
-use Maarheeze\Compass\Collector\Composer\ComposerFilesCollectorManager;
 use Maarheeze\Compass\Collector\Composer\Jobs\CollectComposerJson;
 use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
 use Maarheeze\Compass\Collector\SourceConfig;
+use Maarheeze\Compass\Collector\SourceDrivers;
 use Maarheeze\Compass\Models\ComposerJson;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Tests\Fixtures\RecordingRepositoryFilesCollector;
@@ -25,8 +25,8 @@ test('handle asks the collector of the source for the composer json at the store
     $recordingRepositoryFilesCollector = new RecordingRepositoryFilesCollector(
         json_encode(['type' => fake()->word()], JSON_THROW_ON_ERROR),
     );
-    $composerFilesCollectorManager = $this->app->make(ComposerFilesCollectorManager::class);
-    $composerFilesCollectorManager->extend(
+    $sourceDrivers = $this->app->make(SourceDrivers::class);
+    $sourceDrivers->extend(
         $driverName,
         static function (
             Container $container,
@@ -64,8 +64,8 @@ test('handle stores the composer json with its version', function (): void {
     $recordingRepositoryFilesCollector = new RecordingRepositoryFilesCollector(
         json_encode(['type' => $type], JSON_THROW_ON_ERROR),
     );
-    $composerFilesCollectorManager = $this->app->make(ComposerFilesCollectorManager::class);
-    $composerFilesCollectorManager->extend(
+    $sourceDrivers = $this->app->make(SourceDrivers::class);
+    $sourceDrivers->extend(
         $driverName,
         static function (
             Container $container,

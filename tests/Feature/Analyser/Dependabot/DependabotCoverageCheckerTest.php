@@ -13,6 +13,9 @@ test('is uncovered is true for composer in a project without a dependabot yml', 
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
+            'organisation' => fake()->slug(),
+            'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $repository = Repository::factory()->create([
@@ -36,6 +39,9 @@ test('is uncovered is true for composer in a project whose dependabot yml leaves
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
+            'organisation' => fake()->slug(),
+            'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $repository = Repository::factory()->create([
@@ -63,6 +69,9 @@ test('is uncovered is false for composer in a project whose dependabot yml lists
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
+            'organisation' => fake()->slug(),
+            'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $repository = Repository::factory()->create([
@@ -90,6 +99,9 @@ test('is uncovered is false for composer in a repository that is not a project',
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
+            'organisation' => fake()->slug(),
+            'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $repository = Repository::factory()->create([
@@ -113,6 +125,9 @@ test('is uncovered is true for npm in a repository with a package json and witho
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
+            'organisation' => fake()->slug(),
+            'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $repository = Repository::factory()->create([
@@ -132,6 +147,9 @@ test('is uncovered is false for npm in a repository whose dependabot yml lists i
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
+            'organisation' => fake()->slug(),
+            'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $repository = Repository::factory()->create([
@@ -155,6 +173,9 @@ test('is uncovered is false for npm in a repository without a package json', fun
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
+            'organisation' => fake()->slug(),
+            'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $repository = Repository::factory()->create([
@@ -174,6 +195,10 @@ test('is uncovered is false for a repository whose source has no dependabot file
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => fake()->randomElement(['forge', fake()->slug()]),
+            'organisation' => fake()->slug(),
+            'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
+            'server_pattern' => '/.*/',
         ],
     ]);
     $repository = Repository::factory()->create([
@@ -197,6 +222,9 @@ test('is required is true for composer in a project', function (): void {
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
+            'organisation' => fake()->slug(),
+            'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $repository = Repository::factory()->create([
@@ -220,6 +248,9 @@ test('is required is false for composer in a repository that is not a project', 
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
+            'organisation' => fake()->slug(),
+            'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $repository = Repository::factory()->create([
@@ -243,6 +274,9 @@ test('is required is true for npm in a repository with a package json', function
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
+            'organisation' => fake()->slug(),
+            'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $repository = Repository::factory()->create([
@@ -262,6 +296,9 @@ test('is required is false for npm in a repository without a package json', func
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
+            'organisation' => fake()->slug(),
+            'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $repository = Repository::factory()->create([
@@ -281,6 +318,10 @@ test('is required is false for a repository whose source has no dependabot files
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => fake()->randomElement(['forge', fake()->slug()]),
+            'organisation' => fake()->slug(),
+            'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
+            'server_pattern' => '/.*/',
         ],
     ]);
     $repository = Repository::factory()->create([

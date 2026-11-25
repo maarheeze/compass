@@ -16,9 +16,10 @@ use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Collector\LockedJob;
 use Maarheeze\Compass\Collector\RequestBudgetExhausted;
 use Maarheeze\Compass\Collector\SiteDomains\Jobs\CollectSiteDomainsOfSites;
-use Maarheeze\Compass\Collector\Sites\SitesCollectorManager;
+use Maarheeze\Compass\Collector\Sites\SitesCollector;
 use Maarheeze\Compass\Collector\Sites\SiteSynchroniser;
 use Maarheeze\Compass\Collector\SourceConfigs;
+use Maarheeze\Compass\Collector\SourceDrivers;
 use Maarheeze\Uuid\Uuid;
 use Webmozart\Assert\Assert;
 
@@ -42,11 +43,11 @@ class CollectSites implements LockedJob
     public function handle(
         CollectorLogger $collectorLogger,
         Dispatcher $events,
-        SitesCollectorManager $sitesCollectorManager,
         SiteSynchroniser $siteSynchroniser,
         SourceConfigs $sourceConfigs,
+        SourceDrivers $sourceDrivers,
     ): void {
-        $sitesCollector = $sitesCollectorManager->collector($this->source);
+        $sitesCollector = $sourceDrivers->collector($this->source, SitesCollector::class);
         $autoDeployGraceMinutes = $sourceConfigs
             ->get($this->source)
             ->integerSetting('auto_deploy_grace_minutes');

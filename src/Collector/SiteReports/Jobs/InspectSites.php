@@ -11,7 +11,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\LockedJob;
-use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollectorManager;
+use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollector;
+use Maarheeze\Compass\Collector\SourceDrivers;
 use Maarheeze\Compass\Models\Site;
 use Webmozart\Assert\Assert;
 
@@ -29,9 +30,9 @@ class InspectSites implements LockedJob
 
     public function handle(
         CollectorLogger $collectorLogger,
-        SiteReportsCollectorManager $siteReportsCollectorManager,
+        SourceDrivers $sourceDrivers,
     ): void {
-        $siteReportsCollectorManager->collector($this->source);
+        $sourceDrivers->collector($this->source, SiteReportsCollector::class);
 
         $batch = Assert::isInstanceOf($this->batch(), Batch::class);
         $collectedSiteChunks = Site::query()

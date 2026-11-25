@@ -7,7 +7,7 @@ use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorSchedule;
-use Maarheeze\Compass\Collector\Drivers\CompassClient\CompassClientSiteReportsCollector;
+use Maarheeze\Compass\Collector\Drivers\CompassClient\CompassClientDriver;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteClient;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteEndpoint;
@@ -38,7 +38,7 @@ test('site report holds what the client reported', function (): void {
     ]),
     ]);
 
-    $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
+    $compassClientDriver = new CompassClientDriver(
         new Randomizer(),
         new SiteClient(
             $this->app->make(CollectorSchedule::class),
@@ -48,7 +48,7 @@ test('site report holds what the client reported', function (): void {
             $this->app->make(UrlGenerator::class),
         ),
     );
-    $collectedSiteReport = $compassClientSiteReportsCollector->siteReport(SiteReport::factory()->create());
+    $collectedSiteReport = $compassClientDriver->siteReport(SiteReport::factory()->create());
 
     expect($collectedSiteReport)
         ->toEqual(CollectedSiteReport::installed($appDebug, $appEnv, $appName, [
@@ -65,7 +65,7 @@ test('site report is incompatible when the client reports without a field', func
     ]),
     ]);
 
-    $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
+    $compassClientDriver = new CompassClientDriver(
         new Randomizer(),
         new SiteClient(
             $this->app->make(CollectorSchedule::class),
@@ -75,7 +75,7 @@ test('site report is incompatible when the client reports without a field', func
             $this->app->make(UrlGenerator::class),
         ),
     );
-    $collectedSiteReport = $compassClientSiteReportsCollector->siteReport(SiteReport::factory()->create());
+    $collectedSiteReport = $compassClientDriver->siteReport(SiteReport::factory()->create());
 
     expect($collectedSiteReport)
         ->toEqual(CollectedSiteReport::incompatible());
@@ -85,7 +85,7 @@ test('site report is not installed when the site has no client', function (): vo
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(null, 404)]);
 
-    $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
+    $compassClientDriver = new CompassClientDriver(
         new Randomizer(),
         new SiteClient(
             $this->app->make(CollectorSchedule::class),
@@ -95,7 +95,7 @@ test('site report is not installed when the site has no client', function (): vo
             $this->app->make(UrlGenerator::class),
         ),
     );
-    $collectedSiteReport = $compassClientSiteReportsCollector->siteReport(SiteReport::factory()->create());
+    $collectedSiteReport = $compassClientDriver->siteReport(SiteReport::factory()->create());
 
     expect($collectedSiteReport)
         ->toEqual(CollectedSiteReport::notInstalled());
@@ -105,7 +105,7 @@ test('site report is unauthorised when the client refuses the key', function ():
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(null, 401)]);
 
-    $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
+    $compassClientDriver = new CompassClientDriver(
         new Randomizer(),
         new SiteClient(
             $this->app->make(CollectorSchedule::class),
@@ -115,7 +115,7 @@ test('site report is unauthorised when the client refuses the key', function ():
             $this->app->make(UrlGenerator::class),
         ),
     );
-    $collectedSiteReport = $compassClientSiteReportsCollector->siteReport(SiteReport::factory()->create());
+    $collectedSiteReport = $compassClientDriver->siteReport(SiteReport::factory()->create());
 
     expect($collectedSiteReport)
         ->toEqual(CollectedSiteReport::unauthorised());
@@ -125,7 +125,7 @@ test('site report throws collecting failed when the site cannot be reached', fun
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::failedConnection()]);
 
-    $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
+    $compassClientDriver = new CompassClientDriver(
         new Randomizer(),
         new SiteClient(
             $this->app->make(CollectorSchedule::class),
@@ -135,7 +135,7 @@ test('site report throws collecting failed when the site cannot be reached', fun
             $this->app->make(UrlGenerator::class),
         ),
     );
-    $compassClientSiteReportsCollector->siteReport(SiteReport::factory()->create());
+    $compassClientDriver->siteReport(SiteReport::factory()->create());
 })->throws(CollectingFailed::class);
 
 test('site report asks the site with its key', function (): void {
@@ -143,7 +143,7 @@ test('site report asks the site with its key', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(null, 404)]);
 
-    $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
+    $compassClientDriver = new CompassClientDriver(
         new Randomizer(),
         new SiteClient(
             $this->app->make(CollectorSchedule::class),
@@ -153,7 +153,7 @@ test('site report asks the site with its key', function (): void {
             $this->app->make(UrlGenerator::class),
         ),
     );
-    $compassClientSiteReportsCollector->siteReport(SiteReport::factory()->for($site)->create());
+    $compassClientDriver->siteReport(SiteReport::factory()->for($site)->create());
 
     $http->assertSent(static function (HttpRequest $request) use ($site): bool {
         return $request->hasHeader('Authorization', sprintf('Bearer %s', $site->key));
@@ -165,7 +165,7 @@ test('site report gives a site without a key a new one', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(null, 404)]);
 
-    $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
+    $compassClientDriver = new CompassClientDriver(
         new Randomizer(),
         new SiteClient(
             $this->app->make(CollectorSchedule::class),
@@ -175,7 +175,7 @@ test('site report gives a site without a key a new one', function (): void {
             $this->app->make(UrlGenerator::class),
         ),
     );
-    $compassClientSiteReportsCollector->siteReport(SiteReport::factory()->for($site)->create());
+    $compassClientDriver->siteReport(SiteReport::factory()->for($site)->create());
 
     expect($site->refresh()->key)
         ->toMatch('/\A[0-9a-f]{64}\z/');
@@ -186,7 +186,7 @@ test('site report asks a site without a key with the key it gave it', function (
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(null, 404)]);
 
-    $compassClientSiteReportsCollector = new CompassClientSiteReportsCollector(
+    $compassClientDriver = new CompassClientDriver(
         new Randomizer(),
         new SiteClient(
             $this->app->make(CollectorSchedule::class),
@@ -196,7 +196,7 @@ test('site report asks a site without a key with the key it gave it', function (
             $this->app->make(UrlGenerator::class),
         ),
     );
-    $compassClientSiteReportsCollector->siteReport(SiteReport::factory()->for($site)->create());
+    $compassClientDriver->siteReport(SiteReport::factory()->for($site)->create());
 
     $http->assertSent(static function (HttpRequest $request) use ($site): bool {
         return $request->hasHeader('Authorization', sprintf('Bearer %s', $site->refresh()->key));

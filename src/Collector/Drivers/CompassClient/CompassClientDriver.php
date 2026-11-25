@@ -13,7 +13,7 @@ use Random\Randomizer;
 
 use function bin2hex;
 
-readonly class CompassClientSiteReportsCollector implements SiteReportsCollector
+readonly class CompassClientDriver implements SiteReportsCollector
 {
     public function __construct(
         private Randomizer $randomizer,

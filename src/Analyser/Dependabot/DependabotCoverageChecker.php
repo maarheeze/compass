@@ -6,20 +6,21 @@ namespace Maarheeze\Compass\Analyser\Dependabot;
 
 use Maarheeze\Compass\Analyser\Composer\RepositoryKind;
 use Maarheeze\Compass\Analyser\Composer\RepositoryKindClassifier;
-use Maarheeze\Compass\Collector\Dependabot\DependabotFilesCollectorManager;
+use Maarheeze\Compass\Collector\Dependabot\DependabotFilesCollector;
+use Maarheeze\Compass\Collector\SourceDrivers;
 use Maarheeze\Compass\Models\Repository;
 
 readonly class DependabotCoverageChecker
 {
     public function __construct(
-        private DependabotFilesCollectorManager $dependabotFilesCollectorManager,
         private RepositoryKindClassifier $repositoryKindClassifier,
+        private SourceDrivers $sourceDrivers,
     ) {
     }
 
     public function isRequired(Repository $repository, PackageEcosystem $packageEcosystem): bool
     {
-        if (!$this->dependabotFilesCollectorManager->hasCollector($repository->source)) {
+        if (!$this->sourceDrivers->hasCollector($repository->source, DependabotFilesCollector::class)) {
             return false;
         }
 

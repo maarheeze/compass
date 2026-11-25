@@ -7,8 +7,25 @@ use Illuminate\Http\Client\Factory as HttpFactory;
 use Maarheeze\Compass\Collections\CollectedSiteCollection;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\Drivers\Forge\ForgeClient;
-use Maarheeze\Compass\Collector\Drivers\Forge\ForgeSitesCollector;
+use Maarheeze\Compass\Collector\Drivers\Forge\ForgeDriver;
 use Maarheeze\Compass\Collector\RequestBudget;
+use Maarheeze\Compass\Models\Site;
+
+test('site domains throws collecting failed when forge fails', function (): void {
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response(null, 500)]);
+
+    $forgeDriver = new ForgeDriver(
+        new ForgeClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
+        fake()->slug(),
+        '/.*/',
+    );
+    $forgeDriver->siteDomains(Site::factory()->create());
+})->throws(CollectingFailed::class);
 
 test('sites yields the collected sites of each page', function (): void {
     $http = $this->app->make(HttpFactory::class);
@@ -27,7 +44,7 @@ test('sites yields the collected sites of each page', function (): void {
     ]);
     $http->fake(['*' => $responseSequence]);
 
-    $forgeSitesCollector = new ForgeSitesCollector(
+    $forgeDriver = new ForgeDriver(
         new ForgeClient(
             $http,
             fake()->sha1(),
@@ -36,7 +53,7 @@ test('sites yields the collected sites of each page', function (): void {
         fake()->slug(),
         '/.*/',
     );
-    $collectedSitesPerPage = iterator_to_array($forgeSitesCollector->sites());
+    $collectedSitesPerPage = iterator_to_array($forgeDriver->sites());
 
     expect($collectedSitesPerPage)
         ->toEqual([new CollectedSiteCollection(), new CollectedSiteCollection()]);
@@ -92,7 +109,7 @@ test('sites yields only the collected sites on servers matching the server patte
         ]),
     ]);
 
-    $forgeSitesCollector = new ForgeSitesCollector(
+    $forgeDriver = new ForgeDriver(
         new ForgeClient(
             $http,
             fake()->sha1(),
@@ -102,7 +119,7 @@ test('sites yields only the collected sites on servers matching the server patte
         '/\A\z/',
     );
 
-    expect($forgeSitesCollector->sites()->current())
+    expect($forgeDriver->sites()->current())
         ->toEqual(new CollectedSiteCollection());
 });
 
@@ -110,7 +127,7 @@ test('sites throws collecting failed when forge fails', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response(null, 500)]);
 
-    $forgeSitesCollector = new ForgeSitesCollector(
+    $forgeDriver = new ForgeDriver(
         new ForgeClient(
             $http,
             fake()->sha1(),
@@ -119,5 +136,5 @@ test('sites throws collecting failed when forge fails', function (): void {
         fake()->slug(),
         '/.*/',
     );
-    iterator_to_array($forgeSitesCollector->sites());
+    iterator_to_array($forgeDriver->sites());
 })->throws(CollectingFailed::class);

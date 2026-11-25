@@ -18,6 +18,9 @@ test('handle observes the changed repository', function (): void {
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'github',
+            'organisation' => fake()->slug(),
+            'token' => fake()->sha1(),
+            'requests_per_minute' => fake()->numberBetween(10, 100),
         ],
     ]);
     $repository = Repository::factory()->create(['source' => $source]);

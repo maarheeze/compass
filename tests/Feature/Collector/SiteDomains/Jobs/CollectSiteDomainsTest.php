@@ -17,6 +17,7 @@ test('handle stores the domains forge lists for the site', function (): void {
             'organisation' => fake()->slug(),
             'token' => fake()->sha1(),
             'requests_per_minute' => fake()->numberBetween(10, 100),
+            'server_pattern' => '/.*/',
         ],
     ]);
     $site = Site::factory()->create(['source' => $source]);

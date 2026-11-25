@@ -15,8 +15,9 @@ use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\RequestBudgetExhausted;
-use Maarheeze\Compass\Collector\SiteDomains\SiteDomainsCollectorManager;
+use Maarheeze\Compass\Collector\SiteDomains\SiteDomainsCollector;
 use Maarheeze\Compass\Collector\SiteDomains\SiteDomainSynchroniser;
+use Maarheeze\Compass\Collector\SourceDrivers;
 use Maarheeze\Compass\Collector\SubjectJob;
 use Maarheeze\Compass\Models\Site;
 use Throwable;
@@ -42,10 +43,10 @@ class CollectSiteDomains implements SubjectJob
     public function handle(
         CollectorLogger $collectorLogger,
         Context $context,
-        SiteDomainsCollectorManager $siteDomainsCollectorManager,
         SiteDomainSynchroniser $siteDomainSynchroniser,
+        SourceDrivers $sourceDrivers,
     ): void {
-        $siteDomainsCollector = $siteDomainsCollectorManager->collector($this->site->source);
+        $siteDomainsCollector = $sourceDrivers->collector($this->site->source, SiteDomainsCollector::class);
 
         $context->add('site', $this->site->name);
 

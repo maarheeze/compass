@@ -19,9 +19,10 @@ use Maarheeze\Compass\Collector\Dependabot\Jobs\CollectChangedDependabotYmls;
 use Maarheeze\Compass\Collector\Events\PackageJsonChanged;
 use Maarheeze\Compass\Collector\Events\RepositoriesCollected;
 use Maarheeze\Compass\Collector\LockedJob;
-use Maarheeze\Compass\Collector\Repositories\RepositoriesCollectorManager;
+use Maarheeze\Compass\Collector\Repositories\RepositoriesCollector;
 use Maarheeze\Compass\Collector\Repositories\RepositorySynchroniser;
 use Maarheeze\Compass\Collector\RequestBudgetExhausted;
+use Maarheeze\Compass\Collector\SourceDrivers;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Uuid\Uuid;
 use Webmozart\Assert\Assert;
@@ -46,10 +47,10 @@ class CollectRepositories implements LockedJob
     public function handle(
         CollectorLogger $collectorLogger,
         Dispatcher $events,
-        RepositoriesCollectorManager $repositoriesCollectorManager,
         RepositorySynchroniser $repositorySynchroniser,
+        SourceDrivers $sourceDrivers,
     ): void {
-        $repositoriesCollector = $repositoriesCollectorManager->collector($this->source);
+        $repositoriesCollector = $sourceDrivers->collector($this->source, RepositoriesCollector::class);
 
         $collectorLogger->info('Repositories collector started');
 

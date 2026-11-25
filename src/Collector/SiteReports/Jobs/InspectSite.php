@@ -17,8 +17,9 @@ use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Collector\MissingState;
-use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollectorManager;
+use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollector;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportSynchroniser;
+use Maarheeze\Compass\Collector\SourceDrivers;
 use Maarheeze\Compass\Collector\SubjectJob;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Compass\Models\SiteReport;
@@ -48,10 +49,10 @@ class InspectSite implements SubjectJob
         CollectorLogger $collectorLogger,
         Context $context,
         Dispatcher $events,
-        SiteReportsCollectorManager $siteReportsCollectorManager,
         SiteReportSynchroniser $siteReportSynchroniser,
+        SourceDrivers $sourceDrivers,
     ): void {
-        $siteReportsCollector = $siteReportsCollectorManager->collector($this->source);
+        $siteReportsCollector = $sourceDrivers->collector($this->source, SiteReportsCollector::class);
 
         $context->add('site', $this->site->name);
 

@@ -6,10 +6,10 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Support\Testing\Fakes\EventFake;
-use Maarheeze\Compass\Collector\Composer\ComposerFilesCollectorManager;
 use Maarheeze\Compass\Collector\Composer\Jobs\CollectComposerLock;
 use Maarheeze\Compass\Collector\Events\ComposerLockChanged;
 use Maarheeze\Compass\Collector\SourceConfig;
+use Maarheeze\Compass\Collector\SourceDrivers;
 use Maarheeze\Compass\Models\ComposerLock;
 use Maarheeze\Compass\Models\Repository;
 use Maarheeze\Compass\Tests\Fixtures\RecordingRepositoryFilesCollector;
@@ -27,8 +27,8 @@ test('handle asks the collector of the source for the composer lock at the store
         'packages-dev' => [],
         'platform' => [],
     ], JSON_THROW_ON_ERROR));
-    $composerFilesCollectorManager = $this->app->make(ComposerFilesCollectorManager::class);
-    $composerFilesCollectorManager->extend(
+    $sourceDrivers = $this->app->make(SourceDrivers::class);
+    $sourceDrivers->extend(
         $driverName,
         static function (
             Container $container,
@@ -70,8 +70,8 @@ test('handle stores the composer lock with its version', function (): void {
             'php' => $phpConstraint,
         ],
     ], JSON_THROW_ON_ERROR));
-    $composerFilesCollectorManager = $this->app->make(ComposerFilesCollectorManager::class);
-    $composerFilesCollectorManager->extend(
+    $sourceDrivers = $this->app->make(SourceDrivers::class);
+    $sourceDrivers->extend(
         $driverName,
         static function (
             Container $container,
