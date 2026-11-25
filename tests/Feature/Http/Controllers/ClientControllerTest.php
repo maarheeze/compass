@@ -20,6 +20,19 @@ test('store queues the inspection of the site with the bearer token as its key',
     });
 });
 
+test('store queues the inspection of the site on the high queue', function (): void {
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
+    $highQueue = fake()->slug();
+    $this->setConfiguration('compass.high_queue', $highQueue);
+
+    $this->withToken(fake()->sha1())->post(route(RouteName::API_CLIENT));
+
+    $busFake->assertDispatched(InspectRequestingSite::class, static function (InspectRequestingSite $inspectRequestingSite) use ($highQueue): bool {
+        return $inspectRequestingSite->queue === $highQueue;
+    });
+});
+
 test('store queues nothing without a bearer token', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);

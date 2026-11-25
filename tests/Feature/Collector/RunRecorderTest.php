@@ -14,6 +14,7 @@ use Illuminate\Support\Testing\Fakes\BusFake;
 use Illuminate\Support\Testing\Fakes\EventFake;
 use Maarheeze\Compass\Collector\CollectorType;
 use Maarheeze\Compass\Collector\Events\RunStatusChanged;
+use Maarheeze\Compass\Collector\QueuePriority;
 use Maarheeze\Compass\Collector\RunRecorder;
 use Maarheeze\Compass\Collector\Runs\FinishRun;
 use Maarheeze\Compass\Collector\RunStatus;
@@ -39,6 +40,7 @@ test('start collector chains the batch with the first job', function (): void {
         fake()->slug(),
         fake()->randomElement(CollectorType::cases()),
         new CheckSiteEndpoints(),
+        fake()->randomElement(QueuePriority::cases()),
     );
 
     $busFake->assertChained([
@@ -60,6 +62,7 @@ test('start collector keeps the batch going when one of its jobs fails', functio
         fake()->slug(),
         fake()->randomElement(CollectorType::cases()),
         new CheckSiteEndpoints(),
+        fake()->randomElement(QueuePriority::cases()),
     );
 
     $busFake->assertChained([
@@ -77,7 +80,13 @@ test('start collector records the queued run of the collector of the source', fu
     $collectorType = fake()->randomElement(CollectorType::cases());
 
     $runRecorder = $this->app->make(RunRecorder::class);
-    $runRecorder->startCollector($runId, $source, $collectorType, new CheckSiteEndpoints());
+    $runRecorder->startCollector(
+        $runId,
+        $source,
+        $collectorType,
+        new CheckSiteEndpoints(),
+        fake()->randomElement(QueuePriority::cases()),
+    );
 
     $this->assertDatabaseHas(Run::class, [
         'id' => $runId,
@@ -100,6 +109,7 @@ test('start collector records the run as running with its batch when the batch i
         fake()->slug(),
         fake()->randomElement(CollectorType::cases()),
         new CheckSiteEndpoints(),
+        fake()->randomElement(QueuePriority::cases()),
     );
     $busFake
         ->dispatched(ChainedBatch::class)
@@ -126,6 +136,7 @@ test('start collector broadcasts the running run when the batch is stored', func
         fake()->slug(),
         fake()->randomElement(CollectorType::cases()),
         new CheckSiteEndpoints(),
+        fake()->randomElement(QueuePriority::cases()),
     );
     $eventFake = new EventFake($this->app->make(Dispatcher::class), [RunStatusChanged::class]);
     $this->app->instance(Dispatcher::class, $eventFake);
@@ -153,6 +164,7 @@ test('start collector finishes the run after the batch', function (): void {
         fake()->slug(),
         fake()->randomElement(CollectorType::cases()),
         new CheckSiteEndpoints(),
+        fake()->randomElement(QueuePriority::cases()),
     );
 
     $busFake->assertChained([
@@ -161,6 +173,53 @@ test('start collector finishes the run after the batch', function (): void {
             return $finishRun->runId->equals($runId);
         },
     ]);
+});
+
+test('start collector puts the batch on the queue of the priority', function (): void {
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
+    $highQueue = fake()->slug();
+    $this->setConfiguration('compass.high_queue', $highQueue);
+
+    $runRecorder = $this->app->make(RunRecorder::class);
+    $runRecorder->startCollector(
+        Uuid::generate(),
+        fake()->slug(),
+        fake()->randomElement(CollectorType::cases()),
+        new CheckSiteEndpoints(),
+        QueuePriority::HIGH,
+    );
+
+    $busFake->assertChained([
+        $busFake->chainedBatch(static function (PendingBatch $pendingBatch) use ($highQueue): bool {
+            return $pendingBatch->queue() === $highQueue;
+        }),
+        FinishRun::class,
+    ]);
+});
+
+test('start collector finishes the run on the queue of the priority', function (): void {
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
+    $highQueue = fake()->slug();
+    $this->setConfiguration('compass.high_queue', $highQueue);
+
+    $runRecorder = $this->app->make(RunRecorder::class);
+    $runRecorder->startCollector(
+        Uuid::generate(),
+        fake()->slug(),
+        fake()->randomElement(CollectorType::cases()),
+        new CheckSiteEndpoints(),
+        QueuePriority::HIGH,
+    );
+
+    $chainQueue = $busFake
+        ->dispatched(ChainedBatch::class)
+        ->sole()
+        ->chainQueue;
+
+    expect($chainQueue)
+        ->toBe($highQueue);
 });
 
 test('start collector logs the start of the run with its run id in the log context', function (): void {
@@ -180,6 +239,7 @@ test('start collector logs the start of the run with its run id in the log conte
         fake()->slug(),
         fake()->randomElement(CollectorType::cases()),
         new CheckSiteEndpoints(),
+        fake()->randomElement(QueuePriority::cases()),
     );
 
     $testHandler = $this->app
@@ -239,6 +299,42 @@ test('start site inspections chains the batch of the inspection of the site for 
         static function (FinishRun $finishRun) use ($runId): bool {
             return $finishRun->runId->equals($runId);
         },
+    ]);
+});
+
+test('start site inspections puts the batch on the high queue', function (): void {
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
+    $highQueue = fake()->slug();
+    $this->setConfiguration('compass.high_queue', $highQueue);
+    $site = Site::factory()->create();
+    SiteReport::factory()->create(['site_id' => $site->id]);
+
+    $runRecorder = $this->app->make(RunRecorder::class);
+    $runRecorder->startSiteInspections($site);
+
+    $busFake->assertChained([
+        $busFake->chainedBatch(static function (PendingBatch $pendingBatch) use ($highQueue): bool {
+            return $pendingBatch->queue() === $highQueue;
+        }),
+        FinishRun::class,
+    ]);
+});
+
+test('start task puts the batch on the default queue', function (): void {
+    $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
+    $this->app->instance(QueueingDispatcher::class, $busFake);
+    $this->setConfiguration('compass.high_queue', fake()->unique()->slug());
+    $this->setConfiguration('compass.low_queue', fake()->unique()->slug());
+
+    $runRecorder = $this->app->make(RunRecorder::class);
+    $runRecorder->startTask(Uuid::generate(), fake()->randomElement(TaskType::cases()), new CheckSiteEndpoints());
+
+    $busFake->assertChained([
+        $busFake->chainedBatch(static function (PendingBatch $pendingBatch): bool {
+            return $pendingBatch->queue() === null;
+        }),
+        FinishRun::class,
     ]);
 });
 

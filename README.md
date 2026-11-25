@@ -16,6 +16,19 @@ php artisan migrate
 
 Compass runs on the Laravel scheduler and queue. Everything else is set in `config/compass.php`.
 
+A run someone starts by hand, or a site asks for, should not wait behind the scheduled runs. Set a high and a low queue, and start the worker with the high queue before the default queue and the low queue after it:
+
+```dotenv
+COMPASS_HIGH_QUEUE=high
+COMPASS_LOW_QUEUE=low
+```
+
+```bash
+php artisan queue:work --queue=high,default,low
+```
+
+Without them, every run goes on the default queue.
+
 Upgrading from an earlier major version: see [UPGRADE.md](UPGRADE.md) for what changed and what to do.
 
 Import Compass's JavaScript in the host's `resources/js/app.js`, after Echo if the host has it:
@@ -54,7 +67,7 @@ php artisan install:broadcasting
 
 This brings Reverb and Echo; keep the Reverb server running next to the queue. The broadcasting auth route must stay behind the `web` middleware only, as `install:broadcasting` sets it: Compass signs its users in on a guard of its own, which the host's `auth` middleware refuses.
 
-A toast waits for the jobs queued before it. To have even a single worker take Compass's broadcasts first, set `COMPASS_BROADCAST_QUEUE=broadcasts` and start the worker with `--queue=broadcasts,default`.
+A toast waits for the jobs queued before it. To have even a single worker take Compass's broadcasts first, set `COMPASS_BROADCAST_QUEUE=broadcasts` and start the worker with `--queue=broadcasts,default`, or `--queue=broadcasts,high,default,low` with the high and low queues.
 
 Without broadcasting, Compass works the same without live updates. Its events still queue broadcast jobs, which the `null` broadcaster drops.
 

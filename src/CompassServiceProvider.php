@@ -25,6 +25,7 @@ use Maarheeze\Compass\Collector\Events\RunSaved;
 use Maarheeze\Compass\Collector\Issues\IssueType;
 use Maarheeze\Compass\Collector\Listeners\BroadcastRunStatus;
 use Maarheeze\Compass\Collector\Listeners\RecordRunFailure;
+use Maarheeze\Compass\Collector\QueueNames;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Http\EndpointPathRouteParameter;
 use Maarheeze\Compass\Http\IssueTypeOrder;
@@ -62,6 +63,16 @@ class CompassServiceProvider extends ServiceProvider
             ->when([BroadcastAlertHistoryEntry::class, BroadcastRunStatus::class])
             ->needs('$broadcastQueue')
             ->giveConfig('compass.broadcast_queue');
+
+        $this->app
+            ->when(QueueNames::class)
+            ->needs('$highQueue')
+            ->giveConfig('compass.high_queue');
+
+        $this->app
+            ->when(QueueNames::class)
+            ->needs('$lowQueue')
+            ->giveConfig('compass.low_queue');
 
         $this->app->bind(IssueTypeOrder::class, static function (Container $container): IssueTypeOrder {
             $configuredIssueTypes = $container->make(ConfigurationRepository::class)->array('compass.issue_type_order');

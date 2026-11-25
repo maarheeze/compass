@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Maarheeze\Compass\Collector\CollectorType;
 use Maarheeze\Compass\Collector\Issues\Jobs\CollectIssues;
 use Maarheeze\Compass\Collector\PullRequests\Jobs\CollectPullRequests;
+use Maarheeze\Compass\Collector\QueuePriority;
 use Maarheeze\Compass\Collector\Repositories\Jobs\CollectRepositories;
 use Maarheeze\Compass\Collector\SiteReports\Jobs\InspectSites;
 use Maarheeze\Compass\Collector\Sites\Jobs\CollectSites;
@@ -24,4 +25,20 @@ test('job is the job that collects the collector type', function (
     'repositories' => [CollectorType::REPOSITORIES, CollectRepositories::class],
     'site reports' => [CollectorType::SITE_REPORTS, InspectSites::class],
     'sites' => [CollectorType::SITES, CollectSites::class],
+]);
+
+test('scheduled priority is the queue priority of a scheduled run of the collector type', function (
+    CollectorType $collectorType,
+    QueuePriority $queuePriority,
+): void {
+    $scheduledPriority = $collectorType->scheduledPriority();
+
+    expect($scheduledPriority)
+        ->toBe($queuePriority);
+})->with([
+    'issues' => [CollectorType::ISSUES, QueuePriority::MEDIUM],
+    'pull requests' => [CollectorType::PULL_REQUESTS, QueuePriority::MEDIUM],
+    'repositories' => [CollectorType::REPOSITORIES, QueuePriority::LOW],
+    'site reports' => [CollectorType::SITE_REPORTS, QueuePriority::MEDIUM],
+    'sites' => [CollectorType::SITES, QueuePriority::MEDIUM],
 ]);

@@ -51,4 +51,12 @@ enum CollectorType: string implements LabelledEnum
     {
         return sprintf('compass::collector-type.%s', $this->name);
     }
+
+    public function scheduledPriority(): QueuePriority
+    {
+        return match ($this) {
+            self::REPOSITORIES => QueuePriority::LOW,
+            self::ISSUES, self::PULL_REQUESTS, self::SITE_REPORTS, self::SITES => QueuePriority::MEDIUM,
+        };
+    }
 }

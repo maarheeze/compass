@@ -48,6 +48,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | High and low queues
+    |--------------------------------------------------------------------------
+    |
+    | The queues a run's jobs go on besides the default queue. A run a person
+    | starts, or a site asks for, goes on the high queue; a scheduled run of
+    | the repositories collector, a large fan-out, goes on the low queue;
+    | every other scheduled run goes on the default queue. A worker started
+    | with --queue=high,default,low takes them in that order.
+    | Null puts those runs on the default queue of the connection.
+    |
+    */
+
+    'high_queue' => env('COMPASS_HIGH_QUEUE'),
+    'low_queue' => env('COMPASS_LOW_QUEUE'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Display timezone
     |--------------------------------------------------------------------------
     |

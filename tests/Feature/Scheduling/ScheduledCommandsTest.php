@@ -7,6 +7,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Console\ClosureCommand;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Maarheeze\Compass\Collector\QueuePriority;
 use Maarheeze\Compass\Console\CheckSiteEndpointsCommand;
 use Maarheeze\Compass\Scheduling\ScheduledCommands;
 use Psr\Clock\ClockInterface;
@@ -96,7 +97,7 @@ test('run runs the scheduled command of the mutex name with its arguments', func
     $recordedArguments = [];
     $kernel = Assert::isInstanceOf($this->app->make(Kernel::class), ConsoleKernel::class);
     $kernel->registerCommand(new ClosureCommand(
-        'compass:fake-command {argument}',
+        'compass:fake-command {argument} {--priority=}',
         function (string $argument) use (&$recordedArguments): void {
             $recordedArguments[] = $argument;
         },
@@ -112,4 +113,24 @@ test('run runs the scheduled command of the mutex name with its arguments', func
 
     expect($recordedArguments)
         ->toBe([$argument]);
+});
+
+test('run runs the scheduled command on the high priority', function (): void {
+    $recordedPriorities = [];
+    $kernel = Assert::isInstanceOf($this->app->make(Kernel::class), ConsoleKernel::class);
+    $kernel->registerCommand(new ClosureCommand(
+        'compass:fake-command {--priority=}',
+        function (string $priority) use (&$recordedPriorities): void {
+            $recordedPriorities[] = $priority;
+        },
+    ));
+    $schedule = new Schedule();
+    $event = $schedule->command('compass:fake-command');
+    $this->app->instance(Schedule::class, $schedule);
+
+    $scheduledCommands = $this->app->make(ScheduledCommands::class);
+    $scheduledCommands->run($event->mutexName());
+
+    expect($recordedPriorities)
+        ->toBe([QueuePriority::HIGH->value]);
 });

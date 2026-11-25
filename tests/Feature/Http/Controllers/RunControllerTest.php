@@ -153,7 +153,7 @@ test('index lists the scheduled commands', function (): void {
 test('run runs the scheduled command of the mutex name', function (): void {
     $isRun = false;
     $kernel = Assert::isInstanceOf($this->app->make(Kernel::class), ConsoleKernel::class);
-    $kernel->registerCommand(new ClosureCommand('compass:fake-command', function () use (&$isRun): void {
+    $kernel->registerCommand(new ClosureCommand('compass:fake-command {--priority=}', function () use (&$isRun): void {
         $isRun = true;
     }));
     $schedule = new Schedule();
@@ -169,7 +169,7 @@ test('run runs the scheduled command of the mutex name', function (): void {
 
 test('run sends the user back to the runs page', function (): void {
     $kernel = Assert::isInstanceOf($this->app->make(Kernel::class), ConsoleKernel::class);
-    $kernel->registerCommand(new ClosureCommand('compass:fake-command', function (): void {
+    $kernel->registerCommand(new ClosureCommand('compass:fake-command {--priority=}', function (): void {
     }));
     $schedule = new Schedule();
     $event = $schedule->command('compass:fake-command');
@@ -183,7 +183,7 @@ test('run sends the user back to the runs page', function (): void {
 
 test('run answers a request for json with an empty accepted', function (): void {
     $kernel = Assert::isInstanceOf($this->app->make(Kernel::class), ConsoleKernel::class);
-    $kernel->registerCommand(new ClosureCommand('compass:fake-command', function (): void {
+    $kernel->registerCommand(new ClosureCommand('compass:fake-command {--priority=}', function (): void {
     }));
     $schedule = new Schedule();
     $event = $schedule->command('compass:fake-command');

@@ -23,6 +23,7 @@ readonly class RunRecorder
         private CollectorLogger $collectorLogger,
         private Context $context,
         private QueueingDispatcher $dispatcher,
+        private QueueNames $queueNames,
     ) {
     }
 
@@ -31,6 +32,7 @@ readonly class RunRecorder
         string $source,
         CollectorType $collectorType,
         LockedJob $firstJob,
+        QueuePriority $queuePriority,
     ): void {
         Run::query()->create([
             'id' => $runId,
@@ -39,7 +41,7 @@ readonly class RunRecorder
             'status' => RunStatus::QUEUED,
         ]);
 
-        $this->dispatch($runId, $firstJob, [
+        $this->dispatch($runId, $firstJob, $queuePriority, [
             'source' => $source,
             'collector' => $collectorType->value,
         ]);
@@ -60,17 +62,23 @@ readonly class RunRecorder
             'status' => RunStatus::QUEUED,
         ]);
 
-        $this->dispatch($runId, $firstJob, ['task' => $taskType->value]);
+        $this->dispatch($runId, $firstJob, QueuePriority::MEDIUM, ['task' => $taskType->value]);
     }
 
     /**
      * @param array<string, string> $runContext
      */
-    private function dispatch(Uuid $runId, LockedJob $firstJob, array $runContext): void
-    {
+    private function dispatch(
+        Uuid $runId,
+        LockedJob $firstJob,
+        QueuePriority $queuePriority,
+        array $runContext,
+    ): void {
+        $queueName = $this->queueNames->forPriority($queuePriority);
         $pendingBatch = $this->dispatcher
             ->batch([$firstJob])
             ->allowFailures()
+            ->onQueue($queueName)
             ->before(static function (Batch $batch) use ($runId): void {
                 Run::query()
                     ->whereKey($runId)
@@ -84,6 +92,7 @@ readonly class RunRecorder
             $this->dispatcher->chain([$pendingBatch, new FinishRun($runId)]),
             PendingChain::class,
         );
+        $pendingChain->onQueue($queueName);
 
         $collectorLogger = $this->collectorLogger;
 
@@ -109,7 +118,7 @@ readonly class RunRecorder
         $run->subject()->associate($site);
         $run->save();
 
-        $this->dispatch($runId, new InspectSite($site, $source), [
+        $this->dispatch($runId, new InspectSite($site, $source), QueuePriority::HIGH, [
             'source' => $source,
             'collector' => CollectorType::SITE_REPORTS->value,
             'site' => $site->name,

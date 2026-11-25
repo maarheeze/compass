@@ -64,3 +64,11 @@ To show some issue types first on the issue lists, in that order, add
 `'issue_type_order' => [IssueType::BUG, IssueType::FEATURE]` to your published
 `config/compass.php`. Left out, it is empty and every list shows the oldest
 opened issue first.
+
+### High and low queues added
+
+Runs now go on a queue by priority. To have a run started by hand, or asked
+for by a site, go first, set `COMPASS_HIGH_QUEUE` and `COMPASS_LOW_QUEUE` and
+start the worker with the high queue before the default queue and the low
+queue after it, as in `--queue=high,default,low`. Left unset, every run stays
+on the default queue.

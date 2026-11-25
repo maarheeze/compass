@@ -10,6 +10,7 @@ use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Console\Kernel;
 use Maarheeze\Compass\Collections\ScheduledCommandCollection;
+use Maarheeze\Compass\Collector\QueuePriority;
 use Maarheeze\Compass\Console\CheckSiteEndpointsCommand;
 use Psr\Clock\ClockInterface;
 
@@ -48,7 +49,9 @@ readonly class ScheduledCommands
 
     public function run(string $mutexName): void
     {
-        $this->kernel->call($this->all()->withMutexName($mutexName)->command);
+        $command = sprintf('%s --priority=%s', $this->all()->withMutexName($mutexName)->command, QueuePriority::HIGH->value);
+
+        $this->kernel->call($command);
     }
 
     private function command(Event $event): ?string
