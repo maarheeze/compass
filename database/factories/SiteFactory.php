@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maarheeze\Compass\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Maarheeze\Compass\Collector\SiteProcesses\QueueWorkerState;
 use Maarheeze\Compass\Collector\Sites\DeploymentStatus;
 use Maarheeze\Compass\Models\Site;
 use Maarheeze\Uuid\Uuid;
@@ -43,6 +44,8 @@ class SiteFactory extends Factory
             'deployed_commit_hash' => fake()->optional()->sha1(),
             'deployment_started_at' => fake()->optional()->dateTimeBetween('-2 months', '-1 month'),
             'deployment_ended_at' => fake()->optional()->dateTimeBetween('-1 month'),
+            'queue_worker_state' => fake()->optional()->randomElement(QueueWorkerState::cases()),
+            'processes_collected_at' => fake()->optional()->dateTime(),
             'run_id' => Uuid::generate(),
             'collected_at' => fake()->dateTime(),
         ];

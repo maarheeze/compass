@@ -11,6 +11,7 @@ use Maarheeze\Compass\Collector\Issues\IssueType;
 use Maarheeze\Compass\Collector\PullRequests\PullRequestsCollector;
 use Maarheeze\Compass\Collector\Repositories\RepositoriesCollector;
 use Maarheeze\Compass\Collector\SiteDomains\SiteDomainsCollector;
+use Maarheeze\Compass\Collector\SiteProcesses\SiteProcessesCollector;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollector;
 use Maarheeze\Compass\Collector\Sites\SitesCollector;
 use Maarheeze\Compass\Collector\SourceDrivers;
@@ -281,6 +282,39 @@ test('a forge source collects the domains of a site of its organisation with its
 
     $sourceDrivers = $this->app->make(SourceDrivers::class);
     $sourceDrivers->collector($source, SiteDomainsCollector::class)->siteDomains($site);
+
+    $http->assertSent(static function (HttpRequest $request) use ($organisation, $token): bool {
+        return str_starts_with($request->url(), sprintf('https://forge.laravel.com/api/orgs/%s/', $organisation))
+            && $request->hasHeader('Authorization', sprintf('Bearer %s', $token));
+    });
+});
+
+test('a forge source collects the processes of a site of its organisation with its token', function (): void {
+    $source = fake()->slug();
+    $organisation = fake()->slug();
+    $token = fake()->sha1();
+    $this->setConfiguration('compass.sources', [
+        $source => [
+            'driver' => 'forge',
+            'organisation' => $organisation,
+            'token' => $token,
+            'requests_per_minute' => fake()->numberBetween(10, 100),
+            'server_pattern' => '/.*/',
+        ],
+    ]);
+    $site = Site::factory()->create();
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake([
+        '*' => HttpFactory::response([
+            'data' => [],
+            'meta' => [
+                'next_cursor' => null,
+            ],
+        ]),
+    ]);
+
+    $sourceDrivers = $this->app->make(SourceDrivers::class);
+    $sourceDrivers->collector($source, SiteProcessesCollector::class)->siteProcesses($site);
 
     $http->assertSent(static function (HttpRequest $request) use ($organisation, $token): bool {
         return str_starts_with($request->url(), sprintf('https://forge.laravel.com/api/orgs/%s/', $organisation))

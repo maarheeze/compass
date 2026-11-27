@@ -58,19 +58,29 @@
                                 <span class="text-foreground-muted">&middot; {{ $site->php_version }}</span>
                             @endif
                         </x-compass::fact>
-                        @if ($site->domains->isNotEmpty())
-                            <x-compass::fact :label="__('compass::site.domains')">
-                                @foreach ($site->domains as $siteDomain)
-                                    <div>
-                                        {{ $siteDomain->name }}
-                                        <span class="text-foreground-muted">
-                                            &middot; <x-compass::enum-label :labelled-enum="$siteDomain->type" />
-                                            &middot; <x-compass::enum-label :labelled-enum="$siteDomain->status" />
-                                        </span>
-                                    </div>
-                                @endforeach
-                            </x-compass::fact>
-                        @endif
+                        <x-compass::fact :label="__('compass::site.domains')">
+                            @forelse ($site->domains as $siteDomain)
+                                <div>
+                                    {{ $siteDomain->name }}
+                                    <span class="text-foreground-muted">
+                                        &middot; <x-compass::enum-label :labelled-enum="$siteDomain->type" />
+                                        &middot; <x-compass::enum-label :labelled-enum="$siteDomain->status" />
+                                    </span>
+                                </div>
+                            @empty
+                                {{ __('compass::site.unknown') }}
+                            @endforelse
+                        </x-compass::fact>
+                        <x-compass::fact :label="__('compass::site.queue_worker')">
+                            @if ($site->queue_worker_state === null)
+                                {{ __('compass::site.unknown') }}
+                            @else
+                                <x-compass::enum-label :labelled-enum="$site->queue_worker_state" />
+                                @if ($site->processes_collected_at !== null)
+                                    <span class="text-foreground-muted">&middot; <x-compass::time :time="$site->processes_collected_at" /></span>
+                                @endif
+                            @endif
+                        </x-compass::fact>
                     </dl>
                 </x-compass::sidebar-section>
 
@@ -84,15 +94,15 @@
                                 @endif
                             </x-compass::fact>
                         @endif
-                        @if ($site->auto_deploy !== null)
-                            <x-compass::fact :label="__('compass::site.auto_deploy')">
-                                @if ($site->auto_deploy)
-                                    {{ __('compass::site.auto_deploy_on') }}
-                                @else
-                                    {{ __('compass::site.auto_deploy_off') }}
-                                @endif
-                            </x-compass::fact>
-                        @endif
+                        <x-compass::fact :label="__('compass::site.auto_deploy')">
+                            @if ($site->auto_deploy === null)
+                                {{ __('compass::site.unknown') }}
+                            @elseif ($site->auto_deploy)
+                                {{ __('compass::site.auto_deploy_on') }}
+                            @else
+                                {{ __('compass::site.auto_deploy_off') }}
+                            @endif
+                        </x-compass::fact>
                     </dl>
                 </x-compass::sidebar-section>
 

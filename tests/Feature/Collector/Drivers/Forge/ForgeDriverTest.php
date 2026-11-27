@@ -27,6 +27,22 @@ test('site domains throws collecting failed when forge fails', function (): void
     $forgeDriver->siteDomains(Site::factory()->create());
 })->throws(CollectingFailed::class);
 
+test('site processes throws collecting failed when forge fails', function (): void {
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response(null, 500)]);
+
+    $forgeDriver = new ForgeDriver(
+        new ForgeClient(
+            $http,
+            fake()->sha1(),
+            new RequestBudget($this->app->make(RateLimiter::class), fake()->slug(), fake()->numberBetween(10, 100)),
+        ),
+        fake()->slug(),
+        '/.*/',
+    );
+    $forgeDriver->siteProcesses(Site::factory()->create());
+})->throws(CollectingFailed::class);
+
 test('sites yields the collected sites of each page', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $responseSequence = $http->sequence();

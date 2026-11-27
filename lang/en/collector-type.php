@@ -6,6 +6,7 @@ return [
     'ISSUES' => 'Issues',
     'PULL_REQUESTS' => 'Pull requests',
     'REPOSITORIES' => 'Repositories',
+    'SITE_PROCESSES' => 'Site processes',
     'SITE_REPORTS' => 'Site reports',
     'SITES' => 'Sites',
 ];

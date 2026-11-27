@@ -19,6 +19,7 @@ use Maarheeze\Compass\Collections\SiteCollection;
 use Maarheeze\Compass\Collections\SiteDomainCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCheckCollection;
 use Maarheeze\Compass\Collections\SiteReportCollection;
+use Maarheeze\Compass\Collector\SiteProcesses\QueueWorkerState;
 use Maarheeze\Compass\Collector\Sites\DeploymentStatus;
 use Maarheeze\Compass\Database\Factories\SiteFactory;
 use Maarheeze\Compass\Models\Builders\AlertBuilder;
@@ -46,6 +47,8 @@ use Maarheeze\Uuid\Uuid;
  * @property ?CarbonImmutable $missing_ignored_at
  * @property string $name
  * @property ?string $php_version
+ * @property ?CarbonImmutable $processes_collected_at
+ * @property ?QueueWorkerState $queue_worker_state
  * @property ?string $repository_branch
  * @property ?string $repository_url
  * @property Uuid $run_id
@@ -178,6 +181,8 @@ class Site extends Model implements AlertSubject
             'deployment_status' => DeploymentStatus::class,
             'missing_at' => 'immutable_datetime',
             'missing_ignored_at' => 'immutable_datetime',
+            'processes_collected_at' => 'immutable_datetime',
+            'queue_worker_state' => QueueWorkerState::class,
             'run_id' => UuidCast::class,
             'updated_at' => 'immutable_datetime',
         ];

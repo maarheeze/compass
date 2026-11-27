@@ -10,10 +10,12 @@ use Maarheeze\Compass\Collections\CollectedSiteDomainCollection;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\RequestBudgetExhausted;
 use Maarheeze\Compass\Collector\SiteDomains\SiteDomainsCollector;
+use Maarheeze\Compass\Collector\SiteProcesses\CollectedSiteProcesses;
+use Maarheeze\Compass\Collector\SiteProcesses\SiteProcessesCollector;
 use Maarheeze\Compass\Collector\Sites\SitesCollector;
 use Maarheeze\Compass\Models\Site;
 
-readonly class ForgeDriver implements SiteDomainsCollector, SitesCollector
+readonly class ForgeDriver implements SiteDomainsCollector, SiteProcessesCollector, SitesCollector
 {
     public function __construct(
         private ForgeClient $forgeClient,
@@ -32,6 +34,21 @@ readonly class ForgeDriver implements SiteDomainsCollector, SitesCollector
 
         try {
             return $siteDomainsQuery->siteDomains($site);
+        } catch (ForgeRequestFailed $forgeRequestFailed) {
+            throw CollectingFailed::fromThrowable($forgeRequestFailed);
+        }
+    }
+
+    /**
+     * @throws CollectingFailed
+     * @throws RequestBudgetExhausted
+     */
+    public function siteProcesses(Site $site): CollectedSiteProcesses
+    {
+        $siteProcessesQuery = new SiteProcessesQuery($this->forgeClient, $this->organisation);
+
+        try {
+            return $siteProcessesQuery->siteProcesses($site);
         } catch (ForgeRequestFailed $forgeRequestFailed) {
             throw CollectingFailed::fromThrowable($forgeRequestFailed);
         }

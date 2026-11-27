@@ -123,6 +123,12 @@ test('run type filter options count the runs of each collector and task in displ
             ),
             new FilterOption('Sites', 2, RunTypeFilter::collectorTypeRouteParameters(CollectorType::SITES), null),
             new FilterOption(
+                'Site processes',
+                0,
+                RunTypeFilter::collectorTypeRouteParameters(CollectorType::SITE_PROCESSES),
+                null,
+            ),
+            new FilterOption(
                 'Site reports',
                 0,
                 RunTypeFilter::collectorTypeRouteParameters(CollectorType::SITE_REPORTS),

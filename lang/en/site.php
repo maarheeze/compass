@@ -29,9 +29,11 @@ return [
     'not_checked_yet' => 'not checked yet',
     'online_since' => 'online since',
     'php_version' => 'PHP version',
+    'queue_worker' => 'Queue worker',
     'report' => 'Report',
     'repository' => 'Repository',
     'save' => 'Save',
     'server' => 'Server',
     'settings_explanation' => 'Site settings.',
+    'unknown' => 'Unknown',
 ];
