@@ -12,6 +12,8 @@ use Maarheeze\Compass\Alerts\ConditionState;
 use Maarheeze\Compass\Alerts\NotificationChannel;
 use Maarheeze\Compass\Analyser\Composer\RepositoryKind;
 use Maarheeze\Compass\Analyser\Deployment\DeploymentState;
+use Maarheeze\Compass\Analyser\Processes\QueueWorkerHealth;
+use Maarheeze\Compass\Analyser\Processes\SchedulerHealth;
 use Maarheeze\Compass\Collector\CollectorType;
 use Maarheeze\Compass\Collector\Composer\PackageSection;
 use Maarheeze\Compass\Collector\Issues\IssueType;
@@ -49,11 +51,13 @@ test('label key has a translation', function (LabelledEnum $labelledEnum): void 
     MissingState::cases(),
     NotificationChannel::cases(),
     PackageSection::cases(),
+    QueueWorkerHealth::cases(),
     QueueWorkerState::cases(),
     RepositoryKind::cases(),
     RepositoryVisibility::cases(),
     RunResultStatus::cases(),
     RunStatus::cases(),
+    SchedulerHealth::cases(),
     SiteDomainStatus::cases(),
     SiteDomainType::cases(),
     SiteEndpointState::cases(),

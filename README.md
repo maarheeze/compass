@@ -93,7 +93,7 @@ Collects the repositories of an organisation, with their latest commit, composer
         'driver' => 'github',
         'organisation' => env('COMPASS_GITHUB_ORGANISATION'),
         'token' => env('COMPASS_GITHUB_TOKEN'),
-        'requests_per_minute' => env('COMPASS_GITHUB_REQUESTS_PER_MINUTE', 60),
+        'requests_per_minute' => 60,
         'issue_types' => [
             'Bug' => IssueType::BUG,
             'Feature' => IssueType::FEATURE,
@@ -124,9 +124,9 @@ The token needs the scopes `server:view`, for the sites and their queue workers,
         'driver' => 'forge',
         'organisation' => env('COMPASS_FORGE_ORGANISATION'),
         'token' => env('COMPASS_FORGE_TOKEN'),
-        'requests_per_minute' => env('COMPASS_FORGE_REQUESTS_PER_MINUTE', 60),
-        'auto_deploy_grace_minutes' => env('COMPASS_FORGE_AUTO_DEPLOY_GRACE_MINUTES', 5),
-        'server_pattern' => env('COMPASS_FORGE_SERVER_PATTERN', '/.*/'),
+        'requests_per_minute' => 60,
+        'auto_deploy_grace_minutes' => 5,
+        'server_pattern' => '/.*/',
         'schedule' => [
             'sites' => ScheduleFrequency::HOURLY,
             'site_processes' => ScheduleFrequency::DAILY,
@@ -145,8 +145,8 @@ Install [maarheeze/compass-client-laravel](https://github.com/maarheeze/compass-
 'sources' => [
     'compass-client' => [
         'driver' => 'compass-client',
-        'path' => env('COMPASS_CLIENT_PATH', '/_compass'),
-        'scheduler_grace_minutes' => env('COMPASS_CLIENT_SCHEDULER_GRACE_MINUTES', 10),
+        'path' => '/_compass',
+        'scheduler_grace_minutes' => 10,
         'schedule' => [
             'site_reports' => ScheduleFrequency::HOURLY,
         ],

@@ -28,6 +28,8 @@
 
             <x-compass::alert-check-table :alert-checks="$alertChecks" />
 
+            <x-compass::site-scheduled-task-table :site="$site" />
+
             <x-compass::site-endpoint-table
                 :site="$site"
                 :reported-site-endpoints="$reportedSiteEndpoints"
@@ -98,16 +100,12 @@
 
                 <x-compass::sidebar-section :title="__('compass::site.processes')">
                     <dl class="space-y-2">
-                        <x-compass::fact :label="__('compass::site.queue_worker')">
-                            @if ($site->queue_worker_state === null)
-                                {{ __('compass::site.unknown') }}
-                            @else
-                                <x-compass::enum-label :labelled-enum="$site->queue_worker_state" />
-                                @if ($site->processes_collected_at !== null)
-                                    <span class="text-foreground-muted">&middot; <x-compass::time :time="$site->processes_collected_at" /></span>
-                                @endif
-                            @endif
-                        </x-compass::fact>
+                        <x-compass::site-queue-worker-fact :site="$site" />
+                        @forelse ($site->reports as $siteReport)
+                            <x-compass::site-scheduler-fact :site-report="$siteReport" />
+                        @empty
+                            <x-compass::fact :label="__('compass::site.scheduler')">{{ __('compass::site.unknown') }}</x-compass::fact>
+                        @endforelse
                     </dl>
                 </x-compass::sidebar-section>
 

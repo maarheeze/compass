@@ -15,6 +15,10 @@ use Maarheeze\Uuid\Laravel\Model\Casts\UuidCast;
 use Maarheeze\Uuid\Laravel\Model\Concerns\HasUuidAsId;
 use Maarheeze\Uuid\Uuid;
 
+use function str_starts_with;
+use function strlen;
+use function substr;
+
 /**
  * @property string $command
  * @property CarbonImmutable $created_at
@@ -32,6 +36,8 @@ class SiteScheduledTask extends Model
     /** @use HasFactory<SiteScheduledTaskFactory> */
     use HasFactory;
     use HasUuidAsId;
+
+    private const string ARTISAN_COMMAND_PREFIX = 'php artisan ';
 
     protected static string $collectionClass = SiteScheduledTaskCollection::class;
 
@@ -58,6 +64,15 @@ class SiteScheduledTask extends Model
     public function siteReport(): BelongsTo
     {
         return $this->belongsTo(SiteReport::class);
+    }
+
+    public function displayedCommand(): string
+    {
+        if (!str_starts_with($this->command, self::ARTISAN_COMMAND_PREFIX)) {
+            return $this->command;
+        }
+
+        return substr($this->command, strlen(self::ARTISAN_COMMAND_PREFIX));
     }
 
     /**

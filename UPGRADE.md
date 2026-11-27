@@ -75,11 +75,9 @@ on the default queue.
 
 ### `requests_per_minute` added to the `github` and `forge` sources
 
-Add `'requests_per_minute' => env('COMPASS_GITHUB_REQUESTS_PER_MINUTE', 60)` to a
-`github` source and `'requests_per_minute' => env('COMPASS_FORGE_REQUESTS_PER_MINUTE', 60)`
-to a `forge` source. Compass sends at most that many requests a minute to the
-source, and a job that would go over waits instead of failing. A source without
-it cannot be collected.
+Add `'requests_per_minute' => 60` to a `github` and a `forge` source. Compass
+sends at most that many requests a minute to the source, and a job that would
+go over waits instead of failing. A source without it cannot be collected.
 
 ### Collector managers replaced by `SourceDrivers`
 
@@ -93,8 +91,8 @@ built-in collectors are replaced by `GitHubDriver`, `ForgeDriver` and
 
 ### `scheduler_grace_minutes` added to the `compass-client` source
 
-Add `'scheduler_grace_minutes' => env('COMPASS_CLIENT_SCHEDULER_GRACE_MINUTES', 10)`
-to a `compass-client` source. A source without it cannot inspect sites.
+Add `'scheduler_grace_minutes' => 10` to a `compass-client` source. A source
+without it cannot inspect sites.
 
 ### Client 4.0 required
 
