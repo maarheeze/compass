@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\RequestException;
@@ -13,6 +14,7 @@ use Maarheeze\Compass\Collector\Drivers\CompassClient\ClientUnreachable;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteClient;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteQuery;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
+use Maarheeze\Compass\Collector\SiteReports\CollectedScheduledTask;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteEndpoint;
 use Maarheeze\Compass\Models\SiteReport;
 
@@ -23,6 +25,10 @@ test('report holds what the client reported', function (): void {
     $maintenanceMode = fake()->boolean();
     $path = sprintf('/%s', fake()->slug());
     $frequencyMinutes = fake()->numberBetween(1, 60);
+    $queueDriver = fake()->slug();
+    $command = sprintf('php artisan %s', fake()->slug());
+    $expression = sprintf('%d * * * *', fake()->numberBetween(0, 59));
+    $schedulerLastRanAt = CarbonImmutable::instance(fake()->dateTime())->startOfSecond();
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response([
         'app_debug' => $appDebug,
@@ -35,6 +41,16 @@ test('report holds what the client reported', function (): void {
                 'frequency_minutes' => $frequencyMinutes,
             ],
         ],
+        'scheduler' => [
+            'last_ran_at' => $schedulerLastRanAt->toIso8601String(),
+            'tasks' => [
+                [
+                    'command' => $command,
+                    'expression' => $expression,
+                ],
+            ],
+        ],
+        'queue_driver' => $queueDriver,
     ]),
     ]);
 
@@ -57,8 +73,73 @@ test('report holds what the client reported', function (): void {
         ->maintenanceMode
         ->toBe($maintenanceMode)
         ->endpoints
-        ->toEqual([new CollectedSiteEndpoint(new EndpointPath($path), $frequencyMinutes)]);
+        ->toEqual([new CollectedSiteEndpoint(new EndpointPath($path), $frequencyMinutes)])
+        ->queueDriver
+        ->toBe($queueDriver)
+        ->scheduledTasks
+        ->toEqual([new CollectedScheduledTask($command, $expression)])
+        ->schedulerLastRanAt
+        ->toEqual($schedulerLastRanAt);
 });
+
+test('report holds no last run when the scheduler never ran', function (): void {
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response([
+        'app_debug' => fake()->boolean(),
+        'app_env' => fake()->word(),
+        'app_name' => fake()->company(),
+        'maintenance_mode' => fake()->boolean(),
+        'endpoints' => [],
+        'scheduler' => [
+            'last_ran_at' => null,
+            'tasks' => [],
+        ],
+        'queue_driver' => fake()->slug(),
+    ]),
+    ]);
+
+    $siteQuery = new SiteQuery(new SiteClient(
+        $this->app->make(CollectorSchedule::class),
+        $http,
+        sprintf('/%s', fake()->slug()),
+        fake()->slug(),
+        $this->app->make(UrlGenerator::class),
+    ));
+    $clientReport = $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
+
+    expect($clientReport->schedulerLastRanAt)
+        ->toBeNull();
+});
+
+test('report throws when the client reports a scheduled task without an expression', function (): void {
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response([
+        'app_debug' => fake()->boolean(),
+        'app_env' => fake()->word(),
+        'app_name' => fake()->company(),
+        'maintenance_mode' => fake()->boolean(),
+        'endpoints' => [],
+        'scheduler' => [
+            'last_ran_at' => null,
+            'tasks' => [
+                [
+                    'command' => sprintf('php artisan %s', fake()->slug()),
+                ],
+            ],
+        ],
+        'queue_driver' => fake()->slug(),
+    ]),
+    ]);
+
+    $siteQuery = new SiteQuery(new SiteClient(
+        $this->app->make(CollectorSchedule::class),
+        $http,
+        sprintf('/%s', fake()->slug()),
+        fake()->slug(),
+        $this->app->make(UrlGenerator::class),
+    ));
+    $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
+})->throws(ClientIncompatible::class);
 
 test('report throws when the client reports an endpoint without a frequency', function (): void {
     $http = $this->app->make(HttpFactory::class);
@@ -72,6 +153,11 @@ test('report throws when the client reports an endpoint without a frequency', fu
                 'path' => sprintf('/%s', fake()->slug()),
             ],
         ],
+        'scheduler' => [
+            'last_ran_at' => null,
+            'tasks' => [],
+        ],
+        'queue_driver' => fake()->slug(),
     ]),
     ]);
 
@@ -93,6 +179,11 @@ test('report throws when the client reports an endpoint as a bare path', functio
         'app_name' => fake()->company(),
         'maintenance_mode' => fake()->boolean(),
         'endpoints' => [sprintf('/%s', fake()->slug())],
+        'scheduler' => [
+            'last_ran_at' => null,
+            'tasks' => [],
+        ],
+        'queue_driver' => fake()->slug(),
     ]),
     ]);
 
@@ -161,6 +252,11 @@ test('report throws when the client reports a field of another type', function (
         'app_name' => fake()->company(),
         'maintenance_mode' => fake()->boolean(),
         'endpoints' => [],
+        'scheduler' => [
+            'last_ran_at' => null,
+            'tasks' => [],
+        ],
+        'queue_driver' => fake()->slug(),
     ]),
     ]);
 

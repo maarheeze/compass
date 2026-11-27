@@ -40,9 +40,11 @@ readonly class SiteProcessesQuery
             foreach (Assert::isList($backgroundProcessesResponse['data']) as $backgroundProcessResource) {
                 $queueWorkerState = $this->getQueueWorkerState(Assert::isArray($backgroundProcessResource));
 
-                if ($queueWorkerState !== null) {
-                    $queueWorkerStates[] = $queueWorkerState;
+                if ($queueWorkerState === null) {
+                    continue;
                 }
+
+                $queueWorkerStates[] = $queueWorkerState;
             }
 
             $cursor = Assert::nullOrString(Assert::isArray($backgroundProcessesResponse['meta'])['next_cursor']);

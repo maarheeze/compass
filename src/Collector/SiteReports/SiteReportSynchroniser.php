@@ -24,23 +24,42 @@ readonly class SiteReportSynchroniser
     /**
      * @throws Throwable
      */
-    public function storeReport(SiteReport $siteReport, CollectedSiteReport $collectedSiteReport): void
-    {
+    public function storeReport(
+        SiteReport $siteReport,
+        CollectedSiteReport $collectedSiteReport,
+        int $schedulerGraceMinutes,
+    ): void {
         match ($collectedSiteReport->status) {
             SiteReportStatus::INCOMPATIBLE,
-            SiteReportStatus::UNAUTHORISED => $this->storeStatus($siteReport, $collectedSiteReport),
+            SiteReportStatus::UNAUTHORISED => $this->storeStatus(
+                $siteReport,
+                $collectedSiteReport,
+                $schedulerGraceMinutes,
+            ),
             SiteReportStatus::INSTALLED,
-            SiteReportStatus::NOT_INSTALLED => $this->storeReportAndEndpoints($siteReport, $collectedSiteReport),
+            SiteReportStatus::NOT_INSTALLED => $this->storeReportAndEndpoints(
+                $siteReport,
+                $collectedSiteReport,
+                $schedulerGraceMinutes,
+            ),
         };
     }
 
     /**
      * @throws Throwable
      */
-    private function storeReportAndEndpoints(SiteReport $siteReport, CollectedSiteReport $collectedSiteReport): void
-    {
-        $this->connection->transaction(function () use ($siteReport, $collectedSiteReport): void {
-            $this->storeStatus($siteReport, $collectedSiteReport);
+    private function storeReportAndEndpoints(
+        SiteReport $siteReport,
+        CollectedSiteReport $collectedSiteReport,
+        int $schedulerGraceMinutes,
+    ): void {
+        $this->connection->transaction(function () use (
+            $siteReport,
+            $collectedSiteReport,
+            $schedulerGraceMinutes,
+        ): void {
+            $this->storeStatus($siteReport, $collectedSiteReport, $schedulerGraceMinutes);
+            $this->storeScheduledTasks($siteReport, $collectedSiteReport);
 
             $reportedEndpointPaths = array_map(static function (CollectedSiteEndpoint $collectedSiteEndpoint): EndpointPath {
                 return $collectedSiteEndpoint->path;
@@ -71,8 +90,23 @@ readonly class SiteReportSynchroniser
         $siteEndpoint->save();
     }
 
-    private function storeStatus(SiteReport $siteReport, CollectedSiteReport $collectedSiteReport): void
+    private function storeScheduledTasks(SiteReport $siteReport, CollectedSiteReport $collectedSiteReport): void
     {
+        $siteReport->scheduledTasks()->delete();
+
+        foreach ($collectedSiteReport->scheduledTasks as $collectedScheduledTask) {
+            $siteReport->scheduledTasks()->create([
+                'command' => $collectedScheduledTask->command,
+                'expression' => $collectedScheduledTask->expression,
+            ]);
+        }
+    }
+
+    private function storeStatus(
+        SiteReport $siteReport,
+        CollectedSiteReport $collectedSiteReport,
+        int $schedulerGraceMinutes,
+    ): void {
         $collectedAt = CarbonImmutable::instance($this->clock->now());
 
         $siteReport->fill([
@@ -81,6 +115,9 @@ readonly class SiteReportSynchroniser
             'app_env' => $collectedSiteReport->appEnv,
             'app_name' => $collectedSiteReport->appName,
             'maintenance_mode' => $collectedSiteReport->maintenanceMode,
+            'queue_driver' => $collectedSiteReport->queueDriver,
+            'scheduler_last_ran_at' => $collectedSiteReport->schedulerLastRanAt,
+            'scheduler_grace_minutes' => $schedulerGraceMinutes,
             'collected_at' => $collectedAt,
         ]);
         $siteReport->save();

@@ -19,6 +19,7 @@ use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Collector\MissingState;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportsCollector;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportSynchroniser;
+use Maarheeze\Compass\Collector\SourceConfigs;
 use Maarheeze\Compass\Collector\SourceDrivers;
 use Maarheeze\Compass\Collector\SubjectJob;
 use Maarheeze\Compass\Models\Site;
@@ -50,9 +51,13 @@ class InspectSite implements SubjectJob
         Context $context,
         Dispatcher $events,
         SiteReportSynchroniser $siteReportSynchroniser,
+        SourceConfigs $sourceConfigs,
         SourceDrivers $sourceDrivers,
     ): void {
         $siteReportsCollector = $sourceDrivers->collector($this->source, SiteReportsCollector::class);
+        $schedulerGraceMinutes = $sourceConfigs
+            ->get($this->source)
+            ->integerSetting('scheduler_grace_minutes');
 
         $context->add('site', $this->site->name);
 
@@ -63,7 +68,11 @@ class InspectSite implements SubjectJob
         }
 
         $siteReport = SiteReport::query()->firstOrNew(['site_id' => $this->site->id, 'source' => $this->source]);
-        $siteReportSynchroniser->storeReport($siteReport, $siteReportsCollector->siteReport($siteReport));
+        $siteReportSynchroniser->storeReport(
+            $siteReport,
+            $siteReportsCollector->siteReport($siteReport),
+            $schedulerGraceMinutes,
+        );
 
         $collectorLogger->debug('Site inspected', ['status' => $siteReport->status->value]);
 

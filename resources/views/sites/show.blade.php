@@ -71,16 +71,6 @@
                                 {{ __('compass::site.unknown') }}
                             @endforelse
                         </x-compass::fact>
-                        <x-compass::fact :label="__('compass::site.queue_worker')">
-                            @if ($site->queue_worker_state === null)
-                                {{ __('compass::site.unknown') }}
-                            @else
-                                <x-compass::enum-label :labelled-enum="$site->queue_worker_state" />
-                                @if ($site->processes_collected_at !== null)
-                                    <span class="text-foreground-muted">&middot; <x-compass::time :time="$site->processes_collected_at" /></span>
-                                @endif
-                            @endif
-                        </x-compass::fact>
                     </dl>
                 </x-compass::sidebar-section>
 
@@ -101,6 +91,21 @@
                                 {{ __('compass::site.auto_deploy_on') }}
                             @else
                                 {{ __('compass::site.auto_deploy_off') }}
+                            @endif
+                        </x-compass::fact>
+                    </dl>
+                </x-compass::sidebar-section>
+
+                <x-compass::sidebar-section :title="__('compass::site.processes')">
+                    <dl class="space-y-2">
+                        <x-compass::fact :label="__('compass::site.queue_worker')">
+                            @if ($site->queue_worker_state === null)
+                                {{ __('compass::site.unknown') }}
+                            @else
+                                <x-compass::enum-label :labelled-enum="$site->queue_worker_state" />
+                                @if ($site->processes_collected_at !== null)
+                                    <span class="text-foreground-muted">&middot; <x-compass::time :time="$site->processes_collected_at" /></span>
+                                @endif
                             @endif
                         </x-compass::fact>
                     </dl>

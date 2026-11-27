@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Request as HttpRequest;
@@ -10,6 +11,7 @@ use Maarheeze\Compass\Collector\CollectorSchedule;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\CompassClientDriver;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteClient;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
+use Maarheeze\Compass\Collector\SiteReports\CollectedScheduledTask;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteEndpoint;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteReport;
 use Maarheeze\Compass\Models\Site;
@@ -23,6 +25,10 @@ test('site report holds what the client reported', function (): void {
     $maintenanceMode = fake()->boolean();
     $path = sprintf('/%s', fake()->slug());
     $frequencyMinutes = fake()->numberBetween(1, 60);
+    $queueDriver = fake()->slug();
+    $command = sprintf('php artisan %s', fake()->slug());
+    $expression = sprintf('%d * * * *', fake()->numberBetween(0, 59));
+    $schedulerLastRanAt = CarbonImmutable::instance(fake()->dateTime())->startOfSecond();
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response([
         'app_debug' => $appDebug,
@@ -35,6 +41,16 @@ test('site report holds what the client reported', function (): void {
                 'frequency_minutes' => $frequencyMinutes,
             ],
         ],
+        'scheduler' => [
+            'last_ran_at' => $schedulerLastRanAt->toIso8601String(),
+            'tasks' => [
+                [
+                    'command' => $command,
+                    'expression' => $expression,
+                ],
+            ],
+        ],
+        'queue_driver' => $queueDriver,
     ]),
     ]);
 
@@ -51,9 +67,16 @@ test('site report holds what the client reported', function (): void {
     $collectedSiteReport = $compassClientDriver->siteReport(SiteReport::factory()->create());
 
     expect($collectedSiteReport)
-        ->toEqual(CollectedSiteReport::installed($appDebug, $appEnv, $appName, [
-            new CollectedSiteEndpoint(new EndpointPath($path), $frequencyMinutes),
-        ], $maintenanceMode));
+        ->toEqual(CollectedSiteReport::installed(
+            $appDebug,
+            $appEnv,
+            $appName,
+            [new CollectedSiteEndpoint(new EndpointPath($path), $frequencyMinutes)],
+            $maintenanceMode,
+            $queueDriver,
+            [new CollectedScheduledTask($command, $expression)],
+            $schedulerLastRanAt,
+        ));
 });
 
 test('site report is incompatible when the client reports without a field', function (): void {

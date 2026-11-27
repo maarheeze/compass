@@ -90,3 +90,14 @@ The driver is one class implementing every collector contract the provider
 can deliver, such as `RepositoriesCollector` and `IssuesCollector`. The
 built-in collectors are replaced by `GitHubDriver`, `ForgeDriver` and
 `CompassClientDriver`.
+
+### `scheduler_grace_minutes` added to the `compass-client` source
+
+Add `'scheduler_grace_minutes' => env('COMPASS_CLIENT_SCHEDULER_GRACE_MINUTES', 10)`
+to a `compass-client` source. A source without it cannot inspect sites.
+
+### Client 4.0 required
+
+Upgrade `maarheeze/compass-client-laravel` on each site to 4.0 or later. An
+older client does not report the scheduler and the queue driver, so its site
+is reported as incompatible until it is upgraded.

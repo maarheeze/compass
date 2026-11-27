@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Maarheeze\Compass\Collector\Drivers\CompassClient;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\Response as HttpResponse;
 use InvalidArgumentException;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
+use Maarheeze\Compass\Collector\SiteReports\CollectedScheduledTask;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteEndpoint;
 use Maarheeze\Compass\Models\SiteReport;
 use Webmozart\Assert\Assert;
@@ -45,6 +47,12 @@ readonly class SiteQuery
         Assert::keyExists($reportResponse, 'app_name');
         Assert::keyExists($reportResponse, 'endpoints');
         Assert::keyExists($reportResponse, 'maintenance_mode');
+        Assert::keyExists($reportResponse, 'queue_driver');
+        Assert::keyExists($reportResponse, 'scheduler');
+
+        $schedulerResponse = Assert::isMap($reportResponse['scheduler']);
+        Assert::keyExists($schedulerResponse, 'last_ran_at');
+        Assert::keyExists($schedulerResponse, 'tasks');
 
         return new ClientReport(
             Assert::boolean($reportResponse['app_debug']),
@@ -52,6 +60,9 @@ readonly class SiteQuery
             Assert::string($reportResponse['app_name']),
             $this->getEndpoints(Assert::isList($reportResponse['endpoints'])),
             Assert::boolean($reportResponse['maintenance_mode']),
+            Assert::string($reportResponse['queue_driver']),
+            $this->getScheduledTasks(Assert::isList($schedulerResponse['tasks'])),
+            $this->getSchedulerLastRanAt(Assert::nullOrString($schedulerResponse['last_ran_at'])),
         );
     }
 
@@ -115,5 +126,44 @@ readonly class SiteQuery
         }
 
         return $reportResponse;
+    }
+
+    /**
+     * @param array<string, mixed> $scheduledTaskResponse
+     */
+    private function getScheduledTask(array $scheduledTaskResponse): CollectedScheduledTask
+    {
+        Assert::keyExists($scheduledTaskResponse, 'command');
+        Assert::keyExists($scheduledTaskResponse, 'expression');
+
+        return new CollectedScheduledTask(
+            Assert::string($scheduledTaskResponse['command']),
+            Assert::string($scheduledTaskResponse['expression']),
+        );
+    }
+
+    /**
+     * @param list<mixed> $scheduledTasksResponse
+     *
+     * @return list<CollectedScheduledTask>
+     */
+    private function getScheduledTasks(array $scheduledTasksResponse): array
+    {
+        $collectedScheduledTasks = [];
+
+        foreach ($scheduledTasksResponse as $scheduledTaskResponse) {
+            $collectedScheduledTasks[] = $this->getScheduledTask(Assert::isMap($scheduledTaskResponse));
+        }
+
+        return $collectedScheduledTasks;
+    }
+
+    private function getSchedulerLastRanAt(?string $lastRanAt): ?CarbonImmutable
+    {
+        if ($lastRanAt === null) {
+            return null;
+        }
+
+        return CarbonImmutable::parse($lastRanAt);
     }
 }

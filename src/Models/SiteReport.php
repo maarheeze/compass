@@ -15,6 +15,7 @@ use Maarheeze\Compass\Collections\AlertCheckCollection;
 use Maarheeze\Compass\Collections\AlertCollection;
 use Maarheeze\Compass\Collections\SiteEndpointCollection;
 use Maarheeze\Compass\Collections\SiteReportCollection;
+use Maarheeze\Compass\Collections\SiteScheduledTaskCollection;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
 use Maarheeze\Compass\Database\Factories\SiteReportFactory;
 use Maarheeze\Compass\Models\Concerns\HasAlerts;
@@ -31,6 +32,9 @@ use Maarheeze\Uuid\Uuid;
  * @property Uuid $id
  * @property ?bool $maintenance_mode
  * @property ?string $path
+ * @property ?string $queue_driver
+ * @property ?int $scheduler_grace_minutes
+ * @property ?CarbonImmutable $scheduler_last_ran_at
  * @property Uuid $site_id
  * @property string $source
  * @property SiteReportStatus $status
@@ -39,6 +43,7 @@ use Maarheeze\Uuid\Uuid;
  * @property-read AlertCheckCollection $alertChecks
  * @property-read AlertCollection $alerts
  * @property-read SiteEndpointCollection $endpoints
+ * @property-read SiteScheduledTaskCollection $scheduledTasks
  * @property-read Site $site
  */
 class SiteReport extends Model implements AlertSubject
@@ -64,6 +69,9 @@ class SiteReport extends Model implements AlertSubject
             'collected_at',
             'maintenance_mode',
             'path',
+            'queue_driver',
+            'scheduler_grace_minutes',
+            'scheduler_last_ran_at',
             'site_id',
             'source',
             'status',
@@ -84,6 +92,14 @@ class SiteReport extends Model implements AlertSubject
     }
 
     /**
+     * @return HasMany<SiteScheduledTask, $this>
+     */
+    public function scheduledTasks(): HasMany
+    {
+        return $this->hasMany(SiteScheduledTask::class);
+    }
+
+    /**
      * @return BelongsTo<Site, $this>
      */
     public function site(): BelongsTo
@@ -101,6 +117,8 @@ class SiteReport extends Model implements AlertSubject
             'collected_at' => 'immutable_datetime',
             'created_at' => 'immutable_datetime',
             'maintenance_mode' => 'boolean',
+            'scheduler_grace_minutes' => 'integer',
+            'scheduler_last_ran_at' => 'immutable_datetime',
             'site_id' => UuidCast::class,
             'status' => SiteReportStatus::class,
             'updated_at' => 'immutable_datetime',

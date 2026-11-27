@@ -46,6 +46,9 @@ readonly class CompassClientDriver implements SiteReportsCollector
             $clientReport->appName,
             $clientReport->endpoints,
             $clientReport->maintenanceMode,
+            $clientReport->queueDriver,
+            $clientReport->scheduledTasks,
+            $clientReport->schedulerLastRanAt,
         );
     }
 

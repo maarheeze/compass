@@ -20,6 +20,7 @@ test('handle stores the report the collector of its source collected', function 
         $source => [
             'driver' => 'compass-client',
             'path' => sprintf('/%s', fake()->slug()),
+            'scheduler_grace_minutes' => fake()->numberBetween(1, 60),
         ],
     ]);
     $site = Site::factory()->create();
@@ -29,6 +30,11 @@ test('handle stores the report the collector of its source collected', function 
         'app_name' => fake()->company(),
         'maintenance_mode' => fake()->boolean(),
         'endpoints' => [],
+        'scheduler' => [
+            'last_ran_at' => null,
+            'tasks' => [],
+        ],
+        'queue_driver' => fake()->slug(),
     ]),
     ]);
 
@@ -42,12 +48,36 @@ test('handle stores the report the collector of its source collected', function 
     ]);
 });
 
+test('handle stores the scheduler grace minutes of its source on the report', function (): void {
+    $source = fake()->slug();
+    $schedulerGraceMinutes = fake()->numberBetween(1, 60);
+    $this->setConfiguration('compass.sources', [
+        $source => [
+            'driver' => 'compass-client',
+            'path' => sprintf('/%s', fake()->slug()),
+            'scheduler_grace_minutes' => $schedulerGraceMinutes,
+        ],
+    ]);
+    $site = Site::factory()->create();
+    $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::response(null, 404)]);
+
+    $inspectSite = new InspectSite($site, $source);
+    $this->app->call([$inspectSite, 'handle']);
+
+    $this->assertDatabaseHas(SiteReport::class, [
+        'site_id' => $site->id,
+        'source' => $source,
+        'scheduler_grace_minutes' => $schedulerGraceMinutes,
+    ]);
+});
+
 test('handle asks the site with its key', function (): void {
     $source = fake()->slug();
     $this->setConfiguration('compass.sources', [
         $source => [
             'driver' => 'compass-client',
             'path' => sprintf('/%s', fake()->slug()),
+            'scheduler_grace_minutes' => fake()->numberBetween(1, 60),
         ],
     ]);
     $site = Site::factory()->create(['key' => fake()->sha1()]);
@@ -68,6 +98,7 @@ test('handle fails when the site cannot be reached', function (): void {
         $source => [
             'driver' => 'compass-client',
             'path' => sprintf('/%s', fake()->slug()),
+            'scheduler_grace_minutes' => fake()->numberBetween(1, 60),
         ],
     ]);
     $this->app->make(HttpFactory::class)->fake(['*' => HttpFactory::failedConnection()]);
@@ -82,6 +113,7 @@ test('handle leaves a missing site alone', function (): void {
         $source => [
             'driver' => 'compass-client',
             'path' => sprintf('/%s', fake()->slug()),
+            'scheduler_grace_minutes' => fake()->numberBetween(1, 60),
         ],
     ]);
     $site = Site::factory()->create(['missing_at' => fake()->dateTime()]);
@@ -100,6 +132,7 @@ test('handle adds the site to the log context', function (): void {
         $source => [
             'driver' => 'compass-client',
             'path' => sprintf('/%s', fake()->slug()),
+            'scheduler_grace_minutes' => fake()->numberBetween(1, 60),
         ],
     ]);
     $site = Site::factory()->create();
@@ -118,6 +151,7 @@ test('handle raises site inspected with the report of the site for its source', 
         $source => [
             'driver' => 'compass-client',
             'path' => sprintf('/%s', fake()->slug()),
+            'scheduler_grace_minutes' => fake()->numberBetween(1, 60),
         ],
     ]);
     $eventFake = new EventFake($this->app->make(Dispatcher::class));

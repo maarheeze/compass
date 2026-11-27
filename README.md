@@ -139,19 +139,22 @@ The token needs the scopes `server:view`, for the sites and their queue workers,
 
 ### Compass client
 
-Install [maarheeze/compass-client-laravel](https://github.com/maarheeze/compass-client-laravel) on a site to report what cannot be seen from outside: debug mode, the environment, maintenance mode and the endpoints to monitor. Compass checks those endpoints, and alerts on a site in debug mode, a site not in production, a site reachable on a Forge domain outside maintenance mode, an endpoint that is down, a client that refuses Compass's key and a client too outdated to report.
+Install [maarheeze/compass-client-laravel](https://github.com/maarheeze/compass-client-laravel) on a site to report what cannot be seen from outside: debug mode, the environment, maintenance mode, the endpoints to monitor, the scheduled tasks with when the scheduler last ran, and the queue driver. Sites need version 4.0 or later of the client. Compass checks those endpoints, and alerts on a site in debug mode, a site not in production, a site reachable on a Forge domain outside maintenance mode, an endpoint that is down, a client that refuses Compass's key and a client too outdated to report.
 
 ```php
 'sources' => [
     'compass-client' => [
         'driver' => 'compass-client',
         'path' => env('COMPASS_CLIENT_PATH', '/_compass'),
+        'scheduler_grace_minutes' => env('COMPASS_CLIENT_SCHEDULER_GRACE_MINUTES', 10),
         'schedule' => [
             'site_reports' => ScheduleFrequency::HOURLY,
         ],
     ],
 ],
 ```
+
+`scheduler_grace_minutes` is how long ago the scheduler may have last run, at the moment of a report, before it counts as not running.
 
 ## Licence
 
