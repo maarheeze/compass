@@ -49,7 +49,8 @@ readonly class EvaluateSiteSchedulerNotRunning implements ShouldQueue
     {
         return match ($schedulerHealth) {
             SchedulerHealth::NOT_RUNNING => ConditionState::ACTIVE,
-            SchedulerHealth::NO_TASKS, SchedulerHealth::RUNNING => ConditionState::RESOLVED,
+            SchedulerHealth::NO_TASKS => ConditionState::NOT_APPLICABLE,
+            SchedulerHealth::RUNNING => ConditionState::RESOLVED,
             SchedulerHealth::UNKNOWN => null,
         };
     }

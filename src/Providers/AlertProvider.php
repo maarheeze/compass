@@ -24,6 +24,8 @@ use Maarheeze\Compass\Alerts\Listeners\Site\EvaluateSiteBehindOnSitesCollected;
 use Maarheeze\Compass\Alerts\Listeners\Site\EvaluateSiteDeploymentOverdue;
 use Maarheeze\Compass\Alerts\Listeners\Site\EvaluateSiteMissingOnSiteMissingIgnored;
 use Maarheeze\Compass\Alerts\Listeners\Site\EvaluateSiteMissingOnSitesCollected;
+use Maarheeze\Compass\Alerts\Listeners\Site\EvaluateSiteQueueWorkerNotRunningOnSiteInspected;
+use Maarheeze\Compass\Alerts\Listeners\Site\EvaluateSiteQueueWorkerNotRunningOnSiteProcessesCollected;
 use Maarheeze\Compass\Alerts\Listeners\SiteEndpoint\EvaluateSiteEndpointDown;
 use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteDebugEnabled;
 use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteNotInProduction;
@@ -46,6 +48,7 @@ use Maarheeze\Compass\Alerts\Types\SiteEndpointDown;
 use Maarheeze\Compass\Alerts\Types\SiteMissing;
 use Maarheeze\Compass\Alerts\Types\SiteNotInProduction;
 use Maarheeze\Compass\Alerts\Types\SiteOnForgeDomain;
+use Maarheeze\Compass\Alerts\Types\SiteQueueWorkerNotRunning;
 use Maarheeze\Compass\Alerts\Types\SiteReportIncompatible;
 use Maarheeze\Compass\Alerts\Types\SiteReportUnauthorised;
 use Maarheeze\Compass\Alerts\Types\SiteSchedulerNotRunning;
@@ -58,6 +61,7 @@ use Maarheeze\Compass\Collector\Events\RepositoryMissingIgnored;
 use Maarheeze\Compass\Collector\Events\SiteEndpointChecked;
 use Maarheeze\Compass\Collector\Events\SiteInspected;
 use Maarheeze\Compass\Collector\Events\SiteMissingIgnored;
+use Maarheeze\Compass\Collector\Events\SiteProcessesCollected;
 use Maarheeze\Compass\Collector\Events\SitesCollected;
 use Maarheeze\Compass\Models\Alert;
 use Maarheeze\Compass\Models\AlertCheck;
@@ -81,6 +85,7 @@ class AlertProvider extends ServiceProvider
         $alertTypes->register(new SiteBehind());
         $alertTypes->register(new SiteDeploymentOverdue());
         $alertTypes->register(new SiteMissing());
+        $alertTypes->register(new SiteQueueWorkerNotRunning());
         $alertTypes->register(new SiteDebugEnabled());
         $alertTypes->register(new SiteNotInProduction());
         $alertTypes->register(new SiteOnForgeDomain());
@@ -114,6 +119,8 @@ class AlertProvider extends ServiceProvider
         $events->listen(RepositoriesCollected::class, EvaluateSiteBehindOnRepositoriesCollected::class);
         $events->listen(SitesCollected::class, EvaluateSiteBehindOnSitesCollected::class);
         $events->listen(SitesCollected::class, EvaluateSiteDeploymentOverdue::class);
+        $events->listen(SiteInspected::class, EvaluateSiteQueueWorkerNotRunningOnSiteInspected::class);
+        $events->listen(SiteProcessesCollected::class, EvaluateSiteQueueWorkerNotRunningOnSiteProcessesCollected::class);
 
         AlertHistoryEntry::created(static function (AlertHistoryEntry $alertHistoryEntry) use ($events): void {
             $events->dispatch(new AlertHistoryEntryCreated($alertHistoryEntry));

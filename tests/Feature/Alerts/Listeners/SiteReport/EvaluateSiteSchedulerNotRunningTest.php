@@ -76,7 +76,7 @@ test('handle observes scheduler not running resolved now for a site whose schedu
     );
 });
 
-test('handle observes scheduler not running resolved now for a site without scheduled tasks', function (): void {
+test('handle observes scheduler not running not applicable now for a site without scheduled tasks', function (): void {
     $busFake = new BusFake($this->app->make(QueueingDispatcher::class));
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
@@ -92,7 +92,7 @@ test('handle observes scheduler not running resolved now for a site without sche
             return $handleConditionObservations->conditionObservations->contains(static function (ConditionObservation $conditionObservation) use ($now, $siteReport): bool {
                 return $conditionObservation->alertType instanceof SiteSchedulerNotRunning
                     && $conditionObservation->subject === $siteReport
-                    && $conditionObservation->condition === ConditionState::RESOLVED
+                    && $conditionObservation->condition === ConditionState::NOT_APPLICABLE
                     && $conditionObservation->observedAt->equalTo($now);
             });
         },

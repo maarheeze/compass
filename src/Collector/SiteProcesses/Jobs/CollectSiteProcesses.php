@@ -6,6 +6,7 @@ namespace Maarheeze\Compass\Collector\SiteProcesses\Jobs;
 
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Log\Context\Repository as Context;
 use Illuminate\Queue\InteractsWithQueue;
@@ -14,6 +15,7 @@ use Maarheeze\Compass\Alerts\AlertSubject;
 use Maarheeze\Compass\Collector\CollectingFailed;
 use Maarheeze\Compass\Collector\CollectorLogger;
 use Maarheeze\Compass\Collector\Concerns\RetriesWhileLocked;
+use Maarheeze\Compass\Collector\Events\SiteProcessesCollected;
 use Maarheeze\Compass\Collector\RequestBudgetExhausted;
 use Maarheeze\Compass\Collector\SiteProcesses\SiteProcessesCollector;
 use Maarheeze\Compass\Collector\SiteProcesses\SiteProcessesSynchroniser;
@@ -41,6 +43,7 @@ class CollectSiteProcesses implements SubjectJob
     public function handle(
         CollectorLogger $collectorLogger,
         Context $context,
+        Dispatcher $events,
         SiteProcessesSynchroniser $siteProcessesSynchroniser,
         SourceDrivers $sourceDrivers,
     ): void {
@@ -54,6 +57,8 @@ class CollectSiteProcesses implements SubjectJob
         $collectorLogger->debug('Site processes collected', [
             'queue_worker_state' => $collectedSiteProcesses->queueWorkerState->value,
         ]);
+
+        $events->dispatch(new SiteProcessesCollected($this->site));
     }
 
     public function lockKey(): string

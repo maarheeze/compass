@@ -18,6 +18,7 @@ return [
     'site-missing' => 'Site missing',
     'site-not-in-production' => 'Site not in production',
     'site-on-forge-domain' => 'Reachable on a Forge domain',
+    'site-queue-worker-not-running' => 'Queue worker not running',
     'site-report-incompatible' => 'Site report incompatible',
     'site-report-unauthorised' => 'Site report key refused',
     'site-scheduler-not-running' => 'Scheduler not running',
