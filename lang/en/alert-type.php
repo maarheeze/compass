@@ -20,4 +20,5 @@ return [
     'site-on-forge-domain' => 'Reachable on a Forge domain',
     'site-report-incompatible' => 'Site report incompatible',
     'site-report-unauthorised' => 'Site report key refused',
+    'site-scheduler-not-running' => 'Scheduler not running',
 ];

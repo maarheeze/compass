@@ -30,6 +30,7 @@ use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteNotInProduction;
 use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteOnForgeDomain;
 use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteReportIncompatible;
 use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteReportUnauthorised;
+use Maarheeze\Compass\Alerts\Listeners\SiteReport\EvaluateSiteSchedulerNotRunning;
 use Maarheeze\Compass\Alerts\Types\ComposerLibraryWithLock;
 use Maarheeze\Compass\Alerts\Types\ComposerMinimumStabilityUnstable;
 use Maarheeze\Compass\Alerts\Types\ComposerProjectWithoutLock;
@@ -47,6 +48,7 @@ use Maarheeze\Compass\Alerts\Types\SiteNotInProduction;
 use Maarheeze\Compass\Alerts\Types\SiteOnForgeDomain;
 use Maarheeze\Compass\Alerts\Types\SiteReportIncompatible;
 use Maarheeze\Compass\Alerts\Types\SiteReportUnauthorised;
+use Maarheeze\Compass\Alerts\Types\SiteSchedulerNotRunning;
 use Maarheeze\Compass\Collector\Events\ComposerJsonChanged;
 use Maarheeze\Compass\Collector\Events\ComposerLockChanged;
 use Maarheeze\Compass\Collector\Events\DependabotYmlChanged;
@@ -84,6 +86,7 @@ class AlertProvider extends ServiceProvider
         $alertTypes->register(new SiteOnForgeDomain());
         $alertTypes->register(new SiteReportIncompatible());
         $alertTypes->register(new SiteReportUnauthorised());
+        $alertTypes->register(new SiteSchedulerNotRunning());
 
         Alert::addGlobalScope(new RegisteredAlertTypes($alertTypes));
         AlertCheck::addGlobalScope(new RegisteredAlertTypes($alertTypes));
@@ -97,6 +100,7 @@ class AlertProvider extends ServiceProvider
         $events->listen(SiteInspected::class, EvaluateSiteOnForgeDomain::class);
         $events->listen(SiteInspected::class, EvaluateSiteReportUnauthorised::class);
         $events->listen(SiteInspected::class, EvaluateSiteReportIncompatible::class);
+        $events->listen(SiteInspected::class, EvaluateSiteSchedulerNotRunning::class);
         $events->listen(RepositoriesCollected::class, EvaluateRepositoryMissingOnRepositoriesCollected::class);
         $events->listen(RepositoryMissingIgnored::class, EvaluateRepositoryMissingOnRepositoryMissingIgnored::class);
         $events->listen(ComposerJsonChanged::class, EvaluateComposerWarningOnComposerJsonChanged::class);

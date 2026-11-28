@@ -21,6 +21,7 @@ use Maarheeze\Compass\Alerts\Types\SiteNotInProduction;
 use Maarheeze\Compass\Alerts\Types\SiteOnForgeDomain;
 use Maarheeze\Compass\Alerts\Types\SiteReportIncompatible;
 use Maarheeze\Compass\Alerts\Types\SiteReportUnauthorised;
+use Maarheeze\Compass\Alerts\Types\SiteSchedulerNotRunning;
 
 test('level is the level of the alert type', function (AlertType $alertType, AlertLevel $alertLevel): void {
     $level = $alertType->level();
@@ -45,4 +46,5 @@ test('level is the level of the alert type', function (AlertType $alertType, Ale
     [new SiteOnForgeDomain(), AlertLevel::CRITICAL],
     [new SiteReportIncompatible(), AlertLevel::WARNING],
     [new SiteReportUnauthorised(), AlertLevel::WARNING],
+    [new SiteSchedulerNotRunning(), AlertLevel::CRITICAL],
 ]);
