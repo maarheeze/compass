@@ -23,6 +23,7 @@ test('handle observes the site whose processes were collected', function (): voi
     SiteReport::factory()->create([
         'site_id' => $site->id,
         'status' => SiteReportStatus::INSTALLED,
+        'queue_driver' => fake()->randomElement(['database', 'redis']),
     ]);
 
     $evaluateSiteQueueWorkerNotRunningOnSiteProcessesCollected = $this->app->make(EvaluateSiteQueueWorkerNotRunningOnSiteProcessesCollected::class);

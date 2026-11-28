@@ -16,13 +16,13 @@ readonly class QueueWorkerHealthClassifier
 
     public function classify(Site $site): QueueWorkerHealth
     {
-        $installedSiteReports = $this->installedSiteReports($site);
+        $siteReportsWithQueueDriver = $this->siteReportsWithQueueDriver($site);
 
-        if ($installedSiteReports->isEmpty()) {
+        if ($siteReportsWithQueueDriver->isEmpty()) {
             return QueueWorkerHealth::UNKNOWN;
         }
 
-        if (!$this->queuesJobs($installedSiteReports)) {
+        if (!$this->queuesJobs($siteReportsWithQueueDriver)) {
             return QueueWorkerHealth::NOT_NEEDED;
         }
 
@@ -35,17 +35,18 @@ readonly class QueueWorkerHealthClassifier
         };
     }
 
-    private function installedSiteReports(Site $site): SiteReportCollection
+    private function queuesJobs(SiteReportCollection $siteReportsWithQueueDriver): bool
     {
-        return $site->reports->filter(static function (SiteReport $siteReport): bool {
-            return $siteReport->status === SiteReportStatus::INSTALLED;
+        return $siteReportsWithQueueDriver->contains(static function (SiteReport $siteReport): bool {
+            return $siteReport->queue_driver !== self::SYNC_QUEUE_DRIVER;
         });
     }
 
-    private function queuesJobs(SiteReportCollection $installedSiteReports): bool
+    private function siteReportsWithQueueDriver(Site $site): SiteReportCollection
     {
-        return $installedSiteReports->contains(static function (SiteReport $siteReport): bool {
-            return $siteReport->queue_driver !== self::SYNC_QUEUE_DRIVER;
+        return $site->reports->filter(static function (SiteReport $siteReport): bool {
+            return $siteReport->status === SiteReportStatus::INSTALLED
+                && $siteReport->queue_driver !== null;
         });
     }
 }

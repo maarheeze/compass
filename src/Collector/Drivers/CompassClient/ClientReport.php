@@ -15,12 +15,12 @@ readonly class ClientReport
      * @param list<CollectedScheduledTask> $scheduledTasks
      */
     public function __construct(
-        public bool $appDebug,
-        public string $appEnv,
-        public string $appName,
+        public ?bool $appDebug,
+        public ?string $appEnv,
+        public ?string $appName,
         public array $endpoints,
-        public bool $maintenanceMode,
-        public string $queueDriver,
+        public ?bool $maintenanceMode,
+        public ?string $queueDriver,
         public array $scheduledTasks,
         public ?CarbonImmutable $schedulerLastRanAt,
     ) {

@@ -82,6 +82,39 @@ test('report holds what the client reported', function (): void {
         ->toEqual($schedulerLastRanAt);
 });
 
+test('report holds nothing for the fields the client did not report', function (): void {
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response([
+        'endpoints' => [],
+        'scheduler' => [
+            'last_ran_at' => null,
+            'tasks' => [],
+        ],
+    ]),
+    ]);
+
+    $siteQuery = new SiteQuery(new SiteClient(
+        $this->app->make(CollectorSchedule::class),
+        $http,
+        sprintf('/%s', fake()->slug()),
+        fake()->slug(),
+        $this->app->make(UrlGenerator::class),
+    ));
+    $clientReport = $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
+
+    expect($clientReport)
+        ->appDebug
+        ->toBeNull()
+        ->appEnv
+        ->toBeNull()
+        ->appName
+        ->toBeNull()
+        ->maintenanceMode
+        ->toBeNull()
+        ->queueDriver
+        ->toBeNull();
+});
+
 test('report holds no last run when the scheduler never ran', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response([

@@ -27,6 +27,21 @@ test('classify is unknown when no client reported the queue of the site', functi
         ->toBe(QueueWorkerHealth::UNKNOWN);
 });
 
+test('classify is unknown when no client reported the queue driver of the site', function (): void {
+    $site = Site::factory()->create(['queue_worker_state' => fake()->randomElement(QueueWorkerState::cases())]);
+    SiteReport::factory()->create([
+        'site_id' => $site->id,
+        'status' => SiteReportStatus::INSTALLED,
+        'queue_driver' => null,
+    ]);
+
+    $queueWorkerHealthClassifier = $this->app->make(QueueWorkerHealthClassifier::class);
+    $queueWorkerHealth = $queueWorkerHealthClassifier->classify($site);
+
+    expect($queueWorkerHealth)
+        ->toBe(QueueWorkerHealth::UNKNOWN);
+});
+
 test('classify is not needed when the site runs its jobs on the sync driver', function (): void {
     $site = Site::factory()->create(['queue_worker_state' => fake()->randomElement(QueueWorkerState::cases())]);
     SiteReport::factory()->create([

@@ -15,33 +15,41 @@
         <summary class="w-fit cursor-pointer list-none text-xs text-accent hover:underline [&::-webkit-details-marker]:hidden">{{ __('compass::site-report.details') }}</summary>
 
         <dl class="mt-2 space-y-2">
-            @if ($siteReport->app_name !== null)
-                <x-compass::fact :label="__('compass::site-report.application')">{{ $siteReport->app_name }}</x-compass::fact>
-            @endif
+            <x-compass::fact :label="__('compass::site-report.application')">
+                @if ($siteReport->app_name === null)
+                    {{ __('compass::site.unknown') }}
+                @else
+                    {{ $siteReport->app_name }}
+                @endif
+            </x-compass::fact>
 
-            @if ($siteReport->app_env !== null)
-                <x-compass::fact :label="__('compass::site-report.environment')">{{ $siteReport->app_env }}</x-compass::fact>
-            @endif
+            <x-compass::fact :label="__('compass::site-report.environment')">
+                @if ($siteReport->app_env === null)
+                    {{ __('compass::site.unknown') }}
+                @else
+                    {{ $siteReport->app_env }}
+                @endif
+            </x-compass::fact>
 
-            @if ($siteReport->app_debug !== null)
-                <x-compass::fact :label="__('compass::site-report.debug')">
-                    @if ($siteReport->app_debug)
-                        {{ __('compass::site-report.on') }}
-                    @else
-                        {{ __('compass::site-report.off') }}
-                    @endif
-                </x-compass::fact>
-            @endif
+            <x-compass::fact :label="__('compass::site-report.debug')">
+                @if ($siteReport->app_debug === null)
+                    {{ __('compass::site.unknown') }}
+                @elseif ($siteReport->app_debug)
+                    {{ __('compass::site-report.on') }}
+                @else
+                    {{ __('compass::site-report.off') }}
+                @endif
+            </x-compass::fact>
 
-            @if ($siteReport->maintenance_mode !== null)
-                <x-compass::fact :label="__('compass::site-report.maintenance_mode')">
-                    @if ($siteReport->maintenance_mode)
-                        {{ __('compass::site-report.on') }}
-                    @else
-                        {{ __('compass::site-report.off') }}
-                    @endif
-                </x-compass::fact>
-            @endif
+            <x-compass::fact :label="__('compass::site-report.maintenance_mode')">
+                @if ($siteReport->maintenance_mode === null)
+                    {{ __('compass::site.unknown') }}
+                @elseif ($siteReport->maintenance_mode)
+                    {{ __('compass::site-report.on') }}
+                @else
+                    {{ __('compass::site-report.off') }}
+                @endif
+            </x-compass::fact>
         </dl>
     </details>
 </div>

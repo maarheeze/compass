@@ -35,12 +35,12 @@ readonly class CollectedSiteReport
      * @param list<CollectedScheduledTask> $scheduledTasks
      */
     public static function installed(
-        bool $appDebug,
-        string $appEnv,
-        string $appName,
+        ?bool $appDebug,
+        ?string $appEnv,
+        ?string $appName,
         array $endpoints,
-        bool $maintenanceMode,
-        string $queueDriver,
+        ?bool $maintenanceMode,
+        ?string $queueDriver,
         array $scheduledTasks,
         ?CarbonImmutable $schedulerLastRanAt,
     ): self {

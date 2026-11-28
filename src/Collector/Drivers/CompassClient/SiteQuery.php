@@ -14,6 +14,7 @@ use Maarheeze\Compass\Collector\SiteReports\CollectedSiteEndpoint;
 use Maarheeze\Compass\Models\SiteReport;
 use Webmozart\Assert\Assert;
 
+use function array_key_exists;
 use function is_array;
 
 readonly class SiteQuery
@@ -42,12 +43,7 @@ readonly class SiteQuery
      */
     private function getClientReport(array $reportResponse): ClientReport
     {
-        Assert::keyExists($reportResponse, 'app_debug');
-        Assert::keyExists($reportResponse, 'app_env');
-        Assert::keyExists($reportResponse, 'app_name');
         Assert::keyExists($reportResponse, 'endpoints');
-        Assert::keyExists($reportResponse, 'maintenance_mode');
-        Assert::keyExists($reportResponse, 'queue_driver');
         Assert::keyExists($reportResponse, 'scheduler');
 
         $schedulerResponse = Assert::isMap($reportResponse['scheduler']);
@@ -55,12 +51,12 @@ readonly class SiteQuery
         Assert::keyExists($schedulerResponse, 'tasks');
 
         return new ClientReport(
-            Assert::boolean($reportResponse['app_debug']),
-            Assert::string($reportResponse['app_env']),
-            Assert::string($reportResponse['app_name']),
+            $this->getOptionalBoolean($reportResponse, 'app_debug'),
+            $this->getOptionalString($reportResponse, 'app_env'),
+            $this->getOptionalString($reportResponse, 'app_name'),
             $this->getEndpoints(Assert::isList($reportResponse['endpoints'])),
-            Assert::boolean($reportResponse['maintenance_mode']),
-            Assert::string($reportResponse['queue_driver']),
+            $this->getOptionalBoolean($reportResponse, 'maintenance_mode'),
+            $this->getOptionalString($reportResponse, 'queue_driver'),
             $this->getScheduledTasks(Assert::isList($schedulerResponse['tasks'])),
             $this->getSchedulerLastRanAt(Assert::nullOrString($schedulerResponse['last_ran_at'])),
         );
@@ -94,6 +90,30 @@ readonly class SiteQuery
         }
 
         return $collectedSiteEndpoints;
+    }
+
+    /**
+     * @param array<mixed> $reportResponse
+     */
+    private function getOptionalBoolean(array $reportResponse, string $fieldName): ?bool
+    {
+        if (!array_key_exists($fieldName, $reportResponse)) {
+            return null;
+        }
+
+        return Assert::boolean($reportResponse[$fieldName]);
+    }
+
+    /**
+     * @param array<mixed> $reportResponse
+     */
+    private function getOptionalString(array $reportResponse, string $fieldName): ?string
+    {
+        if (!array_key_exists($fieldName, $reportResponse)) {
+            return null;
+        }
+
+        return Assert::string($reportResponse[$fieldName]);
     }
 
     /**

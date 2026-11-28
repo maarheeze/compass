@@ -23,6 +23,7 @@ test('handle observes the site of the inspected report', function (): void {
     $siteReport = SiteReport::factory()->create([
         'site_id' => $site->id,
         'status' => SiteReportStatus::INSTALLED,
+        'queue_driver' => fake()->randomElement(['database', 'redis']),
     ]);
 
     $evaluateSiteQueueWorkerNotRunningOnSiteInspected = $this->app->make(EvaluateSiteQueueWorkerNotRunningOnSiteInspected::class);
