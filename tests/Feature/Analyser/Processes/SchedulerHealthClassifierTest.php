@@ -24,8 +24,25 @@ test('classify is unknown when the client did not report', function (SiteReportS
     'unauthorised' => [SiteReportStatus::UNAUTHORISED],
 ]);
 
+test('classify is unknown when the client did not report its scheduler', function (): void {
+    $siteReport = SiteReport::factory()->create([
+        'status' => SiteReportStatus::INSTALLED,
+        'scheduler_reported' => false,
+    ]);
+    SiteScheduledTask::factory()->create(['site_report_id' => $siteReport->id]);
+
+    $schedulerHealthClassifier = $this->app->make(SchedulerHealthClassifier::class);
+    $schedulerHealth = $schedulerHealthClassifier->classify($siteReport);
+
+    expect($schedulerHealth)
+        ->toBe(SchedulerHealth::UNKNOWN);
+});
+
 test('classify is no tasks when the site schedules none', function (): void {
-    $siteReport = SiteReport::factory()->create(['status' => SiteReportStatus::INSTALLED]);
+    $siteReport = SiteReport::factory()->create([
+        'status' => SiteReportStatus::INSTALLED,
+        'scheduler_reported' => true,
+    ]);
 
     $schedulerHealthClassifier = $this->app->make(SchedulerHealthClassifier::class);
     $schedulerHealth = $schedulerHealthClassifier->classify($siteReport);
@@ -37,6 +54,7 @@ test('classify is no tasks when the site schedules none', function (): void {
 test('classify is not running when the scheduler of a site with tasks never ran', function (): void {
     $siteReport = SiteReport::factory()->create([
         'status' => SiteReportStatus::INSTALLED,
+        'scheduler_reported' => true,
         'scheduler_last_ran_at' => null,
         'scheduler_grace_minutes' => fake()->numberBetween(1, 60),
     ]);
@@ -54,6 +72,7 @@ test('classify is not running when the scheduler last ran longer than its grace 
     $schedulerGraceMinutes = fake()->numberBetween(1, 60);
     $siteReport = SiteReport::factory()->create([
         'status' => SiteReportStatus::INSTALLED,
+        'scheduler_reported' => true,
         'collected_at' => $collectedAt,
         'scheduler_last_ran_at' => $collectedAt->subSeconds($schedulerGraceMinutes * 60 + fake()->numberBetween(1, 3600)),
         'scheduler_grace_minutes' => $schedulerGraceMinutes,
@@ -72,6 +91,7 @@ test('classify is running when the scheduler last ran within its grace before th
     $schedulerGraceMinutes = fake()->numberBetween(1, 60);
     $siteReport = SiteReport::factory()->create([
         'status' => SiteReportStatus::INSTALLED,
+        'scheduler_reported' => true,
         'collected_at' => $collectedAt,
         'scheduler_last_ran_at' => $collectedAt->subSeconds(fake()->numberBetween(0, $schedulerGraceMinutes * 60)),
         'scheduler_grace_minutes' => $schedulerGraceMinutes,

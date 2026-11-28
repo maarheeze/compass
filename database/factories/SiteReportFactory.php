@@ -35,6 +35,7 @@ class SiteReportFactory extends Factory
             'maintenance_mode' => fake()->optional()->boolean(),
             'scheduler_last_ran_at' => fake()->optional()->dateTime(),
             'scheduler_grace_minutes' => fake()->optional()->numberBetween(1, 60),
+            'scheduler_reported' => fake()->boolean(),
             'queue_driver' => fake()->optional()->randomElement(['sync', 'database', 'redis']),
             'path' => fake()->optional()->passthrough(sprintf('/%s', fake()->slug())),
             'collected_at' => fake()->dateTime(),

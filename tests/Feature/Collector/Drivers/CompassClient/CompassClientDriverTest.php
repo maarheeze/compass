@@ -12,6 +12,7 @@ use Maarheeze\Compass\Collector\Drivers\CompassClient\CompassClientDriver;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteClient;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Collector\SiteReports\CollectedScheduledTask;
+use Maarheeze\Compass\Collector\SiteReports\CollectedScheduler;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteEndpoint;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteReport;
 use Maarheeze\Compass\Models\Site;
@@ -74,17 +75,16 @@ test('site report holds what the client reported', function (): void {
             [new CollectedSiteEndpoint(new EndpointPath($path), $frequencyMinutes)],
             $maintenanceMode,
             $queueDriver,
-            [new CollectedScheduledTask($command, $expression)],
-            $schedulerLastRanAt,
+            new CollectedScheduler($schedulerLastRanAt, [new CollectedScheduledTask($command, $expression)]),
         ));
 });
 
-test('site report is incompatible when the client reports without a field', function (): void {
+test('site report is incompatible when the client reports a scheduler without its tasks', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response([
-        'app_debug' => fake()->boolean(),
-        'app_env' => fake()->word(),
-        'app_name' => fake()->company(),
+        'scheduler' => [
+            'last_ran_at' => null,
+        ],
     ]),
     ]);
 

@@ -13,6 +13,7 @@ test('scheduled tasks are the tasks of the reports whose scheduler is judged', f
     $collectedAt = CarbonImmutable::instance(fake()->dateTime())->startOfSecond();
     $siteReport = SiteReport::factory()->create([
         'status' => SiteReportStatus::INSTALLED,
+        'scheduler_reported' => true,
         'collected_at' => $collectedAt,
         'scheduler_last_ran_at' => $collectedAt,
         'scheduler_grace_minutes' => fake()->numberBetween(1, 60),

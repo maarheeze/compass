@@ -11,7 +11,10 @@ use Maarheeze\Compass\View\BadgeType;
 use Maarheeze\Compass\View\Components\SiteSchedulerFact;
 
 test('scheduler health is the health of the scheduler of the report', function (): void {
-    $siteReport = SiteReport::factory()->create(['status' => SiteReportStatus::INSTALLED]);
+    $siteReport = SiteReport::factory()->create([
+        'status' => SiteReportStatus::INSTALLED,
+        'scheduler_reported' => true,
+    ]);
 
     $siteSchedulerFact = $this->app->make(SiteSchedulerFact::class, ['siteReport' => $siteReport]);
 
@@ -22,6 +25,7 @@ test('scheduler health is the health of the scheduler of the report', function (
 test('badge type is danger while the scheduler is not running', function (): void {
     $siteReport = SiteReport::factory()->create([
         'status' => SiteReportStatus::INSTALLED,
+        'scheduler_reported' => true,
         'scheduler_last_ran_at' => null,
         'scheduler_grace_minutes' => fake()->numberBetween(1, 60),
     ]);
@@ -37,6 +41,7 @@ test('scheduled task count is the number of tasks of a report whose scheduler is
     $collectedAt = CarbonImmutable::instance(fake()->dateTime())->startOfSecond();
     $siteReport = SiteReport::factory()->create([
         'status' => SiteReportStatus::INSTALLED,
+        'scheduler_reported' => true,
         'collected_at' => $collectedAt,
         'scheduler_last_ran_at' => $collectedAt,
         'scheduler_grace_minutes' => fake()->numberBetween(1, 60),

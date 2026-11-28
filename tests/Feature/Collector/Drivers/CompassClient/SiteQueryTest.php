@@ -15,6 +15,7 @@ use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteClient;
 use Maarheeze\Compass\Collector\Drivers\CompassClient\SiteQuery;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Collector\SiteReports\CollectedScheduledTask;
+use Maarheeze\Compass\Collector\SiteReports\CollectedScheduler;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteEndpoint;
 use Maarheeze\Compass\Models\SiteReport;
 
@@ -76,21 +77,13 @@ test('report holds what the client reported', function (): void {
         ->toEqual([new CollectedSiteEndpoint(new EndpointPath($path), $frequencyMinutes)])
         ->queueDriver
         ->toBe($queueDriver)
-        ->scheduledTasks
-        ->toEqual([new CollectedScheduledTask($command, $expression)])
-        ->schedulerLastRanAt
-        ->toEqual($schedulerLastRanAt);
+        ->scheduler
+        ->toEqual(new CollectedScheduler($schedulerLastRanAt, [new CollectedScheduledTask($command, $expression)]));
 });
 
 test('report holds nothing for the fields the client did not report', function (): void {
     $http = $this->app->make(HttpFactory::class);
-    $http->fake(['*' => HttpFactory::response([
-        'scheduler' => [
-            'last_ran_at' => null,
-            'tasks' => [],
-        ],
-    ]),
-    ]);
+    $http->fake(['*' => HttpFactory::response([])]);
 
     $siteQuery = new SiteQuery(new SiteClient(
         $this->app->make(CollectorSchedule::class),
@@ -113,6 +106,8 @@ test('report holds nothing for the fields the client did not report', function (
         ->maintenanceMode
         ->toBeNull()
         ->queueDriver
+        ->toBeNull()
+        ->scheduler
         ->toBeNull();
 });
 
@@ -141,8 +136,8 @@ test('report holds no last run when the scheduler never ran', function (): void 
     ));
     $clientReport = $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
 
-    expect($clientReport->schedulerLastRanAt)
-        ->toBeNull();
+    expect($clientReport->scheduler)
+        ->toEqual(new CollectedScheduler(null, []));
 });
 
 test('report throws when the client reports a scheduled task without an expression', function (): void {
@@ -259,12 +254,12 @@ test('report throws when the site answers without a site report', function (): v
     $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
 })->throws(ClientNotInstalled::class);
 
-test('report throws when the client reports without a field', function (): void {
+test('report throws when the client reports a scheduler without its tasks', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response([
-        'app_debug' => fake()->boolean(),
-        'app_env' => fake()->word(),
-        'app_name' => fake()->company(),
+        'scheduler' => [
+            'last_ran_at' => null,
+        ],
     ]),
     ]);
 

@@ -24,6 +24,7 @@ test('handle observes scheduler not running now for a site whose scheduler does 
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $siteReport = SiteReport::factory()->create([
         'status' => SiteReportStatus::INSTALLED,
+        'scheduler_reported' => true,
         'scheduler_last_ran_at' => null,
         'scheduler_grace_minutes' => fake()->numberBetween(1, 60),
     ]);
@@ -54,6 +55,7 @@ test('handle observes scheduler not running resolved now for a site whose schedu
     $schedulerGraceMinutes = fake()->numberBetween(1, 60);
     $siteReport = SiteReport::factory()->create([
         'status' => SiteReportStatus::INSTALLED,
+        'scheduler_reported' => true,
         'collected_at' => $collectedAt,
         'scheduler_last_ran_at' => $collectedAt->subSeconds(fake()->numberBetween(0, $schedulerGraceMinutes * 60)),
         'scheduler_grace_minutes' => $schedulerGraceMinutes,
@@ -81,7 +83,10 @@ test('handle observes scheduler not running not applicable now for a site withou
     $this->app->instance(QueueingDispatcher::class, $busFake);
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
-    $siteReport = SiteReport::factory()->create(['status' => SiteReportStatus::INSTALLED]);
+    $siteReport = SiteReport::factory()->create([
+        'status' => SiteReportStatus::INSTALLED,
+        'scheduler_reported' => true,
+    ]);
 
     $evaluateSchedulerNotRunning = $this->app->make(EvaluateSiteSchedulerNotRunning::class);
     $evaluateSchedulerNotRunning->handle(new SiteInspected($siteReport));

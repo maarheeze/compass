@@ -35,6 +35,7 @@ use Maarheeze\Uuid\Uuid;
  * @property ?string $queue_driver
  * @property ?int $scheduler_grace_minutes
  * @property ?CarbonImmutable $scheduler_last_ran_at
+ * @property bool $scheduler_reported
  * @property Uuid $site_id
  * @property string $source
  * @property SiteReportStatus $status
@@ -72,6 +73,7 @@ class SiteReport extends Model implements AlertSubject
             'queue_driver',
             'scheduler_grace_minutes',
             'scheduler_last_ran_at',
+            'scheduler_reported',
             'site_id',
             'source',
             'status',
@@ -119,6 +121,7 @@ class SiteReport extends Model implements AlertSubject
             'maintenance_mode' => 'boolean',
             'scheduler_grace_minutes' => 'integer',
             'scheduler_last_ran_at' => 'immutable_datetime',
+            'scheduler_reported' => 'boolean',
             'site_id' => UuidCast::class,
             'status' => SiteReportStatus::class,
             'updated_at' => 'immutable_datetime',

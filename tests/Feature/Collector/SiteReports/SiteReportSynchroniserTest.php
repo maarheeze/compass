@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Carbon\CarbonImmutable;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Collector\SiteReports\CollectedScheduledTask;
+use Maarheeze\Compass\Collector\SiteReports\CollectedScheduler;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteEndpoint;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteReport;
 use Maarheeze\Compass\Collector\SiteReports\SiteReportStatus;
@@ -18,7 +19,7 @@ use Symfony\Component\Clock\MockClock;
 
 test('store report stores what an installed client reported', function (): void {
     $siteReport = SiteReport::factory()->create();
-    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [], fake()->boolean(), fake()->slug(), [], null);
+    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [], fake()->boolean(), fake()->slug(), new CollectedScheduler(null, []));
 
     $siteReportSynchroniser = $this->app->make(SiteReportSynchroniser::class);
     $siteReportSynchroniser->storeReport($siteReport, $collectedSiteReport, fake()->numberBetween(1, 60));
@@ -43,8 +44,7 @@ test('store report stores the scheduler and the queue driver an installed client
         [],
         fake()->boolean(),
         fake()->slug(),
-        [],
-        $schedulerLastRanAt,
+        new CollectedScheduler($schedulerLastRanAt, []),
     );
 
     $siteReportSynchroniser = $this->app->make(SiteReportSynchroniser::class);
@@ -70,7 +70,7 @@ test('store report stores the scheduler grace minutes on the report', function (
     ]);
 })->with([
     'installed' => function (): CollectedSiteReport {
-        return CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [], fake()->boolean(), fake()->slug(), [], null);
+        return CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [], fake()->boolean(), fake()->slug(), new CollectedScheduler(null, []));
     },
     'incompatible' => function (): CollectedSiteReport {
         return CollectedSiteReport::incompatible();
@@ -90,8 +90,7 @@ test('store report stores the scheduled tasks an installed client reported', fun
         [],
         fake()->boolean(),
         fake()->slug(),
-        [$collectedScheduledTask],
-        null,
+        new CollectedScheduler(null, [$collectedScheduledTask]),
     );
 
     $siteReportSynchroniser = $this->app->make(SiteReportSynchroniser::class);
@@ -106,7 +105,7 @@ test('store report stores the scheduled tasks an installed client reported', fun
 
 test('store report deletes a scheduled task the client no longer reports', function (): void {
     $siteScheduledTask = SiteScheduledTask::factory()->create();
-    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [], fake()->boolean(), fake()->slug(), [], null);
+    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [], fake()->boolean(), fake()->slug(), new CollectedScheduler(null, []));
 
     $siteReportSynchroniser = $this->app->make(SiteReportSynchroniser::class);
     $siteReportSynchroniser->storeReport($siteScheduledTask->siteReport, $collectedSiteReport, fake()->numberBetween(1, 60));
@@ -114,11 +113,49 @@ test('store report deletes a scheduled task the client no longer reports', funct
     $this->assertModelMissing($siteScheduledTask);
 });
 
+test('store report keeps the scheduled tasks of a client that did not report its scheduler', function (): void {
+    $siteScheduledTask = SiteScheduledTask::factory()->create();
+    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [], fake()->boolean(), fake()->slug(), null);
+
+    $siteReportSynchroniser = $this->app->make(SiteReportSynchroniser::class);
+    $siteReportSynchroniser->storeReport($siteScheduledTask->siteReport, $collectedSiteReport, fake()->numberBetween(1, 60));
+
+    $this->assertModelExists($siteScheduledTask);
+});
+
+test('store report stores whether the client reported its scheduler', function (
+    CollectedSiteReport $collectedSiteReport,
+    bool $schedulerReported,
+): void {
+    $siteReport = SiteReport::factory()->create();
+
+    $siteReportSynchroniser = $this->app->make(SiteReportSynchroniser::class);
+    $siteReportSynchroniser->storeReport($siteReport, $collectedSiteReport, fake()->numberBetween(1, 60));
+
+    $this->assertDatabaseHas(SiteReport::class, [
+        'id' => $siteReport->id,
+        'scheduler_reported' => $schedulerReported,
+    ]);
+})->with([
+    'reported' => [
+        function (): CollectedSiteReport {
+            return CollectedSiteReport::installed(null, null, null, null, null, null, new CollectedScheduler(null, []));
+        },
+        true,
+    ],
+    'not reported' => [
+        function (): CollectedSiteReport {
+            return CollectedSiteReport::installed(null, null, null, null, null, null, null);
+        },
+        false,
+    ],
+]);
+
 test('store report stamps the report with the moment it was collected', function (): void {
     $now = CarbonImmutable::parse(fake()->iso8601());
     $this->app->instance(ClockInterface::class, new MockClock($now));
     $siteReport = SiteReport::factory()->create();
-    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [], fake()->boolean(), fake()->slug(), [], null);
+    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [], fake()->boolean(), fake()->slug(), new CollectedScheduler(null, []));
 
     $siteReportSynchroniser = $this->app->make(SiteReportSynchroniser::class);
     $siteReportSynchroniser->storeReport($siteReport, $collectedSiteReport, fake()->numberBetween(1, 60));
@@ -142,7 +179,7 @@ test('store report stores a site report not stored yet', function (CollectedSite
     ]);
 })->with([
     'installed' => function (): CollectedSiteReport {
-        return CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [], fake()->boolean(), fake()->slug(), [], null);
+        return CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [], fake()->boolean(), fake()->slug(), new CollectedScheduler(null, []));
     },
     'unauthorised' => function (): CollectedSiteReport {
         return CollectedSiteReport::unauthorised();
@@ -155,7 +192,7 @@ test('store report stores the reported endpoints', function (): void {
         new EndpointPath(sprintf('/%s', fake()->slug())),
         fake()->numberBetween(1, 60),
     );
-    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [$collectedSiteEndpoint], fake()->boolean(), fake()->slug(), [], null);
+    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [$collectedSiteEndpoint], fake()->boolean(), fake()->slug(), new CollectedScheduler(null, []));
 
     $siteReportSynchroniser = $this->app->make(SiteReportSynchroniser::class);
     $siteReportSynchroniser->storeReport($siteReport, $collectedSiteReport, fake()->numberBetween(1, 60));
@@ -172,7 +209,7 @@ test('store report stores the reported frequency of an endpoint that is still re
     $frequencyMinutes = fake()->numberBetween(1, 60);
     $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [
         new CollectedSiteEndpoint($siteEndpoint->path, $frequencyMinutes),
-    ], fake()->boolean(), fake()->slug(), [], null);
+    ], fake()->boolean(), fake()->slug(), new CollectedScheduler(null, []));
 
     $siteReportSynchroniser = $this->app->make(SiteReportSynchroniser::class);
     $siteReportSynchroniser->storeReport($siteEndpoint->siteReport, $collectedSiteReport, fake()->numberBetween(1, 60));
@@ -191,7 +228,7 @@ test('store report makes a new endpoint due at once', function (): void {
         new EndpointPath(sprintf('/%s', fake()->slug())),
         fake()->numberBetween(1, 60),
     );
-    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [$collectedSiteEndpoint], fake()->boolean(), fake()->slug(), [], null);
+    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [$collectedSiteEndpoint], fake()->boolean(), fake()->slug(), new CollectedScheduler(null, []));
 
     $siteReportSynchroniser = $this->app->make(SiteReportSynchroniser::class);
     $siteReportSynchroniser->storeReport($siteReport, $collectedSiteReport, fake()->numberBetween(1, 60));
@@ -212,7 +249,7 @@ test('store report makes an endpoint whose frequency changed due at once', funct
     ]);
     $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [
         new CollectedSiteEndpoint($siteEndpoint->path, fake()->numberBetween(31, 60)),
-    ], fake()->boolean(), fake()->slug(), [], null);
+    ], fake()->boolean(), fake()->slug(), new CollectedScheduler(null, []));
 
     $siteReportSynchroniser = $this->app->make(SiteReportSynchroniser::class);
     $siteReportSynchroniser->storeReport($siteEndpoint->siteReport, $collectedSiteReport, fake()->numberBetween(1, 60));
@@ -227,7 +264,7 @@ test('store report keeps the due time of an endpoint whose frequency did not cha
     $siteEndpoint = SiteEndpoint::factory()->create();
     $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [
         new CollectedSiteEndpoint($siteEndpoint->path, $siteEndpoint->frequency_minutes),
-    ], fake()->boolean(), fake()->slug(), [], null);
+    ], fake()->boolean(), fake()->slug(), new CollectedScheduler(null, []));
 
     $siteReportSynchroniser = $this->app->make(SiteReportSynchroniser::class);
     $siteReportSynchroniser->storeReport($siteEndpoint->siteReport, $collectedSiteReport, fake()->numberBetween(1, 60));
@@ -242,7 +279,7 @@ test('store report keeps the endpoints that are still reported', function (): vo
     $siteEndpoint = SiteEndpoint::factory()->create();
     $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [
         new CollectedSiteEndpoint($siteEndpoint->path, fake()->numberBetween(1, 60)),
-    ], fake()->boolean(), fake()->slug(), [], null);
+    ], fake()->boolean(), fake()->slug(), new CollectedScheduler(null, []));
 
     $siteReportSynchroniser = $this->app->make(SiteReportSynchroniser::class);
     $siteReportSynchroniser->storeReport($siteEndpoint->siteReport, $collectedSiteReport, fake()->numberBetween(1, 60));
@@ -252,7 +289,7 @@ test('store report keeps the endpoints that are still reported', function (): vo
 
 test('store report deletes the endpoints that are no longer reported', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
-    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [], fake()->boolean(), fake()->slug(), [], null);
+    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [], fake()->boolean(), fake()->slug(), new CollectedScheduler(null, []));
 
     $siteReportSynchroniser = $this->app->make(SiteReportSynchroniser::class);
     $siteReportSynchroniser->storeReport($siteEndpoint->siteReport, $collectedSiteReport, fake()->numberBetween(1, 60));
@@ -262,7 +299,7 @@ test('store report deletes the endpoints that are no longer reported', function 
 
 test('store report keeps the endpoints of a client that did not report them', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
-    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), null, fake()->boolean(), fake()->slug(), [], null);
+    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), null, fake()->boolean(), fake()->slug(), new CollectedScheduler(null, []));
 
     $siteReportSynchroniser = $this->app->make(SiteReportSynchroniser::class);
     $siteReportSynchroniser->storeReport($siteEndpoint->siteReport, $collectedSiteReport, fake()->numberBetween(1, 60));
@@ -276,7 +313,7 @@ test('store report deletes the alerts of the endpoints that are no longer report
         ->siteEndpointDown()
         ->for($siteEndpoint, 'subject')
         ->create();
-    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [], fake()->boolean(), fake()->slug(), [], null);
+    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [], fake()->boolean(), fake()->slug(), new CollectedScheduler(null, []));
 
     $siteReportSynchroniser = $this->app->make(SiteReportSynchroniser::class);
     $siteReportSynchroniser->storeReport($siteEndpoint->siteReport, $collectedSiteReport, fake()->numberBetween(1, 60));
@@ -292,7 +329,7 @@ test('store report keeps the alerts of the endpoints that are still reported', f
         ->create();
     $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), [
         new CollectedSiteEndpoint($siteEndpoint->path, fake()->numberBetween(1, 60)),
-    ], fake()->boolean(), fake()->slug(), [], null);
+    ], fake()->boolean(), fake()->slug(), new CollectedScheduler(null, []));
 
     $siteReportSynchroniser = $this->app->make(SiteReportSynchroniser::class);
     $siteReportSynchroniser->storeReport($siteEndpoint->siteReport, $collectedSiteReport, fake()->numberBetween(1, 60));

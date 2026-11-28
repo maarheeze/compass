@@ -10,6 +10,7 @@ use Illuminate\Http\Response as HttpResponse;
 use InvalidArgumentException;
 use Maarheeze\Compass\Collector\SiteEndpoint\EndpointPath;
 use Maarheeze\Compass\Collector\SiteReports\CollectedScheduledTask;
+use Maarheeze\Compass\Collector\SiteReports\CollectedScheduler;
 use Maarheeze\Compass\Collector\SiteReports\CollectedSiteEndpoint;
 use Maarheeze\Compass\Models\SiteReport;
 use Webmozart\Assert\Assert;
@@ -43,12 +44,6 @@ readonly class SiteQuery
      */
     private function getClientReport(array $reportResponse): ClientReport
     {
-        Assert::keyExists($reportResponse, 'scheduler');
-
-        $schedulerResponse = Assert::isMap($reportResponse['scheduler']);
-        Assert::keyExists($schedulerResponse, 'last_ran_at');
-        Assert::keyExists($schedulerResponse, 'tasks');
-
         return new ClientReport(
             $this->getOptionalBoolean($reportResponse, 'app_debug'),
             $this->getOptionalString($reportResponse, 'app_env'),
@@ -56,8 +51,7 @@ readonly class SiteQuery
             $this->getEndpoints($reportResponse),
             $this->getOptionalBoolean($reportResponse, 'maintenance_mode'),
             $this->getOptionalString($reportResponse, 'queue_driver'),
-            $this->getScheduledTasks(Assert::isList($schedulerResponse['tasks'])),
-            $this->getSchedulerLastRanAt(Assert::nullOrString($schedulerResponse['last_ran_at'])),
+            $this->getScheduler($reportResponse),
         );
     }
 
@@ -179,6 +173,25 @@ readonly class SiteQuery
         }
 
         return $collectedScheduledTasks;
+    }
+
+    /**
+     * @param array<mixed> $reportResponse
+     */
+    private function getScheduler(array $reportResponse): ?CollectedScheduler
+    {
+        if (!array_key_exists('scheduler', $reportResponse)) {
+            return null;
+        }
+
+        $schedulerResponse = Assert::isMap($reportResponse['scheduler']);
+        Assert::keyExists($schedulerResponse, 'last_ran_at');
+        Assert::keyExists($schedulerResponse, 'tasks');
+
+        return new CollectedScheduler(
+            $this->getSchedulerLastRanAt(Assert::nullOrString($schedulerResponse['last_ran_at'])),
+            $this->getScheduledTasks(Assert::isList($schedulerResponse['tasks'])),
+        );
     }
 
     private function getSchedulerLastRanAt(?string $lastRanAt): ?CarbonImmutable

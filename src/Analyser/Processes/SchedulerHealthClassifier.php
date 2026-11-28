@@ -12,7 +12,7 @@ readonly class SchedulerHealthClassifier
 {
     public function classify(SiteReport $siteReport): SchedulerHealth
     {
-        if ($siteReport->status !== SiteReportStatus::INSTALLED) {
+        if ($siteReport->status !== SiteReportStatus::INSTALLED || !$siteReport->scheduler_reported) {
             return SchedulerHealth::UNKNOWN;
         }
 

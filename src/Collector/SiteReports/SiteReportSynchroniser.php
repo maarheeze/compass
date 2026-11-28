@@ -59,7 +59,7 @@ readonly class SiteReportSynchroniser
             $schedulerGraceMinutes,
         ): void {
             $this->storeStatus($siteReport, $collectedSiteReport, $schedulerGraceMinutes);
-            $this->storeScheduledTasks($siteReport, $collectedSiteReport);
+            $this->storeScheduledTasks($siteReport, $collectedSiteReport->scheduler);
 
             if ($collectedSiteReport->endpoints === null) {
                 return;
@@ -102,11 +102,15 @@ readonly class SiteReportSynchroniser
         }
     }
 
-    private function storeScheduledTasks(SiteReport $siteReport, CollectedSiteReport $collectedSiteReport): void
+    private function storeScheduledTasks(SiteReport $siteReport, ?CollectedScheduler $collectedScheduler): void
     {
+        if ($collectedScheduler === null) {
+            return;
+        }
+
         $siteReport->scheduledTasks()->delete();
 
-        foreach ($collectedSiteReport->scheduledTasks as $collectedScheduledTask) {
+        foreach ($collectedScheduler->tasks as $collectedScheduledTask) {
             $siteReport->scheduledTasks()->create([
                 'command' => $collectedScheduledTask->command,
                 'expression' => $collectedScheduledTask->expression,
@@ -128,10 +132,15 @@ readonly class SiteReportSynchroniser
             'app_name' => $collectedSiteReport->appName,
             'maintenance_mode' => $collectedSiteReport->maintenanceMode,
             'queue_driver' => $collectedSiteReport->queueDriver,
-            'scheduler_last_ran_at' => $collectedSiteReport->schedulerLastRanAt,
+            'scheduler_reported' => $collectedSiteReport->scheduler !== null,
             'scheduler_grace_minutes' => $schedulerGraceMinutes,
             'collected_at' => $collectedAt,
         ]);
+
+        if ($collectedSiteReport->scheduler !== null) {
+            $siteReport->scheduler_last_ran_at = $collectedSiteReport->scheduler->lastRanAt;
+        }
+
         $siteReport->save();
     }
 }
