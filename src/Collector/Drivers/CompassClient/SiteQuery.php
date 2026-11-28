@@ -20,6 +20,16 @@ use function is_array;
 
 readonly class SiteQuery
 {
+    private const array REPORT_FIELD_NAMES = [
+        'app_debug',
+        'app_env',
+        'app_name',
+        'endpoints',
+        'maintenance_mode',
+        'queue_driver',
+        'scheduler',
+    ];
+
     public function __construct(
         private SiteClient $siteClient,
     ) {
@@ -44,6 +54,9 @@ readonly class SiteQuery
      */
     private function getClientReport(array $reportResponse): ClientReport
     {
+        Assert::isMap($reportResponse);
+        Assert::true($this->hasReportField($reportResponse));
+
         return new ClientReport(
             $this->getOptionalBoolean($reportResponse, 'app_debug'),
             $this->getOptionalString($reportResponse, 'app_env'),
@@ -201,5 +214,19 @@ readonly class SiteQuery
         }
 
         return CarbonImmutable::parse($lastRanAt);
+    }
+
+    /**
+     * @param array<mixed> $reportResponse
+     */
+    private function hasReportField(array $reportResponse): bool
+    {
+        foreach (self::REPORT_FIELD_NAMES as $reportFieldName) {
+            if (array_key_exists($reportFieldName, $reportResponse)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

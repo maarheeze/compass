@@ -83,7 +83,7 @@ test('report holds what the client reported', function (): void {
 
 test('report holds nothing for the fields the client did not report', function (): void {
     $http = $this->app->make(HttpFactory::class);
-    $http->fake(['*' => HttpFactory::response([])]);
+    $http->fake(['*' => HttpFactory::response(['app_debug' => fake()->boolean()])]);
 
     $siteQuery = new SiteQuery(new SiteClient(
         $this->app->make(CollectorSchedule::class),
@@ -95,8 +95,6 @@ test('report holds nothing for the fields the client did not report', function (
     $clientReport = $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
 
     expect($clientReport)
-        ->appDebug
-        ->toBeNull()
         ->appEnv
         ->toBeNull()
         ->appName
@@ -288,6 +286,34 @@ test('report throws when the client reports a field of another type', function (
         'queue_driver' => fake()->slug(),
     ]),
     ]);
+
+    $siteQuery = new SiteQuery(new SiteClient(
+        $this->app->make(CollectorSchedule::class),
+        $http,
+        sprintf('/%s', fake()->slug()),
+        fake()->slug(),
+        $this->app->make(UrlGenerator::class),
+    ));
+    $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
+})->throws(ClientIncompatible::class);
+
+test('report throws when the client reports none of the known fields', function (): void {
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response([fake()->unique()->word() => fake()->word()])]);
+
+    $siteQuery = new SiteQuery(new SiteClient(
+        $this->app->make(CollectorSchedule::class),
+        $http,
+        sprintf('/%s', fake()->slug()),
+        fake()->slug(),
+        $this->app->make(UrlGenerator::class),
+    ));
+    $siteQuery->report(SiteReport::factory()->create(), fake()->sha1());
+})->throws(ClientIncompatible::class);
+
+test('report throws when the client answers with a list', function (): void {
+    $http = $this->app->make(HttpFactory::class);
+    $http->fake(['*' => HttpFactory::response([fake()->word(), fake()->word()])]);
 
     $siteQuery = new SiteQuery(new SiteClient(
         $this->app->make(CollectorSchedule::class),

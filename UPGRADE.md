@@ -93,9 +93,3 @@ built-in collectors are replaced by `GitHubDriver`, `ForgeDriver` and
 
 Add `'scheduler_grace_minutes' => 10` to a `compass-client` source. A source
 without it cannot inspect sites.
-
-### Client 4.0 required
-
-Upgrade `maarheeze/compass-client-laravel` on each site to 4.0 or later. An
-older client does not report the scheduler and the queue driver, so its site
-is reported as incompatible until it is upgraded.
