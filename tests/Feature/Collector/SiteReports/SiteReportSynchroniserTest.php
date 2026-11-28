@@ -260,6 +260,16 @@ test('store report deletes the endpoints that are no longer reported', function 
     $this->assertModelMissing($siteEndpoint);
 });
 
+test('store report keeps the endpoints of a client that did not report them', function (): void {
+    $siteEndpoint = SiteEndpoint::factory()->create();
+    $collectedSiteReport = CollectedSiteReport::installed(fake()->boolean(), fake()->word(), fake()->company(), null, fake()->boolean(), fake()->slug(), [], null);
+
+    $siteReportSynchroniser = $this->app->make(SiteReportSynchroniser::class);
+    $siteReportSynchroniser->storeReport($siteEndpoint->siteReport, $collectedSiteReport, fake()->numberBetween(1, 60));
+
+    $this->assertModelExists($siteEndpoint);
+});
+
 test('store report deletes the alerts of the endpoints that are no longer reported', function (): void {
     $siteEndpoint = SiteEndpoint::factory()->create();
     $alert = Alert::factory()

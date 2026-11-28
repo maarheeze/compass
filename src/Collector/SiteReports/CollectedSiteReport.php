@@ -9,7 +9,7 @@ use Carbon\CarbonImmutable;
 readonly class CollectedSiteReport
 {
     /**
-     * @param list<CollectedSiteEndpoint> $endpoints
+     * @param list<CollectedSiteEndpoint>|null $endpoints
      * @param list<CollectedScheduledTask> $scheduledTasks
      */
     private function __construct(
@@ -17,7 +17,7 @@ readonly class CollectedSiteReport
         public ?bool $appDebug,
         public ?string $appEnv,
         public ?string $appName,
-        public array $endpoints,
+        public ?array $endpoints,
         public ?bool $maintenanceMode,
         public ?string $queueDriver,
         public array $scheduledTasks,
@@ -31,14 +31,14 @@ readonly class CollectedSiteReport
     }
 
     /**
-     * @param list<CollectedSiteEndpoint> $endpoints
+     * @param list<CollectedSiteEndpoint>|null $endpoints
      * @param list<CollectedScheduledTask> $scheduledTasks
      */
     public static function installed(
         ?bool $appDebug,
         ?string $appEnv,
         ?string $appName,
-        array $endpoints,
+        ?array $endpoints,
         ?bool $maintenanceMode,
         ?string $queueDriver,
         array $scheduledTasks,

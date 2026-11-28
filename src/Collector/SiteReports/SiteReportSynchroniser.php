@@ -61,20 +61,11 @@ readonly class SiteReportSynchroniser
             $this->storeStatus($siteReport, $collectedSiteReport, $schedulerGraceMinutes);
             $this->storeScheduledTasks($siteReport, $collectedSiteReport);
 
-            $reportedEndpointPaths = array_map(static function (CollectedSiteEndpoint $collectedSiteEndpoint): EndpointPath {
-                return $collectedSiteEndpoint->path;
-            }, $collectedSiteReport->endpoints);
-            $droppedSiteEndpoints = $siteReport->endpoints()
-                ->whereNotIn('path', $reportedEndpointPaths)
-                ->get();
-
-            foreach ($droppedSiteEndpoints as $droppedSiteEndpoint) {
-                $droppedSiteEndpoint->delete();
+            if ($collectedSiteReport->endpoints === null) {
+                return;
             }
 
-            foreach ($collectedSiteReport->endpoints as $collectedSiteEndpoint) {
-                $this->storeEndpoint($siteReport, $collectedSiteEndpoint);
-            }
+            $this->storeEndpoints($siteReport, $collectedSiteReport->endpoints);
         });
     }
 
@@ -88,6 +79,27 @@ readonly class SiteReportSynchroniser
         }
 
         $siteEndpoint->save();
+    }
+
+    /**
+     * @param list<CollectedSiteEndpoint> $collectedSiteEndpoints
+     */
+    private function storeEndpoints(SiteReport $siteReport, array $collectedSiteEndpoints): void
+    {
+        $reportedEndpointPaths = array_map(static function (CollectedSiteEndpoint $collectedSiteEndpoint): EndpointPath {
+            return $collectedSiteEndpoint->path;
+        }, $collectedSiteEndpoints);
+        $droppedSiteEndpoints = $siteReport->endpoints()
+            ->whereNotIn('path', $reportedEndpointPaths)
+            ->get();
+
+        foreach ($droppedSiteEndpoints as $droppedSiteEndpoint) {
+            $droppedSiteEndpoint->delete();
+        }
+
+        foreach ($collectedSiteEndpoints as $collectedSiteEndpoint) {
+            $this->storeEndpoint($siteReport, $collectedSiteEndpoint);
+        }
     }
 
     private function storeScheduledTasks(SiteReport $siteReport, CollectedSiteReport $collectedSiteReport): void

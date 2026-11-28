@@ -43,7 +43,6 @@ readonly class SiteQuery
      */
     private function getClientReport(array $reportResponse): ClientReport
     {
-        Assert::keyExists($reportResponse, 'endpoints');
         Assert::keyExists($reportResponse, 'scheduler');
 
         $schedulerResponse = Assert::isMap($reportResponse['scheduler']);
@@ -54,7 +53,7 @@ readonly class SiteQuery
             $this->getOptionalBoolean($reportResponse, 'app_debug'),
             $this->getOptionalString($reportResponse, 'app_env'),
             $this->getOptionalString($reportResponse, 'app_name'),
-            $this->getEndpoints(Assert::isList($reportResponse['endpoints'])),
+            $this->getEndpoints($reportResponse),
             $this->getOptionalBoolean($reportResponse, 'maintenance_mode'),
             $this->getOptionalString($reportResponse, 'queue_driver'),
             $this->getScheduledTasks(Assert::isList($schedulerResponse['tasks'])),
@@ -77,15 +76,19 @@ readonly class SiteQuery
     }
 
     /**
-     * @param list<mixed> $endpointsResponse
+     * @param array<mixed> $reportResponse
      *
-     * @return list<CollectedSiteEndpoint>
+     * @return list<CollectedSiteEndpoint>|null
      */
-    private function getEndpoints(array $endpointsResponse): array
+    private function getEndpoints(array $reportResponse): ?array
     {
+        if (!array_key_exists('endpoints', $reportResponse)) {
+            return null;
+        }
+
         $collectedSiteEndpoints = [];
 
-        foreach ($endpointsResponse as $endpointResponse) {
+        foreach (Assert::isList($reportResponse['endpoints']) as $endpointResponse) {
             $collectedSiteEndpoints[] = $this->getEndpoint(Assert::isMap($endpointResponse));
         }
 

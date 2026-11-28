@@ -85,7 +85,6 @@ test('report holds what the client reported', function (): void {
 test('report holds nothing for the fields the client did not report', function (): void {
     $http = $this->app->make(HttpFactory::class);
     $http->fake(['*' => HttpFactory::response([
-        'endpoints' => [],
         'scheduler' => [
             'last_ran_at' => null,
             'tasks' => [],
@@ -108,6 +107,8 @@ test('report holds nothing for the fields the client did not report', function (
         ->appEnv
         ->toBeNull()
         ->appName
+        ->toBeNull()
+        ->endpoints
         ->toBeNull()
         ->maintenanceMode
         ->toBeNull()

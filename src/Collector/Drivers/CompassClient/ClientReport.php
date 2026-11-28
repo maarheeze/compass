@@ -11,14 +11,14 @@ use Maarheeze\Compass\Collector\SiteReports\CollectedSiteEndpoint;
 readonly class ClientReport
 {
     /**
-     * @param list<CollectedSiteEndpoint> $endpoints
+     * @param list<CollectedSiteEndpoint>|null $endpoints
      * @param list<CollectedScheduledTask> $scheduledTasks
      */
     public function __construct(
         public ?bool $appDebug,
         public ?string $appEnv,
         public ?string $appName,
-        public array $endpoints,
+        public ?array $endpoints,
         public ?bool $maintenanceMode,
         public ?string $queueDriver,
         public array $scheduledTasks,
